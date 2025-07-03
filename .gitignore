@@ -1,0 +1,125 @@
+# ================================
+# .NET Core / ASP.NET Core
+# ================================
+bin/
+obj/
+out/
+dist/
+publish/
+*.dll
+*.exe
+*.pdb
+*.cache
+*.log
+*.suo
+*.user
+*.csproj.user
+*.sln.docstates
+.env
+
+# NuGet
+*.nupkg
+*.snupkg
+*.nuspec
+*.nuget.props
+*.nuget.targets
+packages/
+project.lock.json
+
+# Entity Framework
+Migrations/
+
+# ================================
+# IDEs & Editors
+# ================================
+
+# Visual Studio
+.vs/
+*.vsconfig
+*.psess
+*.vsp
+*.vspx
+
+# Rider (JetBrains)
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# ================================
+# Test & Coverage
+# ================================
+TestResults/
+*.trx
+*.xml
+*.coverage
+*.coveragexml
+
+# ================================
+# Configuration & Secrets
+# ================================
+# Ignore other appsettings, but keep important ones
+appsettings.*.json
+!appsettings.json
+!appsettings.Development.json
+!appsettings.Production.json
+
+secrets.json
+.env
+.env.*
+*.config
+!web.config
+!app.config
+
+# ================================
+# Node / Frontend (nếu có)
+# ================================
+node_modules/
+**/node_modules/
+bower_components/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ================================
+# Docker
+# ================================
+.docker/
+Dockerfile.*
+docker-compose.override.yml
+*.dockerignore
+
+# ================================
+# Logs & Runtime
+# ================================
+logs/
+*.log
+*.pid
+*.seed
+*.pid.lock
+
+# ================================
+# Temp & OS Files
+# ================================
+*.tmp
+*.temp
+*.bak
+*~
+*.swp
+*.swo
+*.orig
+*.rej
+.DS_Store
+Thumbs.db
+ehthumbs.db
+[Dd]esktop.ini
+
+# ================================
+# Misc
+# ================================
+*.#*
+*.sdf
+*.db
+*.sqlite
