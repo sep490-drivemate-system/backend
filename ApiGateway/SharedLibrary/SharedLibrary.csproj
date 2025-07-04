@@ -9,7 +9,12 @@
   <ItemGroup>
     <Folder Include="AI\" />
     <Folder Include="Email\" />
-    <Folder Include="Transaction\" />
+    <Folder Include="System\DTOs\" />
+    <Folder Include="System\Enum\" />
+    <Folder Include="System\Pagination\" />
+    <Folder Include="Transaction\ZaloPay\" />
+    <Folder Include="Transaction\PayOs\" />
+    <Folder Include="Transaction\VnPay\" />
   </ItemGroup>
 
 </Project>
