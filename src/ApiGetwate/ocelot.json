@@ -1,0 +1,75 @@
+{
+  "Routes": [
+    // ===============================================================================================================
+    //  AUTH SERVICE (port 5100)
+    {
+      "DownstreamPathTemplate": "/api/user/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5100
+        }
+      ],
+      "UpstreamPathTemplate": "/user/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "SwaggerKey": "authService"
+    },
+    
+    // ===============================================================================================================
+    //  PRODUCT SERVICE (port 5200)
+    {
+      "DownstreamPathTemplate": "/api/product/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5200
+        }
+      ],
+      "UpstreamPathTemplate": "/product/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "SwaggerKey": "productService"
+    }
+    // ===============================================================================================================
+  ],
+  "SwaggerEndPoints": [
+    //================================================================================================================
+    //  AUTH SERVICE (port 5100)
+    {
+      "Key": "authService",
+      "Config": [
+        {
+          "Name": "Auth Service API",
+          "Version": "v1",
+          "Url": "https://localhost:5100/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "productService",
+      "Config": [
+        {
+          "Name": "Product Service API",
+          "Version": "v1",
+          "Url": "https://localhost:5200/swagger/v1/swagger.json"
+        }
+      ]
+    }
+    //================================================================================================================
+    //================================================================================================================
+  ],
+  "GlobalConfiguration": {
+    "BaseUrl": "http://localhost:5000"
+  }
+}

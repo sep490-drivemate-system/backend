@@ -1,0 +1,6 @@
+@ApiGetwate_HostAddress = http://localhost:5273
+
+GET {{ApiGetwate_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

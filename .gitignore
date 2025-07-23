@@ -1,6 +1,6 @@
-# ================================
-# .NET Core / ASP.NET Core
-# ================================
+# ============================================
+# .NET Core / ASP.NET Core Build Artifacts
+# ============================================
 bin/
 obj/
 out/
@@ -15,9 +15,27 @@ publish/
 *.user
 *.csproj.user
 *.sln.docstates
-.env
 
-# NuGet
+# ============================================
+# Environment & Secrets
+# ============================================
+.env
+.env.*
+secrets.json
+
+# Configuration Files (except main ones)
+appsettings.*.json
+!appsettings.json
+!appsettings.Development.json
+!appsettings.Production.json
+
+*.config
+!web.config
+!app.config
+
+# ============================================
+# NuGet Packages
+# ============================================
 *.nupkg
 *.snupkg
 *.nuspec
@@ -26,12 +44,14 @@ publish/
 packages/
 project.lock.json
 
+# ============================================
 # Entity Framework
+# ============================================
 Migrations/
 
-# ================================
-# IDEs & Editors
-# ================================
+# ============================================
+# IDEs & Editor Settings
+# ============================================
 
 # Visual Studio
 .vs/
@@ -40,7 +60,7 @@ Migrations/
 *.vsp
 *.vspx
 
-# Rider (JetBrains)
+# JetBrains Rider
 .idea/
 *.iml
 
@@ -48,34 +68,18 @@ Migrations/
 .vscode/
 *.code-workspace
 
-# ================================
-# Test & Coverage
-# ================================
+# ============================================
+# Test Results & Code Coverage
+# ============================================
 TestResults/
 *.trx
 *.xml
 *.coverage
 *.coveragexml
 
-# ================================
-# Configuration & Secrets
-# ================================
-# Ignore other appsettings, but keep important ones
-appsettings.*.json
-!appsettings.json
-!appsettings.Development.json
-!appsettings.Production.json
-
-secrets.json
-.env
-.env.*
-*.config
-!web.config
-!app.config
-
-# ================================
-# Node / Frontend (nếu có)
-# ================================
+# ============================================
+# Node.js / Frontend Dependencies
+# ============================================
 node_modules/
 **/node_modules/
 bower_components/
@@ -83,26 +87,26 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# ================================
-# Docker
-# ================================
+# ============================================
+# Docker Files
+# ============================================
 .docker/
 Dockerfile.*
 docker-compose.override.yml
 *.dockerignore
 
-# ================================
+# ============================================
 # Logs & Runtime
-# ================================
+# ============================================
 logs/
 *.log
 *.pid
 *.seed
 *.pid.lock
 
-# ================================
-# Temp & OS Files
-# ================================
+# ============================================
+# Temporary / Backup Files
+# ============================================
 *.tmp
 *.temp
 *.bak
@@ -111,14 +115,18 @@ logs/
 *.swo
 *.orig
 *.rej
+
+# ============================================
+# OS-specific Files
+# ============================================
 .DS_Store
 Thumbs.db
 ehthumbs.db
 [Dd]esktop.ini
 
-# ================================
-# Misc
-# ================================
+# ============================================
+# Miscellaneous
+# ============================================
 *.#*
 *.sdf
 *.db
