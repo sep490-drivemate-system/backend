@@ -1,27 +1,30 @@
 
-using Microsoft.OpenApi.Models;
+using UserService.Infrastructure;
 
-namespace ProductService
+namespace UserService
 {
     public class Program
     {
         public static void Main(string[] args)
         {
+            DotNetEnv.Env.Load("../../.env");
             var builder = WebApplication.CreateBuilder(args);
-
+            var config = builder.Configuration;
+            builder.Configuration.AddEnvironmentVariables();
             // Add services to the container.
 
             builder.Services.AddControllers();
-            builder.Services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "ProductService API", Version = "v1" });
-            });
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-
+            builder.Services.AddInfrastructure(config);
             var app = builder.Build();
-            app.UseSwagger();
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ProductService API v1"));
+
+            // Configure the HTTP request pipeline.
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }
 
             app.UseHttpsRedirection();
 

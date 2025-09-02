@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiGetwate", "ApiGetwate\Ap
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedLibrary", "SharedLibrary\SharedLibrary.csproj", "{2CBDC8C6-9B0B-4DF9-BEF6-5DC593A4AA13}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserService", "UserService\UserService.csproj", "{F2167D66-DC76-4A81-B225-72B330670269}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{2CBDC8C6-9B0B-4DF9-BEF6-5DC593A4AA13}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2CBDC8C6-9B0B-4DF9-BEF6-5DC593A4AA13}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2CBDC8C6-9B0B-4DF9-BEF6-5DC593A4AA13}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2167D66-DC76-4A81-B225-72B330670269}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2167D66-DC76-4A81-B225-72B330670269}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2167D66-DC76-4A81-B225-72B330670269}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2167D66-DC76-4A81-B225-72B330670269}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

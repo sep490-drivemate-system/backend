@@ -43,6 +43,8 @@ appsettings.*.json
 *.nuget.targets
 packages/
 project.lock.json
+**/Dockerfile
+
 
 # ============================================
 # Entity Framework
