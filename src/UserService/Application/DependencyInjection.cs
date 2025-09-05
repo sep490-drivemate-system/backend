@@ -4,7 +4,7 @@ namespace UserService.Application
 {
     public static class DependencyInjection
     {
-        public static IServiceCollection AddInfrastructure(
+        public static IServiceCollection AddApplication(
            this IServiceCollection services, IConfiguration configuration)
         {
             // Đăng ký DbContext

@@ -21,11 +21,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Application\Commons\Mapping\" />
     <Folder Include="Application\Interfaces\" />
-    <Folder Include="Application\DTOs\" />
+    <Folder Include="Application\Commons\DTOs\" />
     <Folder Include="Application\UseCases\" />
-    <Folder Include="Domain\Interfaces\" />
-    <Folder Include="Infrastructure\Repositories\" />
   </ItemGroup>
 
   <ItemGroup>
