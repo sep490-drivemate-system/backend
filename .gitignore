@@ -46,7 +46,7 @@ project.lock.json
 # ============================================
 # Entity Framework
 # ============================================
-Migrations/
+# Migrations/ - COMMENTED OUT: We need migrations in production
 
 # ============================================
 # IDEs & Editor Settings
