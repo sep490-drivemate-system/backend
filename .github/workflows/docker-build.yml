@@ -73,3 +73,10 @@ jobs:
         labels: ${{ steps.meta-apigateway.outputs.labels }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
+        
+    - name: Deploy to Railway
+      if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+      run: |
+        echo "Triggering Railway redeploy..."
+        curl -X POST ${{ secrets.RAILWAY_USERSERVICE_WEBHOOK }} || echo "UserService webhook failed"
+        curl -X POST ${{ secrets.RAILWAY_APIGATEWAY_WEBHOOK }} || echo "API Gateway webhook failed"
