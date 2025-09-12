@@ -8,7 +8,7 @@ namespace UserService
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             DotNetEnv.Env.Load("../../.env");
             var builder = WebApplication.CreateBuilder(args);
@@ -33,21 +33,31 @@ namespace UserService
             });
             var app = builder.Build();
 
-            // Auto-migrate database on startup (Production)
-            if (app.Environment.IsProduction())
+            // Auto-migrate database on startup
+            app.Logger.LogInformation("Starting database migration...");
+            using (var scope = app.Services.CreateScope())
             {
-                using (var scope = app.Services.CreateScope())
+                try
                 {
-                    try
-                    {
-                        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                        context.Database.Migrate();
-                        app.Logger.LogInformation("Database migration completed successfully");
-                    }
-                    catch (Exception ex)
-                    {
-                        app.Logger.LogError(ex, "Database migration failed");
-                    }
+                    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                    app.Logger.LogInformation("Got ApplicationDbContext, checking connection...");
+                    
+                    // Test connection first
+                    await context.Database.CanConnectAsync();
+                    app.Logger.LogInformation("Database connection successful, running migrations...");
+                    
+                    // Run migrations
+                    await context.Database.MigrateAsync();
+                    app.Logger.LogInformation("Database migration completed successfully");
+                    
+                    // Log existing tables
+                    var tables = await context.Database.SqlQueryRaw<string>("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'").ToListAsync();
+                    app.Logger.LogInformation($"Tables in database: {string.Join(", ", tables)}");
+                }
+                catch (Exception ex)
+                {
+                    app.Logger.LogError(ex, "Database migration failed: {Message}", ex.Message);
+                    app.Logger.LogError("Connection string: {ConnectionString}", app.Configuration.GetConnectionString("USERSERVICECONNECTION"));
                 }
             }
 
