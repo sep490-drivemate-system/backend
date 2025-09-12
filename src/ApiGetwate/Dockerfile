@@ -2,9 +2,9 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Copy csproj files and restore dependencies
-COPY src/ApiGetwate/ApiGetwate.csproj src/ApiGetwate/
-COPY src/SharedLibrary/SharedLibrary.csproj src/SharedLibrary/
-RUN dotnet restore src/ApiGetwate/ApiGetwate.csproj
+COPY ["src/ApiGetwate/ApiGetwate.csproj", "src/ApiGetwate/"]
+COPY ["src/SharedLibrary/SharedLibrary.csproj", "src/SharedLibrary/"]
+RUN dotnet restore "src/ApiGetwate/ApiGetwate.csproj"
 
 # Copy source code and build
 COPY src/ src/

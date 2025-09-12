@@ -17,24 +17,6 @@
         "DELETE"
       ],
       "SwaggerKey": "userService"
-    },
-    {
-      "DownstreamPathTemplate": "/api/product/{everything}",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "${PRODUCTSERVICE_HOST}",
-          "Port": 443
-        }
-      ],
-      "UpstreamPathTemplate": "/product/{everything}",
-      "UpstreamHttpMethod": [
-        "GET",
-        "POST",
-        "PUT",
-        "DELETE"
-      ],
-      "SwaggerKey": "productService"
     }
   ],
   "SwaggerEndPoints": [
@@ -45,16 +27,6 @@
           "Name": "User Service API",
           "Version": "v1",
           "Url": "https://${USERSERVICE_HOST}/swagger/v1/swagger.json"
-        }
-      ]
-    },
-    {
-      "Key": "productService",
-      "Config": [
-        {
-          "Name": "Product Service API",
-          "Version": "v1",
-          "Url": "https://${PRODUCTSERVICE_HOST}/swagger/v1/swagger.json"
         }
       ]
     }

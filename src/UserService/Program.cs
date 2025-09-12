@@ -1,6 +1,8 @@
 
+using Microsoft.EntityFrameworkCore;
 using UserService.Application;
 using UserService.Infrastructure;
+using UserService.Infrastructure.Persistence.Context;
 
 namespace UserService
 {
@@ -8,12 +10,7 @@ namespace UserService
     {
         public static void Main(string[] args)
         {
-            // Load .env file only in development
-            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Production")
-            {
-                DotNetEnv.Env.Load("../../.env");
-            }
-            
+            DotNetEnv.Env.Load("../../.env");
             var builder = WebApplication.CreateBuilder(args);
             var config = builder.Configuration;
             builder.Configuration.AddEnvironmentVariables();
@@ -36,8 +33,33 @@ namespace UserService
             });
             var app = builder.Build();
 
+            // Auto-migrate database on startup (Production)
+            if (app.Environment.IsProduction())
+            {
+                using (var scope = app.Services.CreateScope())
+                {
+                    try
+                    {
+                        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                        context.Database.Migrate();
+                        app.Logger.LogInformation("Database migration completed successfully");
+                    }
+                    catch (Exception ex)
+                    {
+                        app.Logger.LogError(ex, "Database migration failed");
+                    }
+                }
+            }
+
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }
+            
+            // Enable Swagger in production for Railway
+            if (app.Environment.IsProduction())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
@@ -49,6 +71,22 @@ namespace UserService
             app.UseCors("AllowAll");
 
             app.MapControllers();
+            
+            // Health check endpoints
+            app.MapGet("/health", () => Results.Ok(new { status = "healthy", service = "UserService", timestamp = DateTime.UtcNow }));
+            
+            app.MapGet("/health/database", async (ApplicationDbContext context) =>
+            {
+                try
+                {
+                    await context.Database.CanConnectAsync();
+                    return Results.Ok(new { status = "healthy", database = "connected", timestamp = DateTime.UtcNow });
+                }
+                catch (Exception ex)
+                {
+                    return Results.Problem($"Database connection failed: {ex.Message}");
+                }
+            });
 
             app.Run();
         }
