@@ -8,7 +8,12 @@ namespace UserService
     {
         public static void Main(string[] args)
         {
-            DotNetEnv.Env.Load("../../.env");
+            // Load .env file only in development
+            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Production")
+            {
+                DotNetEnv.Env.Load("../../.env");
+            }
+            
             var builder = WebApplication.CreateBuilder(args);
             var config = builder.Configuration;
             builder.Configuration.AddEnvironmentVariables();

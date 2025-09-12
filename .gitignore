@@ -43,9 +43,6 @@ appsettings.*.json
 *.nuget.targets
 packages/
 project.lock.json
-**/Dockerfile
-
-
 # ============================================
 # Entity Framework
 # ============================================
@@ -95,7 +92,8 @@ yarn-error.log*
 .docker/
 Dockerfile.*
 docker-compose.override.yml
-*.dockerignore
+!**/Dockerfile
+!docker-compose.yml
 
 # ============================================
 # Logs & Runtime

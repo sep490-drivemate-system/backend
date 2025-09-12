@@ -1,17 +1,17 @@
 {
   "Routes": [
     // ===============================================================================================================
-    //  AUTH SERVICE (port 5100)
+    //  USER SERVICE (port 5100)
     {
-      "DownstreamPathTemplate": "/api/user/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamPathTemplate": "/api/auth/{everything}",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
           "Port": 5100
         }
       ],
-      "UpstreamPathTemplate": "/user/{everything}",
+      "UpstreamPathTemplate": "/auth/{everything}",
       "UpstreamHttpMethod": [
         "GET",
         "POST",
@@ -25,7 +25,7 @@
     //  PRODUCT SERVICE (port 5200)
     {
       "DownstreamPathTemplate": "/api/product/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -47,12 +47,12 @@
     //================================================================================================================
     //  AUTH SERVICE (port 5100)
     {
-      "Key": "authService",
+      "Key": "userService",
       "Config": [
         {
-          "Name": "Auth Service API",
+          "Name": "User Service API",
           "Version": "v1",
-          "Url": "https://localhost:5100/swagger/v1/swagger.json"
+          "Url": "http://localhost:5100/swagger/v1/swagger.json"
         }
       ]
     },

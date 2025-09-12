@@ -12,13 +12,20 @@ namespace ApiGetwate
     {
         public static void Main(string[] args)
         {
-            DotNetEnv.Env.Load("../../.env");
+            // Load .env file only in development
+            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Production")
+            {
+                DotNetEnv.Env.Load("../../.env");
+            }
 
             var builder = WebApplication.CreateBuilder(args);
             var config = builder.Configuration;
             builder.Configuration.AddEnvironmentVariables();
             builder.Services.AddControllers();
-            builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
+            
+            // Load appropriate Ocelot configuration based on environment
+            var ocelotFile = builder.Environment.IsProduction() ? "ocelot.Production.json" : "ocelot.json";
+            builder.Configuration.AddJsonFile(ocelotFile, optional: false, reloadOnChange: true);
             builder.Services.Configure<JwtSettings>(config.GetSection("Jwt"));
             builder.Services.AddOcelot(config);
             builder.Services.AddSwaggerForOcelot(config, c =>

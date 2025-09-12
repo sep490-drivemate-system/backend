@@ -1,0 +1,40 @@
+# Build artifacts
+**/bin/
+**/obj/
+**/out/
+**/publish/
+
+# Environment files
+.env
+.env.*
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# IDE
+.vs/
+.vscode/
+.idea/
+
+# Logs
+**/*.log
+
+# Test results
+**/TestResults/
+
+# Node modules (if any)
+**/node_modules/
+
+# Documentation
+README*.md
+*.md
+
+# Temporary files
+**/*.tmp
+**/*.temp
+
+# OS files
+.DS_Store
+Thumbs.db
