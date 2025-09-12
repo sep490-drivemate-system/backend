@@ -21,7 +21,25 @@ namespace ApiGetwate
             
             // Load appropriate Ocelot configuration based on environment
             var ocelotFile = builder.Environment.IsProduction() ? "ocelot.Production.json" : "ocelot.json";
-            builder.Configuration.AddJsonFile(ocelotFile, optional: false, reloadOnChange: true);
+            
+            // Replace environment variables in Ocelot config for production
+            if (builder.Environment.IsProduction())
+            {
+                var userServiceHost = Environment.GetEnvironmentVariable("USERSERVICE_HOST") ?? "localhost";
+                var ocelotPath = Path.Combine(Directory.GetCurrentDirectory(), ocelotFile);
+                var ocelotContent = File.ReadAllText(ocelotPath);
+                ocelotContent = ocelotContent.Replace("${USERSERVICE_HOST}", userServiceHost);
+                
+                // Write temporary config file
+                var tempOcelotPath = Path.Combine(Directory.GetCurrentDirectory(), "ocelot.temp.json");
+                File.WriteAllText(tempOcelotPath, ocelotContent);
+                
+                builder.Configuration.AddJsonFile("ocelot.temp.json", optional: false, reloadOnChange: true);
+            }
+            else
+            {
+                builder.Configuration.AddJsonFile(ocelotFile, optional: false, reloadOnChange: true);
+            }
             builder.Services.Configure<JwtSettings>(config.GetSection("Jwt"));
             builder.Services.AddOcelot(config);
             builder.Services.AddSwaggerForOcelot(config, c =>
