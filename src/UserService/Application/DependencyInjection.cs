@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using SharedLibrary.Email;
 using SharedLibrary.Jwt;
 using SharedLibrary.SharedKernel.Password;
@@ -22,17 +23,16 @@ namespace UserService.Application
             services.AddScoped<IAuthUseCase, AuthUseCase>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IJwtService, JwtService>();
-            
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-
-            //  services.AddScoped<IOrderRepository, OrderRepository>();
             // Register library external
             services.Configure<EmailSettings>(configuration.GetSection("Email"));
             services.Configure<SpeedSmsSettings>(configuration.GetSection("SpeedSMS"));
             services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<IPasswordHasherService, PasswordHasherService>();
             services.AddHttpClient<SpeedSmsService>();
             services.AddScoped<ISmsService, SpeedSmsService>();
-
+            services.AddScoped<PasswordHasherService>();
             // Đăng ký service khác (cache, email, storage…)
             // services.AddScoped<IEmailService, EmailService>();
 

@@ -13,6 +13,13 @@ namespace UserService.Infrastructure.Repositories
 
         public async Task<bool> IsEsxitPhone(string phone) => await _context.Users.AnyAsync(u => u.PhoneNumber == phone);
 
+        public async Task<User?> IsExistUser(string emailOrPhone)
+        {
+            return await _context.Users
+                .FirstOrDefaultAsync(u => u.Email == emailOrPhone || u.PhoneNumber == emailOrPhone);
+        }
+
         public async Task<bool> IsEsxitUserName(string userName) => await _context.Users.AnyAsync(u => u.UserName == userName);
+
     }
 }

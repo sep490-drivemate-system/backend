@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace SharedLibrary.SharedKernel.Password
 {
-    public class PasswordHasherService
+    public class PasswordHasherService : IPasswordHasherService
     {
         private readonly PasswordHasher<object> _passwordHasher = new();
 
@@ -24,13 +24,13 @@ namespace SharedLibrary.SharedKernel.Password
 
             return Task.FromResult((plainPassword, hashed));
         }
-        public string GenerateSecureVerificationCode()
+        public Task<string> GenerateSecureVerificationCode()
         {
             byte[] bytes = new byte[4];
             RandomNumberGenerator.Fill(bytes);
             int value = BitConverter.ToInt32(bytes, 0) & 0x7FFFFFFF;
             int code = value % 1000000;
-            return code.ToString("D6");
+            return Task.FromResult(code.ToString("D6"));
         }
         private string GenerateRandomPassword(int length)
         {
@@ -45,5 +45,6 @@ namespace SharedLibrary.SharedKernel.Password
 
             return sb.ToString();
         }
+
     }
 }

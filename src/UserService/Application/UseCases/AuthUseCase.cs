@@ -2,6 +2,7 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore.Design;
 using SharedLibrary.Email;
 using SharedLibrary.Jwt;
+using SharedLibrary.SharedKernel.Enum;
 using SharedLibrary.SharedKernel.Password;
 using SharedLibrary.SharedKernel.ServiceResult;
 using SharedLibrary.Sms;
@@ -24,7 +25,7 @@ namespace UserService.Application.UseCases
         private readonly ISmsService _smsService;
         private readonly IMapper _mapper;
 
-        public AuthUseCase(IUnitOfWork unitOfWork, IPasswordHasherService passwordHasherService, IEmailService emailService, ISmsService smsService,IMapper mapper,IJwtService jwtService)
+        public AuthUseCase(IUnitOfWork unitOfWork, IPasswordHasherService passwordHasherService, IEmailService emailService, ISmsService smsService, IMapper mapper, IJwtService jwtService)
         {
             _unitOfWork = unitOfWork;
             _passwordHasherService = passwordHasherService;
@@ -84,29 +85,97 @@ namespace UserService.Application.UseCases
         public async Task<Result<SignUpRespondDTO>> SignUp(SignUpDTO signUpDTO)
         {
             // 1.Check input data
-            var isEmailExist = await _unitOfWork.UserRepository.IsEsxitUserName(signUpDTO.UserName);
-            if (isEmailExist)
+            var isUserNameExist = await _unitOfWork.UserRepository.IsEsxitUserName(signUpDTO.UserName);
+            if (isUserNameExist)
             {
                 return Result<SignUpRespondDTO>.Failure(
                 new ServiceError(ServiceError.Existed, Messages.Auth.UserNameAlreadyExists));
             }
 
             // 2. Generate hash password and save data
-            var hashedPassword = _passwordHasherService.HashPassword(signUpDTO.Password);
+            var hashedPassword = await _passwordHasherService.HashPassword(signUpDTO.Password);
 
             // 3. Map and save information
             var userMap = _mapper.Map<User>(signUpDTO);
-            var user = await _unitOfWork.UserRepository.CreateAsync(userMap);
-            var refeshtoken = _jwtService.GenerateRefreshToken();
+            userMap.HashedPassword = hashedPassword;
+            userMap.Role = UserRole.NoviceDriver;
 
+            var user = await _unitOfWork.UserRepository.CreateAsync(userMap);
+            var token = await _jwtService.GenerateRefreshToken();
+
+            var refreshToken = new RefreshToken
+            {
+                Id = user.Id,
+                RefreshKey = token,
+                ExpiryTime = DateTime.SpecifyKind(DateTime.UtcNow.AddDays(7), DateTimeKind.Unspecified)
+
+            };
+
+            await _unitOfWork.RefreshTokenRepository.CreateAsync(refreshToken);
 
             // 4. Provide token(assign into responde)
-            var acceccToken = _jwtService.GenerateAccessToken(user);
+            var accessToken = await _jwtService.GenerateAccessToken(user);
 
+            var respond = new SignUpRespondDTO
+            {
+                AccessToken = accessToken,
+                RefreshToken = token,
+            };
 
-            throw new NotImplementedException();
+            return Result<SignUpRespondDTO>.Success(respond);
 
         }
+
+        // implement usecase signin
+        public async Task<Result<SignUpRespondDTO>> SignIn(SignInDTO signInDTO)
+        {
+            var user = await _unitOfWork.UserRepository.IsExistUser(signInDTO.EmailOrPhone);
+           
+            if (user == null)
+            {
+                return Result<SignUpRespondDTO>.Failure(
+                new ServiceError(ServiceError.NotFound, Messages.Auth.UserNorExists));
+            }
+
+            var isValidPassword = await _passwordHasherService.VerifyPassword(user.HashedPassword, signInDTO.Password);
+
+            if (!isValidPassword)
+            {
+                return Result<SignUpRespondDTO>.Failure(
+               new ServiceError(ServiceError.NotFound, Messages.Auth.WrongPassword));
+            }
+
+            var accessToken = await _jwtService.GenerateAccessToken(user);
+            var existingRefreshToken = await _unitOfWork.RefreshTokenRepository
+                .GetRefreshTokenByIdAsync(user.Id);
+
+            string refreshToken;
+
+            if (existingRefreshToken != null)
+            {
+                refreshToken = existingRefreshToken.RefreshKey;
+            }
+            else
+            {
+                refreshToken = await _jwtService.GenerateRefreshToken();
+
+                await _unitOfWork.RefreshTokenRepository.CreateAsync(new RefreshToken
+                {
+                    Id = user.Id,
+                    RefreshKey = refreshToken,
+                    ExpiryTime = DateTime.SpecifyKind(DateTime.UtcNow.AddDays(7), DateTimeKind.Unspecified)
+                });
+
+                
+            }
+            SignUpRespondDTO respond = new SignUpRespondDTO
+            {
+                AccessToken = accessToken,
+                RefreshToken = refreshToken
+            };
+
+            return Result<SignUpRespondDTO>.Success(respond);
 
         }
     }
+}

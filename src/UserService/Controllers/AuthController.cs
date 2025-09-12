@@ -18,9 +18,10 @@ namespace UserService.Controllers
         }
 
         [HttpPost("signin")]
-        public IActionResult SignIn()
+        public async Task<IActionResult> SignIn(SignInDTO signInDTO)
         {
-            return  Ok();
+            var result = await _usecase.SignIn(signInDTO);
+            return result.ToActionResult();
         }
         [HttpPost("verify-phone")]
         public async Task<IActionResult> VerifyPhone([FromBody] string phoneNumber)

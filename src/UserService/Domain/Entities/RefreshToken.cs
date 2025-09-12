@@ -6,5 +6,6 @@ namespace UserService.Domain.Entities
     {
         public string RefreshKey { get; set; }
         public DateTime ExpiryTime { get; set; }
+        public virtual User? User{ get; set; }
     }
 }

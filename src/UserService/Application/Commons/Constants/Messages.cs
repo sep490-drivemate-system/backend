@@ -6,8 +6,10 @@
         {
             public const string EmailAlreadyExists = "Email đã tồn tại.";
             public const string PhoneAlreadyExists = "Số điện thoại đã tồn tại.";
-            public const string UserNameAlreadyExists = "Số điện thoại đã tồn tại.";
+            public const string UserNameAlreadyExists = "Tên người dùng đã tồn tại.";
+            public const string UserNorExists = "Người dùng không tồn tại.";
             public const string EmailSentSuccess = "Email đã gửi thành công.";
+            public const string WrongPassword = "Sai mật khẩu";
             public const string SmsSentSuccess = "Sms đã gửi thành công.";
             public const string InvalidCredentials = "Email hoặc mật khẩu không đúng.";
         }
