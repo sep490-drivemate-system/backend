@@ -43,11 +43,10 @@ appsettings.*.json
 *.nuget.targets
 packages/
 project.lock.json
-
 # ============================================
 # Entity Framework
 # ============================================
-Migrations/
+# Migrations/ - COMMENTED OUT: We need migrations in production
 
 # ============================================
 # IDEs & Editor Settings
@@ -93,7 +92,8 @@ yarn-error.log*
 .docker/
 Dockerfile.*
 docker-compose.override.yml
-*.dockerignore
+!**/Dockerfile
+!docker-compose.yml
 
 # ============================================
 # Logs & Runtime

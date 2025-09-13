@@ -17,7 +17,7 @@ namespace SharedLibrary.SharedKernel.ServiceResult
                 IsSuccess = result.IsSuccess,
                 Message = result.Message ?? (result.IsSuccess ? "Success" : "Error"),
                 ErrorCode = result.Error?.Code,
-                Data = result.Data
+                Value = result.Data
             };
 
             var statusCode = result.IsSuccess ? StatusCodes.Status200OK : MapErrorCodeToStatusCode(result.Error?.Code);

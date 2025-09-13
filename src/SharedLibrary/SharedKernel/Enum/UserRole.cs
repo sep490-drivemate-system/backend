@@ -8,10 +8,10 @@ namespace SharedLibrary.SharedKernel.Enum
 {
     public enum UserRole
     {
+        Demo = 0,
         Admin = 1,
-        Manager = 2,
-        Trainee = 3,
-        DrivingCenter = 4,
-        Mentor = 5
+        Inspector = 2,
+        NoviceDriver = 3,
+        Instructor = 4,        
     }
 }
