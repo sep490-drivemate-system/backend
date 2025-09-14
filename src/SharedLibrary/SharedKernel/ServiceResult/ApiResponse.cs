@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -26,14 +26,11 @@ namespace SharedLibrary.SharedKernel.ServiceResult
 
     public class ApiResponse<T> : ApiResponse
     {
-        public new T? Data { get; set; }
-
         public ApiResponse() { }
 
-        public ApiResponse(bool success, string message, T? data = default, string? errorCode = null)
-            : base(success, message, data, errorCode)
+        public ApiResponse(bool success, string message, T? value = default, string? errorCode = null)
+            : base(success, message, value, errorCode)
         {
-            Data = data;
         }
     }
 }

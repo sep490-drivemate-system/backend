@@ -1,0 +1,55 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mã xác thực Email</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f4f6fa; font-family:'Segoe UI', Tahoma, sans-serif;">
+
+    <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="padding: 40px 0; background-color: #f4f6fa;">
+        <tr>
+            <td align="center">
+                <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="max-width:600px; background-color:#ffffff; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.08); overflow:hidden;">
+
+                    <!-- Header -->
+                    <tr>
+                        <td align="center" style="background-color:#374151; padding: 24px;">
+                            <h1 style="margin: 0; font-size: 24px; color: #ffffff;">Xin chào, {{email}}!</h1>
+                        </td>
+                    </tr>
+
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 32px 24px; color: #333333;">
+                            <p style="font-size: 16px; line-height: 1.6; margin-top: 0;">
+                                Cảm ơn bạn đã đăng ký tài khoản với <strong>DriveMate</strong>!
+                            </p>
+                            <p style="font-size: 16px; line-height: 1.6;">
+                                Đây là mã xác thực gồm 6 chữ số để hoàn tất việc xác minh email của bạn:
+                            </p>
+
+                            <!-- OTP Code -->
+                            <p style="text-align: center; margin: 40px 0;">
+                                <span style="background-color:#f4f6fa; color:#111111; font-size:32px; letter-spacing:12px; font-weight:bold; padding:16px 32px; border-radius:8px; border:2px dashed #6366f1; display:inline-block;">
+                                    {{verification_code}}
+                                </span>
+                            </p>
+
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color:#f9fafb; text-align:center; padding: 24px; font-size:13px; color:#888888;">
+                            &copy; 2025 <strong>DriveMate</strong>. Mọi quyền được bảo lưu.<br />
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>

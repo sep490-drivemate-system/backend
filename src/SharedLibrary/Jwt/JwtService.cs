@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using SharedLibrary.SharedKernel.Enum;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace SharedLibrary.Jwt
 {
-    public class JwtService
+    public class JwtService : IJwtService
     {
         private readonly IConfiguration _configuration;
         public JwtService(IConfiguration configuration)
@@ -41,7 +42,10 @@ namespace SharedLibrary.Jwt
             {
                 var value = prop.GetValue(obj);
                 if (value == null) continue;
-
+                if (prop.PropertyType.IsEnum)
+                {
+                    claims.Add(new Claim(prop.Name, Enum.GetName(prop.PropertyType, value)));
+                }
                 if (prop.PropertyType.IsClass && prop.PropertyType != typeof(string))
                 {
                     claims.Add(new Claim(prop.Name, value.ToString()));
@@ -63,14 +67,14 @@ namespace SharedLibrary.Jwt
                 issuer: _configuration["Jwt:Issuer"],
                 audience: _configuration["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.Add(TimeSpan.FromHours(2)),
+                expires: DateTime.UtcNow.Add(TimeSpan.FromDays(3)),
                 signingCredentials: creds
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-
+       
 
         public Task<Guid> ExtractUserIdFromToken(string rawToken)
         {
@@ -97,6 +101,11 @@ namespace SharedLibrary.Jwt
             }
 
             return Task.FromResult(Guid.Empty);
+        }
+
+        public Task<UserRole> ExtractUserRoleFromToken(string rawToken)
+        {
+            throw new NotImplementedException();
         }
     }
 }
