@@ -13,13 +13,11 @@ namespace SharedLibrary.Email
     public class EmailService : IEmailService
     {
         private readonly IConfiguration _configuration;
-        private readonly EmailSettings _emailSettings;
         private static readonly ConcurrentDictionary<string, string> _templateCache = new();
         private readonly string _templateBasePath;
 
         public EmailService(IOptions<EmailSettings> emailSettings, IConfiguration configuration)
         {
-            _emailSettings = emailSettings?.Value ?? throw new ArgumentNullException(nameof(emailSettings));
             _templateBasePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Email", "Template");
             _configuration = configuration;
         }
@@ -118,10 +116,11 @@ namespace SharedLibrary.Email
 
         private MimeMessage BuildEmailMessage(string toEmail, string body, EmailType emailType)
         {
+            var emailSettings = GetEmailSettings();
             var subject = GetEmailSubject(emailType);
 
             var message = new MimeMessage();
-            message.From.Add(new MailboxAddress(_emailSettings.SENDER_NAME, _emailSettings.SENDER_EMAIL));
+            message.From.Add(new MailboxAddress(emailSettings["SENDER_NAME"], emailSettings["SENDER_EMAIL"]));
             message.To.Add(new MailboxAddress(string.Empty, toEmail));
             message.Subject = subject;
 
@@ -147,8 +146,8 @@ namespace SharedLibrary.Email
             using var client = new SmtpClient();
 
 
-            await client.ConnectAsync(_emailSettings.SMTP_SERVER, _emailSettings.SMTP_PORT, SecureSocketOptions.StartTls);
-            await client.AuthenticateAsync(_emailSettings.SENDER_EMAIL, _emailSettings.SENDER_PASSWORD);
+            await client.ConnectAsync(emailSettings["SMTP_SERVER"], int.Parse(emailSettings["SMTP_PORT"]), SecureSocketOptions.StartTls);
+            await client.AuthenticateAsync(emailSettings["SENDER_EMAIL"], emailSettings["SENDER_PASSWORD"]);
             await client.SendAsync(message);
             await client.DisconnectAsync(true);
         }
