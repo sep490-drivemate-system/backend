@@ -32,7 +32,7 @@ namespace SharedLibrary.Email
             }
             catch(Exception ex)
             {
-                Console.WriteLine("LỖI ",ex);
+                Console.WriteLine($"LOI NE: {ex}");
                 return false;
             }
         }
