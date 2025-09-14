@@ -39,7 +39,8 @@ namespace UserService.Application.UseCases
         public async Task<Result<string>> VerifyEmail(string email)
         {
 
-            Console.WriteLine("EMAIL NÈ",email);
+            Console.WriteLine($"EMAIL : {email}");
+
             // 1. check exist email
             var isEmailExist = await _unitOfWork.UserRepository.IsEsxitEmail(email);
             if (isEmailExist)
