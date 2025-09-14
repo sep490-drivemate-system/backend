@@ -38,7 +38,9 @@ namespace UserService.Application.UseCases
         // implement usecase verfyEmail
         public async Task<Result<string>> VerifyEmail(string email)
         {
-            
+
+            Console.WriteLine($"EMAIL : {email}");
+
             // 1. check exist email
             var isEmailExist = await _unitOfWork.UserRepository.IsEsxitEmail(email);
             if (isEmailExist)
