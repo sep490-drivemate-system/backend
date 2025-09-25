@@ -1,11 +1,12 @@
+using SharedLibrary.SharedKernel.Entities;
+
 namespace BookingService.Domain.Entities
 {
-    public class PackageType
+    public class PackageType : BaseEntites
     {
-        public Guid Id { get; set; }
+        // Properties
         public string Name { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public DateTime CreatedAt { get; set; }
+        public string Description { get; set; } = string.Empty;        
         public DateTime UpdatedAt { get; set; }
     }
 }

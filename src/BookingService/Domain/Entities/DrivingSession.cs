@@ -1,17 +1,17 @@
 using BookingService.Domain.Enum;
+using SharedLibrary.SharedKernel.Entities;
 
 namespace BookingService.Domain.Entities
 {
-    public class DrivingSession
+    public class DrivingSession : BaseEntites
     {
-        public Guid Id { get; set; }
+        // Properties
         public Guid BookingId { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
-        public string Location { get; set; } = string.Empty;
-        public string Notes { get; set; } = string.Empty;
+        public string? Location { get; set; }
+        public string? Notes { get; set; } = string.Empty;
         public SessionStatus Status { get; set; }
-        public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
 
         // Navigation properties
