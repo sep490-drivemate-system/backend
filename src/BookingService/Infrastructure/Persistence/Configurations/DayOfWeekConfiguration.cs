@@ -4,9 +4,9 @@ using BookingService.Domain.Entities;
 
 namespace BookingService.Infrastructure.Persistence.Configurations
 {
-    public class DayOfWeekConfiguration : IEntityTypeConfiguration<DayOfWeek>
+    public class DayOfWeekConfiguration : IEntityTypeConfiguration<Domain.Entities.DayOfWeek>
     {
-        public void Configure(EntityTypeBuilder<DayOfWeek> builder)
+        public void Configure(EntityTypeBuilder<Domain.Entities.DayOfWeek> builder)
         {
             builder.HasKey(x => x.Id);
             
