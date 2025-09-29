@@ -11,6 +11,6 @@ namespace UserService.Domain.Entities
         public bool IsDelete { get; set; }
 
         // Relationship
-        public virtual ICollection<InstructorDocument>? InstructorDocuments { get; set; }
+        public virtual ICollection<ApplicationTracking>? ApplicationTrackings{ get; set; }
     }
 }

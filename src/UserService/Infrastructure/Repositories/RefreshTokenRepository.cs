@@ -9,6 +9,22 @@ namespace UserService.Infrastructure.Repositories
     {
         public RefreshTokenRepository(ApplicationDbContext context) : base(context) { }
 
+        public async Task<bool> DeleleRefreshToken(string refreshToken)
+        {
+            var refreshKey = await _context.RefreshTokens
+                                           .FirstOrDefaultAsync(u => u.RefreshKey == refreshToken);
+
+            if (refreshKey == null)
+            {
+                return false;
+            }
+            _context.RefreshTokens.Remove(refreshKey);
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+
         public async Task<RefreshToken?> GetRefreshTokenByIdAsync(Guid refreshTokenId)
         {
             return await _context.RefreshTokens

@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using UserService.Domain.Entities;
 
@@ -51,7 +51,13 @@ namespace UserService.Infrastructure.Persistence.Configurations
             // Relationships 1-n
             builder.HasMany(u => u.ScheduleAvailabilities)
                    .WithOne(a => a.Instructor)
-                   .HasForeignKey(a => a.InstructorId);
+                   .HasForeignKey(a => a.InstructorId)
+                   .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasMany(u => u.Cars)
+                   .WithOne(c => c.Instructor)
+                   .HasForeignKey(c => c.InstructorId)
+                   .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
