@@ -42,18 +42,17 @@ namespace SharedLibrary.Jwt
             {
                 var value = prop.GetValue(obj);
                 if (value == null) continue;
+                string claimValue;
                 if (prop.PropertyType.IsEnum)
                 {
-                    claims.Add(new Claim(prop.Name, Enum.GetName(prop.PropertyType, value)));
-                }
-                if (prop.PropertyType.IsClass && prop.PropertyType != typeof(string))
-                {
-                    claims.Add(new Claim(prop.Name, value.ToString()));
+                    claimValue = Enum.GetName(prop.PropertyType, value);
                 }
                 else
                 {
-                    claims.Add(new Claim(prop.Name, value.ToString()));
+                    claimValue = value.ToString();
                 }
+
+                claims.Add(new Claim(prop.Name, claimValue));
             }
             return claims;
         }

@@ -39,7 +39,7 @@ namespace UserService.Infrastructure.Persistence.Configurations
                    .HasDefaultValue(false);
 
             // Relationships 1-n
-            builder.HasMany(u => u.InstructorDocuments)
+            builder.HasMany(u => u.ApplicationTrackings)
                    .WithOne(a => a.DocumentType)
                    .HasForeignKey(a => a.TypeId);
         }

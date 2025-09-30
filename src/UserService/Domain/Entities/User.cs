@@ -1,5 +1,6 @@
 ﻿using SharedLibrary.SharedKernel.Entities;
 using SharedLibrary.SharedKernel.Enum;
+using UserService.Domain.Enum;
 
 namespace UserService.Domain.Entities
 {
@@ -11,7 +12,9 @@ namespace UserService.Domain.Entities
         public string HashedPassword { get; set; } 
         public string Avatar { get; set; } 
         public string PhoneNumber {  get; set; }
+        public DateOnly DateOfBirth { get; set; }
         public DateTime UpdateAt { get; set; }
+        public GenderType Gender { get; set; }
         public bool IsDelete { get; set; }
         public UserRole Role { get; set; }
 
@@ -20,7 +23,7 @@ namespace UserService.Domain.Entities
         public virtual Instructor? Instructor { get; set; } 
         public virtual RefreshToken? RefreshToken { get; set; }
         public virtual ICollection<Address>? Addresses { get; set; }
-        public virtual ICollection<InstructorApplication>? InstructorApplications{ get; set; }
+        public virtual ICollection<ApplicationTracking>? InstructorApplications{ get; set; }
 
 
     }

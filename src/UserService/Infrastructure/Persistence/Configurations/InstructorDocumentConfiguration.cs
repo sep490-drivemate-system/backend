@@ -4,9 +4,9 @@ using UserService.Domain.Entities;
 
 namespace UserService.Infrastructure.Persistence.Configurations
 {
-    public class InstructorDocumentConfiguration : IEntityTypeConfiguration<InstructorDocument>
+    public class InstructorDocumentConfiguration : IEntityTypeConfiguration<InstructorApplication>
     {
-        public void Configure(EntityTypeBuilder<InstructorDocument> builder)
+        public void Configure(EntityTypeBuilder<InstructorApplication> builder)
         {
             // table name
             builder.ToTable("InstructorDocument");
@@ -16,23 +16,23 @@ namespace UserService.Infrastructure.Persistence.Configurations
             builder.Property(x => x.Id).HasColumnName("id");
 
             // properties
-            builder.Property(u => u.ApplicationId)
-                   .HasColumnName("application_id")
+            builder.Property(u => u.CitizenIdBack)
+                   .HasColumnName("citizen_id_back")
                    .IsRequired();
 
-            builder.Property(u => u.TypeId)
-                   .HasColumnName("type_id")
+            builder.Property(u => u.CitizenIdFront)
+                   .HasColumnName("citizen_id_front")
                    .IsRequired();
 
-            builder.Property(u => u.Note)
-                   .HasColumnName("note")
+            builder.Property(u => u.PermanentAddress)
+                   .HasColumnName("permanent_address")
                    .IsRequired()
                    .HasMaxLength(500);
 
-            builder.Property(u => u.ImageURL)
-       .HasColumnName("image_url")
-       .IsRequired()
-       .HasMaxLength(500);
+            builder.Property(u => u.CitizenExpiryDate)
+                   .HasColumnName("citizen_expiry_date")
+                   .IsRequired()
+                   .HasMaxLength(500);
 
             builder.Property(u => u.Status)
                    .HasColumnName("status")
