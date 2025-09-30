@@ -17,21 +17,21 @@ namespace BookingService.Infrastructure.Repositories
         public async Task<IEnumerable<Feedback>> GetAllAsync()
         {
             return await _context.Feedbacks
-                .Include(f => f.Booking)
+                .Include(f => f.Bookings)
                 .ToListAsync();
         }
 
         public async Task<Feedback?> GetByIdAsync(Guid id)
         {
             return await _context.Feedbacks
-                .Include(f => f.Booking)
+                .Include(f => f.Bookings)
                 .FirstOrDefaultAsync(f => f.Id == id);
         }
 
         public async Task<IEnumerable<Feedback>> GetByBookingIdAsync(Guid bookingId)
         {
             return await _context.Feedbacks
-                .Include(f => f.Booking)
+                .Include(f => f.Bookings)
                 .Where(f => f.BookingId == bookingId)
                 .ToListAsync();
         }
@@ -39,7 +39,7 @@ namespace BookingService.Infrastructure.Repositories
         public async Task<IEnumerable<Feedback>> GetByUserIdAsync(Guid userId)
         {
             return await _context.Feedbacks
-                .Include(f => f.Booking)
+                .Include(f => f.Bookings)
                 .Where(f => f.UserId == userId)
                 .ToListAsync();
         }
@@ -48,7 +48,7 @@ namespace BookingService.Infrastructure.Repositories
         {
             feedback.Id = Guid.NewGuid();
             feedback.CreatedAt = DateTime.UtcNow;
-            feedback.UpdatedAt = DateTime.UtcNow;
+            feedback.LastModifiedAt = DateTime.UtcNow;
             
             _context.Feedbacks.Add(feedback);
             await _context.SaveChangesAsync();
@@ -57,7 +57,7 @@ namespace BookingService.Infrastructure.Repositories
 
         public async Task<Feedback> UpdateAsync(Feedback feedback)
         {
-            feedback.UpdatedAt = DateTime.UtcNow;
+            feedback.LastModifiedAt = DateTime.UtcNow;
             _context.Feedbacks.Update(feedback);
             await _context.SaveChangesAsync();
             return feedback;

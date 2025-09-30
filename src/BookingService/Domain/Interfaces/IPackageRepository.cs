@@ -6,7 +6,7 @@ namespace BookingService.Domain.Interfaces
     {
         Task<IEnumerable<Package>> GetAllAsync();
         Task<Package?> GetByIdAsync(Guid id);
-        Task<IEnumerable<Package>> GetActivePackagesAsync();
+        //Task<IEnumerable<Package>> GetActivePackagesAsync();
         Task<Package> CreateAsync(Package package);
         Task<Package> UpdateAsync(Package package);
         Task DeleteAsync(Guid id);

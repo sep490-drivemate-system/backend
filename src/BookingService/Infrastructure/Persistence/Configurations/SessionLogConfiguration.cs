@@ -4,9 +4,9 @@ using BookingService.Domain.Entities;
 
 namespace BookingService.Infrastructure.Persistence.Configurations
 {
-    public class SessionRouteConfiguration : IEntityTypeConfiguration<SessionRoute>
+    public class SessionLogConfiguration : IEntityTypeConfiguration<SessionLog>
     {
-        public void Configure(EntityTypeBuilder<SessionRoute> builder)
+        public void Configure(EntityTypeBuilder<SessionLog> builder)
         {
             builder.HasKey(x => x.Id);
             
@@ -17,50 +17,47 @@ namespace BookingService.Infrastructure.Persistence.Configurations
                 .HasColumnName("session_id")
                 .IsRequired();
 
-            builder.Property(x => x.TextInstruction)
-                .HasColumnName("text_instruction")
-                .IsRequired();
-
             builder.Property(x => x.StreetName)
                 .HasColumnName("street_name")
+                .HasMaxLength(500)
                 .IsRequired();
 
-            builder.Property(x => x.LatitudeStart)
-                .HasColumnName("latitude_start")
+            builder.Property(x => x.Speed)
+                .HasColumnName("speed")
+                .HasMaxLength(500)
                 .IsRequired();
 
-            builder.Property(x => x.LongitudeStart)
-                .HasColumnName("longtitude_start")
+            builder.Property(x => x.Heading)
+                .HasColumnName("heading")
                 .IsRequired();
 
-            //builder.Property(x => x.LatitudeEnd)
-            //    .HasColumnName("latitude_end")
-            //    .IsRequired();
+            builder.Property(x => x.Latitude)
+                .HasColumnName("latitude")
+                .IsRequired();
 
-            //builder.Property(x => x.LongtitudeEnd)
-            //    .HasColumnName("longtitude_end")
-            //    .IsRequired();
+            builder.Property(x => x.Longitude)
+                .HasColumnName("longtitude")
+                .IsRequired();
 
             builder.Property(x => x.CreatedAt)
-                .ValueGeneratedOnAdd()
+                .HasColumnName("created_at")
                 .IsRequired();
 
             builder.Property(x => x.LastModifiedAt)
                 .HasColumnName("updated_at")
-                .ValueGeneratedOnAddOrUpdate()
                 .IsRequired();
 
             builder.Property(x => x.IsDeleted)
                 .HasColumnName("is_deleted")
                 .IsRequired();
 
-            // Relationships
+            // Relationships configuration
             builder.HasOne(x => x.DrivingSessions)
-                .WithMany(x => x.SessionRoutes)
+                .WithMany(x => x.SessionLogs)
                 .HasForeignKey(x => x.SessionId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.ToTable("SessionRoute");
+            builder.ToTable("RouteLog");
         }
     }
 }

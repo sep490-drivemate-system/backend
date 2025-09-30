@@ -11,58 +11,62 @@ namespace BookingService.Infrastructure.Persistence.Configurations
             builder.HasKey(x => x.Id);
             
             builder.Property(x => x.Id)
+                .HasColumnName("id")
                 .ValueGeneratedOnAdd();
 
-            builder.Property(x => x.UserId)
+            builder.Property(x => x.DriverId)
+                .HasColumnName("driver_id")
                 .IsRequired();
 
-            builder.Property(x => x.InstructorId)
-                .IsRequired();
-
-            builder.Property(x => x.PackageId)
+            builder.Property(x => x.CarPackageId)
+                .HasColumnName("package_id")
                 .IsRequired();
 
             builder.Property(x => x.StartDate)
+                .HasColumnName("start_date")
                 .IsRequired();
 
             builder.Property(x => x.EndDate)
-                .IsRequired();
-
-            builder.Property(x => x.TotalPrice)
-                .HasColumnType("decimal(18,2)")
+                .HasColumnName("end_date")
                 .IsRequired();
 
             builder.Property(x => x.Status)
+                .HasColumnName("status")
                 .IsRequired();
 
             builder.Property(x => x.CreatedAt)
+                .HasColumnName("created_at")
+                .ValueGeneratedOnAdd()
                 .IsRequired();
 
-            builder.Property(x => x.UpdatedAt)
+            builder.Property(x => x.LastModifiedAt)
+                .HasColumnName("updated_at")
+                .ValueGeneratedOnAddOrUpdate()
+                .IsRequired();
+
+            builder.Property(x => x.IsDeleted)
+                .HasColumnName("is_deleted")
                 .IsRequired();
 
             // Relationships
-            builder.HasOne(x => x.Package)
-                .WithMany(x => x.Bookings)
-                .HasForeignKey(x => x.PackageId)
-                .OnDelete(DeleteBehavior.Restrict);
-
             builder.HasMany(x => x.DrivingSessions)
-                .WithOne(x => x.Booking)
+                .WithOne(x => x.Bookings)
                 .HasForeignKey(x => x.BookingId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.HasMany(x => x.Transactions)
-                .WithOne(x => x.Booking)
-                .HasForeignKey(x => x.BookingId)
+                .HasPrincipalKey(x => x.Id)
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasMany(x => x.Feedbacks)
-                .WithOne(x => x.Booking)
+                .WithOne(x => x.Bookings)
                 .HasForeignKey(x => x.BookingId)
+                .HasPrincipalKey(x => x.Id)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.ToTable("Bookings");
+            builder.HasOne(x => x.CarPackages)
+                .WithMany(x => x.Bookings)
+                .HasForeignKey(x => x.CarPackageId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.ToTable("Booking");
         }
     }
 }
