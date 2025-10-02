@@ -60,6 +60,192 @@ namespace UserService.Infrastructure.Persistence.Migrations
                     b.ToTable("Address", (string)null);
                 });
 
+            modelBuilder.Entity("UserService.Domain.Entities.ApplicationTracking", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("ApplicationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("application_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("create_at");
+
+                    b.Property<bool>("IsDelete")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_delete");
+
+                    b.Property<string>("Note")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("note");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("TypeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("type_id");
+
+                    b.Property<DateTime>("UpdateAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("update_at");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicationId");
+
+                    b.HasIndex("TypeId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ApplicationTracking", (string)null);
+                });
+
+            modelBuilder.Entity("UserService.Domain.Entities.Car", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("CartType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("car_type");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("create_at");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("description");
+
+                    b.Property<string>("Fuel")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("InstructorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("instructor_id");
+
+                    b.Property<string>("Insurance")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("insurance");
+
+                    b.Property<DateOnly>("InsuranceEndTime")
+                        .HasColumnType("date")
+                        .HasColumnName("insurance_end_time");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
+                    b.Property<Guid>("LicenseCategoryId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("license_category_id");
+
+                    b.Property<Guid>("ManufacturerId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("manufacturer_id");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("name");
+
+                    b.Property<int>("Seat")
+                        .HasColumnType("integer")
+                        .HasColumnName("seat");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.Property<string>("Thumbnail")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("thumbnail");
+
+                    b.Property<DateTime>("UpdateAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("update_at");
+
+                    b.Property<string>("VehicleRegistration")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("vehicle_registration");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InstructorId");
+
+                    b.HasIndex("LicenseCategoryId");
+
+                    b.HasIndex("ManufacturerId");
+
+                    b.ToTable("Car", (string)null);
+                });
+
+            modelBuilder.Entity("UserService.Domain.Entities.CarImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("CarId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("car_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("create_at");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("image_url");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
+                    b.Property<DateTime>("UpdateAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("update_at");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CarId");
+
+                    b.ToTable("CarImage", (string)null);
+                });
+
             modelBuilder.Entity("UserService.Domain.Entities.DocumentType", b =>
                 {
                     b.Property<Guid>("Id")
@@ -142,9 +328,79 @@ namespace UserService.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<string>("BackgroundProfile")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("note");
+
+                    b.Property<int>("BackgroundProfileStatus")
+                        .HasColumnType("integer")
+                        .HasColumnName("background_profile_status");
+
+                    b.Property<DateTime>("CitizenExpiryDate")
+                        .HasMaxLength(500)
+                        .HasColumnType("date")
+                        .HasColumnName("citizen_expiry_date");
+
+                    b.Property<string>("CitizenIdBack")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("citizen_id_back");
+
+                    b.Property<string>("CitizenIdFront")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("citizen_id_front");
+
+                    b.Property<string>("CitizenIdNumber")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("citizen_id_number");
+
+                    b.Property<int>("CitizenIdStatus")
+                        .HasColumnType("integer")
+                        .HasColumnName("citizen_id_status");
+
+                    b.Property<DateOnly>("CitizenIssueDate")
+                        .HasColumnType("date")
+                        .HasColumnName("citizen_issue_date");
+
+                    b.Property<string>("CitizenIssuePlace")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("citizen_issue_place");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp")
                         .HasColumnName("create_at");
+
+                    b.Property<string>("DrivingLicenseBack")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("driving_license_back");
+
+                    b.Property<DateOnly?>("DrivingLicenseExpiry")
+                        .HasColumnType("date")
+                        .HasColumnName("driving_license_expiry");
+
+                    b.Property<string>("DrivingLicenseFront")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("driving_license_front");
+
+                    b.Property<DateOnly>("DrivingLicenseIssueDate")
+                        .HasColumnType("date")
+                        .HasColumnName("driving_license_issue_date");
+
+                    b.Property<string>("DrivingLicenseNumber")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("driving_license_number");
+
+                    b.Property<int>("DrivingLicenseStatus")
+                        .HasColumnType("integer")
+                        .HasColumnName("driving_license_status");
 
                     b.Property<bool>("IsDelete")
                         .ValueGeneratedOnAdd()
@@ -152,19 +408,11 @@ namespace UserService.Infrastructure.Persistence.Migrations
                         .HasDefaultValue(false)
                         .HasColumnName("is_delete");
 
-                    b.Property<string>("Note")
+                    b.Property<string>("PermanentAddress")
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)")
-                        .HasColumnName("note");
-
-                    b.Property<DateTime>("ReviewAt")
-                        .HasColumnType("timestamp")
-                        .HasColumnName("review_at");
-
-                    b.Property<Guid>("ReviewerId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("reviewer_id");
+                        .HasColumnName("permanent_address");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer")
@@ -174,57 +422,55 @@ namespace UserService.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp")
                         .HasColumnName("submit_at");
 
+                    b.Property<string>("TeachingLicenseBack")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("teaching_license_back");
+
+                    b.Property<string>("TeachingLicenseFront")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("teaching_license_front");
+
+                    b.Property<int>("TeachingStatus")
+                        .HasColumnType("integer")
+                        .HasColumnName("teaching_status");
+
                     b.Property<DateTime>("UpdateAt")
                         .HasColumnType("timestamp")
                         .HasColumnName("update_at");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ReviewerId");
-
-                    b.ToTable("InstructorApplication", (string)null);
+                    b.ToTable("InstructorDocument", (string)null);
                 });
 
-            modelBuilder.Entity("UserService.Domain.Entities.InstructorDocument", b =>
+            modelBuilder.Entity("UserService.Domain.Entities.LicenseCategory", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<Guid>("ApplicationId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("application_id");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp")
                         .HasColumnName("create_at");
 
-                    b.Property<string>("ImageURL")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("image_url");
-
-                    b.Property<bool>("IsDelete")
+                    b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
                         .HasDefaultValue(false)
-                        .HasColumnName("is_delete");
+                        .HasColumnName("is_deleted");
 
-                    b.Property<string>("Note")
+                    b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("note");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("name");
 
-                    b.Property<int>("Status")
+                    b.Property<int>("Priority")
                         .HasColumnType("integer")
-                        .HasColumnName("status");
-
-                    b.Property<Guid>("TypeId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("type_id");
+                        .HasColumnName("priority");
 
                     b.Property<DateTime>("UpdateAt")
                         .HasColumnType("timestamp")
@@ -232,11 +478,39 @@ namespace UserService.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApplicationId");
+                    b.ToTable("LicenseCategory", (string)null);
+                });
 
-                    b.HasIndex("TypeId");
+            modelBuilder.Entity("UserService.Domain.Entities.Manufacturer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
 
-                    b.ToTable("InstructorDocument", (string)null);
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("create_at");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<DateTime>("UpdateAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("update_at");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Manufacturer", (string)null);
                 });
 
             modelBuilder.Entity("UserService.Domain.Entities.NoviceDriver", b =>
@@ -274,6 +548,98 @@ namespace UserService.Infrastructure.Persistence.Migrations
                     b.ToTable("NoviceDriver", (string)null);
                 });
 
+            modelBuilder.Entity("UserService.Domain.Entities.Package", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("create_at");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("description");
+
+                    b.Property<int>("DurationDays")
+                        .HasColumnType("integer")
+                        .HasColumnName("duration_days");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("name");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("price");
+
+                    b.Property<DateTime>("UpdateAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("update_at");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name");
+
+                    b.ToTable("Package", (string)null);
+                });
+
+            modelBuilder.Entity("UserService.Domain.Entities.PackageCar", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("CarId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("car_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("create_at");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
+                    b.Property<Guid>("PackageId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("package_id");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("price");
+
+                    b.Property<DateTime>("UpdateAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("update_at");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CarId");
+
+                    b.HasIndex("PackageId");
+
+                    b.HasIndex("PackageId", "CarId")
+                        .IsUnique();
+
+                    b.ToTable("PackageCar", (string)null);
+                });
+
             modelBuilder.Entity("UserService.Domain.Entities.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
@@ -299,7 +665,7 @@ namespace UserService.Infrastructure.Persistence.Migrations
                     b.ToTable("RefreshToken", (string)null);
                 });
 
-            modelBuilder.Entity("UserService.Domain.Entities.ScheduleAvailability", b =>
+            modelBuilder.Entity("UserService.Domain.Entities.ScheduleUnavailability", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -310,9 +676,9 @@ namespace UserService.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp")
                         .HasColumnName("create_at");
 
-                    b.Property<DateTime>("EndTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("end_time");
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date")
+                        .HasColumnName("date");
 
                     b.Property<Guid>("InstructorId")
                         .HasColumnType("uuid")
@@ -324,19 +690,20 @@ namespace UserService.Infrastructure.Persistence.Migrations
                         .HasDefaultValue(false)
                         .HasColumnName("is_delete");
 
-                    b.Property<DateTime>("StartTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("start_time");
-
                     b.Property<DateTime>("UpdateAt")
                         .HasColumnType("timestamp")
                         .HasColumnName("update_at");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Date");
+
                     b.HasIndex("InstructorId");
 
-                    b.ToTable("ScheduleAvailability", (string)null);
+                    b.HasIndex("InstructorId", "Date")
+                        .IsUnique();
+
+                    b.ToTable("ScheduleUnavailability", (string)null);
                 });
 
             modelBuilder.Entity("UserService.Domain.Entities.User", b =>
@@ -355,11 +722,19 @@ namespace UserService.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp")
                         .HasColumnName("create_at");
 
+                    b.Property<DateOnly>("DateOfBirth")
+                        .HasColumnType("date")
+                        .HasColumnName("date_of_birth");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)")
                         .HasColumnName("email");
+
+                    b.Property<int>("Gender")
+                        .HasColumnType("integer")
+                        .HasColumnName("gender");
 
                     b.Property<string>("HashedPassword")
                         .IsRequired()
@@ -408,6 +783,67 @@ namespace UserService.Infrastructure.Persistence.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("UserService.Domain.Entities.ApplicationTracking", b =>
+                {
+                    b.HasOne("UserService.Domain.Entities.InstructorApplication", "InstructorApplication")
+                        .WithMany("ApplicationTracking")
+                        .HasForeignKey("ApplicationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("UserService.Domain.Entities.DocumentType", "DocumentType")
+                        .WithMany("ApplicationTrackings")
+                        .HasForeignKey("TypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("UserService.Domain.Entities.User", null)
+                        .WithMany("InstructorApplications")
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("DocumentType");
+
+                    b.Navigation("InstructorApplication");
+                });
+
+            modelBuilder.Entity("UserService.Domain.Entities.Car", b =>
+                {
+                    b.HasOne("UserService.Domain.Entities.Instructor", "Instructor")
+                        .WithMany("Cars")
+                        .HasForeignKey("InstructorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("UserService.Domain.Entities.LicenseCategory", "LicenseCategory")
+                        .WithMany("Cars")
+                        .HasForeignKey("LicenseCategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("UserService.Domain.Entities.Manufacturer", "Manufacturer")
+                        .WithMany("Cars")
+                        .HasForeignKey("ManufacturerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Instructor");
+
+                    b.Navigation("LicenseCategory");
+
+                    b.Navigation("Manufacturer");
+                });
+
+            modelBuilder.Entity("UserService.Domain.Entities.CarImage", b =>
+                {
+                    b.HasOne("UserService.Domain.Entities.Car", "Car")
+                        .WithMany("CarImages")
+                        .HasForeignKey("CarId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Car");
+                });
+
             modelBuilder.Entity("UserService.Domain.Entities.Instructor", b =>
                 {
                     b.HasOne("UserService.Domain.Entities.User", "User")
@@ -427,34 +863,7 @@ namespace UserService.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("UserService.Domain.Entities.User", "User")
-                        .WithMany("InstructorApplications")
-                        .HasForeignKey("ReviewerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Instructor");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("UserService.Domain.Entities.InstructorDocument", b =>
-                {
-                    b.HasOne("UserService.Domain.Entities.InstructorApplication", "InstructorApplication")
-                        .WithMany("InstructorDocuments")
-                        .HasForeignKey("ApplicationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("UserService.Domain.Entities.DocumentType", "DocumentType")
-                        .WithMany("InstructorDocuments")
-                        .HasForeignKey("TypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("DocumentType");
-
-                    b.Navigation("InstructorApplication");
                 });
 
             modelBuilder.Entity("UserService.Domain.Entities.NoviceDriver", b =>
@@ -468,6 +877,25 @@ namespace UserService.Infrastructure.Persistence.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("UserService.Domain.Entities.PackageCar", b =>
+                {
+                    b.HasOne("UserService.Domain.Entities.Car", "Car")
+                        .WithMany()
+                        .HasForeignKey("CarId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("UserService.Domain.Entities.Package", "Package")
+                        .WithMany("PackageCars")
+                        .HasForeignKey("PackageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Car");
+
+                    b.Navigation("Package");
+                });
+
             modelBuilder.Entity("UserService.Domain.Entities.RefreshToken", b =>
                 {
                     b.HasOne("UserService.Domain.Entities.User", "User")
@@ -479,7 +907,7 @@ namespace UserService.Infrastructure.Persistence.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("UserService.Domain.Entities.ScheduleAvailability", b =>
+            modelBuilder.Entity("UserService.Domain.Entities.ScheduleUnavailability", b =>
                 {
                     b.HasOne("UserService.Domain.Entities.Instructor", "Instructor")
                         .WithMany("ScheduleAvailabilities")
@@ -490,13 +918,20 @@ namespace UserService.Infrastructure.Persistence.Migrations
                     b.Navigation("Instructor");
                 });
 
+            modelBuilder.Entity("UserService.Domain.Entities.Car", b =>
+                {
+                    b.Navigation("CarImages");
+                });
+
             modelBuilder.Entity("UserService.Domain.Entities.DocumentType", b =>
                 {
-                    b.Navigation("InstructorDocuments");
+                    b.Navigation("ApplicationTrackings");
                 });
 
             modelBuilder.Entity("UserService.Domain.Entities.Instructor", b =>
                 {
+                    b.Navigation("Cars");
+
                     b.Navigation("InstructorApplication");
 
                     b.Navigation("ScheduleAvailabilities");
@@ -504,7 +939,22 @@ namespace UserService.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("UserService.Domain.Entities.InstructorApplication", b =>
                 {
-                    b.Navigation("InstructorDocuments");
+                    b.Navigation("ApplicationTracking");
+                });
+
+            modelBuilder.Entity("UserService.Domain.Entities.LicenseCategory", b =>
+                {
+                    b.Navigation("Cars");
+                });
+
+            modelBuilder.Entity("UserService.Domain.Entities.Manufacturer", b =>
+                {
+                    b.Navigation("Cars");
+                });
+
+            modelBuilder.Entity("UserService.Domain.Entities.Package", b =>
+                {
+                    b.Navigation("PackageCars");
                 });
 
             modelBuilder.Entity("UserService.Domain.Entities.User", b =>

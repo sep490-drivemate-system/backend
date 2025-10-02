@@ -39,12 +39,19 @@ namespace UserService.Infrastructure.Persistence.Configurations
             builder.Property(u => u.Avatar)
                   .HasColumnName("avatar")
                   .HasMaxLength(500)
-                   .IsRequired(false); ;
+                   .IsRequired(false);
+            builder.Property(u => u.DateOfBirth)
+                  .HasColumnName("date_of_birth")
+                  .HasColumnType("date");
 
             builder.Property(u => u.Role)
                    .HasColumnName("role")
                    .HasConversion<int>()
                    .IsRequired();
+
+            builder.Property(u => u.Gender)
+                   .HasColumnName("gender")
+                   .HasConversion<int>();
 
             builder.Property(u => u.UpdateAt)
                    .HasColumnName("update_at")

@@ -1,17 +1,29 @@
-using SharedLibrary.SharedKernel.Entities;
+﻿using SharedLibrary.SharedKernel.Entities;
 
 namespace BookingService.Domain.Entities
 {
-    public class Feedback : BaseEntites
+    public class Feedback: BaseEntites
     {
         // Properties
-        public Guid BookingId { get; set; }
         public Guid UserId { get; set; }
-        public int Rating { get; set; }
-        public string Comment { get; set; } = string.Empty;        
-        public DateTime UpdatedAt { get; set; }
 
-        // Navigation properties
-        public virtual Booking Booking { get; set; } = null!;
+        public Guid BookingId { get; set; }
+
+        public int InstructorRating { get; set; }
+
+        public string InstructorFeedback { get; set; }
+
+        public int CarRating { get; set; }
+
+        public string CarFeedback { get; set; }
+
+        // Systematic properties
+        
+        public DateTime LastModifiedAt { get; set; }
+
+        public bool IsDeleted { get; set; }
+
+        // Navigational properties
+        public Booking Bookings { get; set; }
     }
 }

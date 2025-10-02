@@ -9,8 +9,10 @@ namespace SharedLibrary.SharedKernel.Entities
 {
     public abstract class BaseEntites
     {
+        [Column("id")]
         public virtual Guid Id { get; set; } = Guid.NewGuid();
-        [Column("create_at")]
+
+        [Column("created_at")]
         public DateTime CreatedAt { get; set; } = DateTime.Now;
     }
 }

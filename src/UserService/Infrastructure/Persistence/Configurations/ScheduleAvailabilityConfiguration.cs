@@ -4,29 +4,25 @@ using UserService.Domain.Entities;
 
 namespace UserService.Infrastructure.Persistence.Configurations
 {
-    public class ScheduleAvailabilityConfiguration : IEntityTypeConfiguration<ScheduleAvailability>
+    public class ScheduleAvailabilityConfiguration : IEntityTypeConfiguration<ScheduleUnavailability>
     {
-        public void Configure(EntityTypeBuilder<ScheduleAvailability> builder)
+        public void Configure(EntityTypeBuilder<ScheduleUnavailability> builder)
         {
             // table name
-            builder.ToTable("ScheduleAvailability");
+            builder.ToTable("ScheduleUnAvailability");
 
             // primary key
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id).HasColumnName("id");
 
             // properties
-            builder.Property(u => u.StartTime)
-                   .HasColumnName("start_time")
+            builder.Property(u => u.Date)
+                   .HasColumnName("date")
                    .IsRequired();
 
             builder.Property(u => u.InstructorId)
                    .HasColumnName("instructor_id")
                    .IsRequired(); 
-
-            builder.Property(u => u.EndTime)
-                   .HasColumnName("end_time")
-                   .IsRequired();
 
             builder.Property(u => u.UpdateAt)
                              .HasColumnName("update_at")

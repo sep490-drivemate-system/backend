@@ -14,19 +14,33 @@ namespace BookingService.Infrastructure.Persistence.Configurations
                 .ValueGeneratedOnAdd();
 
             builder.Property(x => x.Name)
+                .HasColumnName("name")
                 .HasMaxLength(100)
                 .IsRequired();
 
-            builder.Property(x => x.Description)
-                .HasMaxLength(500);
-
             builder.Property(x => x.CreatedAt)
+                .HasColumnName("created_at")
+                .ValueGeneratedOnAdd()
                 .IsRequired();
 
-            builder.Property(x => x.UpdatedAt)
+            builder.Property(x => x.LastModifiedAt)
+                .HasColumnName("updated_at")
+                .ValueGeneratedOnAddOrUpdate()
                 .IsRequired();
 
-            builder.ToTable("RoadTypes");
+            builder.Property(x => x.IsDeleted)
+                .HasColumnName("is_deleted")
+                .ValueGeneratedOnAdd()
+                .IsRequired();
+
+            // Relationships configuration
+
+            builder.HasMany(x => x.SessionRoadTypes)
+                .WithOne(x => x.RoadTypes)
+                .HasForeignKey(x => x.RoadTypeId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.ToTable("RoadType");
         }
     }
 }

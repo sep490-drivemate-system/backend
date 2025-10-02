@@ -28,7 +28,6 @@ namespace BookingService.Infrastructure
             // Đăng ký Repository
             services.AddScoped<IBookingRepository, BookingRepository>();
             services.AddScoped<IPackageRepository, PackageRepository>();
-            services.AddScoped<ITransactionRepository, TransactionRepository>();
             services.AddScoped<IDrivingSessionRepository, DrivingSessionRepository>();
             services.AddScoped<IFeedbackRepository, FeedbackRepository>();
 

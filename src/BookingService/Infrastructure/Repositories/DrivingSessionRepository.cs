@@ -17,27 +17,27 @@ namespace BookingService.Infrastructure.Repositories
         public async Task<IEnumerable<DrivingSession>> GetAllAsync()
         {
             return await _context.DrivingSessions
-                .Include(ds => ds.Booking)
+                .Include(ds => ds.Bookings)
                 .Include(ds => ds.SessionRoutes)
-                    .ThenInclude(sr => sr.RouteLog)
+                .Include(sr => sr.SessionLogs)
                 .ToListAsync();
         }
 
         public async Task<DrivingSession?> GetByIdAsync(Guid id)
         {
             return await _context.DrivingSessions
-                .Include(ds => ds.Booking)
+                .Include(ds => ds.Bookings)
                 .Include(ds => ds.SessionRoutes)
-                    .ThenInclude(sr => sr.RouteLog)
+                .Include(sr => sr.SessionLogs)
                 .FirstOrDefaultAsync(ds => ds.Id == id);
         }
 
         public async Task<IEnumerable<DrivingSession>> GetByBookingIdAsync(Guid bookingId)
         {
             return await _context.DrivingSessions
-                .Include(ds => ds.Booking)
+                .Include(ds => ds.Bookings)
                 .Include(ds => ds.SessionRoutes)
-                    .ThenInclude(sr => sr.RouteLog)
+                .Include(sr => sr.SessionLogs)
                 .Where(ds => ds.BookingId == bookingId)
                 .ToListAsync();
         }
@@ -46,7 +46,7 @@ namespace BookingService.Infrastructure.Repositories
         {
             session.Id = Guid.NewGuid();
             session.CreatedAt = DateTime.UtcNow;
-            session.UpdatedAt = DateTime.UtcNow;
+            session.LastModifiedAt = DateTime.UtcNow;
             
             _context.DrivingSessions.Add(session);
             await _context.SaveChangesAsync();
@@ -55,7 +55,7 @@ namespace BookingService.Infrastructure.Repositories
 
         public async Task<DrivingSession> UpdateAsync(DrivingSession session)
         {
-            session.UpdatedAt = DateTime.UtcNow;
+            session.LastModifiedAt = DateTime.UtcNow;
             _context.DrivingSessions.Update(session);
             await _context.SaveChangesAsync();
             return session;

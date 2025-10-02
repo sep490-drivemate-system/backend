@@ -40,12 +40,12 @@ namespace BookingService.Controllers
             return Ok(bookings);
         }
 
-        [HttpGet("instructor/{instructorId}")]
-        public async Task<ActionResult<IEnumerable<Booking>>> GetBookingsByInstructor(Guid instructorId)
-        {
-            var bookings = await _bookingRepository.GetByInstructorIdAsync(instructorId);
-            return Ok(bookings);
-        }
+        //[HttpGet("instructor/{instructorId}")]
+        //public async Task<ActionResult<IEnumerable<Booking>>> GetBookingsByInstructor(Guid instructorId)
+        //{
+        //    var bookings = await _bookingRepository.GetByInstructorIdAsync(instructorId);
+        //    return Ok(bookings);
+        //}
 
         [HttpPost]
         public async Task<ActionResult<Booking>> CreateBooking(Booking booking)
