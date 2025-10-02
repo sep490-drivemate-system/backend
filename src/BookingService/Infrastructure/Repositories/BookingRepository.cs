@@ -17,9 +17,8 @@ namespace BookingService.Infrastructure.Repositories
         public async Task<IEnumerable<Booking>> GetAllAsync()
         {
             return await _context.Bookings
-                .Include(b => b.Package)
+                .Include(b => b.CarPackages)
                 .Include(b => b.DrivingSessions)
-                .Include(b => b.Transactions)
                 .Include(b => b.Feedbacks)
                 .ToListAsync();
         }
@@ -27,9 +26,8 @@ namespace BookingService.Infrastructure.Repositories
         public async Task<Booking?> GetByIdAsync(Guid id)
         {
             return await _context.Bookings
-                .Include(b => b.Package)
+                .Include(b => b.CarPackages)
                 .Include(b => b.DrivingSessions)
-                .Include(b => b.Transactions)
                 .Include(b => b.Feedbacks)
                 .FirstOrDefaultAsync(b => b.Id == id);
         }
@@ -37,30 +35,28 @@ namespace BookingService.Infrastructure.Repositories
         public async Task<IEnumerable<Booking>> GetByUserIdAsync(Guid userId)
         {
             return await _context.Bookings
-                .Include(b => b.Package)
+                .Include(b => b.CarPackages)
                 .Include(b => b.DrivingSessions)
-                .Include(b => b.Transactions)
                 .Include(b => b.Feedbacks)
-                .Where(b => b.UserId == userId)
+                .Where(b => b.DriverId == userId)
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<Booking>> GetByInstructorIdAsync(Guid instructorId)
-        {
-            return await _context.Bookings
-                .Include(b => b.Package)
-                .Include(b => b.DrivingSessions)
-                .Include(b => b.Transactions)
-                .Include(b => b.Feedbacks)
-                .Where(b => b.InstructorId == instructorId)
-                .ToListAsync();
-        }
+        //public async Task<IEnumerable<Booking>> GetByInstructorIdAsync(Guid instructorId)
+        //{
+        //    return await _context.Bookings
+        //        .Include(b => b.CarPackages)
+        //        .Include(b => b.DrivingSessions)
+        //        .Include(b => b.Feedbacks)
+        //        .Where(b => b.InstructorId == instructorId)
+        //        .ToListAsync();
+        //}
 
         public async Task<Booking> CreateAsync(Booking booking)
         {
             booking.Id = Guid.NewGuid();
             booking.CreatedAt = DateTime.UtcNow;
-            booking.UpdatedAt = DateTime.UtcNow;
+            booking.LastModifiedAt = DateTime.UtcNow;
             
             _context.Bookings.Add(booking);
             await _context.SaveChangesAsync();
@@ -69,7 +65,7 @@ namespace BookingService.Infrastructure.Repositories
 
         public async Task<Booking> UpdateAsync(Booking booking)
         {
-            booking.UpdatedAt = DateTime.UtcNow;
+            booking.LastModifiedAt = DateTime.UtcNow;
             _context.Bookings.Update(booking);
             await _context.SaveChangesAsync();
             return booking;

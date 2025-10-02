@@ -4,28 +4,31 @@ using BookingService.Domain.Entities;
 
 namespace BookingService.Infrastructure.Persistence.Configurations
 {
-    public class RoadTypeConfiguration : IEntityTypeConfiguration<RoadType>
+    public class CarPackageTypeConfiguration : IEntityTypeConfiguration<CarPackage>
     {
-        public void Configure(EntityTypeBuilder<RoadType> builder)
+        public void Configure(EntityTypeBuilder<CarPackage> builder)
         {
             builder.HasKey(x => x.Id);
             
             builder.Property(x => x.Id)
+                .HasColumnName("id")
                 .ValueGeneratedOnAdd();
 
-            builder.Property(x => x.Name)
-                .HasColumnName("name")
+            builder.Property(x => x.CarId)
+                .HasColumnName("car_id")
                 .HasMaxLength(100)
+                .IsRequired();
+
+            builder.Property(x => x.Price)
+                .HasColumnName("price")
                 .IsRequired();
 
             builder.Property(x => x.CreatedAt)
                 .HasColumnName("created_at")
-                .ValueGeneratedOnAdd()
                 .IsRequired();
 
             builder.Property(x => x.LastModifiedAt)
                 .HasColumnName("updated_at")
-                .ValueGeneratedOnAddOrUpdate()
                 .IsRequired();
 
             builder.Property(x => x.IsDeleted)
@@ -33,14 +36,18 @@ namespace BookingService.Infrastructure.Persistence.Configurations
                 .ValueGeneratedOnAdd()
                 .IsRequired();
 
-            // Relationships configuration
+            // Relationships configurations
+            builder.HasMany(x => x.Bookings)
+                .WithOne(x => x.CarPackages)
+                .HasForeignKey(x => x.CarPackageId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasMany(x => x.SessionRoadTypes)
-                .WithOne(x => x.RoadTypes)
-                .HasForeignKey(x => x.RoadTypeId)
-                .OnDelete(DeleteBehavior.Cascade);
+            builder.HasOne(x => x.Packages)
+                .WithMany(x => x.CarPackages)
+                .HasForeignKey(x => x.PackageId);
 
-            builder.ToTable("RoadType");
+
+            builder.ToTable("PackageType");
         }
     }
 }

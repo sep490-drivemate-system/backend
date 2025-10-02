@@ -2,23 +2,16 @@
 
 namespace BookingService.Domain.Entities
 {
-    public class Feedback: BaseEntites
+    public class TimeRange: BaseEntites
     {
         // Properties
-        public Guid UserId { get; set; }
+        public DateTime StartTime { get; set; }
 
+        public DateTime EndTime { get; set; }
+        
         public Guid BookingId { get; set; }
 
-        public int InstructorRating { get; set; }
-
-        public string InstructorFeedback { get; set; }
-
-        public int CarRating { get; set; }
-
-        public string CarFeedback { get; set; }
-
-        // Systematic properties
-        
+        // System properties
         public DateTime LastModifiedAt { get; set; }
 
         public bool IsDeleted { get; set; }

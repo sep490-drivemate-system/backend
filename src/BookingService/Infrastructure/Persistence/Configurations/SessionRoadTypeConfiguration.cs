@@ -1,21 +1,24 @@
+﻿using BookingService.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using BookingService.Domain.Entities;
 
 namespace BookingService.Infrastructure.Persistence.Configurations
 {
-    public class RoadTypeConfiguration : IEntityTypeConfiguration<RoadType>
+    public class SessionRoadTypeConfiguration : IEntityTypeConfiguration<SessionRoadType>
     {
-        public void Configure(EntityTypeBuilder<RoadType> builder)
+        public void Configure(EntityTypeBuilder<SessionRoadType> builder)
         {
             builder.HasKey(x => x.Id);
-            
+
             builder.Property(x => x.Id)
                 .ValueGeneratedOnAdd();
 
-            builder.Property(x => x.Name)
-                .HasColumnName("name")
-                .HasMaxLength(100)
+            builder.Property(x => x.SessionId)
+                .HasColumnName("session_id")
+                .IsRequired();
+
+            builder.Property(x => x.RoadTypeId)
+                .HasColumnName("road_type_id")
                 .IsRequired();
 
             builder.Property(x => x.CreatedAt)
@@ -35,12 +38,16 @@ namespace BookingService.Infrastructure.Persistence.Configurations
 
             // Relationships configuration
 
-            builder.HasMany(x => x.SessionRoadTypes)
-                .WithOne(x => x.RoadTypes)
+            builder.HasOne(x => x.RoadTypes)
+                .WithMany(x => x.SessionRoadTypes)
                 .HasForeignKey(x => x.RoadTypeId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.ToTable("RoadType");
+            builder.HasOne(x => x.DrivingSessions)
+                .WithMany(x => x.SessionRoadTypes)
+                .HasForeignKey(x => x.SessionId);
+
+            builder.ToTable("SessionRoadType");
         }
     }
 }

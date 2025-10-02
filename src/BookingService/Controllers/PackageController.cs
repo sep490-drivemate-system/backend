@@ -22,12 +22,12 @@ namespace BookingService.Controllers
             return Ok(packages);
         }
 
-        [HttpGet("active")]
-        public async Task<ActionResult<IEnumerable<Package>>> GetActivePackages()
-        {
-            var packages = await _packageRepository.GetActivePackagesAsync();
-            return Ok(packages);
-        }
+        //[HttpGet("active")]
+        //public async Task<ActionResult<IEnumerable<Package>>> GetActivePackages()
+        //{
+        //    var packages = await _packageRepository.GetActivePackagesAsync();
+        //    return Ok(packages);
+        //}
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Package>> GetPackage(Guid id)

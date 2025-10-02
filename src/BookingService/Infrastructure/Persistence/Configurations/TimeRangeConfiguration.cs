@@ -4,9 +4,9 @@ using BookingService.Domain.Entities;
 
 namespace BookingService.Infrastructure.Persistence.Configurations
 {
-    public class FeedbackConfiguration : IEntityTypeConfiguration<Feedback>
+    public class TimeRangeConfiguration : IEntityTypeConfiguration<TimeRange>
     {
-        public void Configure(EntityTypeBuilder<Feedback> builder)
+        public void Configure(EntityTypeBuilder<TimeRange> builder)
         {
             builder.HasKey(x => x.Id);
             
@@ -18,46 +18,36 @@ namespace BookingService.Infrastructure.Persistence.Configurations
                 .HasColumnName("booking_id")
                 .IsRequired();
 
-            builder.Property(x => x.UserId)
-                .HasColumnName("user_id")
+            builder.Property(x => x.StartTime)
+                .HasColumnName("start_time")
                 .IsRequired();
 
-            builder.Property(x => x.InstructorRating)
-                .HasColumnName("rating_instructor")
+            builder.Property(x => x.EndTime)
+                .HasColumnName("end_time")
                 .IsRequired();
-
-            builder.Property(x => x.InstructorFeedback)
-                .HasColumnName("description_instructor")
-                .HasMaxLength(1000);
-
-            builder.Property(x => x.CarRating)
-                .HasColumnName("rating_car")
-                .IsRequired();
-
-            builder.Property(x => x.CarFeedback)
-                .HasColumnName("description_car")
-                .HasMaxLength(1000);
 
             builder.Property(x => x.CreatedAt)
                 .HasColumnName("created_at")
+                .ValueGeneratedOnAdd()
                 .IsRequired();
 
             builder.Property(x => x.LastModifiedAt)
-                .HasColumnName("updated_at")
+                .HasColumnName("update_at")
+                .ValueGeneratedOnAddOrUpdate()
                 .IsRequired();
 
             builder.Property(x => x.IsDeleted)
                 .HasColumnName("is_deleted")
-                .ValueGeneratedOnAdd()
                 .IsRequired();
 
             // Relationships
             builder.HasOne(x => x.Bookings)
-                .WithMany(x => x.Feedbacks)
+                .WithMany(x => x.TimeRanges)
                 .HasForeignKey(x => x.BookingId)
+                .HasPrincipalKey(x => x.Id)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.ToTable("Feedback");
+            builder.ToTable("BookingTimeRange");
         }
     }
 }
