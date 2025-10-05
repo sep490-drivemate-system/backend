@@ -6,7 +6,7 @@ namespace UserService.Domain.Entities
     public class Instructor : BaseEntites
     {
         // properties
-        public string Bio {  get; set; }
+        public string Bio {  get; set; } = string.Empty;
         public int Experience { get; set; }
         public DateTime UpdateAt { get; set; }
         public bool IsDelete { get; set; }
@@ -15,7 +15,8 @@ namespace UserService.Domain.Entities
         // realationship
         public virtual User? User { get; set; }
         public virtual InstructorApplication? InstructorApplication { get; set; }
-        public virtual ICollection<ScheduleAvailability>? ScheduleAvailabilities { get; set; } 
+        public virtual ICollection<ScheduleUnavailability>? ScheduleAvailabilities { get; set; } 
+        public virtual ICollection<Car>? Cars { get; set; } 
 
     }
 }

@@ -38,9 +38,6 @@ namespace UserService.Application.UseCases
         // implement usecase verfyEmail
         public async Task<Result<string>> VerifyEmail(string email)
         {
-
-            Console.WriteLine($"EMAIL : {email}");
-
             // 1. check exist email
             var isEmailExist = await _unitOfWork.UserRepository.IsEsxitEmail(email);
             if (isEmailExist)
@@ -132,6 +129,7 @@ namespace UserService.Application.UseCases
         // implement usecase signin
         public async Task<Result<SignUpRespondDTO>> SignIn(SignInDTO signInDTO)
         {
+            //1. Check user
             var user = await _unitOfWork.UserRepository.IsExistUser(signInDTO.EmailOrPhone);
            
             if (user == null)
@@ -180,5 +178,22 @@ namespace UserService.Application.UseCases
             return Result<SignUpRespondDTO>.Success(respond);
 
         }
+
+        public async Task<Result<bool>> SignOut(SignOutDTO signOutDTO)
+        {
+            // Check for delete token
+            var isDeleted = await _unitOfWork.RefreshTokenRepository
+                                            .DeleleRefreshToken(signOutDTO.RefreshToken);
+
+            if (!isDeleted)
+            {
+                return Result<bool>.Failure(
+                    new ServiceError(ServiceError.NotFound, Messages.Auth.TokenNoExists)
+                );
+            }
+
+            return Result<bool>.Success(true);
+        }
+
     }
 }

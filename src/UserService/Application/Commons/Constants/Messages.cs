@@ -12,6 +12,7 @@
             public const string WrongPassword = "Sai mật khẩu";
             public const string SmsSentSuccess = "Sms đã gửi thành công.";
             public const string InvalidCredentials = "Email hoặc mật khẩu không đúng.";
+            public const string TokenNoExists = "Xảy ra lỗi hãy thử lại sao.";
         }
 
         public static class User
