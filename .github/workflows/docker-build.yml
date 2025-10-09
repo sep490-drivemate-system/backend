@@ -2,7 +2,7 @@ name: Build and Push Docker Images
 
 on:
   push:
-    branches: [ main, master, feature/auth ]
+    branches: [ main, master, feature/auth, develop ]
   pull_request:
     branches: [ main, master ]
 
@@ -10,6 +10,8 @@ env:
   REGISTRY: docker.io
   USERSERVICE_IMAGE: drivemate-userservice
   APIGATEWAY_IMAGE: drivemate-apigateway
+  BOOKINGSERVICE_IMAGE: drivemate-bookingservice
+  RESOURCESERVICE_IMAGE: drivemate-resourceservice
 
 jobs:
   build-and-push:
@@ -52,6 +54,28 @@ jobs:
           type=sha,prefix={{branch}}-
           type=raw,value=latest,enable={{is_default_branch}}
           
+    - name: Extract metadata for BookingService
+      id: meta-bookingservice
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.BOOKINGSERVICE_IMAGE }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+          
+    - name: Extract metadata for ResourceService
+      id: meta-resourceservice
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.RESOURCESERVICE_IMAGE }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+          
     - name: Build and push UserService
       uses: docker/build-push-action@v5
       with:
@@ -74,9 +98,33 @@ jobs:
         cache-from: type=gha
         cache-to: type=gha,mode=max
         
+    - name: Build and push BookingService
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./src/BookingService/Dockerfile
+        push: ${{ github.event_name != 'pull_request' }}
+        tags: ${{ steps.meta-bookingservice.outputs.tags }}
+        labels: ${{ steps.meta-bookingservice.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        
+    - name: Build and push ResourceService
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./src/ResourceService/Dockerfile
+        push: ${{ github.event_name != 'pull_request' }}
+        tags: ${{ steps.meta-resourceservice.outputs.tags }}
+        labels: ${{ steps.meta-resourceservice.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        
     - name: Deploy to Railway
       if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
       run: |
         echo "Triggering Railway redeploy..."
         curl -X POST ${{ secrets.RAILWAY_USERSERVICE_WEBHOOK }} || echo "UserService webhook failed"
         curl -X POST ${{ secrets.RAILWAY_APIGATEWAY_WEBHOOK }} || echo "API Gateway webhook failed"
+        curl -X POST ${{ secrets.RAILWAY_BOOKINGSERVICE_WEBHOOK }} || echo "BookingService webhook failed"
+        curl -X POST ${{ secrets.RAILWAY_RESOURCESERVICE_WEBHOOK }} || echo "ResourceService webhook failed"

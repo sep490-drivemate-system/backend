@@ -1,0 +1,121 @@
+version: '3.8'
+
+services:
+  # Database
+  postgres:
+    image: postgres:15
+    container_name: drivemate-postgres
+    environment:
+      POSTGRES_DB: drivemate_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - drivemate-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # API Gateway
+  apigateway:
+    build:
+      context: .
+      dockerfile: src/ApiGetwate/Dockerfile
+    container_name: drivemate-apigateway
+    ports:
+      - "8080:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+    depends_on:
+      - userservice
+      - bookingservice
+      - resourceservice
+    networks:
+      - drivemate-network
+    restart: unless-stopped
+
+  # User Service
+  userservice:
+    build:
+      context: .
+      dockerfile: src/UserService/Dockerfile
+    container_name: drivemate-userservice
+    ports:
+      - "8081:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=drivemate_user_db;Username=postgres;Password=postgres123
+      - JWT__Key=your-super-secret-jwt-key-that-is-at-least-32-characters-long
+      - JWT__Issuer=DriveMate
+      - JWT__Audience=DriveMate-Users
+      - JWT__ExpiryInMinutes=60
+      - SpeedSms__AccessToken=Qa-bueApU0kt3V95enwlrmTdAKzLYqp3
+      - SpeedSms__ApiUrl=https://api.speedsms.vn/index.php/sms/send
+      - SpeedSms__SmsType=4
+      - SpeedSms__Sender=Verify
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - drivemate-network
+    restart: unless-stopped
+
+  # Booking Service
+  bookingservice:
+    build:
+      context: .
+      dockerfile: src/BookingService/Dockerfile
+    container_name: drivemate-bookingservice
+    ports:
+      - "8082:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=drivemate_booking_db;Username=postgres;Password=postgres123
+      - JWT__Key=your-super-secret-jwt-key-that-is-at-least-32-characters-long
+      - JWT__Issuer=DriveMate
+      - JWT__Audience=DriveMate-Users
+      - JWT__ExpiryInMinutes=60
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - drivemate-network
+    restart: unless-stopped
+
+  # Resource Service
+  resourceservice:
+    build:
+      context: .
+      dockerfile: src/ResourceService/Dockerfile
+    container_name: drivemate-resourceservice
+    ports:
+      - "8083:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=drivemate_resource_db;Username=postgres;Password=postgres123
+      - JWT__Key=your-super-secret-jwt-key-that-is-at-least-32-characters-long
+      - JWT__Issuer=DriveMate
+      - JWT__Audience=DriveMate-Users
+      - JWT__ExpiryInMinutes=60
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - drivemate-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  drivemate-network:
+    driver: bridge

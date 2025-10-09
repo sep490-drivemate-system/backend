@@ -26,9 +26,16 @@ namespace ApiGetwate
             if (builder.Environment.IsProduction())
             {
                 var userServiceHost = Environment.GetEnvironmentVariable("USERSERVICE_HOST") ?? "localhost";
+                var bookingServiceHost = Environment.GetEnvironmentVariable("BOOKINGSERVICE_HOST") ?? "localhost";
+                var resourceServiceHost = Environment.GetEnvironmentVariable("RESOURCESERVICE_HOST") ?? "localhost";
+                var apiGatewayHost = Environment.GetEnvironmentVariable("APIGATEWAY_HOST") ?? "localhost";
+                
                 var ocelotPath = Path.Combine(Directory.GetCurrentDirectory(), ocelotFile);
                 var ocelotContent = File.ReadAllText(ocelotPath);
                 ocelotContent = ocelotContent.Replace("${USERSERVICE_HOST}", userServiceHost);
+                ocelotContent = ocelotContent.Replace("${BOOKINGSERVICE_HOST}", bookingServiceHost);
+                ocelotContent = ocelotContent.Replace("${RESOURCESERVICE_HOST}", resourceServiceHost);
+                ocelotContent = ocelotContent.Replace("${APIGATEWAY_HOST}", apiGatewayHost);
                 
                 // Write temporary config file
                 var tempOcelotPath = Path.Combine(Directory.GetCurrentDirectory(), "ocelot.temp.json");

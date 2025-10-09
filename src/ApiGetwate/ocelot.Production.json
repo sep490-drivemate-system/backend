@@ -17,6 +17,78 @@
         "DELETE"
       ],
       "SwaggerKey": "userService"
+    },
+    {
+      "DownstreamPathTemplate": "/api/user/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${USERSERVICE_HOST}",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/user/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "SwaggerKey": "userService"
+    },
+    {
+      "DownstreamPathTemplate": "/api/booking/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${BOOKINGSERVICE_HOST}",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/booking/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "SwaggerKey": "bookingService"
+    },
+    {
+      "DownstreamPathTemplate": "/api/package/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${BOOKINGSERVICE_HOST}",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/package/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "SwaggerKey": "bookingService"
+    },
+    {
+      "DownstreamPathTemplate": "/api/resource/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${RESOURCESERVICE_HOST}",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/resource/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "SwaggerKey": "resourceService"
     }
   ],
   "SwaggerEndPoints": [
@@ -27,6 +99,26 @@
           "Name": "User Service API",
           "Version": "v1",
           "Url": "https://${USERSERVICE_HOST}/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "bookingService",
+      "Config": [
+        {
+          "Name": "Booking Service API",
+          "Version": "v1",
+          "Url": "https://${BOOKINGSERVICE_HOST}/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "resourceService",
+      "Config": [
+        {
+          "Name": "Resource Service API",
+          "Version": "v1",
+          "Url": "https://${RESOURCESERVICE_HOST}/swagger/v1/swagger.json"
         }
       ]
     }

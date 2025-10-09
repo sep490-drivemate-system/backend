@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System;
 using UserService.Domain.Interfaces;
 using UserService.Infrastructure.Persistence.Context;
@@ -13,7 +13,11 @@ namespace UserService.Infrastructure
         {
             // Đăng ký DbContext
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseNpgsql(configuration.GetConnectionString("USERSERVICECONNECTION")));
+            {
+                var connectionString = configuration.GetConnectionString("USERSERVICECONNECTION") 
+                    ?? configuration.GetConnectionString("DefaultConnection");
+                options.UseNpgsql(connectionString);
+            });
 
             // Đăng ký Repository (nếu có)
             services.AddScoped<IUserRepository, UserRepository>();

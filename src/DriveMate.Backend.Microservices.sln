@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36301.6
@@ -10,6 +10,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserService", "UserService\UserService.csproj", "{F2167D66-DC76-4A81-B225-72B330670269}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResourceService", "ResourceService\ResourceService.csproj", "{E90BB7DC-5F6A-46AC-A4DF-946CA901190A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookingService", "BookingService\BookingService.csproj", "{B8A5C9E1-2F3D-4E6A-9B7C-1D8E5F4A3B2C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{E90BB7DC-5F6A-46AC-A4DF-946CA901190A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E90BB7DC-5F6A-46AC-A4DF-946CA901190A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E90BB7DC-5F6A-46AC-A4DF-946CA901190A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B8A5C9E1-2F3D-4E6A-9B7C-1D8E5F4A3B2C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8A5C9E1-2F3D-4E6A-9B7C-1D8E5F4A3B2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8A5C9E1-2F3D-4E6A-9B7C-1D8E5F4A3B2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8A5C9E1-2F3D-4E6A-9B7C-1D8E5F4A3B2C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

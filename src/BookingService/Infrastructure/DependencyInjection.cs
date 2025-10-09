@@ -11,19 +11,12 @@ namespace BookingService.Infrastructure
            this IServiceCollection services, IConfiguration configuration)
         {
             // Đăng ký DbContext
-            switch (configuration.GetValue<string>("DatabaseSystem")) {
-                case "SQLServer":
-                    services.AddDbContext<BookingDbContext>(options =>
-                        options.UseSqlServer(configuration.GetConnectionString("BOOKINGSERVICECONNECTION")));
-                    break;
-                case "PosgreSQL":
-                    services.AddDbContext<BookingDbContext>(options =>
-                        options.UseNpgsql(configuration.GetConnectionString("BOOKINGSERVICECONNECTION")));
-                    break;
-                default:
-                    throw new InvalidOperationException("The given database system is not supported by the application");
-
-            }
+            services.AddDbContext<BookingDbContext>(options =>
+            {
+                var connectionString = configuration.GetConnectionString("BOOKINGSERVICECONNECTION") 
+                    ?? configuration.GetConnectionString("DefaultConnection");
+                options.UseNpgsql(connectionString);
+            });
 
             // Đăng ký Repository
             services.AddScoped<IBookingRepository, BookingRepository>();
