@@ -1,0 +1,129 @@
+{
+    "Routes": [
+        {
+            "DownstreamPathTemplate": "/api/auth/{everything}",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 5100
+                }
+            ],
+            "UpstreamPathTemplate": "/auth/{everything}",
+            "UpstreamHttpMethod": [
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE"
+            ],
+            "SwaggerKey": "userService"
+        },
+        {
+            "DownstreamPathTemplate": "/api/user/{everything}",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 5100
+                }
+            ],
+            "UpstreamPathTemplate": "/user/{everything}",
+            "UpstreamHttpMethod": [
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE"
+            ],
+            "SwaggerKey": "userService"
+        },
+        {
+            "DownstreamPathTemplate": "/api/booking/{everything}",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 5174
+                }
+            ],
+            "UpstreamPathTemplate": "/booking/{everything}",
+            "UpstreamHttpMethod": [
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE"
+            ],
+            "SwaggerKey": "bookingService"
+        },
+        {
+            "DownstreamPathTemplate": "/api/package/{everything}",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 5174
+                }
+            ],
+            "UpstreamPathTemplate": "/package/{everything}",
+            "UpstreamHttpMethod": [
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE"
+            ],
+            "SwaggerKey": "bookingService"
+        },
+        {
+            "DownstreamPathTemplate": "/api/resource/{everything}",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 5085
+                }
+            ],
+            "UpstreamPathTemplate": "/resource/{everything}",
+            "UpstreamHttpMethod": [
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE"
+            ],
+            "SwaggerKey": "resourceService"
+        }
+    ],
+    "SwaggerEndPoints": [
+        {
+            "Key": "userService",
+            "Config": [
+                {
+                    "Name": "User Service API",
+                    "Version": "v1",
+                    "Url": "http://localhost:5100/swagger/v1/swagger.json"
+                }
+            ]
+        },
+        {
+            "Key": "bookingService",
+            "Config": [
+                {
+                    "Name": "Booking Service API",
+                    "Version": "v1",
+                    "Url": "http://localhost:5174/swagger/v1/swagger.json"
+                }
+            ]
+        },
+        {
+            "Key": "resourceService",
+            "Config": [
+                {
+                    "Name": "Resource Service API",
+                    "Version": "v1",
+                    "Url": "http://localhost:5085/swagger/v1/swagger.json"
+                }
+            ]
+        }
+    ],
+    "GlobalConfiguration": {
+        "BaseUrl": "http://localhost:8080"
+    }
+}

@@ -20,7 +20,8 @@ namespace ApiGetwate
             builder.Services.AddControllers();
             
             // Load appropriate Ocelot configuration based on environment
-            var ocelotFile = builder.Environment.IsProduction() ? "ocelot.Production.json" : "ocelot.json";
+            var ocelotFile = builder.Environment.IsProduction() ? "ocelot.Production.json" : 
+                           builder.Environment.IsDevelopment() ? "ocelot.Development.json" : "ocelot.json";
             
             // Replace environment variables in Ocelot config for production
             if (builder.Environment.IsProduction())

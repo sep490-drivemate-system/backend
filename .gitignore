@@ -15,7 +15,7 @@ publish/
 *.user
 *.csproj.user
 *.sln.docstates
-
+.claude
 # ============================================
 # Environment & Secrets
 # ============================================
