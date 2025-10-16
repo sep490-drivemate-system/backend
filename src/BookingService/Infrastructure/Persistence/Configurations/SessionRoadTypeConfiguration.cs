@@ -38,10 +38,6 @@ namespace BookingService.Infrastructure.Persistence.Configurations
 
             // Relationships configuration
 
-            builder.HasOne(x => x.RoadTypes)
-                .WithMany(x => x.SessionRoadTypes)
-                .HasForeignKey(x => x.RoadTypeId)
-                .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(x => x.DrivingSessions)
                 .WithMany(x => x.SessionRoadTypes)

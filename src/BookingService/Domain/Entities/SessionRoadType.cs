@@ -15,7 +15,6 @@ namespace BookingService.Domain.Entities
         public bool IsDeleted { get; set; }
 
         // Navigational properties
-        public RoadType RoadTypes { get; set; }
 
         public DrivingSession DrivingSessions {  get; set; }
     }

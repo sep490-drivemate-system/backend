@@ -29,6 +29,8 @@ namespace BookingService.Domain.Entities
         public List<TimeRange> TimeRanges { get; set; }
 
         public List<DrivingSession> DrivingSessions { get; set; }
+        public List<DrivingSkill> DrivingSkills{ get; set; }
+        public List<RoadType> RoadTypes{ get; set; }
 
         public CarPackage CarPackages { get; set; }
     }

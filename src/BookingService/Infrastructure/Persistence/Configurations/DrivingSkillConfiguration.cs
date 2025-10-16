@@ -1,15 +1,15 @@
+﻿using BookingService.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using BookingService.Domain.Entities;
 
 namespace BookingService.Infrastructure.Persistence.Configurations
 {
-    public class RoadTypeConfiguration : IEntityTypeConfiguration<RoadType>
+    public class DrivingSkillConfiguration : IEntityTypeConfiguration<DrivingSkill>
     {
-        public void Configure(EntityTypeBuilder<RoadType> builder)
+        public void Configure(EntityTypeBuilder<DrivingSkill> builder)
         {
             builder.HasKey(x => x.Id);
-            
+
             builder.Property(x => x.Id)
                 .ValueGeneratedOnAdd();
 
@@ -36,7 +36,7 @@ namespace BookingService.Infrastructure.Persistence.Configurations
             // Relationships configuration
 
 
-            builder.ToTable("RoadType");
+            builder.ToTable("DrivingSkill");
         }
     }
 }
