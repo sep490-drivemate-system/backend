@@ -10,7 +10,9 @@ namespace UserService.Infrastructure.UnitOfWork
         private readonly ApplicationDbContext _context ;
         private IUserRepository _userRepository;
         private IRefreshTokenRepository _refreshTokenRepository;
-
+        private IInstructorRepository _instructorRepository;
+        private ICarRepository _carRepository;
+        
         public UnitOfWork(ApplicationDbContext context)
         {
             _context = context;
@@ -36,6 +38,30 @@ namespace UserService.Infrastructure.UnitOfWork
                     _refreshTokenRepository = new RefreshTokenRepository(_context);
                 }
                 return _refreshTokenRepository;
+            }
+        }
+
+        public IInstructorRepository InstructorRepository
+        {
+            get
+            {
+                if (_instructorRepository == null)
+                {
+                    _instructorRepository = new InstructorRepository(_context);
+                }
+                return _instructorRepository;
+            }
+        }
+
+        public ICarRepository CarRepository
+        {
+            get
+            {
+                if (_carRepository == null)
+                {
+                    _carRepository = new CarRepository(_context);
+                }
+                return _carRepository;
             }
         }
 

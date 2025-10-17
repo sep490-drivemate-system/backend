@@ -22,6 +22,8 @@ namespace UserService.Application
             // Register Usecase
             services.AddScoped<IAuthUseCase, AuthUseCase>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<ICarUseCase, CarUseCase>();
+            services.AddScoped<IInstructorUseCase, InstructorUseCase>();
             services.AddScoped<IJwtService, JwtService>();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
