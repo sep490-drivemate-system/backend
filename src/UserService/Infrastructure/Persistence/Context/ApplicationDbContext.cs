@@ -17,6 +17,10 @@ namespace UserService.Infrastructure.Persistence.Context
         public DbSet<ApplicationTracking> InstructorApplications { get; set; }
         public DbSet<InstructorApplication> InstructorDocuments { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<LicenseCategory> LicenseCategories { get; set; }
+        public DbSet<Manufacturer> Manufacturers { get; set; }
+        public DbSet<Car> Cars { get; set; }
+        public DbSet<CarImage> CarImages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
