@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using BookingService.Infrastructure.Persistence.Context;
 using BookingService.Domain.Interfaces;
 using BookingService.Infrastructure.Repositories;
+using BookingService.Application.Interfaces;
 
 namespace BookingService.Infrastructure
 {
@@ -23,6 +24,8 @@ namespace BookingService.Infrastructure
             services.AddScoped<IPackageRepository, PackageRepository>();
             services.AddScoped<IDrivingSessionRepository, DrivingSessionRepository>();
             services.AddScoped<IFeedbackRepository, FeedbackRepository>();
+
+            services.AddScoped<IUnitOfWork,UnitOfWork>();
 
             return services;
         }

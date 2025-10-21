@@ -1,5 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
+using BookingService.Application.Interfaces;
+using BookingService.Application.Services;
 
 namespace BookingService.Application
 {
@@ -13,6 +15,8 @@ namespace BookingService.Application
 
             // Add application services here
             // services.AddScoped<IBookingService, BookingService>();
+            services.AddScoped<IDrivingSkillService, DrivingSkillService>();
+            services.AddScoped<IRoadTypeService, RoadTypeService>();
 
             return services;
         }
