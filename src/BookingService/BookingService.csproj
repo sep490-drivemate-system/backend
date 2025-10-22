@@ -30,4 +30,9 @@
     <ProjectReference Include="..\SharedLibrary\SharedLibrary.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Application\Commons\Constants\" />
+    <Folder Include="Application\Commons\Mapping\" />
+  </ItemGroup>
+
 </Project>

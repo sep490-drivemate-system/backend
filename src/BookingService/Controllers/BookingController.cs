@@ -5,7 +5,7 @@ using BookingService.Domain.Interfaces;
 namespace BookingService.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/booking")]
     public class BookingController : ControllerBase
     {
         private readonly IBookingRepository _bookingRepository;

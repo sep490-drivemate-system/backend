@@ -1,5 +1,7 @@
-using Microsoft.Extensions.DependencyInjection;
+using BookingService.Application.Interfaces;
+using BookingService.Domain.Interfaces;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BookingService.Application
 {
@@ -12,7 +14,7 @@ namespace BookingService.Application
             services.AddAutoMapper(typeof(DependencyInjection).Assembly);
 
             // Add application services here
-            // services.AddScoped<IBookingService, BookingService>();
+             services.AddScoped<IBookingUseCase, BookingService>();
 
             return services;
         }
