@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using BookingService.Domain.Entities;
 using BookingService.Domain.Interfaces;
+using BookingService.Application.Interfaces;
+using BookingService.Application.Commons.DTOs.Booking;
+using SharedLibrary.SharedKernel.ServiceResult;
 
 namespace BookingService.Controllers
 {
@@ -8,69 +11,20 @@ namespace BookingService.Controllers
     [Route("api/booking")]
     public class BookingController : ControllerBase
     {
-        private readonly IBookingRepository _bookingRepository;
+        private readonly IBookingUseCase _bookingUseCase;
 
-        public BookingController(IBookingRepository bookingRepository)
+        public BookingController(IBookingUseCase bookingUseCase)
         {
-            _bookingRepository = bookingRepository;
+            _bookingUseCase = bookingUseCase;
         }
-
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Booking>>> GetAllBookings()
-        {
-            var bookings = await _bookingRepository.GetAllAsync();
-            return Ok(bookings);
-        }
-
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Booking>> GetBooking(Guid id)
-        {
-            var booking = await _bookingRepository.GetByIdAsync(id);
-            if (booking == null)
-            {
-                return NotFound();
-            }
-            return Ok(booking);
-        }
-
-        [HttpGet("user/{userId}")]
-        public async Task<ActionResult<IEnumerable<Booking>>> GetBookingsByUser(Guid userId)
-        {
-            var bookings = await _bookingRepository.GetByUserIdAsync(userId);
-            return Ok(bookings);
-        }
-
-        //[HttpGet("instructor/{instructorId}")]
-        //public async Task<ActionResult<IEnumerable<Booking>>> GetBookingsByInstructor(Guid instructorId)
-        //{
-        //    var bookings = await _bookingRepository.GetByInstructorIdAsync(instructorId);
-        //    return Ok(bookings);
-        //}
 
         [HttpPost]
-        public async Task<ActionResult<Booking>> CreateBooking(Booking booking)
+        public async Task<IActionResult> CreateBooking([FromBody] BookingDTO bookingDTO)
         {
-            var createdBooking = await _bookingRepository.CreateAsync(booking);
-            return CreatedAtAction(nameof(GetBooking), new { id = createdBooking.Id }, createdBooking);
+            var result = await _bookingUseCase.CreateBooking(bookingDTO);
+            return result.ToActionResult();
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateBooking(Guid id, Booking booking)
-        {
-            if (id != booking.Id)
-            {
-                return BadRequest();
-            }
-
-            var updatedBooking = await _bookingRepository.UpdateAsync(booking);
-            return Ok(updatedBooking);
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteBooking(Guid id)
-        {
-            await _bookingRepository.DeleteAsync(id);
-            return NoContent();
-        }
+      
     }
 }

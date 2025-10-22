@@ -1,4 +1,4 @@
-﻿using SharedLibrary.SharedKernel.Entities;
+using SharedLibrary.SharedKernel.Entities;
 
 namespace BookingService.Domain.Entities
 {
@@ -9,7 +9,7 @@ namespace BookingService.Domain.Entities
 
         // System property
 
-        public string LastModifiedAt { get; set; }
+        public DateTime LastModifiedAt { get; set; }
 
         public bool IsDeleted { get; set; }
 

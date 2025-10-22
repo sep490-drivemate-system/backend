@@ -1,17 +1,30 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using BookingService.Application.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SharedLibrary.SharedKernel.ServiceResult;
 
 namespace BookingService.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class DrivingSkillController : ControllerBase
+    public class DrivingSkillController(IDrivingSkillService skill_service): ControllerBase
     {
-        [HttpGet("{id}")]
+        private readonly IDrivingSkillService _skillService = skill_service;
+
+        [HttpGet()]
         public async Task<IActionResult> GetDrivingSkill()
         {
-            
-            return Ok();
+            var result = await _skillService.GetAllDrivingSkills();
+
+            return result.ToActionResult();
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetDrivingSkillDetail([FromRoute] Guid id)
+        {
+            var result = await _skillService.GetDrivingSkillWithId(id);
+
+            return result.ToActionResult();
         }
 
         [HttpPost]

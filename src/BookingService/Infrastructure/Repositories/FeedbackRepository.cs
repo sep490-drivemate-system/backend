@@ -5,23 +5,20 @@ using BookingService.Infrastructure.Persistence.Context;
 
 namespace BookingService.Infrastructure.Repositories
 {
-    public class FeedbackRepository : IFeedbackRepository
+    public class FeedbackRepository : GenericRepository<Feedback>, IFeedbackRepository
     {
-        private readonly BookingDbContext _context;
-
-        public FeedbackRepository(BookingDbContext context)
+        public FeedbackRepository(BookingDbContext context) : base(context)
         {
-            _context = context;
         }
 
-        public async Task<IEnumerable<Feedback>> GetAllAsync()
+        public async Task<IEnumerable<Feedback>> GetAllFeedbacksAsync()
         {
             return await _context.Feedbacks
                 .Include(f => f.Bookings)
                 .ToListAsync();
         }
 
-        public async Task<Feedback?> GetByIdAsync(Guid id)
+        public async Task<Feedback?> GetFeedbackByIdAsync(Guid id)
         {
             return await _context.Feedbacks
                 .Include(f => f.Bookings)
@@ -44,7 +41,7 @@ namespace BookingService.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        public async Task<Feedback> CreateAsync(Feedback feedback)
+        public async Task<Feedback> CreateFeedbackAsync(Feedback feedback)
         {
             feedback.Id = Guid.NewGuid();
             feedback.CreatedAt = DateTime.UtcNow;
@@ -55,7 +52,7 @@ namespace BookingService.Infrastructure.Repositories
             return feedback;
         }
 
-        public async Task<Feedback> UpdateAsync(Feedback feedback)
+        public async Task<Feedback> UpdateFeedbackAsync(Feedback feedback)
         {
             feedback.LastModifiedAt = DateTime.UtcNow;
             _context.Feedbacks.Update(feedback);
@@ -63,7 +60,7 @@ namespace BookingService.Infrastructure.Repositories
             return feedback;
         }
 
-        public async Task DeleteAsync(Guid id)
+        public async Task DeleteFeedbackAsync(Guid id)
         {
             var feedback = await _context.Feedbacks.FindAsync(id);
             if (feedback != null)

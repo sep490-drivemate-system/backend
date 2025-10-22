@@ -2,13 +2,13 @@ using BookingService.Domain.Entities;
 
 namespace BookingService.Domain.Interfaces
 {
-    public interface IPackageRepository
+    public interface IPackageRepository : IGenericRepository<Package>
     {
-        Task<IEnumerable<Package>> GetAllAsync();
-        Task<Package?> GetByIdAsync(Guid id);
+        Task<IEnumerable<Package>> GetAllPackagesAsync();
+        Task<Package?> GetPackageByIdAsync(Guid id);
         //Task<IEnumerable<Package>> GetActivePackagesAsync();
-        Task<Package> CreateAsync(Package package);
-        Task<Package> UpdateAsync(Package package);
-        Task DeleteAsync(Guid id);
+        Task<Package> CreatePackageAsync(Package package);
+        Task<Package> UpdatePackageAsync(Package package);
+        Task DeletePackageAsync(Guid id);
     }
 }

@@ -5,23 +5,20 @@ using BookingService.Infrastructure.Persistence.Context;
 
 namespace BookingService.Infrastructure.Repositories
 {
-    public class PackageRepository : IPackageRepository
+    public class PackageRepository : GenericRepository<Package>, IPackageRepository
     {
-        private readonly BookingDbContext _context;
-
-        public PackageRepository(BookingDbContext context)
+        public PackageRepository(BookingDbContext context) : base(context)
         {
-            _context = context;
         }
 
-        public async Task<IEnumerable<Package>> GetAllAsync()
+        public async Task<IEnumerable<Package>> GetAllPackagesAsync()
         {
             return await _context.Packages
                 .Include(p => p.CarPackages)
                 .ToListAsync();
         }
 
-        public async Task<Package?> GetByIdAsync(Guid id)
+        public async Task<Package?> GetPackageByIdAsync(Guid id)
         {
             return await _context.Packages
                 .Include(p => p.CarPackages)
@@ -36,7 +33,7 @@ namespace BookingService.Infrastructure.Repositories
         //        .ToListAsync();
         //}
 
-        public async Task<Package> CreateAsync(Package package)
+        public async Task<Package> CreatePackageAsync(Package package)
         {
             package.Id = Guid.NewGuid();
             package.CreatedAt = DateTime.UtcNow;
@@ -47,7 +44,7 @@ namespace BookingService.Infrastructure.Repositories
             return package;
         }
 
-        public async Task<Package> UpdateAsync(Package package)
+        public async Task<Package> UpdatePackageAsync(Package package)
         {
             package.LastModifiedAt = DateTime.UtcNow;
             _context.Packages.Update(package);
@@ -55,7 +52,7 @@ namespace BookingService.Infrastructure.Repositories
             return package;
         }
 
-        public async Task DeleteAsync(Guid id)
+        public async Task DeletePackageAsync(Guid id)
         {
             var package = await _context.Packages.FindAsync(id);
             if (package != null)

@@ -1,9 +1,5 @@
 
 using Microsoft.EntityFrameworkCore;
-using ResourceService.Application;
-using ResourceService.Infrastructure;
-using ResourceService.Infrastructure.Persistence.Context;
-
 namespace ResourceService
 {
     public class Program
@@ -19,8 +15,6 @@ namespace ResourceService
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-            builder.Services.AddInfrastructure(config);
-            builder.Services.AddApplication(config);
 
             builder.Services.AddCors(options =>
             {
@@ -35,32 +29,6 @@ namespace ResourceService
             var app = builder.Build();
 
             // Auto-migrate database on startup
-            app.Logger.LogInformation("Starting database migration...");
-            using (var scope = app.Services.CreateScope())
-            {
-                try
-                {
-                    var context = scope.ServiceProvider.GetRequiredService<ResourceDbContext>();
-                    app.Logger.LogInformation("Got ResourceDbContext, checking connection...");
-                    
-                    // Test connection first
-                    await context.Database.CanConnectAsync();
-                    app.Logger.LogInformation("Database connection successful, running migrations...");
-                    
-                    // Run migrations
-                    await context.Database.MigrateAsync();
-                    app.Logger.LogInformation("Database migration completed successfully");
-                    
-                    // Log existing tables
-                    var tables = await context.Database.SqlQueryRaw<string>("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'").ToListAsync();
-                    app.Logger.LogInformation($"Tables in database: {string.Join(", ", tables)}");
-                }
-                catch (Exception ex)
-                {
-                    app.Logger.LogError(ex, "Database migration failed: {Message}", ex.Message);
-                    app.Logger.LogError("Connection string: {ConnectionString}", app.Configuration.GetConnectionString("RESOURCESERVICECONNECTION"));
-                }
-            }
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
@@ -83,20 +51,7 @@ namespace ResourceService
             app.MapControllers();
             
             // Health check endpoints
-            app.MapGet("/health", () => Results.Ok(new { status = "healthy", service = "ResourceService", timestamp = DateTime.UtcNow }));
-            
-            app.MapGet("/health/database", async (ResourceDbContext context) =>
-            {
-                try
-                {
-                    await context.Database.CanConnectAsync();
-                    return Results.Ok(new { status = "healthy", database = "connected", timestamp = DateTime.UtcNow });
-                }
-                catch (Exception ex)
-                {
-                    return Results.Problem($"Database connection failed: {ex.Message}");
-                }
-            });
+           
 
             app.Run();
         }

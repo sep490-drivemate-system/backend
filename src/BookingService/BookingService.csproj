@@ -32,7 +32,6 @@
 
   <ItemGroup>
     <Folder Include="Application\Commons\Constants\" />
-    <Folder Include="Application\Commons\Mapping\" />
   </ItemGroup>
 
 </Project>

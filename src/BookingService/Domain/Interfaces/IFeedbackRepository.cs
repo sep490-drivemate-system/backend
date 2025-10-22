@@ -2,14 +2,14 @@ using BookingService.Domain.Entities;
 
 namespace BookingService.Domain.Interfaces
 {
-    public interface IFeedbackRepository
+    public interface IFeedbackRepository : IGenericRepository<Feedback>
     {
-        Task<IEnumerable<Feedback>> GetAllAsync();
-        Task<Feedback?> GetByIdAsync(Guid id);
+        Task<IEnumerable<Feedback>> GetAllFeedbacksAsync();
+        Task<Feedback?> GetFeedbackByIdAsync(Guid id);
         Task<IEnumerable<Feedback>> GetByBookingIdAsync(Guid bookingId);
         Task<IEnumerable<Feedback>> GetByUserIdAsync(Guid userId);
-        Task<Feedback> CreateAsync(Feedback feedback);
-        Task<Feedback> UpdateAsync(Feedback feedback);
-        Task DeleteAsync(Guid id);
+        Task<Feedback> CreateFeedbackAsync(Feedback feedback);
+        Task<Feedback> UpdateFeedbackAsync(Feedback feedback);
+        Task DeleteFeedbackAsync(Guid id);
     }
 }

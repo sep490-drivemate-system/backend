@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using BookingService.Domain.Entities;
-using BookingService.Domain.Interfaces;
+using BookingService.Application.Interfaces;
+using SharedLibrary.SharedKernel.ServiceResult;
 
 namespace BookingService.Controllers
 {
@@ -8,62 +9,51 @@ namespace BookingService.Controllers
     [Route("api/[controller]")]
     public class PackageController : ControllerBase
     {
-        private readonly IPackageRepository _packageRepository;
+        private readonly IPackageService _packageService;
 
-        public PackageController(IPackageRepository packageRepository)
+        public PackageController(IPackageService packageService)
         {
-            _packageRepository = packageRepository;
+            _packageService = packageService;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Package>>> GetAllPackages()
+        public async Task<IActionResult> GetAllPackages()
         {
-            var packages = await _packageRepository.GetAllAsync();
-            return Ok(packages);
+            var result = await _packageService.GetAllPackagesAsync();
+            return result.ToActionResult();
         }
 
-        //[HttpGet("active")]
-        //public async Task<ActionResult<IEnumerable<Package>>> GetActivePackages()
-        //{
-        //    var packages = await _packageRepository.GetActivePackagesAsync();
-        //    return Ok(packages);
-        //}
-
         [HttpGet("{id}")]
-        public async Task<ActionResult<Package>> GetPackage(Guid id)
+        public async Task<IActionResult> GetPackage(Guid id)
         {
-            var package = await _packageRepository.GetByIdAsync(id);
-            if (package == null)
-            {
-                return NotFound();
-            }
-            return Ok(package);
+            var result = await _packageService.GetPackageByIdAsync(id);
+            return result.ToActionResult();
         }
 
         [HttpPost]
-        public async Task<ActionResult<Package>> CreatePackage(Package package)
+        public async Task<IActionResult> CreatePackage([FromBody] Package package)
         {
-            var createdPackage = await _packageRepository.CreateAsync(package);
-            return CreatedAtAction(nameof(GetPackage), new { id = createdPackage.Id }, createdPackage);
+            var result = await _packageService.CreatePackageAsync(package);
+            return result.ToActionResult();
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdatePackage(Guid id, Package package)
+        public async Task<IActionResult> UpdatePackage(Guid id, [FromBody] Package package)
         {
             if (id != package.Id)
             {
-                return BadRequest();
+                return BadRequest("ID mismatch");
             }
 
-            var updatedPackage = await _packageRepository.UpdateAsync(package);
-            return Ok(updatedPackage);
+            var result = await _packageService.UpdatePackageAsync(package);
+            return result.ToActionResult();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePackage(Guid id)
         {
-            await _packageRepository.DeleteAsync(id);
-            return NoContent();
+            var result = await _packageService.DeletePackageAsync(id);
+            return result.ToActionResult();
         }
     }
 }
