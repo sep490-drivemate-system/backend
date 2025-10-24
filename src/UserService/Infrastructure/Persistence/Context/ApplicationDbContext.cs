@@ -14,6 +14,7 @@ namespace UserService.Infrastructure.Persistence.Context
         public DbSet<Address> Addresses { get; set; }
         public DbSet<DocumentType> DocumentTypes { get; set; }
         public DbSet<Instructor> Instructors { get; set; }
+        public DbSet<ScheduleUnavailability> InstructorSchedule { get; set; }
         public DbSet<ApplicationTracking> InstructorApplications { get; set; }
         public DbSet<InstructorApplication> InstructorDocuments { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
@@ -21,6 +22,8 @@ namespace UserService.Infrastructure.Persistence.Context
         public DbSet<Manufacturer> Manufacturers { get; set; }
         public DbSet<Car> Cars { get; set; }
         public DbSet<CarImage> CarImages { get; set; }
+
+        public DbSet<Policy> Policies { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

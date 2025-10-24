@@ -26,6 +26,7 @@
             public const string UnknownError = "Có lỗi xảy ra, vui lòng thử lại sau.";
             public const string EmailError = "Có lỗi xảy ra khi gửi email, vui lòng thử lại sau.";
             public const string PhoneError = "Có lỗi xảy ra khi gửi sms, vui lòng thử lại sau.";
+            public const string NotFoundError = "Tài nguyên bạn đang cố truy cập không tồn tại";
         }
     }
 }
