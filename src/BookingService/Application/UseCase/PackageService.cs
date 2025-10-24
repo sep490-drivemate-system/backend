@@ -2,7 +2,7 @@ using BookingService.Application.Interfaces;
 using BookingService.Domain.Entities;
 using SharedLibrary.SharedKernel.ServiceResult;
 
-namespace BookingService.Application.Services
+namespace BookingService.Application.UseCase
 {
     public class PackageService : IPackageService
     {

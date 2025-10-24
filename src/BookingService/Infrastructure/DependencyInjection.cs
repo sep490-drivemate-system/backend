@@ -3,6 +3,9 @@ using BookingService.Infrastructure.Persistence.Context;
 using BookingService.Domain.Interfaces;
 using BookingService.Infrastructure.Repositories;
 using BookingService.Application.Interfaces;
+using BookingService.Infrastructure.Messaging.Settings;
+using BookingService.Infrastructure.Messaging.Services;
+using BookingService.Infrastructure.UoW;
 
 namespace BookingService.Infrastructure
 {
@@ -28,6 +31,19 @@ namespace BookingService.Infrastructure
             services.AddScoped<IRoadTypeRepository, RoadTypeRepository>();
 
             services.AddScoped<IUnitOfWork,UnitOfWork>();
+
+            // Configure RabbitMQ settings
+            services.Configure<RabbitMQSettings>(configuration.GetSection("RabbitMQ"));
+            
+            // Register RabbitMQ service (with fallback to mock if connection fails)
+            var useRealRabbitMQ = configuration.GetValue<bool>("RabbitMQ:UseRealConnection", true);
+            
+
+                services.AddSingleton<IRabbitMQService, RabbitMQService>();
+
+            
+            // Add payment messaging service
+            services.AddScoped<IPaymentMessagingService, PaymentMessagingService>();
 
             return services;
         }

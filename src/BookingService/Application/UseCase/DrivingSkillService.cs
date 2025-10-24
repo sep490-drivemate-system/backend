@@ -1,9 +1,8 @@
-﻿using BookingService.Application.DTOs.DrivingSkills;
-using BookingService.Application.DTOs.RoadTypes;
+﻿using BookingService.Application.Commons.DTOs.DrivingSkills;
 using BookingService.Application.Interfaces;
 using SharedLibrary.SharedKernel.ServiceResult;
 
-namespace BookingService.Application.Services
+namespace BookingService.Application.UseCase
 {
     public class DrivingSkillService(IUnitOfWork unitOfWork) : IDrivingSkillService
     {

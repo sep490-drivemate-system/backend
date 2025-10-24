@@ -3,7 +3,7 @@ using BookingService.Domain.Interfaces;
 using BookingService.Infrastructure.Persistence.Context;
 using BookingService.Infrastructure.Repositories;
 
-namespace BookingService.Infrastructure
+namespace BookingService.Infrastructure.UoW
 {
     public class UnitOfWork(BookingDbContext context): IUnitOfWork
     {

@@ -16,6 +16,10 @@ namespace PaymentService.Infrastructure.Persistence.Configurations
             builder.Property(x => x.Id).HasColumnName("id");
 
             // properties
+            builder.Property(w => w.UserId)
+                   .HasColumnName("user_id")
+                   .IsRequired();
+
             builder.Property(w => w.Balance)
                    .HasColumnName("balance")
                    .HasPrecision(18, 2)
@@ -24,6 +28,10 @@ namespace PaymentService.Infrastructure.Persistence.Configurations
 
             builder.Property(w => w.UpdatedAt)
                    .HasColumnName("updated_at")
+                   .HasColumnType("timestamp");
+
+            builder.Property(w => w.UpdatedDate)
+                   .HasColumnName("updated_date")
                    .HasColumnType("timestamp");
 
             builder.Property(w => w.CreatedAt)

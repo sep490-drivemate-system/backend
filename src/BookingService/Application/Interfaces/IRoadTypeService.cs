@@ -1,4 +1,4 @@
-﻿using BookingService.Application.DTOs.RoadTypes;
+﻿using BookingService.Application.Commons.DTOs.RoadTypes;
 using SharedLibrary.SharedKernel.ServiceResult;
 
 namespace BookingService.Application.Interfaces

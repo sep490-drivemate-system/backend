@@ -1,4 +1,4 @@
-﻿using BookingService.Application.DTOs.DrivingSkills;
+﻿using BookingService.Application.Commons.DTOs.DrivingSkills;
 using SharedLibrary.SharedKernel.ServiceResult;
 
 namespace BookingService.Application.Interfaces

@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Text.Json.Serialization;
 
-namespace BookingService.Application.DTOs.RoadTypes
+namespace BookingService.Application.Commons.DTOs.RoadTypes
 {
     public class RoadTypeDTO
     {

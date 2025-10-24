@@ -21,7 +21,8 @@ namespace BookingService.Infrastructure.Persistence.Configurations
 
             builder.Property(x => x.Description)
                 .HasColumnName("description")
-                .HasMaxLength(1000);
+                .HasMaxLength(1000)
+                .IsRequired();
 
             builder.Property(x => x.RecommendedValue)
                 .HasColumnName("value")
@@ -33,7 +34,7 @@ namespace BookingService.Infrastructure.Persistence.Configurations
                 .IsRequired();
 
             builder.Property(x => x.LastModifiedAt)
-                .HasColumnName("upadated_at")
+                .HasColumnName("updated_at")
                 .IsRequired();
 
             builder.Property(x => x.IsDeleted)

@@ -73,6 +73,60 @@
       "SwaggerKey": "bookingService"
     },
     {
+      "DownstreamPathTemplate": "/api/payment/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${PAYMENTSERVICE_HOST}",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/payment/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "SwaggerKey": "paymentService"
+    },
+    {
+      "DownstreamPathTemplate": "/api/wallet/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${PAYMENTSERVICE_HOST}",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/wallet/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "SwaggerKey": "paymentService"
+    },
+    {
+      "DownstreamPathTemplate": "/api/transaction/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${PAYMENTSERVICE_HOST}",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/transaction/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "SwaggerKey": "paymentService"
+    },
+    {
       "DownstreamPathTemplate": "/api/resource/{everything}",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
@@ -109,6 +163,16 @@
           "Name": "Booking Service API",
           "Version": "v1",
           "Url": "https://${BOOKINGSERVICE_HOST}/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "paymentService",
+      "Config": [
+        {
+          "Name": "Payment Service API",
+          "Version": "v1",
+          "Url": "https://${PAYMENTSERVICE_HOST}/swagger/v1/swagger.json"
         }
       ]
     },

@@ -6,7 +6,7 @@ using SharedLibrary.SharedKernel.ServiceResult;
 namespace BookingService.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/package")]
     public class PackageController : ControllerBase
     {
         private readonly IPackageService _packageService;

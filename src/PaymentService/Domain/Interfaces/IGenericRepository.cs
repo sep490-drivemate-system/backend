@@ -16,5 +16,6 @@ namespace PaymentService.Domain.Interfaces
         Task<bool> Remove<Tid>(Tid id);
 
         Task<T> Update(T entity);
+        Task<T> UpdateAsync(T entity);
     }
 }

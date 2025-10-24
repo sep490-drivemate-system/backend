@@ -72,5 +72,12 @@ namespace PaymentService.Infrastructure.Repositories
 
             return tracker.Entity;
         }
+
+        public async Task<T> UpdateAsync(T entity)
+        {
+            var tracker = _context.Set<T>().Update(entity);
+            // Note: Don't auto-commit here, let UnitOfWork handle it
+            return tracker.Entity;
+        }
     }
 }

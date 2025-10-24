@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Text.Json.Serialization;
 
-namespace BookingService.Application.DTOs.DrivingSkills
+namespace BookingService.Application.Commons.DTOs.DrivingSkills
 {
     public class DrivingSkillDTO
     {

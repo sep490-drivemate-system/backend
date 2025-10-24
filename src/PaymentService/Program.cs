@@ -60,12 +60,6 @@ namespace PaymentService
             app.UseCors("AllowAll");
             app.UseAuthorization();
 
-            // Add health check endpoints
-            app.MapHealthChecks("/health");
-            app.MapHealthChecks("/health/database", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
-            {
-                Predicate = check => check.Tags.Contains("database")
-            });
 
             app.MapControllers();
 

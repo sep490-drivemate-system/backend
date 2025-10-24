@@ -25,8 +25,8 @@ namespace BookingService.Application.Commons.Mapping
                 .ForMember(dest => dest.RoadTypes, opt => opt.Ignore())
                 .ForMember(dest => dest.CarPackages, opt => opt.Ignore());
 
-            // Mapping TimeRanges DTO to TimeRange entity
-            CreateMap<TimeRanges, TimeRange>()
+            // Mapping TimeRangeRequest DTO to TimeRange entity
+            CreateMap<TimeRangeRequest, TimeRange>()
                 .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => DateOnly.MinValue.ToDateTime(src.StartTime)))
                 .ForMember(dest => dest.EndTime, opt => opt.MapFrom(src => DateOnly.MinValue.ToDateTime(src.EndTime)))
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.NewGuid()))

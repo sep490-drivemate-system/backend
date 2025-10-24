@@ -3,64 +3,82 @@ using System;
 using BookingService.Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
 namespace BookingService.Migrations
 {
     [DbContext(typeof(BookingDbContext))]
-    partial class BookingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251024110526_Init_Case")]
+    partial class Init_Case
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "8.0.0")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("BookingDrivingSkill", b =>
+                {
+                    b.Property<Guid>("BookingsId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("DrivingSkillsId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("BookingsId", "DrivingSkillsId");
+
+                    b.HasIndex("DrivingSkillsId");
+
+                    b.ToTable("BookingDrivingSkill");
+                });
 
             modelBuilder.Entity("BookingService.Domain.Entities.Booking", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
+                        .HasColumnType("uuid")
                         .HasColumnName("id");
 
                     b.Property<Guid>("CarPackageId")
-                        .HasColumnType("uniqueidentifier")
+                        .HasColumnType("uuid")
                         .HasColumnName("package_id");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
                     b.Property<Guid>("DriverId")
-                        .HasColumnType("uniqueidentifier")
+                        .HasColumnType("uuid")
                         .HasColumnName("driver_id");
 
                     b.Property<DateTime>("EndDate")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("end_date");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit")
+                        .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
                     b.Property<DateTime>("LastModifiedAt")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
                     b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("start_date");
 
                     b.Property<int>("Status")
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasColumnName("status");
 
                     b.HasKey("Id");
@@ -74,32 +92,32 @@ namespace BookingService.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
+                        .HasColumnType("uuid")
                         .HasColumnName("id");
 
                     b.Property<Guid>("CarId")
                         .HasMaxLength(100)
-                        .HasColumnType("uniqueidentifier")
+                        .HasColumnType("uuid")
                         .HasColumnName("car_id");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
+                        .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
                     b.Property<DateTime>("LastModifiedAt")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
                     b.Property<Guid>("PackageId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)")
+                        .HasColumnType("numeric")
                         .HasColumnName("price");
 
                     b.HasKey("Id");
@@ -113,69 +131,69 @@ namespace BookingService.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
+                        .HasColumnType("uuid")
                         .HasColumnName("id");
 
                     b.Property<DateTime>("ActualEnd")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("actual_end_time");
 
                     b.Property<DateTime>("ActualStart")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("actual_start_time");
 
                     b.Property<decimal>("AverageSpeed")
-                        .HasColumnType("decimal(18,2)")
+                        .HasColumnType("numeric")
                         .HasColumnName("speed");
 
                     b.Property<Guid>("BookingId")
-                        .HasColumnType("uniqueidentifier")
+                        .HasColumnType("uuid")
                         .HasColumnName("booking_id");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
                     b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<TimeOnly>("EndTime")
-                        .HasColumnType("time")
+                        .HasColumnType("time without time zone")
                         .HasColumnName("end_time");
 
                     b.Property<decimal>("EndingLatitude")
-                        .HasColumnType("decimal(18,2)")
+                        .HasColumnType("numeric")
                         .HasColumnName("end_lat");
 
                     b.Property<decimal>("EndingLongtitude")
-                        .HasColumnType("decimal(18,2)")
+                        .HasColumnType("numeric")
                         .HasColumnName("end_long");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<DateTime>("LastModifiedAt")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
                     b.Property<TimeOnly>("StartTime")
-                        .HasColumnType("time")
+                        .HasColumnType("time without time zone")
                         .HasColumnName("start_time");
 
                     b.Property<decimal>("StartingLatitude")
-                        .HasColumnType("decimal(18,2)")
+                        .HasColumnType("numeric")
                         .HasColumnName("starting_lat");
 
                     b.Property<decimal>("StartingLongtitude")
-                        .HasColumnType("decimal(18,2)")
+                        .HasColumnType("numeric")
                         .HasColumnName("starting_long");
 
                     b.Property<int>("Status")
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasColumnName("status");
 
                     b.Property<decimal>("TotalDistance")
-                        .HasColumnType("decimal(18,2)")
+                        .HasColumnType("numeric")
                         .HasColumnName("distance");
 
                     b.HasKey("Id");
@@ -185,52 +203,85 @@ namespace BookingService.Migrations
                     b.ToTable("DrivingSession", (string)null);
                 });
 
+            modelBuilder.Entity("BookingService.Domain.Entities.DrivingSkill", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<DateTime>("LastModifiedAt")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DrivingSkill", (string)null);
+                });
+
             modelBuilder.Entity("BookingService.Domain.Entities.Feedback", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
+                        .HasColumnType("uuid")
                         .HasColumnName("id");
 
                     b.Property<Guid>("BookingId")
-                        .HasColumnType("uniqueidentifier")
+                        .HasColumnType("uuid")
                         .HasColumnName("booking_id");
 
                     b.Property<string>("CarFeedback")
                         .IsRequired()
                         .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)")
+                        .HasColumnType("character varying(1000)")
                         .HasColumnName("description_car");
 
                     b.Property<int>("CarRating")
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasColumnName("rating_car");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
                     b.Property<string>("InstructorFeedback")
                         .IsRequired()
                         .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)")
+                        .HasColumnType("character varying(1000)")
                         .HasColumnName("description_instructor");
 
                     b.Property<int>("InstructorRating")
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasColumnName("rating_instructor");
 
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
+                        .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
                     b.Property<DateTime>("LastModifiedAt")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
                     b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier")
+                        .HasColumnType("uuid")
                         .HasColumnName("user_id");
 
                     b.HasKey("Id");
@@ -244,31 +295,31 @@ namespace BookingService.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
+                        .HasColumnType("uuid")
                         .HasColumnName("id");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)")
+                        .HasColumnType("character varying(1000)")
                         .HasColumnName("description");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit")
+                        .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
                     b.Property<DateTime>("LastModifiedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("upadated_at");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)")
+                        .HasColumnType("character varying(200)")
                         .HasColumnName("name");
 
                     b.Property<decimal>("RecommendedValue")
@@ -284,32 +335,36 @@ namespace BookingService.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
+                        .HasColumnType("uuid")
                         .HasColumnName("id");
+
+                    b.Property<Guid?>("BookingId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
+                        .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
-                    b.Property<string>("LastModifiedAt")
-                        .IsRequired()
+                    b.Property<DateTime>("LastModifiedAt")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("name");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BookingId");
 
                     b.ToTable("RoadType", (string)null);
                 });
@@ -318,47 +373,47 @@ namespace BookingService.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
+                        .HasColumnType("uuid")
                         .HasColumnName("id");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
                     b.Property<string>("Heading")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("text")
                         .HasColumnName("heading");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit")
+                        .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
                     b.Property<DateTime>("LastModifiedAt")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
                     b.Property<decimal>("Latitude")
-                        .HasColumnType("decimal(18,2)")
+                        .HasColumnType("numeric")
                         .HasColumnName("latitude");
 
                     b.Property<decimal>("Longitude")
-                        .HasColumnType("decimal(18,2)")
+                        .HasColumnType("numeric")
                         .HasColumnName("longtitude");
 
                     b.Property<Guid>("SessionId")
-                        .HasColumnType("uniqueidentifier")
+                        .HasColumnType("uuid")
                         .HasColumnName("session_id");
 
                     b.Property<decimal>("Speed")
                         .HasMaxLength(500)
-                        .HasColumnType("decimal(18,2)")
+                        .HasColumnType("numeric")
                         .HasColumnName("speed");
 
                     b.Property<string>("StreetName")
                         .IsRequired()
                         .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)")
+                        .HasColumnType("character varying(500)")
                         .HasColumnName("street_name");
 
                     b.HasKey("Id");
@@ -372,30 +427,30 @@ namespace BookingService.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
+                        .HasColumnType("uuid")
                         .HasColumnName("id");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
+                        .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
                     b.Property<DateTime>("LastModifiedAt")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
                     b.Property<Guid>("RoadTypeId")
-                        .HasColumnType("uniqueidentifier")
+                        .HasColumnType("uuid")
                         .HasColumnName("road_type_id");
 
                     b.Property<Guid>("SessionId")
-                        .HasColumnType("uniqueidentifier")
+                        .HasColumnType("uuid")
                         .HasColumnName("session_id");
 
                     b.HasKey("Id");
@@ -411,43 +466,43 @@ namespace BookingService.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
+                        .HasColumnType("uuid")
                         .HasColumnName("id");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit")
+                        .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
                     b.Property<DateTime>("LastModifiedAt")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
                     b.Property<decimal>("LatitudeStart")
-                        .HasColumnType("decimal(18,2)")
+                        .HasColumnType("numeric")
                         .HasColumnName("latitude_start");
 
                     b.Property<decimal>("LongitudeStart")
-                        .HasColumnType("decimal(18,2)")
+                        .HasColumnType("numeric")
                         .HasColumnName("longtitude_start");
 
                     b.Property<Guid>("SessionId")
-                        .HasColumnType("uniqueidentifier")
+                        .HasColumnType("uuid")
                         .HasColumnName("session_id");
 
                     b.Property<string>("StreetName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("text")
                         .HasColumnName("street_name");
 
                     b.Property<string>("TextInstruction")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("text")
                         .HasColumnName("text_instruction");
 
                     b.HasKey("Id");
@@ -461,33 +516,33 @@ namespace BookingService.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
+                        .HasColumnType("uuid")
                         .HasColumnName("id");
 
                     b.Property<Guid>("BookingId")
-                        .HasColumnType("uniqueidentifier")
+                        .HasColumnType("uuid")
                         .HasColumnName("booking_id");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
                     b.Property<DateTime>("EndTime")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("end_time");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit")
+                        .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
                     b.Property<DateTime>("LastModifiedAt")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("update_at");
 
                     b.Property<DateTime>("StartTime")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("start_time");
 
                     b.HasKey("Id");
@@ -495,6 +550,21 @@ namespace BookingService.Migrations
                     b.HasIndex("BookingId");
 
                     b.ToTable("BookingTimeRange", (string)null);
+                });
+
+            modelBuilder.Entity("BookingDrivingSkill", b =>
+                {
+                    b.HasOne("BookingService.Domain.Entities.Booking", null)
+                        .WithMany()
+                        .HasForeignKey("BookingsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BookingService.Domain.Entities.DrivingSkill", null)
+                        .WithMany()
+                        .HasForeignKey("DrivingSkillsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("BookingService.Domain.Entities.Booking", b =>
@@ -541,6 +611,13 @@ namespace BookingService.Migrations
                     b.Navigation("Bookings");
                 });
 
+            modelBuilder.Entity("BookingService.Domain.Entities.RoadType", b =>
+                {
+                    b.HasOne("BookingService.Domain.Entities.Booking", null)
+                        .WithMany("RoadTypes")
+                        .HasForeignKey("BookingId");
+                });
+
             modelBuilder.Entity("BookingService.Domain.Entities.SessionLog", b =>
                 {
                     b.HasOne("BookingService.Domain.Entities.DrivingSession", "DrivingSessions")
@@ -554,7 +631,7 @@ namespace BookingService.Migrations
 
             modelBuilder.Entity("BookingService.Domain.Entities.SessionRoadType", b =>
                 {
-                    b.HasOne("BookingService.Domain.Entities.RoadType", "RoadTypes")
+                    b.HasOne("BookingService.Domain.Entities.RoadType", null)
                         .WithMany("SessionRoadTypes")
                         .HasForeignKey("RoadTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -567,8 +644,6 @@ namespace BookingService.Migrations
                         .IsRequired();
 
                     b.Navigation("DrivingSessions");
-
-                    b.Navigation("RoadTypes");
                 });
 
             modelBuilder.Entity("BookingService.Domain.Entities.SessionRoute", b =>
@@ -598,6 +673,8 @@ namespace BookingService.Migrations
                     b.Navigation("DrivingSessions");
 
                     b.Navigation("Feedbacks");
+
+                    b.Navigation("RoadTypes");
 
                     b.Navigation("TimeRanges");
                 });

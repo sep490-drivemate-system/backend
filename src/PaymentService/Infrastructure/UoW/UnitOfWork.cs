@@ -55,6 +55,11 @@ namespace PaymentService.Infrastructure.UoW
             _context.ChangeTracker.Clear();
         }
 
+        public async Task<int> SaveChangesAsync()
+        {
+            return await _context.SaveChangesAsync();
+        }
+
         private bool disposed = false;
 
         protected virtual void Dispose(bool disposing)

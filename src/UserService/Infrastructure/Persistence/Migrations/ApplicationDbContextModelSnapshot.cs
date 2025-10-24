@@ -640,6 +640,48 @@ namespace UserService.Infrastructure.Persistence.Migrations
                     b.ToTable("PackageCar", (string)null);
                 });
 
+            modelBuilder.Entity("UserService.Domain.Entities.Policy", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("create_at");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_delete");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("PolicyType")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("type");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("update_at");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Policy", (string)null);
+                });
+
             modelBuilder.Entity("UserService.Domain.Entities.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")

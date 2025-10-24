@@ -18,6 +18,12 @@ namespace PaymentService.Infrastructure.Repositories
                 .FirstOrDefaultAsync(w => w.Id == id && !w.IsDelete);
         }
 
+        public async Task<Wallet?> GetByUserIdAsync(Guid userId)
+        {
+            return await _context.Wallets
+                .FirstOrDefaultAsync(w => w.UserId == userId && !w.IsDelete);
+        }
+
         public async Task<bool> UpdateBalanceAsync(Guid walletId, decimal newBalance)
         {
             var wallet = await _context.Wallets.FindAsync(walletId);

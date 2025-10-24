@@ -6,7 +6,7 @@ using UserService.Application.Interfaces;
 
 namespace UserService.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/policy")]
     [ApiController]
     public class PolicyController(IPolicyUseCase usecases): ControllerBase
     {

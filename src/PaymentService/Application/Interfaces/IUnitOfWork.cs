@@ -10,5 +10,6 @@ namespace PaymentService.Application.Interfaces
         public void Commit();
         public Task CommitAsync();
         public void RollBack();
+        public Task<int> SaveChangesAsync();
     }
 }

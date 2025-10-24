@@ -5,7 +5,7 @@ using SharedLibrary.SharedKernel.ServiceResult;
 
 namespace BookingService.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/roadtypes")]
     [ApiController]
     public class RoadtypeController(IRoadTypeService roadService): ControllerBase
     {

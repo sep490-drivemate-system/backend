@@ -5,7 +5,7 @@ using SharedLibrary.SharedKernel.ServiceResult;
 
 namespace BookingService.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/skills")]
     [ApiController]
     public class DrivingSkillController(IDrivingSkillService skill_service): ControllerBase
     {

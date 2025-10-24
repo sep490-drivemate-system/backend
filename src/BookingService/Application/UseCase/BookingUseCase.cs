@@ -4,6 +4,8 @@ using BookingService.Application.Interfaces;
 using BookingService.Domain.Entities;
 using BookingService.Infrastructure.Persistence.Context;
 using SharedLibrary.SharedKernel.ServiceResult;
+using BookingService.Infrastructure.Messaging.Services;
+using BookingService.Application.Commons.Constants;
 
 namespace BookingService.Application.UseCase
 {
@@ -12,23 +14,31 @@ namespace BookingService.Application.UseCase
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly BookingDbContext _context;
+        private readonly IPaymentMessagingService _paymentMessagingService;
 
-        public BookingUseCase(IUnitOfWork unitOfWork, IMapper mapper, BookingDbContext context)
+        public BookingUseCase(IUnitOfWork unitOfWork, IMapper mapper, BookingDbContext context, IPaymentMessagingService paymentMessagingService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _context = context;
+            _paymentMessagingService = paymentMessagingService;
         }
 
-        public async Task<Result<bool>> CreateBooking(BookingDTO bookingDTO)
+        public async Task<Result<bool>> CreateBooking(BookingDTO bookingDTO, Guid userId)
         {
-            // 1. Check payment and implement transaction 
+            // 1. Check payment
+            var walletCheckResponse = await _paymentMessagingService.CheckWalletBalanceAsync(
+                userId, 
+                bookingDTO.Price);
+
+            if (!walletCheckResponse.HasSufficientBalance)
+            {
+                return Result<bool>.Failure(ServiceError.BadRequestError(Messages.Booking.INSUFFICENTCREDIT));
+            }
 
             // 2. Add All booking information into booking and time range
             var booking = _mapper.Map<Booking>(bookingDTO);
 
-            // Set DriverId from context (you may need to get this from JWT token or parameter)
-            // booking.DriverId = currentUserId; // TODO: Get from authentication context
 
             // Create booking first
             var createdBooking = await _unitOfWork.BookingRepository.CreateAsync(booking);
@@ -49,7 +59,7 @@ namespace BookingService.Application.UseCase
             }
 
             // 4. Add driving skills (many-to-many relationship)
-            // Initialize collections if they are null
+
 
             foreach (var drivingSkillDto in bookingDTO.DrivingSkills)
             {
@@ -63,7 +73,6 @@ namespace BookingService.Application.UseCase
             }
 
             // 5. Add road types (many-to-many relationship)
-            // Initialize collections if they are null
 
 
             foreach (var roadTypeDto in bookingDTO.RoadTypes)

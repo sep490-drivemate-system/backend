@@ -35,6 +35,7 @@ services:
     depends_on:
       - userservice
       - bookingservice
+      - paymentservice
       - resourceservice
     networks:
       - drivemate-network
@@ -83,6 +84,55 @@ services:
       - JWT__Issuer=DriveMate
       - JWT__Audience=DriveMate-Users
       - JWT__ExpiryInMinutes=60
+      - RabbitMQ__HostName=collie.lmq.cloudamqp.com
+      - RabbitMQ__Port=5672
+      - RabbitMQ__UserName=rmktcjwj
+      - RabbitMQ__Password=m1-L9KSptCjuFUuFFM6FAG9z0XPHUPJV
+      - RabbitMQ__VirtualHost=rmktcjwj
+      - RabbitMQ__BookingExchange=booking.exchange
+      - RabbitMQ__WalletBalanceCheckQueue=wallet.balance.check
+      - RabbitMQ__BookingCreatedQueue=booking.created
+      - RabbitMQ__BookingUpdatedQueue=booking.updated
+      - RabbitMQ__BookingCancelledQueue=booking.cancelled
+      - RabbitMQ__WalletBalanceResponseQueue=wallet.balance.response
+      - RabbitMQ__WalletBalanceCheckRoutingKey=wallet.balance.check
+      - RabbitMQ__WalletBalanceResponseRoutingKey=wallet.balance.response
+      - RabbitMQ__BookingCreatedRoutingKey=booking.created
+      - RabbitMQ__BookingUpdatedRoutingKey=booking.updated
+      - RabbitMQ__BookingCancelledRoutingKey=booking.cancelled
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - drivemate-network
+    restart: unless-stopped
+
+  # Payment Service
+  paymentservice:
+    build:
+      context: .
+      dockerfile: src/PaymentService/Dockerfile
+    container_name: drivemate-paymentservice
+    ports:
+      - "8084:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__PAYMENTSERVICECONNECTION=Host=postgres;Port=5432;Database=drivemate_payment_db;Username=postgres;Password=postgres123
+      - RabbitMQ__HostName=collie.lmq.cloudamqp.com
+      - RabbitMQ__Port=5672
+      - RabbitMQ__UserName=rmktcjwj
+      - RabbitMQ__Password=m1-L9KSptCjuFUuFFM6FAG9z0XPHUPJV
+      - RabbitMQ__VirtualHost=rmktcjwj
+      - RabbitMQ__PaymentExchange=payment.exchange
+      - RabbitMQ__WalletBalanceCheckQueue=wallet.balance.check
+      - RabbitMQ__WalletBalanceResponseQueue=wallet.balance.response
+      - RabbitMQ__PaymentProcessedQueue=payment.processed
+      - RabbitMQ__PaymentFailedQueue=payment.failed
+      - RabbitMQ__WalletBalanceCheckRoutingKey=wallet.balance.check
+      - RabbitMQ__WalletBalanceResponseRoutingKey=wallet.balance.response
+      - RabbitMQ__PaymentProcessedRoutingKey=payment.processed
+      - RabbitMQ__PaymentFailedRoutingKey=payment.failed
     depends_on:
       postgres:
         condition: service_healthy

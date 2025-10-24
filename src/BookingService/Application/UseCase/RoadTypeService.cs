@@ -1,8 +1,8 @@
-﻿using BookingService.Application.DTOs.RoadTypes;
+﻿using BookingService.Application.Commons.DTOs.RoadTypes;
 using BookingService.Application.Interfaces;
 using SharedLibrary.SharedKernel.ServiceResult;
 
-namespace BookingService.Application.Services
+namespace BookingService.Application.UseCase
 {
     public class RoadTypeService(IUnitOfWork unitOfWork) : IRoadTypeService
     {
