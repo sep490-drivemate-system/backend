@@ -31,12 +31,6 @@ namespace PaymentService.Application.Common.Mappings
             // Wallet mappings
             CreateMap<Wallet, WalletDto>();
 
-            // Refund mappings
-            CreateMap<Refund, RefundDto>();
-            CreateMap<CreateRefundDto, Refund>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.NewGuid()))
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => RefundStatus.Pending))
-                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow));
         }
     }
 }

@@ -10,8 +10,9 @@ namespace PaymentService
     {
         public static async Task Main(string[] args)
         {
+            DotNetEnv.Env.Load("../../.env");
             var builder = WebApplication.CreateBuilder(args);
-
+            builder.Configuration.AddEnvironmentVariables();
             // Add services to the container.
             builder.Services.AddControllers();
             
