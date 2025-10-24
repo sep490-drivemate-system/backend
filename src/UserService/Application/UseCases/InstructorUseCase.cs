@@ -67,5 +67,27 @@ namespace UserService.Application.UseCases
 
             return Result<PaginatedList<InstructorDTO>>.Success(paginated_filtered_instructor, "success");
         }
+
+        public async Task<Result<List<InstructorScheduleDTO>>> GetInstructorSchedule(Guid instructor_id)
+        {
+            // Check if the instructor exist
+            var target_instructor = await _unitOfWork.InstructorRepository.GetByIdAsync(instructor_id);
+
+            if (target_instructor == null)
+            {
+                return Result<List<InstructorScheduleDTO>>
+                    .Failure(ServiceError.NotFoundError(Commons.Constants.Messages.Common.NotFoundError));
+            }
+
+
+            var schedule = await _unitOfWork.ScheduleRepository.GetAllAsync();
+
+            return Result<List<InstructorScheduleDTO>>
+                .Success(schedule.Select(x => new InstructorScheduleDTO
+                {
+                    Id = x.Id,
+                    Date = x.Date,
+                }).ToList());
+        }
     }
 }

@@ -23,7 +23,9 @@ namespace UserService.Application
             services.AddScoped<IAuthUseCase, AuthUseCase>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ICarUseCase, CarUseCase>();
+            services.AddScoped<INoviceDriverUseCase, NoviceDriverUseCase>();
             services.AddScoped<IInstructorUseCase, InstructorUseCase>();
+            services.AddScoped<IPolicyUseCase, PolicyUseCase>();
             services.AddScoped<IJwtService, JwtService>();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 

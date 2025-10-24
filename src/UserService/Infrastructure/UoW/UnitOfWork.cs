@@ -12,6 +12,9 @@ namespace UserService.Infrastructure.UnitOfWork
         private IRefreshTokenRepository _refreshTokenRepository;
         private IInstructorRepository _instructorRepository;
         private ICarRepository _carRepository;
+        private IPolicyRepository _policyRepository;
+        private IScheduleRepository _scheduleRepository;
+        private INoviceDriverRepository _noviceDriverRepository;
         
         public UnitOfWork(ApplicationDbContext context)
         {
@@ -62,6 +65,36 @@ namespace UserService.Infrastructure.UnitOfWork
                     _carRepository = new CarRepository(_context);
                 }
                 return _carRepository;
+            }
+        }
+
+        public IPolicyRepository PolicyRepository
+        {
+            get
+            {
+                if (_policyRepository == null)
+                {
+                    _policyRepository = new PolicyRepository(_context);
+                }
+                return _policyRepository;
+            }
+        }
+
+        public IScheduleRepository ScheduleRepository
+        {
+            get
+            {
+                _scheduleRepository ??= new ScheduleRepository(_context);
+                return _scheduleRepository;
+            }
+        }
+
+        public INoviceDriverRepository NoviceDriverRepository
+        {
+            get
+            {
+                _noviceDriverRepository ??= new NoviceDriverRepository(_context);
+                return _noviceDriverRepository;
             }
         }
 
