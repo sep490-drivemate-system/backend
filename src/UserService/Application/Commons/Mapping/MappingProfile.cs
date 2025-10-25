@@ -11,7 +11,8 @@ namespace UserService.Application.Commons.Mapping
         {
 
             CreateMap<User, SignUpDTO>().ReverseMap();
-            
+            CreateMap<User, UserClaimTokenDTO>().ReverseMap();
+
             CreateMap<Policy, PolicyDTO>()
                 .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Detail, opt => opt.MapFrom(src => src.Description))

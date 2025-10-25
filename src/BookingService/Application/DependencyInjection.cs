@@ -2,6 +2,10 @@ using BookingService.Application.Interfaces;
 using BookingService.Application.UseCase;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SharedLibrary.Jwt;
+using SharedLibrary.SharedKernel.Http;
+using SharedLibrary.SharedKernel.Http.Implementation;
+using SharedLibrary.SharedKernel.Http.Interfaces;
 
 namespace BookingService.Application
 {
@@ -19,6 +23,13 @@ namespace BookingService.Application
             services.AddScoped<IDrivingSkillService, DrivingSkillService>();
             services.AddScoped<IRoadTypeService, RoadTypeService>();
             services.AddScoped<IPackageService, PackageService>();
+            services.AddScoped<IPayment, Payment>();
+
+
+            services.AddScoped<IJwtService, JwtService>();
+            services.AddHttpClient<HttpService>();
+            services.AddScoped<HttpService>();
+
 
             return services;
         }

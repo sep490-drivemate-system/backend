@@ -8,5 +8,7 @@ namespace PaymentService.Domain.Interfaces
         Task<Wallet?> GetByUserIdAsync(Guid userId);
         Task<bool> UpdateBalanceAsync(Guid walletId, decimal newBalance);
         Task<List<Wallet>> GetWalletsWithBalanceGreaterThanAsync(decimal amount);
+
+        Task<bool> CheckWallet(Guid walletId, decimal amount);
     }
 }

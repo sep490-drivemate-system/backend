@@ -1,11 +1,14 @@
 using AutoMapper;
+using BookingService.Application.Commons.Constants;
 using BookingService.Application.Commons.DTOs.Booking;
 using BookingService.Application.Interfaces;
 using BookingService.Domain.Entities;
+using BookingService.Infrastructure.Messaging.Interface;
 using BookingService.Infrastructure.Persistence.Context;
+using SharedLibrary.SharedKernel.Http;
+using SharedLibrary.SharedKernel.Http.Interfaces;
 using SharedLibrary.SharedKernel.ServiceResult;
-using BookingService.Infrastructure.Messaging.Services;
-using BookingService.Application.Commons.Constants;
+
 
 namespace BookingService.Application.UseCase
 {
@@ -13,25 +16,26 @@ namespace BookingService.Application.UseCase
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly BookingDbContext _context;
-        private readonly IPaymentMessagingService _paymentMessagingService;
+      //  private readonly IRabbitMQService _rabbitMQService;
+      private readonly IPayment _payment;
 
-        public BookingUseCase(IUnitOfWork unitOfWork, IMapper mapper, BookingDbContext context, IPaymentMessagingService paymentMessagingService)
+        public BookingUseCase(IUnitOfWork unitOfWork, IMapper mapper, IPayment payment)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
-            _context = context;
-            _paymentMessagingService = paymentMessagingService;
+           // _rabbitMQService = rabbitMQService;
+         _payment = payment;
         }
 
         public async Task<Result<bool>> CreateBooking(BookingDTO bookingDTO, Guid userId)
         {
+
             // 1. Check payment
-            var walletCheckResponse = await _paymentMessagingService.CheckWalletBalanceAsync(
+            var walletCheckResponse = await _payment.CheckWalletBooking(
                 userId, 
                 bookingDTO.Price);
 
-            if (!walletCheckResponse.HasSufficientBalance)
+            if (!walletCheckResponse.IsPayment)
             {
                 return Result<bool>.Failure(ServiceError.BadRequestError(Messages.Booking.INSUFFICENTCREDIT));
             }
@@ -52,13 +56,11 @@ namespace BookingService.Application.UseCase
                 timeRanges.Add(timeRange);
             }
 
-            // Add time ranges to database using DbContext directly
             foreach (var timeRange in timeRanges)
             {
-                await _context.BookingTimeRanges.AddAsync(timeRange);
+                await _unitOfWork.TimeRangeRepository.CreateAsync(timeRange);
             }
 
-            // 4. Add driving skills (many-to-many relationship)
 
 
             foreach (var drivingSkillDto in bookingDTO.DrivingSkills)
@@ -89,7 +91,7 @@ namespace BookingService.Application.UseCase
             await _unitOfWork.BookingRepository.Update(createdBooking);
 
             // Save all changes to database
-            await _context.SaveChangesAsync();
+            await _unitOfWork.CommitChanges();
 
             return Result<bool>.Success(true);
 

@@ -9,6 +9,7 @@ namespace BookingService.Infrastructure.UoW
     {
         private readonly BookingDbContext _context = context;
 
+        private ITimeRangeRepository _timeRangeRepo;
         private IDrivingSkillRepository _skillRepo;
         private IRoadTypeRepository _roadRepo;
         private IDrivingSessionRepository _sessionRepo;
@@ -32,6 +33,14 @@ namespace BookingService.Infrastructure.UoW
             {
                 _sessionRepo ??= new DrivingSessionRepository(_context);
                 return _sessionRepo;
+            }
+        }
+        public ITimeRangeRepository TimeRangeRepository
+        {
+            get
+            {
+                _timeRangeRepo ??= new TimeRangeRepository(_context);
+                return _timeRangeRepo;
             }
         }
         public IBookingRepository BookingRepository

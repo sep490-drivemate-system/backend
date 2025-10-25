@@ -4,6 +4,7 @@ namespace BookingService.Application.Interfaces
 {
     public interface IUnitOfWork
     {
+        ITimeRangeRepository TimeRangeRepository { get; }
         IBookingRepository BookingRepository { get; }
         IDrivingSessionRepository DrivingSessionRepository { get; }
         IDrivingSkillRepository SkillRepository { get; }

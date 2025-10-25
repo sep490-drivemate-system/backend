@@ -1,8 +1,9 @@
-
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using UserService.Application;
 using UserService.Infrastructure;
 using UserService.Infrastructure.Persistence.Context;
+using System.Text;
 
 namespace UserService
 {
@@ -15,13 +16,64 @@ namespace UserService
             var config = builder.Configuration;
             builder.Configuration.AddEnvironmentVariables();
             // Add services to the container.
-
-
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddInfrastructure(config);
             builder.Services.AddApplication(config);
+            
+            builder.Services.AddAuthentication("Bearer")
+                .AddJwtBearer("Bearer", options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidIssuer = config["Jwt:Issuer"],
+
+                        ValidateAudience = true,
+                        ValidAudience = config["Jwt:Audience"],
+
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"])),
+
+                        ValidateLifetime = true,
+                        ClockSkew = TimeSpan.Zero
+                    };
+                });
+
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+                {
+                    Title = "User Service API",
+                    Version = "v1",
+                });
+                c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+                });
+
+                c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+                {
+                    {
+                        new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                        {
+                            Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                            {
+                                Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        new string[] {}
+                    }
+                });
+            });
+
+            // CORS
 
             builder.Services.AddCors(options =>
             {
@@ -33,35 +85,6 @@ namespace UserService
                 });
             });
             var app = builder.Build();
-
-            // Auto-migrate database on startup
-            app.Logger.LogInformation("Starting database migration...");
-            using (var scope = app.Services.CreateScope())
-            {
-                try
-                {
-                    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                    app.Logger.LogInformation("Got ApplicationDbContext, checking connection...");
-                    
-                    // Test connection first
-                    await context.Database.CanConnectAsync();
-                    app.Logger.LogInformation("Database connection successful, running migrations...");
-                    
-                    // Run migrations
-                    await context.Database.MigrateAsync();
-                    app.Logger.LogInformation("Database migration completed successfully");
-                    
-                    // Log existing tables
-                    var tables = await context.Database.SqlQueryRaw<string>("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'").ToListAsync();
-                    app.Logger.LogInformation($"Tables in database: {string.Join(", ", tables)}");
-                }
-                catch (Exception ex)
-                {
-                    app.Logger.LogError(ex, "Database migration failed: {Message}", ex.Message);
-                    app.Logger.LogError("Connection string: {ConnectionString}", app.Configuration.GetConnectionString("USERSERVICECONNECTION"));
-                }
-            }
-
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -77,27 +100,11 @@ namespace UserService
             }
 
             app.UseHttpsRedirection();
-
+            app.UseAuthentication();
             app.UseAuthorization();
             app.UseCors("AllowAll");
 
-            app.MapControllers();
-            
-            // Health check endpoints
-            app.MapGet("/health", () => Results.Ok(new { status = "healthy", service = "UserService", timestamp = DateTime.UtcNow }));
-            
-            app.MapGet("/health/database", async (ApplicationDbContext context) =>
-            {
-                try
-                {
-                    await context.Database.CanConnectAsync();
-                    return Results.Ok(new { status = "healthy", database = "connected", timestamp = DateTime.UtcNow });
-                }
-                catch (Exception ex)
-                {
-                    return Results.Problem($"Database connection failed: {ex.Message}");
-                }
-            });
+            app.MapControllers();                     
 
             app.Run();
         }

@@ -46,5 +46,30 @@ namespace PaymentService.Infrastructure.Repositories
                 .OrderByDescending(w => w.Balance)
                 .ToListAsync();
         }
+
+        public async Task<bool> CheckWallet(Guid walletId, decimal amount)
+        {
+            var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.Id == walletId);
+
+            if (wallet == null)
+            {
+                wallet = new Wallet
+                {
+                    Id = walletId,
+                    Balance = 0, 
+                };
+
+                _context.Wallets.Add(wallet);
+                await _context.SaveChangesAsync();
+
+                return false; 
+            }
+
+            if (wallet.Balance >= amount)
+                return true;
+
+            return false;
+        }
+
     }
 }

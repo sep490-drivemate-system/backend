@@ -145,8 +145,8 @@ namespace UserService.Application.UseCases
                 return Result<SignUpRespondDTO>.Failure(
                new ServiceError(ServiceError.NotFound, Messages.Auth.WrongPassword));
             }
-
-            var accessToken = await _jwtService.GenerateAccessToken(user);
+            var userClaimToken = _mapper.Map<UserClaimTokenDTO>(user);
+            var accessToken = await _jwtService.GenerateAccessToken(userClaimToken);
             var existingRefreshToken = await _unitOfWork.RefreshTokenRepository
                 .GetRefreshTokenByIdAsync(user.Id);
 

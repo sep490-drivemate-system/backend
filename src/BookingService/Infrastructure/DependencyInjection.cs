@@ -3,9 +3,11 @@ using BookingService.Infrastructure.Persistence.Context;
 using BookingService.Domain.Interfaces;
 using BookingService.Infrastructure.Repositories;
 using BookingService.Application.Interfaces;
-using BookingService.Infrastructure.Messaging.Settings;
-using BookingService.Infrastructure.Messaging.Services;
 using BookingService.Infrastructure.UoW;
+using BookingService.Infrastructure.Messaging.Config;
+using BookingService.Infrastructure.Messaging.Implementation;
+using BookingService.Infrastructure.Messaging.Interface;
+
 
 namespace BookingService.Infrastructure
 {
@@ -17,8 +19,7 @@ namespace BookingService.Infrastructure
             // Đăng ký DbContext
             services.AddDbContext<BookingDbContext>(options =>
             {
-                var connectionString = configuration.GetConnectionString("BOOKINGSERVICECONNECTION") 
-                    ?? configuration.GetConnectionString("DefaultConnection");
+                var connectionString = configuration.GetConnectionString("BOOKINGSERVICECONNECTION");
                 options.UseNpgsql(connectionString);
             });
 
@@ -32,18 +33,12 @@ namespace BookingService.Infrastructure
 
             services.AddScoped<IUnitOfWork,UnitOfWork>();
 
-            // Configure RabbitMQ settings
-            services.Configure<RabbitMQSettings>(configuration.GetSection("RabbitMQ"));
-            
-            // Register RabbitMQ service (with fallback to mock if connection fails)
-            var useRealRabbitMQ = configuration.GetValue<bool>("RabbitMQ:UseRealConnection", true);
-            
 
-                services.AddSingleton<IRabbitMQService, RabbitMQService>();
 
-            
+            // Register RabbitMQ service (with fallback to mock if connection fails)            
+            services.AddSingleton<IRabbitMQService, RabbitMQService>();
+            services.AddHostedService<RabbitMQHostedService>();
             // Add payment messaging service
-            services.AddScoped<IPaymentMessagingService, PaymentMessagingService>();
 
             return services;
         }

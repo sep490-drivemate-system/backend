@@ -7,9 +7,9 @@ using PaymentService.Domain.Interfaces;
 using PaymentService.Infrastructure.Data;
 using PaymentService.Infrastructure.Repositories;
 using PaymentService.Infrastructure.UoW;
-using PaymentService.Infrastructure.Messaging.Settings;
+using PaymentService.Infrastructure.Messaging.Config;
 using PaymentService.Infrastructure.Messaging.Interfaces;
-using PaymentService.Infrastructure.Messaging.Services;
+using PaymentService.Infrastructure.Messaging.Implementation;
 
 namespace PaymentService.Infrastructure
 {
@@ -28,20 +28,10 @@ namespace PaymentService.Infrastructure
             // Add Unit of Work
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-            // Configure RabbitMQ settings
-            services.Configure<RabbitMQSettings>(configuration.GetSection("RabbitMQ"));
-            
             // Register RabbitMQ service (with fallback to mock if connection fails)
-            var useRealRabbitMQ = configuration.GetValue<bool>("RabbitMQ:UseRealConnection", true);
-            
-            if (useRealRabbitMQ)
-            {
-                services.AddSingleton<IRabbitMQService, RabbitMQService>();
-            }
-            else
-            {
-                services.AddSingleton<IRabbitMQService, MockRabbitMQService>();
-            }
+   
+           services.AddSingleton<IRabbitMQService, RabbitMQService>();
+           
             
             // Add Wallet service
             services.AddScoped<IWalletService, WalletService>();
