@@ -127,14 +127,14 @@ namespace UserService.Application.UseCases
         }
 
         // implement usecase signin
-        public async Task<Result<SignUpRespondDTO>> SignIn(SignInDTO signInDTO)
+        public async Task<Result<SignInRespondDTO>> SignIn(SignInDTO signInDTO)
         {
             //1. Check user
             var user = await _unitOfWork.UserRepository.IsExistUser(signInDTO.EmailOrPhone);
            
             if (user == null)
             {
-                return Result<SignUpRespondDTO>.Failure(
+                return Result<SignInRespondDTO>.Failure(
                 new ServiceError(ServiceError.NotFound, Messages.Auth.UserNorExists));
             }
 
@@ -142,11 +142,12 @@ namespace UserService.Application.UseCases
 
             if (!isValidPassword)
             {
-                return Result<SignUpRespondDTO>.Failure(
+                return Result<SignInRespondDTO>.Failure(
                new ServiceError(ServiceError.NotFound, Messages.Auth.WrongPassword));
             }
             var userClaimToken = _mapper.Map<UserClaimTokenDTO>(user);
             var accessToken = await _jwtService.GenerateAccessToken(userClaimToken);
+
             var existingRefreshToken = await _unitOfWork.RefreshTokenRepository
                 .GetRefreshTokenByIdAsync(user.Id);
 
@@ -160,22 +161,10 @@ namespace UserService.Application.UseCases
             {
                 refreshToken = await _jwtService.GenerateRefreshToken();
 
-                await _unitOfWork.RefreshTokenRepository.CreateAsync(new RefreshToken
-                {
-                    Id = user.Id,
-                    RefreshKey = refreshToken,
-                    ExpiryTime = DateTime.SpecifyKind(DateTime.UtcNow.AddDays(7), DateTimeKind.Unspecified)
-                });
-
-                
+                await _unitOfWork.RefreshTokenRepository.CreateRefreshToken(refreshToken);                
             }
-            SignUpRespondDTO respond = new SignUpRespondDTO
-            {
-                AccessToken = accessToken,
-                RefreshToken = refreshToken
-            };
-
-            return Result<SignUpRespondDTO>.Success(respond);
+            var respond = _mapper.Map<SignInRespondDTO>((accessToken, refreshToken));
+            return Result<SignInRespondDTO>.Success(respond);
 
         }
 
@@ -195,5 +184,9 @@ namespace UserService.Application.UseCases
             return Result<bool>.Success(true);
         }
 
+        public Task<Result<bool>> ProvideRefreshToken(RefreshTokenDTO refreshTokenDTO)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

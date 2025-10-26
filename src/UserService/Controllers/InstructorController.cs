@@ -14,7 +14,7 @@ namespace UserService.Controllers
         private readonly IInstructorUseCase _usecase = usecase;
 
         [HttpGet]
-        public async Task<IActionResult> GetInstructorPaginated([FromQuery] InstructorFilterDTO filter)
+        public async Task<IActionResult> GetInstructorPaginated([FromQuery] InstructorListFilterDTO filter)
         {
             var result = await _usecase.GetInstructorPaginatedList(filter);
             return result.ToActionResult();

@@ -1,4 +1,4 @@
-﻿using SharedLibrary.SharedKernel.Pagination;
+using SharedLibrary.SharedKernel.Pagination;
 using SharedLibrary.SharedKernel.ServiceResult;
 using UserService.Application.Commons.DTOs.Cars;
 using UserService.Application.Commons.DTOs.Instructors;
@@ -6,7 +6,7 @@ using UserService.Application.Interfaces;
 
 namespace UserService.Application.UseCases
 {
-    public class InstructorUseCase(IUnitOfWork unitOfWork): IInstructorUseCase
+    public class InstructorUseCase(IUnitOfWork unitOfWork) : IInstructorUseCase
     {
         private IUnitOfWork _unitOfWork = unitOfWork;
 
@@ -30,7 +30,6 @@ namespace UserService.Application.UseCases
                 Birthdate = instructor_info.User.DateOfBirth,
                 IssueDateOfLicense = DateTime.MinValue, // Requires changing domain model!
                 RegistrationDate = instructor_info.CreatedAt,
-                Status = instructor_info.Status.ToString(),
                 Feedbacks = new List<InstructorFeedbackDTO>(), // Requires calling to booking service!
                 Packages = new List<InstructorPackageDTO>(), // Requires calling to booking service!
                 UnitPrice = 0, // Requires changing domain model!
@@ -41,29 +40,28 @@ namespace UserService.Application.UseCases
             return Result<InstructorDetailDTO>.Success(parsed_instructor_info, "success");
         }
 
-        public async Task<Result<PaginatedList<InstructorDTO>>> GetInstructorPaginatedList(InstructorFilterDTO filter)
+        public async Task<Result<PaginatedList<InstructorDTO>>> GetInstructorPaginatedList(InstructorListFilterDTO filter)
         {
             var instructors = await _unitOfWork.InstructorRepository.GetAllAsync();
 
-            var filtered_instructors = instructors;
-                //.Where(x => (filter..Split(",").Contains(x.Manufacturer.Name) || string.IsNullOrEmpty(filter.Manufacturer)) &&
-                //(filter.SeatCounts.Split(",").Select(z => int.Parse(z)).Contains(x.Seat) || string.IsNullOrEmpty(filter.SeatCounts)) &&
-                //(filter.CarType.Split(",").Contains(x.CartType) || string.IsNullOrEmpty(filter.CarType)) &&
-                //(filter.FuelType.Split(",").Contains(x.Fuel) || string.IsNullOrEmpty(filter.FuelType))).ToList();
+        var filtered_instructors = instructors;
+        //.Where(x => (filter..Split(",").Contains(x.Manufacturer.Name) || string.IsNullOrEmpty(filter.Manufacturer)) &&
+        //(filter.SeatCounts.Split(",").Select(z => int.Parse(z)).Contains(x.Seat) || string.IsNullOrEmpty(filter.SeatCounts)) &&
+        //(filter.CarType.Split(",").Contains(x.CartType) || string.IsNullOrEmpty(filter.CarType)) &&
+        //(filter.FuelType.Split(",").Contains(x.Fuel) || string.IsNullOrEmpty(filter.FuelType))).ToList();
 
-            var parsed_instructors = filtered_instructors.Select(x => new InstructorDTO
-            {
-                Id = x.Id,
-                Avatar = x.User.Avatar,
-                FullName = x.User.UserName, // Requires domain model update!
-                ExperienceYear = x.Experience,
-                BookingCount = 0, // Requires calling to booking service!
-                AverageRating = 0, // Requires calling to booking service!
-                Status = x.Status.ToString(),
-                UnitPrice = 0, // Requires calling to booking service!,
-            }).AsQueryable();
+        var parsed_instructors = filtered_instructors.Select(x => new InstructorDTO
+        {
+            Id = x.Id,
+            Avatar = x.User.Avatar,
+            FullName = x.User.UserName, // Requires domain model update!
+            ExperienceYear = x.Experience,
+            BookingCount = 0, // Requires calling to booking service!
+            AverageRating = 0, // Requires calling to booking service!
+            UnitPrice = 0, // Requires calling to booking service!,
+        }).AsQueryable();
 
-            PaginatedList<InstructorDTO> paginated_filtered_instructor = PaginatedList<InstructorDTO>.Create(parsed_instructors, filter.PageIndex, filter.PageSize);
+        PaginatedList<InstructorDTO> paginated_filtered_instructor = PaginatedList<InstructorDTO>.Create(parsed_instructors, filter.PageNumber, filter.PageSize);
 
             return Result<PaginatedList<InstructorDTO>>.Success(paginated_filtered_instructor, "success");
         }

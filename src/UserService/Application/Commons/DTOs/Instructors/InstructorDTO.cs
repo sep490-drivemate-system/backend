@@ -38,8 +38,6 @@
         public int BookingCount { get; set; }
 
         public decimal AverageRating { get; set; }
-
-        public string Status { get; set; }
     }
 
     public class InstructorDetailDTO: InstructorDTO

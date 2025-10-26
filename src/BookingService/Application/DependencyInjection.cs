@@ -20,9 +20,9 @@ namespace BookingService.Application
             // Add application services here
             services.AddScoped<IBookingUseCase, BookingUseCase>();
             services.AddScoped<IDrivingSessionUseCase, DrivingSessionUseCase>();
-            services.AddScoped<IDrivingSkillService, DrivingSkillService>();
-            services.AddScoped<IRoadTypeService, RoadTypeService>();
-            services.AddScoped<IPackageService, PackageService>();
+            services.AddScoped<IDrivingSkillUseCase, DrivingSkillUseCase>();
+            services.AddScoped<IRoadTypeUseCase, RoadTypeUseCase>();
+            services.AddScoped<IPackageUseCase, PackageUseCase>();
             services.AddScoped<IPayment, Payment>();
 
 

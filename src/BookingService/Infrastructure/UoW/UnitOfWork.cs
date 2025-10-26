@@ -15,6 +15,7 @@ namespace BookingService.Infrastructure.UoW
         private IDrivingSessionRepository _sessionRepo;
         private IBookingRepository _bookRepository;
         private IPackageRepository _packageRepo;
+     //   private ICarPackageRepository _carPackageRepo;
         private IFeedbackRepository _feedbackRepo;
 
         public async Task<int> CommitChanges()
@@ -77,6 +78,15 @@ namespace BookingService.Infrastructure.UoW
                 return _packageRepo;
             }
         }
+
+        //public ICarPackageRepository CarPackageRepository
+        //{
+        //    get
+        //    {
+        //        _carPackageRepo ??= new CarPackageRepository(_context);
+        //        return _carPackageRepo;
+        //    }
+        //}
 
         public IFeedbackRepository FeedbackRepository
         {

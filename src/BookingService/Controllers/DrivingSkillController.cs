@@ -7,11 +7,11 @@ namespace BookingService.Controllers
 {
     [Route("api/skills")]
     [ApiController]
-    public class DrivingSkillController(IDrivingSkillService skill_service): ControllerBase
+    public class DrivingSkillController(IDrivingSkillUseCase skill_service): ControllerBase
     {
-        private readonly IDrivingSkillService _skillService = skill_service;
+        private readonly IDrivingSkillUseCase _skillService = skill_service;
 
-        [HttpGet()]
+        [HttpGet]
         public async Task<IActionResult> GetDrivingSkill()
         {
             var result = await _skillService.GetAllDrivingSkills();

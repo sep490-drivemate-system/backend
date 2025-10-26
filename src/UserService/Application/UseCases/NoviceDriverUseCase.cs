@@ -1,12 +1,14 @@
-﻿using SharedLibrary.SharedKernel.ServiceResult;
+﻿using AutoMapper;
+using SharedLibrary.SharedKernel.ServiceResult;
 using UserService.Application.Commons.DTOs.NoviceDriver;
 using UserService.Application.Interfaces;
 
 namespace UserService.Application.UseCases
 {
-    public class NoviceDriverUseCase(IUnitOfWork unitOfWork): INoviceDriverUseCase
+    public class NoviceDriverUseCase(IUnitOfWork unitOfWork,IMapper mapper): INoviceDriverUseCase
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IMapper _mapper = mapper;
 
         public async Task<Result<List<UserAddressDTO>>> GetNoviceDriverAddress(Guid id)
         {
@@ -18,11 +20,7 @@ namespace UserService.Application.UseCases
                     .Failure(ServiceError.NotFoundError(Commons.Constants.Messages.Common.NotFoundError));
             }
 
-            return Result<List<UserAddressDTO>>.Success(driver.User.Addresses.Select(x => new UserAddressDTO
-            {
-                Id = x.Id,
-                AddressString = x.Location
-            }).ToList()); 
+            return Result<List<UserAddressDTO>>.Success( _mapper.Map<List<UserAddressDTO>>(driver.User.Addresses));
         }
     }
 }

@@ -7,15 +7,14 @@ namespace BookingService.Controllers
 {
     [Route("api/roadtypes")]
     [ApiController]
-    public class RoadtypeController(IRoadTypeService roadService): ControllerBase
+    public class RoadtypeController(IRoadTypeUseCase roadService): ControllerBase
     {
-        private readonly IRoadTypeService _roadTypeService = roadService;
+        private readonly IRoadTypeUseCase _roadTypeService = roadService;
 
-        [HttpGet()]
+        [HttpGet]
         public async Task<IActionResult> GetDrivingSkill()
         {
             var result = await _roadTypeService.GetAllRoadType();
-
             return result.ToActionResult();
         }
 

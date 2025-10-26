@@ -9,9 +9,9 @@ namespace BookingService.Controllers
     [Route("api/package")]
     public class PackageController : ControllerBase
     {
-        private readonly IPackageService _packageService;
+        private readonly IPackageUseCase _packageService;
 
-        public PackageController(IPackageService packageService)
+        public PackageController(IPackageUseCase packageService)
         {
             _packageService = packageService;
         }

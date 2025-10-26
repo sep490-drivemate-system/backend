@@ -1,4 +1,4 @@
-﻿using SharedLibrary.SharedKernel.Entities;
+using SharedLibrary.SharedKernel.Entities;
 
 namespace BookingService.Domain.Entities
 {

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SharedLibrary.SharedKernel.ServiceResult;
 using System.Threading.Tasks;
 using UserService.Application.Interfaces;
+using UserService.Domain.Enum;
 
 namespace UserService.Controllers
 {
@@ -13,9 +14,9 @@ namespace UserService.Controllers
         private readonly IPolicyUseCase _policyUseCase = usecases;
 
         [HttpGet]
-        public async Task<IActionResult> GetAllPolicies()
+        public async Task<IActionResult> GetAllPolicies(PolicyType policyType)
         {
-            var result = await _policyUseCase.GetAllPolicy();
+            var result = await _policyUseCase.GetAllPolicy(policyType);
 
             return result.ToActionResult();
         }

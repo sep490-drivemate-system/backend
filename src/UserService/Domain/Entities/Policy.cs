@@ -1,5 +1,6 @@
 ﻿using SharedLibrary.SharedKernel.Entities;
 using System.Text.Json.Serialization;
+using UserService.Domain.Enum;
 
 namespace UserService.Domain.Entities
 {
@@ -9,7 +10,7 @@ namespace UserService.Domain.Entities
 
         public string Description { get; set; }
 
-        public string PolicyType { get; set; }
+        public PolicyType PolicyType { get; set; }
 
         public DateTime UpdatedAt { get; set; }
 

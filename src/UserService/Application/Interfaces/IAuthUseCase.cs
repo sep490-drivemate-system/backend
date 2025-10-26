@@ -8,7 +8,8 @@ namespace UserService.Application.Interfaces
         Task<Result<string>> VerifyEmail(string email);
         Task<Result<string>> VerifyPhone(string phone);
         Task<Result<SignUpRespondDTO>> SignUp(SignUpDTO signUpDTO);
-        Task<Result<SignUpRespondDTO>> SignIn(SignInDTO signInDTO);
+        Task<Result<bool>> ProvideRefreshToken(RefreshTokenDTO refreshTokenDTO);
+        Task<Result<SignInRespondDTO>> SignIn(SignInDTO signInDTO);
         Task<Result<bool>> SignOut(SignOutDTO signOutDTO);
     }
 }

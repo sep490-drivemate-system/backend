@@ -3,7 +3,7 @@ using SharedLibrary.SharedKernel.ServiceResult;
 
 namespace BookingService.Application.Interfaces
 {
-    public interface IPackageService
+    public interface IPackageUseCase
     {
         Task<Result<IEnumerable<Package>>> GetAllPackagesAsync();
         Task<Result<Package?>> GetPackageByIdAsync(Guid id);

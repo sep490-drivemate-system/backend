@@ -1,21 +1,21 @@
-﻿using BookingService.Application.Commons.DTOs.RoadTypes;
+﻿using AutoMapper;
+using BookingService.Application.Commons.DTOs.DrivingSkills;
+using BookingService.Application.Commons.DTOs.RoadTypes;
 using BookingService.Application.Interfaces;
 using SharedLibrary.SharedKernel.ServiceResult;
 
 namespace BookingService.Application.UseCase
 {
-    public class RoadTypeService(IUnitOfWork unitOfWork) : IRoadTypeService
+    public class RoadTypeUseCase(IUnitOfWork unitOfWork,IMapper mapper) : IRoadTypeUseCase
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IMapper _mapper = mapper;
         public async Task<Result<List<RoadTypeDTO>>> GetAllRoadType()
         {
             var roads = await _unitOfWork.RoadTypeRepository.GetAllRoadType();
 
-            return Result<List<RoadTypeDTO>>.Success(roads.Select(x => new RoadTypeDTO
-            {
-                Id = x.Id,
-                Name = x.Name
-            }).ToList());
+            var roadDTOs = _mapper.Map<List<RoadTypeDTO>>(roads);
+            return Result<List<RoadTypeDTO>>.Success(roadDTOs);
         }
 
         public async Task<Result<RoadTypeDTO>> GetRoadTypeById(Guid id)

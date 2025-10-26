@@ -1,5 +1,7 @@
 using AutoMapper;
 using BookingService.Application.Commons.DTOs.Booking;
+using BookingService.Application.Commons.DTOs.DrivingSkills;
+using BookingService.Application.Commons.DTOs.RoadTypes;
 using BookingService.Domain.Entities;
 
 namespace BookingService.Application.Commons.Mapping
@@ -35,6 +37,11 @@ namespace BookingService.Application.Commons.Mapping
                 .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => false))
                 .ForMember(dest => dest.BookingId, opt => opt.Ignore())
                 .ForMember(dest => dest.Bookings, opt => opt.Ignore());
+
+
+            CreateMap<DrivingSkill, DrivingSkillDTO>();
+            CreateMap<RoadType, RoadTypeDTO>();
+
         }
     }
 }

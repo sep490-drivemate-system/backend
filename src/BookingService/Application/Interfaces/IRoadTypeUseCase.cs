@@ -3,7 +3,7 @@ using SharedLibrary.SharedKernel.ServiceResult;
 
 namespace BookingService.Application.Interfaces
 {
-    public interface IRoadTypeService
+    public interface IRoadTypeUseCase
     {
         Task<Result<List<RoadTypeDTO>>> GetAllRoadType();
 

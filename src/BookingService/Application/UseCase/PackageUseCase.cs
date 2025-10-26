@@ -4,11 +4,11 @@ using SharedLibrary.SharedKernel.ServiceResult;
 
 namespace BookingService.Application.UseCase
 {
-    public class PackageService : IPackageService
+    public class PackageUseCase : IPackageUseCase
     {
         private readonly IUnitOfWork _unitOfWork;
 
-        public PackageService(IUnitOfWork unitOfWork)
+        public PackageUseCase(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
