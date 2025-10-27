@@ -6,7 +6,7 @@ namespace UserService.Application.Interfaces
 {
     public interface IInstructorUseCase
     {
-        Task<Result<PaginatedList<InstructorDTO>>> GetInstructorPaginatedList(InstructorListFilterDTO filter);
+        Task<Result<PaginatedList<InstructorDTO>>> GetInstructors(InstructorListFilterDTO filter);
 
         Task<Result<InstructorDetailDTO>> GetInstructorDetail(Guid id);
 

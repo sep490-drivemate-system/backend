@@ -1,14 +1,17 @@
+using SharedLibrary.SharedKernel.Http.Interfaces;
 using SharedLibrary.SharedKernel.Pagination;
 using SharedLibrary.SharedKernel.ServiceResult;
 using UserService.Application.Commons.DTOs.Cars;
 using UserService.Application.Commons.DTOs.Instructors;
+using UserService.Application.Commons.Mapping.ExtentionMapping;
 using UserService.Application.Interfaces;
 
 namespace UserService.Application.UseCases
 {
-    public class InstructorUseCase(IUnitOfWork unitOfWork) : IInstructorUseCase
+    public class InstructorUseCase(IUnitOfWork unitOfWork,IFeedback feedback) : IInstructorUseCase
     {
-        private IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IFeedback _feedback = feedback;
 
         public async Task<Result<InstructorDetailDTO>> GetInstructorDetail(Guid id)
         {
@@ -40,30 +43,16 @@ namespace UserService.Application.UseCases
             return Result<InstructorDetailDTO>.Success(parsed_instructor_info, "success");
         }
 
-        public async Task<Result<PaginatedList<InstructorDTO>>> GetInstructorPaginatedList(InstructorListFilterDTO filter)
+        public async Task<Result<PaginatedList<InstructorDTO>>> GetInstructors(InstructorListFilterDTO filter)
         {
             var instructors = await _unitOfWork.InstructorRepository.GetAllAsync();
+            var feedbacks = await _feedback.GetStatiticFeedback(instructors.Select(i => i.Id).ToList());
 
-        var filtered_instructors = instructors;
-        //.Where(x => (filter..Split(",").Contains(x.Manufacturer.Name) || string.IsNullOrEmpty(filter.Manufacturer)) &&
-        //(filter.SeatCounts.Split(",").Select(z => int.Parse(z)).Contains(x.Seat) || string.IsNullOrEmpty(filter.SeatCounts)) &&
-        //(filter.CarType.Split(",").Contains(x.CartType) || string.IsNullOrEmpty(filter.CarType)) &&
-        //(filter.FuelType.Split(",").Contains(x.Fuel) || string.IsNullOrEmpty(filter.FuelType))).ToList();
+            var mappedData = MappingFeedback.MapInstructorsWithFeedback(instructors, feedbacks);
 
-        var parsed_instructors = filtered_instructors.Select(x => new InstructorDTO
-        {
-            Id = x.Id,
-            Avatar = x.User.Avatar,
-            FullName = x.User.UserName, // Requires domain model update!
-            ExperienceYear = x.Experience,
-            BookingCount = 0, // Requires calling to booking service!
-            AverageRating = 0, // Requires calling to booking service!
-            UnitPrice = 0, // Requires calling to booking service!,
-        }).AsQueryable();
-
-        PaginatedList<InstructorDTO> paginated_filtered_instructor = PaginatedList<InstructorDTO>.Create(parsed_instructors, filter.PageNumber, filter.PageSize);
-
-            return Result<PaginatedList<InstructorDTO>>.Success(paginated_filtered_instructor, "success");
+            return Result<PaginatedList<InstructorDTO>>.Success(
+                PaginatedList<InstructorDTO>.Create(mappedData.AsQueryable(), filter.PageNumber, filter.PageSize)
+            );
         }
 
         public async Task<Result<List<InstructorScheduleDTO>>> GetInstructorSchedule(Guid instructor_id)
