@@ -55,5 +55,12 @@ namespace BookingService.Controllers
             var result = await _packageService.DeletePackageAsync(id);
             return result.ToActionResult();
         }
+
+        [HttpGet("instructor/{instructorId}")]
+        public async Task<IActionResult> GetInstructorPackages(Guid instructorId)
+        {
+            var result = await _packageService.GetInstructorPackagesAsync(instructorId);
+            return result.ToActionResult();
+        }
     }
 }

@@ -3,6 +3,7 @@ using System;
 using BookingService.Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BookingService.Migrations
 {
     [DbContext(typeof(BookingDbContext))]
-    partial class BookingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251027121239_Fix_Entity_Package")]
+    partial class Fix_Entity_Package
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -242,9 +245,9 @@ namespace BookingService.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.Property<Guid>("NoviceDriverId")
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uuid")
-                        .HasColumnName("novice_driver_id");
+                        .HasColumnName("user_id");
 
                     b.HasKey("Id");
 
@@ -281,8 +284,7 @@ namespace BookingService.Migrations
                         .HasColumnName("updated_at");
 
                     b.Property<Guid>("PackageTypeId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("package_type_id");
+                        .HasColumnType("uuid");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)")

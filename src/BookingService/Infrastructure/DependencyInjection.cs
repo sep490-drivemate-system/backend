@@ -30,7 +30,7 @@ namespace BookingService.Infrastructure
             services.AddScoped<IFeedbackRepository, FeedbackRepository>();
             services.AddScoped<IDrivingSkillRepository, DrivingSkillRepository>();
             services.AddScoped<IRoadTypeRepository, RoadTypeRepository>();
-
+            services.AddScoped<IFeedbackRepository, FeedbackRepository>();
             services.AddScoped<IUnitOfWork,UnitOfWork>();
 
 

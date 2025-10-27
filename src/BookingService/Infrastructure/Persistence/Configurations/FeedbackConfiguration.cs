@@ -18,8 +18,13 @@ namespace BookingService.Infrastructure.Persistence.Configurations
                 .HasColumnName("booking_id")
                 .IsRequired();
 
-            builder.Property(x => x.UserId)
-                .HasColumnName("user_id")
+            builder.Property(x => x.NoviceDriverId)
+                .HasColumnName("novice_driver_id")
+                .IsRequired();
+
+
+            builder.Property(x => x.InstructorId)
+                .HasColumnName("instructor_id")
                 .IsRequired();
 
             builder.Property(x => x.InstructorRating)

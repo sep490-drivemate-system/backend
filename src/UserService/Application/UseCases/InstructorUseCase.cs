@@ -5,13 +5,15 @@ using UserService.Application.Commons.DTOs.Cars;
 using UserService.Application.Commons.DTOs.Instructors;
 using UserService.Application.Commons.Mapping.ExtentionMapping;
 using UserService.Application.Interfaces;
+using SharedLibrary.SharedKernel.Http.DTOs.Package;
 
 namespace UserService.Application.UseCases
 {
-    public class InstructorUseCase(IUnitOfWork unitOfWork,IFeedback feedback) : IInstructorUseCase
+    public class InstructorUseCase(IUnitOfWork unitOfWork, IFeedback feedback, IPackage package) : IInstructorUseCase
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IFeedback _feedback = feedback;
+        private readonly IPackage _package = package;
 
         public async Task<Result<InstructorDetailDTO>> GetInstructorDetail(Guid id)
         {
@@ -22,22 +24,31 @@ namespace UserService.Application.UseCases
                 return Result<InstructorDetailDTO>.Failure(ServiceError.NotFoundError("can not find the requested resource"), $"can not find instructor information for {id}");
             }
 
+            // Get feedback statistics for this instructor
+            var feedbackResponse = await _feedback.GetStatiticFeedback(new List<Guid> { id });
+            var instructorFeedback = feedbackResponse?.InstructorStatistics?.FirstOrDefault(f => f.InstructorId == id);
+
+            // Get packages overview for this instructor
+            var overViewPackages = await _package.GetOverViewPackages(id);
+
             InstructorDetailDTO parsed_instructor_info = new InstructorDetailDTO
             {
                 Id = id,
-                FullName = instructor_info.User.UserName, // Requires changing domain model!
+                FullName = instructor_info.User.UserName,
                 ExperienceYear = instructor_info.Experience,
                 Avatar = instructor_info.User.Avatar,
                 Bio = instructor_info.Bio,
-                Gender = "", // Requires changing domain model!
+                Gender = instructor_info.User.Gender, // Requires changing domain model!
                 Birthdate = instructor_info.User.DateOfBirth,
-                IssueDateOfLicense = DateTime.MinValue, // Requires changing domain model!
-                RegistrationDate = instructor_info.CreatedAt,
-                Feedbacks = new List<InstructorFeedbackDTO>(), // Requires calling to booking service!
-                Packages = new List<InstructorPackageDTO>(), // Requires calling to booking service!
-                UnitPrice = 0, // Requires changing domain model!
-                BookingCount = 0, // Requires calling to booking service!
-                AverageRating = 0, // Requires calling to booking service!
+                //Feedbacks = new List<InstructorFeedbackDTO>(), // Requires calling to booking service!
+                //Packages = overViewPackages.Select(p => new InstructorPackageDTO
+                //{
+                //    Name = p.Name,
+                //    Description = p.Description,
+                //    Price = p.MinPrice == p.MaxPrice ? p.MinPrice : p.MinPrice 
+                //}).ToList(),
+                BookingCount = instructorFeedback?.BookingCount ?? 0,
+                AverageRating = instructorFeedback?.AverageRating ?? 0,
             };
 
             return Result<InstructorDetailDTO>.Success(parsed_instructor_info, "success");

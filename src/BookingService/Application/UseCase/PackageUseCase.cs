@@ -1,6 +1,7 @@
 using BookingService.Application.Interfaces;
 using BookingService.Domain.Entities;
 using SharedLibrary.SharedKernel.ServiceResult;
+using SharedLibrary.SharedKernel.Http.DTOs.Package;
 
 namespace BookingService.Application.UseCase
 {
@@ -51,6 +52,32 @@ namespace BookingService.Application.UseCase
                 var result = await _unitOfWork.PackageRepository.Remove(id);
                 return Result<bool>.Success(result);
            
+        }
+
+        public async Task<Result<PackageResponse>> GetInstructorPackagesAsync(Guid instructorId)
+        {
+            // Get packages with PackageType included
+            var allPackages = await _unitOfWork.PackageRepository.GetAllAsync();
+            var instructorPackages = allPackages.Where(p => p.InstructorId == instructorId && !p.IsDeleted);
+
+            var packageDtos = instructorPackages.Select(p => new PackageDto
+            {
+                Id = p.Id,
+                Price = p.Price,
+                TypeRental = (int)p.TypeRental,
+                PackageTypeId = p.PackageTypeId,
+                InstructorId = p.InstructorId,
+                CarId = p.CarId,
+                PackageTypeName = p.PackageType?.Name ?? string.Empty,
+                Description = p.PackageType?.Description ?? string.Empty
+            }).ToList();
+
+            var response = new PackageResponse
+            {
+                Packages = packageDtos
+            };
+
+            return Result<PackageResponse>.Success(response);
         }
     }
 }

@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using BookingService.Domain.Entities;
 using BookingService.Domain.Interfaces;
 using BookingService.Infrastructure.Persistence.Context;
+using SharedLibrary.SharedKernel.Http.DTOs.Feedback;
+using BookingService.Domain.Enum;
 
 namespace BookingService.Infrastructure.Repositories
 {
@@ -16,6 +18,47 @@ namespace BookingService.Infrastructure.Repositories
             return await _context.Feedbacks
                 .Include(f => f.Bookings)
                 .ToListAsync();
+        }
+
+        public async Task<FeedbackResponse> GetStatiicListInstructor(FeedbackRequest feedbackRequest)
+        {
+            var instructorStatistics = new List<InstructorStatisticDto>();
+
+            foreach (var instructorId in feedbackRequest.ListInstructor)
+            {
+                var instructorFeedbacks = await _context.Feedbacks
+                    .Where(f => f.InstructorId == instructorId && !f.IsDeleted)
+                    .ToListAsync();
+
+                var bookingCount = instructorFeedbacks
+                    .Select(f => f.BookingId)
+                    .Distinct()
+                    .Count();
+
+                var averageRating = instructorFeedbacks.Any() 
+                    ? (decimal)instructorFeedbacks.Average(f => f.InstructorRating)
+                    : 0m;
+
+                var pricePerHour = await _context.Packages
+                    .Where(p => p.InstructorId == instructorId && 
+                               p.TypeRental == TypeRental.Instructor &&     
+                               !p.IsDeleted)
+                    .Select(p => p.Price)
+                    .FirstOrDefaultAsync();
+
+                instructorStatistics.Add(new InstructorStatisticDto
+                {
+                    InstructorId = instructorId,
+                    BookingCount = bookingCount,
+                    AverageRating = Math.Round(averageRating, 2),
+                    PricePerHours = pricePerHour
+                });
+            }
+
+            return new FeedbackResponse
+            {
+                InstructorStatistics = instructorStatistics
+            };
         }
 
         public async Task<Feedback?> GetFeedbackByIdAsync(Guid id)
@@ -37,7 +80,7 @@ namespace BookingService.Infrastructure.Repositories
         {
             return await _context.Feedbacks
                 .Include(f => f.Bookings)
-                .Where(f => f.UserId == userId)
+                .Where(f => f.NoviceDriverId == userId)
                 .ToListAsync();
         }
 

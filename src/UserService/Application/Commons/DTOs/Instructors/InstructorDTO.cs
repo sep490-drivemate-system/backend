@@ -40,20 +40,5 @@
         public decimal AverageRating { get; set; }
     }
 
-    public class InstructorDetailDTO: InstructorDTO
-    {
-        public string Bio { get; set; }
-
-        public string Gender { get; set; }
-
-        public DateOnly Birthdate { get; set; }
-
-        public DateTime IssueDateOfLicense { get; set; }
-
-        public DateTime RegistrationDate { get; set; }
-
-        public List<InstructorFeedbackDTO> Feedbacks { get; set; }
-
-        public List<InstructorPackageDTO> Packages { get; set; }
-    }
+   
 }

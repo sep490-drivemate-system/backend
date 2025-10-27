@@ -11,7 +11,6 @@ namespace BookingService.Infrastructure.Persistence.Context
 
         public DbSet<Booking> Bookings { get; set; }
         public DbSet<Package> Packages { get; set; }
-        public DbSet<CarPackage> CarPackages { get; set; }
         public DbSet<DrivingSession> DrivingSessions { get; set; }
         public DbSet<SessionRoute> SessionRoutes { get; set; }
         public DbSet<DrivingSkill> DrivingSkills { get; set; }

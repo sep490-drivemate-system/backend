@@ -12,7 +12,6 @@ namespace BookingService.Application.Commons.Mapping
         {
             // Mapping BookingDTO to Booking entity
             CreateMap<BookingDTO, Booking>()
-                .ForMember(dest => dest.CarPackageId, opt => opt.MapFrom(src => src.PackageId))
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.StartDate.ToDateTime(TimeOnly.MinValue)))
                 .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.EndDate.ToDateTime(TimeOnly.MinValue)))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => Domain.Enum.BookingStatus.Planned))
@@ -24,8 +23,7 @@ namespace BookingService.Application.Commons.Mapping
                 .ForMember(dest => dest.DrivingSessions, opt => opt.Ignore())
                 .ForMember(dest => dest.Feedbacks, opt => opt.Ignore())
                 .ForMember(dest => dest.DrivingSkills, opt => opt.Ignore())
-                .ForMember(dest => dest.RoadTypes, opt => opt.Ignore())
-                .ForMember(dest => dest.CarPackages, opt => opt.Ignore());
+                .ForMember(dest => dest.RoadTypes, opt => opt.Ignore());
 
             // Mapping TimeRangeRequest DTO to TimeRange entity
             CreateMap<TimeRangeRequest, TimeRange>()

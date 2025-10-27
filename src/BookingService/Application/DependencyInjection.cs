@@ -22,6 +22,7 @@ namespace BookingService.Application
             services.AddScoped<IDrivingSessionUseCase, DrivingSessionUseCase>();
             services.AddScoped<IDrivingSkillUseCase, DrivingSkillUseCase>();
             services.AddScoped<IRoadTypeUseCase, RoadTypeUseCase>();
+            services.AddScoped<IFeedbackUseCase, FeedbackUseCase>();
             services.AddScoped<IPackageUseCase, PackageUseCase>();
             services.AddScoped<IPayment, Payment>();
 

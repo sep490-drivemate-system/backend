@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Identity;
 using SharedLibrary.Email;
 using SharedLibrary.Jwt;
+using SharedLibrary.SharedKernel.Http;
+using SharedLibrary.SharedKernel.Http.Implementation;
+using SharedLibrary.SharedKernel.Http.Interfaces;
 using SharedLibrary.SharedKernel.Password;
 using SharedLibrary.Sms;
 using System;
@@ -37,6 +40,11 @@ namespace UserService.Application
             services.AddHttpClient<SpeedSmsService>();
             services.AddScoped<ISmsService, SpeedSmsService>();
             services.AddScoped<PasswordHasherService>();
+            services.AddScoped<HttpService>();
+
+            services.AddScoped<IFeedback,Feedback>();
+            services.AddScoped<IPackage, SharedLibrary.SharedKernel.Http.Implementation.Package>();
+
             // Đăng ký service khác (cache, email, storage…)
             // services.AddScoped<IEmailService, EmailService>();
 

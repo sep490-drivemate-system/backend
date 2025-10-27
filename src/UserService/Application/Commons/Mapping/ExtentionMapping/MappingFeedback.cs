@@ -12,8 +12,8 @@ namespace UserService.Application.Commons.Mapping.ExtentionMapping
         {
             return instructors.Where(x => !x.IsDelete).Select(instructor => 
             {
-                // Find feedback data for this instructor
-                var instructorFeedback = feedbacks?.Id == instructor.Id ? feedbacks : null;
+                var instructorFeedback = feedbacks?.InstructorStatistics?
+                    .FirstOrDefault(f => f.InstructorId == instructor.Id);
 
                 return new InstructorDTO
                 {
@@ -23,7 +23,7 @@ namespace UserService.Application.Commons.Mapping.ExtentionMapping
                     ExperienceYear = instructor.Experience,
                     BookingCount = instructorFeedback?.BookingCount ?? 0,
                     AverageRating = instructorFeedback?.AverageRating ?? 0,
-                    UnitPrice = instructorFeedback?.UnitPrice ?? 0,
+                    UnitPrice = instructorFeedback?.PricePerHours ?? 0,
                 };
             }).ToList();
         }

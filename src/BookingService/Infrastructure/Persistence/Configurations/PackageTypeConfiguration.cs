@@ -1,40 +1,36 @@
+using BookingService.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using BookingService.Domain.Entities;
 
 namespace BookingService.Infrastructure.Persistence.Configurations
 {
-    public class PackageTypeConfiguration : IEntityTypeConfiguration<Package>
+    public class PackageTypeConfiguration : IEntityTypeConfiguration<PackageType>
     {
-        public void Configure(EntityTypeBuilder<Package> builder)
+        public void Configure(EntityTypeBuilder<PackageType> builder)
         {
             builder.HasKey(x => x.Id);
-            
+
             builder.Property(x => x.Id)
                 .HasColumnName("id")
                 .ValueGeneratedOnAdd();
 
-            builder.Property(x => x.Name)
-                .HasColumnName("name")
-                .HasMaxLength(200)
-                .IsRequired();
+            builder.Property(x => x.Type)
+               .HasColumnName("type")
+               .IsRequired();
 
             builder.Property(x => x.Description)
                 .HasColumnName("description")
-                .HasMaxLength(1000)
-                .IsRequired();
-
-            builder.Property(x => x.RecommendedValue)
-                .HasColumnName("value")
-                .HasColumnType("decimal(18,2)")
                 .IsRequired();
 
             builder.Property(x => x.CreatedAt)
                 .HasColumnName("created_at")
                 .IsRequired();
 
-            builder.Property(x => x.LastModifiedAt)
+            builder.Property(x => x.UpdatedAt)
                 .HasColumnName("updated_at")
+                .IsRequired();
+            builder.Property(x => x.Value)
+                .HasColumnName("value")
                 .IsRequired();
 
             builder.Property(x => x.IsDeleted)
@@ -43,12 +39,12 @@ namespace BookingService.Infrastructure.Persistence.Configurations
 
             // Relationships
 
-            builder.HasMany(x => x.CarPackages)
-                .WithOne(x => x.Packages)
-                .HasForeignKey(x => x.PackageId)
-                .OnDelete(DeleteBehavior.Cascade);
+            builder.HasMany(x => x.Packages)
+                .WithOne(p => p.PackageType)
+                .HasForeignKey(p => p.PackageTypeId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            builder.ToTable("Package");
+            builder.ToTable("PackageType");
         }
     }
 }

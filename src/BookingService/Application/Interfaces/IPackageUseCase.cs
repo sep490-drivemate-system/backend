@@ -1,5 +1,6 @@
 using BookingService.Domain.Entities;
 using SharedLibrary.SharedKernel.ServiceResult;
+using SharedLibrary.SharedKernel.Http.DTOs.Package;
 
 namespace BookingService.Application.Interfaces
 {
@@ -10,5 +11,6 @@ namespace BookingService.Application.Interfaces
         Task<Result<Package>> CreatePackageAsync(Package package);
         Task<Result<Package>> UpdatePackageAsync(Package package);
         Task<Result<bool>> DeletePackageAsync(Guid id);
+        Task<Result<PackageResponse>> GetInstructorPackagesAsync(Guid instructorId);
     }
 }

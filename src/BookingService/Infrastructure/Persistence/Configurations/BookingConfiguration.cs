@@ -18,7 +18,7 @@ namespace BookingService.Infrastructure.Persistence.Configurations
                 .HasColumnName("driver_id")
                 .IsRequired();
 
-            builder.Property(x => x.CarPackageId)
+            builder.Property(x => x.PackageId)
                 .HasColumnName("package_id")
                 .IsRequired();
 
@@ -61,9 +61,9 @@ namespace BookingService.Infrastructure.Persistence.Configurations
                 .HasPrincipalKey(x => x.Id)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasOne(x => x.CarPackages)
+            builder.HasOne(x => x.Package)
                 .WithMany(x => x.Bookings)
-                .HasForeignKey(x => x.CarPackageId)
+                .HasForeignKey(x => x.PackageId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.ToTable("Booking");

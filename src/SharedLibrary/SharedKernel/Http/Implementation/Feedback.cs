@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using SharedLibrary.SharedKernel.Http.DTOs.Feedback;
 using SharedLibrary.SharedKernel.Http.DTOs.Payment;
 using SharedLibrary.SharedKernel.Http.Interfaces;
@@ -16,14 +16,14 @@ namespace SharedLibrary.SharedKernel.Http.Implementation
         private readonly IConfiguration _config;
         public Feedback(HttpService httpService,IConfiguration configuration)
         {
-            httpService = _httpService;
-            _config = configuration;
+            _httpService = httpService;
+             _config = configuration;
         }
         public async Task<FeedbackResponse> GetStatiticFeedback(List<Guid> listGuidInstructor)
         {
-            var request = new FeedbackRequest();
+            var request = new FeedbackRequest
             {
-                listGuidInstructor = listGuidInstructor;
+                ListInstructor = listGuidInstructor
             };
             string bookingServiceUrl = _config["BOOKINGSERVICE:URL"];
             string url = $"{bookingServiceUrl}/api/feedback/list-instructor";

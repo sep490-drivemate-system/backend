@@ -5,9 +5,10 @@ namespace BookingService.Domain.Entities
     public class Feedback: BaseEntites
     {
         // Properties
-        public Guid UserId { get; set; }
+        public Guid NoviceDriverId { get; set; }
 
         public Guid BookingId { get; set; }
+        public Guid InstructorId { get; set; }
 
         public int InstructorRating { get; set; }
 

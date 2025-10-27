@@ -14,14 +14,12 @@ namespace BookingService.Infrastructure.Repositories
         public async Task<IEnumerable<Package>> GetAllPackagesAsync()
         {
             return await _context.Packages
-                .Include(p => p.CarPackages)
                 .ToListAsync();
         }
 
         public async Task<Package?> GetPackageByIdAsync(Guid id)
         {
             return await _context.Packages
-                .Include(p => p.CarPackages)
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
 

@@ -6,10 +6,8 @@ namespace BookingService.Domain.Entities
     public class Booking: BaseEntites
     {
         // Properties
-
+        public Guid PackageId { get; set; }
         public Guid DriverId { get; set; }
-
-        public Guid CarPackageId { get; set; }
 
         public BookingStatus Status { get; set; }
 
@@ -31,7 +29,6 @@ namespace BookingService.Domain.Entities
         public List<DrivingSession> DrivingSessions { get; set; }
         public List<DrivingSkill> DrivingSkills{ get; set; }
         public List<RoadType> RoadTypes{ get; set; }
-
-        public CarPackage CarPackages { get; set; }
+        public Package Package { get; set; }
     }
 }
