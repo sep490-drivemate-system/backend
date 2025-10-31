@@ -74,9 +74,6 @@ namespace UserService.Infrastructure.Persistence.Configurations
                    .WithOne(i => i.User)
                    .HasForeignKey<Instructor>(i => i.Id);
 
-            builder.HasOne(u => u.RefreshToken)
-                   .WithOne(rt => rt.User)
-                   .HasForeignKey<RefreshToken>(rt => rt.Id);
 
             // Relationships 1-n
             builder.HasMany(u => u.Addresses)

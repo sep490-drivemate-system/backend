@@ -103,15 +103,7 @@ namespace UserService.Application.UseCases
             var user = await _unitOfWork.UserRepository.CreateAsync(userMap);
             var token = await _jwtService.GenerateRefreshToken();
 
-            var refreshToken = new RefreshToken
-            {
-                Id = user.Id,
-                RefreshKey = token,
-                ExpiryTime = DateTime.SpecifyKind(DateTime.UtcNow.AddDays(7), DateTimeKind.Unspecified)
-
-            };
-
-            await _unitOfWork.RefreshTokenRepository.CreateAsync(refreshToken);
+         
 
             // 4. Provide token(assign into responde)
             var accessToken = await _jwtService.GenerateAccessToken(user);
@@ -148,45 +140,14 @@ namespace UserService.Application.UseCases
             var userClaimToken = _mapper.Map<UserClaimTokenDTO>(user);
             var accessToken = await _jwtService.GenerateAccessToken(userClaimToken);
 
-            var existingRefreshToken = await _unitOfWork.RefreshTokenRepository
-                .GetRefreshTokenByIdAsync(user.Id);
 
-            string refreshToken;
 
-            if (existingRefreshToken != null)
-            {
-                refreshToken = existingRefreshToken.RefreshKey;
-            }
-            else
-            {
-                refreshToken = await _jwtService.GenerateRefreshToken();
-
-                await _unitOfWork.RefreshTokenRepository.CreateRefreshToken(refreshToken);                
-            }
-            var respond = _mapper.Map<SignInRespondDTO>((accessToken, refreshToken));
+          
+            var respond = _mapper.Map<SignInRespondDTO>((accessToken, accessToken));
             return Result<SignInRespondDTO>.Success(respond);
 
         }
 
-        public async Task<Result<bool>> SignOut(SignOutDTO signOutDTO)
-        {
-            // Check for delete token
-            var isDeleted = await _unitOfWork.RefreshTokenRepository
-                                            .DeleleRefreshToken(signOutDTO.RefreshToken);
-
-            if (!isDeleted)
-            {
-                return Result<bool>.Failure(
-                    new ServiceError(ServiceError.NotFound, Messages.Auth.TokenNoExists)
-                );
-            }
-
-            return Result<bool>.Success(true);
-        }
-
-        public Task<Result<bool>> ProvideRefreshToken(RefreshTokenDTO refreshTokenDTO)
-        {
-            throw new NotImplementedException();
-        }
+      
     }
 }

@@ -21,7 +21,6 @@ namespace UserService.Domain.Entities
         // Relationship navigation
         public virtual NoviceDriver? NoviceDriver { get; set; }
         public virtual Instructor? Instructor { get; set; } 
-        public virtual RefreshToken? RefreshToken { get; set; }
         public virtual ICollection<Address>? Addresses { get; set; }
         public virtual ICollection<ApplicationTracking>? InstructorApplications{ get; set; }
 

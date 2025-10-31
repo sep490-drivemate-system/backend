@@ -23,18 +23,6 @@ namespace UserService.Controllers
             var result = await _usecase.SignIn(signInDTO);
             return result.ToActionResult();
         }
-        [HttpPost("refresh-token")]
-        public async Task<IActionResult> ProvideRefreshToken(RefreshTokenDTO refreshTokenDTO)
-        {
-            var result = await _usecase.ProvideRefreshToken(refreshTokenDTO);
-            return result.ToActionResult();
-        }
-        [HttpPost("signout")]
-        public async Task<IActionResult> SignOut(SignOutDTO signOutDTO)
-        {
-            var result = await _usecase.SignOut(signOutDTO);
-            return result.ToActionResult();
-        }
         [HttpPost("verify-phone")]
         public async Task<IActionResult> VerifyPhone([FromBody] string phoneNumber)
         {

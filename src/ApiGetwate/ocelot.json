@@ -73,6 +73,24 @@
       "SwaggerKey": "bookingService"
     },
     {
+      "DownstreamPathTemplate": "/api/skills/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "bookingservice",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/skills/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "SwaggerKey": "bookingService"
+    },
+    {
       "DownstreamPathTemplate": "/api/payment/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
@@ -188,6 +206,6 @@
     }
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "http://localhost:5000"
+    "BaseUrl": "http://localhost:8080"
   }
 }

@@ -94,7 +94,8 @@ namespace ApiGetwate
                 });
             }
 
-            app.UseHttpsRedirection();
+            // Remove HTTPS redirection for HTTP-only setup
+            // app.UseHttpsRedirection();
 
             app.UseAuthorization();
 

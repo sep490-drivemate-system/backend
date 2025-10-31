@@ -100,7 +100,8 @@ namespace PaymentService
                 app.UseSwaggerUI();
             }
 
-            app.UseHttpsRedirection();
+            // Remove HTTPS redirection for HTTP-only setup
+            // app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseCors("AllowAll");

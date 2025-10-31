@@ -68,7 +68,7 @@ namespace BookingService.Application.UseCase
                 PackageTypeId = p.PackageTypeId,
                 InstructorId = p.InstructorId,
                 CarId = p.CarId,
-                PackageTypeName = p.PackageType?.Name ?? string.Empty,
+                PackageTypeName =  string.Empty,
                 Description = p.PackageType?.Description ?? string.Empty
             }).ToList();
 

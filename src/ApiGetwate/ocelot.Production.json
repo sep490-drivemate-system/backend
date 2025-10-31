@@ -2,11 +2,11 @@
   "Routes": [
     {
       "DownstreamPathTemplate": "/api/auth/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "${USERSERVICE_HOST}",
-          "Port": 443
+          "Port": 80
         }
       ],
       "UpstreamPathTemplate": "/auth/{everything}",
@@ -20,11 +20,11 @@
     },
     {
       "DownstreamPathTemplate": "/api/user/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "${USERSERVICE_HOST}",
-          "Port": 443
+          "Port": 80
         }
       ],
       "UpstreamPathTemplate": "/user/{everything}",
@@ -38,11 +38,11 @@
     },
     {
       "DownstreamPathTemplate": "/api/booking/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "${BOOKINGSERVICE_HOST}",
-          "Port": 443
+          "Port": 80
         }
       ],
       "UpstreamPathTemplate": "/booking/{everything}",
@@ -56,11 +56,11 @@
     },
     {
       "DownstreamPathTemplate": "/api/package/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "${BOOKINGSERVICE_HOST}",
-          "Port": 443
+          "Port": 80
         }
       ],
       "UpstreamPathTemplate": "/package/{everything}",
@@ -73,12 +73,30 @@
       "SwaggerKey": "bookingService"
     },
     {
+      "DownstreamPathTemplate": "/api/skills/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${BOOKINGSERVICE_HOST}",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/skills/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "SwaggerKey": "bookingService"
+    },
+    {
       "DownstreamPathTemplate": "/api/payment/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "${PAYMENTSERVICE_HOST}",
-          "Port": 443
+          "Port": 80
         }
       ],
       "UpstreamPathTemplate": "/payment/{everything}",
@@ -92,11 +110,11 @@
     },
     {
       "DownstreamPathTemplate": "/api/wallet/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "${PAYMENTSERVICE_HOST}",
-          "Port": 443
+          "Port": 80
         }
       ],
       "UpstreamPathTemplate": "/wallet/{everything}",
@@ -110,11 +128,11 @@
     },
     {
       "DownstreamPathTemplate": "/api/transaction/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "${PAYMENTSERVICE_HOST}",
-          "Port": 443
+          "Port": 80
         }
       ],
       "UpstreamPathTemplate": "/transaction/{everything}",
@@ -128,11 +146,11 @@
     },
     {
       "DownstreamPathTemplate": "/api/resource/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "${RESOURCESERVICE_HOST}",
-          "Port": 443
+          "Port": 80
         }
       ],
       "UpstreamPathTemplate": "/resource/{everything}",
@@ -152,7 +170,7 @@
         {
           "Name": "User Service API",
           "Version": "v1",
-          "Url": "https://${USERSERVICE_HOST}/swagger/v1/swagger.json"
+          "Url": "http://${USERSERVICE_HOST}/swagger/v1/swagger.json"
         }
       ]
     },
@@ -162,7 +180,7 @@
         {
           "Name": "Booking Service API",
           "Version": "v1",
-          "Url": "https://${BOOKINGSERVICE_HOST}/swagger/v1/swagger.json"
+          "Url": "http://${BOOKINGSERVICE_HOST}/swagger/v1/swagger.json"
         }
       ]
     },
@@ -172,7 +190,7 @@
         {
           "Name": "Payment Service API",
           "Version": "v1",
-          "Url": "https://${PAYMENTSERVICE_HOST}/swagger/v1/swagger.json"
+          "Url": "http://${PAYMENTSERVICE_HOST}/swagger/v1/swagger.json"
         }
       ]
     },
@@ -182,12 +200,12 @@
         {
           "Name": "Resource Service API",
           "Version": "v1",
-          "Url": "https://${RESOURCESERVICE_HOST}/swagger/v1/swagger.json"
+          "Url": "http://${RESOURCESERVICE_HOST}/swagger/v1/swagger.json"
         }
       ]
     }
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "https://${APIGATEWAY_HOST}"
+    "BaseUrl": "http://${APIGATEWAY_HOST}"
   }
 }

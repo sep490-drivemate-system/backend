@@ -44,7 +44,8 @@ namespace ResourceService
                 app.UseSwaggerUI();
             }
 
-            app.UseHttpsRedirection();
+            // Remove HTTPS redirection for HTTP-only setup
+            // app.UseHttpsRedirection();
             app.UseAuthorization();
             app.UseCors("AllowAll");
 
