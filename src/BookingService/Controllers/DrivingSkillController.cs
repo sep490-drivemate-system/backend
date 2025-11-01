@@ -1,4 +1,5 @@
-﻿using BookingService.Application.Interfaces;
+﻿using BookingService.Application.Commons.DTOs.DrivingSkills;
+using BookingService.Application.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SharedLibrary.SharedKernel.ServiceResult;
@@ -27,10 +28,11 @@ namespace BookingService.Controllers
             return result.ToActionResult();
         }
 
-        [HttpPost]
-        public async Task<IActionResult> DrivingSkill()
+        [HttpPost()]
+        public async Task<IActionResult> CreateDrivingSkill([FromBody] DrivingSkillCreationDTO skill)
         {
-          return Ok();
+            var result = await _skillService.CreateNewDrivingSkill(skill.SkillName);
+            return result.ToActionResult();
         }
 
         [HttpPut("{id}")]

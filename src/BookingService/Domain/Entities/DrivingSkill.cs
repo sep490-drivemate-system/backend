@@ -7,13 +7,13 @@ namespace BookingService.Domain.Entities
         // Properties
         public string Name { get; set; }
 
-        // System property
+        public string IllustrationUrl { get; set; }
 
+        // System properties
         public DateTime LastModifiedAt { get; set; }
-
         public bool IsDeleted { get; set; }
 
-        // Navigation 
-        public virtual ICollection<Booking> Bookings { get; set; } 
+        // Navigational properties
+        public virtual ICollection<Package> Packages { get; set; }
     }
 }

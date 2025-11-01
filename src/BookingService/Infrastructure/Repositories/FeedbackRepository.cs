@@ -16,11 +16,11 @@ namespace BookingService.Infrastructure.Repositories
         public async Task<IEnumerable<Feedback>> GetAllFeedbacksAsync()
         {
             return await _context.Feedbacks
-                .Include(f => f.Bookings)
+                .Include(f => f.Booking)
                 .ToListAsync();
         }
 
-        public async Task<FeedbackResponse> GetStatiicListInstructor(FeedbackRequest feedbackRequest)
+        public async Task<FeedbackResponse> GetStatisticListInstructor(FeedbackRequest feedbackRequest)
         {
             var instructorStatistics = new List<InstructorStatisticDto>();
 
@@ -41,7 +41,7 @@ namespace BookingService.Infrastructure.Repositories
 
                 var pricePerHour = await _context.Packages
                     .Where(p => p.InstructorId == instructorId && 
-                               p.TypeRental == TypeRental.Instructor &&     
+                               //p. == PackageRentalType.Instructor && 
                                !p.IsDeleted)
                     .Select(p => p.Price)
                     .FirstOrDefaultAsync();
@@ -64,14 +64,14 @@ namespace BookingService.Infrastructure.Repositories
         public async Task<Feedback?> GetFeedbackByIdAsync(Guid id)
         {
             return await _context.Feedbacks
-                .Include(f => f.Bookings)
+                .Include(f => f.Booking)
                 .FirstOrDefaultAsync(f => f.Id == id);
         }
 
         public async Task<IEnumerable<Feedback>> GetByBookingIdAsync(Guid bookingId)
         {
             return await _context.Feedbacks
-                .Include(f => f.Bookings)
+                .Include(f => f.Booking)
                 .Where(f => f.BookingId == bookingId)
                 .ToListAsync();
         }
@@ -79,7 +79,7 @@ namespace BookingService.Infrastructure.Repositories
         public async Task<IEnumerable<Feedback>> GetByUserIdAsync(Guid userId)
         {
             return await _context.Feedbacks
-                .Include(f => f.Bookings)
+                .Include(f => f.Booking)
                 .Where(f => f.NoviceDriverId == userId)
                 .ToListAsync();
         }

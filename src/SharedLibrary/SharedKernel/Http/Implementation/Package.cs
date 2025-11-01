@@ -29,75 +29,77 @@ namespace SharedLibrary.SharedKernel.Http.Implementation
 
         public async Task<List<OverViewPackageDto>> GetOverViewPackages(Guid instructorId)
         {
-            var packageResponse = await GetInstructorPackages(instructorId);
-            var packages = packageResponse.Packages;
+            throw new NotImplementedException();
 
-            var overViewPackages = new List<OverViewPackageDto>();
+        //    var packageResponse = await GetInstructorPackages(instructorId);
+        //    var packages = packageResponse.Packages;
 
-            // Group packages by TypeRental
-            var groupedPackages = packages.GroupBy(p => p.TypeRental);
+        //    var overViewPackages = new List<OverViewPackageDto>();
 
-            foreach (var group in groupedPackages)
-            {
-                var typeRental = group.Key;
-                var packageList = group.ToList();
+        //    // Group packages by user_id
+        //    var groupedPackages = packages.GroupBy(p => p.TypeRental);
 
-                var overViewPackage = new OverViewPackageDto
-                {
-                    TypeRental = typeRental
-                };
+        //    foreach (var group in groupedPackages)
+        //    {
+        //        var typeRental = group.Key;
+        //        var packageList = group.ToList();
 
-                switch (typeRental)
-                {
-                    case 1: // Instructor
-                        overViewPackage.Name = "Instructor Package";
-                        overViewPackage.Description = "Learning with instructor only";
-                        // For Instructor type, take one price (first available)
-                        var instructorPackage = packageList.FirstOrDefault();
-                        if (instructorPackage != null)
-                        {
-                            overViewPackage.MinPrice = instructorPackage.Price;
-                            overViewPackage.MaxPrice = instructorPackage.Price;
-                        }
-                        break;
+        //        var overViewPackage = new OverViewPackageDto
+        //        {
+        //            TypeRental = typeRental
+        //        };
 
-                    case 2: // InstructorAndCar
-                        overViewPackage.Name = "Instructor & Car Package";
-                        overViewPackage.Description = "Learning with instructor and car provided";
-                        // For InstructorAndCar type, get price range from low to high
-                        if (packageList.Any())
-                        {
-                            overViewPackage.MinPrice = packageList.Min(p => p.Price);
-                            overViewPackage.MaxPrice = packageList.Max(p => p.Price);
-                        }
-                        break;
+        //        switch (typeRental)
+        //        {
+        //            case 1: // Instructor
+        //                overViewPackage.Name = "Instructor Package";
+        //                overViewPackage.Description = "Learning with instructor only";
+        //                // For Instructor type, take one price (first available)
+        //                var instructorPackage = packageList.FirstOrDefault();
+        //                if (instructorPackage != null)
+        //                {
+        //                    overViewPackage.MinPrice = instructorPackage.Price;
+        //                    overViewPackage.MaxPrice = instructorPackage.Price;
+        //                }
+        //                break;
 
-                    case 3: // CarPackage (assuming this exists)
-                        overViewPackage.Name = "Car Package";
-                        overViewPackage.Description = "Car rental package";
-                        // For CarPackage, get prices based on CarId
-                        if (packageList.Any())
-                        {
-                            overViewPackage.MinPrice = packageList.Min(p => p.Price);
-                            overViewPackage.MaxPrice = packageList.Max(p => p.Price);
-                        }
-                        break;
+        //            case 2: // InstructorAndCar
+        //                overViewPackage.Name = "Instructor & Car Package";
+        //                overViewPackage.Description = "Learning with instructor and car provided";
+        //                // For InstructorAndCar type, get price range from low to high
+        //                if (packageList.Any())
+        //                {
+        //                    overViewPackage.MinPrice = packageList.Min(p => p.Price);
+        //                    overViewPackage.MaxPrice = packageList.Max(p => p.Price);
+        //                }
+        //                break;
 
-                    default:
-                        overViewPackage.Name = "Other Package";
-                        overViewPackage.Description = "Other package type";
-                        if (packageList.Any())
-                        {
-                            overViewPackage.MinPrice = packageList.Min(p => p.Price);
-                            overViewPackage.MaxPrice = packageList.Max(p => p.Price);
-                        }
-                        break;
-                }
+        //            case 3: // CarPackage (assuming this exists)
+        //                overViewPackage.Name = "Car Package";
+        //                overViewPackage.Description = "Car rental package";
+        //                // For CarPackage, get prices based on CarId
+        //                if (packageList.Any())
+        //                {
+        //                    overViewPackage.MinPrice = packageList.Min(p => p.Price);
+        //                    overViewPackage.MaxPrice = packageList.Max(p => p.Price);
+        //                }
+        //                break;
 
-                overViewPackages.Add(overViewPackage);
-            }
+        //            default:
+        //                overViewPackage.Name = "Other Package";
+        //                overViewPackage.Description = "Other package type";
+        //                if (packageList.Any())
+        //                {
+        //                    overViewPackage.MinPrice = packageList.Min(p => p.Price);
+        //                    overViewPackage.MaxPrice = packageList.Max(p => p.Price);
+        //                }
+        //                break;
+        //        }
 
-            return overViewPackages;
+        //        overViewPackages.Add(overViewPackage);
+        //    }
+
+        //    return overViewPackages;
         }
     }
 }

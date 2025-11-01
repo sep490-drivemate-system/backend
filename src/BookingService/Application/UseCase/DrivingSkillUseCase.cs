@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using BookingService.Application.Commons.Constants;
 using BookingService.Application.Commons.DTOs.DrivingSkills;
 using BookingService.Application.Interfaces;
+using BookingService.Domain.Entities;
 using SharedLibrary.SharedKernel.ServiceResult;
 
 namespace BookingService.Application.UseCase
@@ -31,6 +33,22 @@ namespace BookingService.Application.UseCase
             }
 
             return Result<DrivingSkillDTO>.Failure(ServiceError.NotFoundError("Can not find driving skill"));
+        }
+
+        public async Task<Result<bool>> CreateNewDrivingSkill(string name)
+        {
+            try
+            {
+                await _unitOfWork.SkillRepository.CreateAsync(new DrivingSkill { Name = name, IllustrationUrl = "" });
+                await _unitOfWork.CommitChangesAsync();
+
+                return Result<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"{ex.Message}\nStack trace:\n{ex.StackTrace}\nHelp link: {ex.HelpLink}");
+                return Result<bool>.Success(false, Messages.Commons.UNHANDLED);
+            }
         }
     }
 }

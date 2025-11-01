@@ -1,6 +1,6 @@
 ﻿namespace BookingService.Domain.Enum
 {
-    public enum TypeRental
+    public enum PackageRentalType
     {
         Instructor = 1,
         InstructorAndCar = 2,

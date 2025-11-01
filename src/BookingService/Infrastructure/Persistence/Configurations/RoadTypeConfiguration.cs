@@ -8,35 +8,42 @@ namespace BookingService.Infrastructure.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<RoadType> builder)
         {
-            builder.HasKey(x => x.Id);
+            // table name
+            builder.ToTable("RoadType");
             
+            // primary key
+            builder.HasKey(x => x.Id);
             builder.Property(x => x.Id)
                 .ValueGeneratedOnAdd();
 
+            // properties
             builder.Property(x => x.Name)
                 .HasColumnName("name")
                 .HasMaxLength(100)
                 .IsRequired();
 
             builder.Property(x => x.CreatedAt)
-                .HasColumnName("created_at")
-                .ValueGeneratedOnAdd()
-                .IsRequired();
+               .HasColumnName("created_at")
+               .HasColumnType("timestamp")
+               .ValueGeneratedOnAdd()
+               .HasDefaultValueSql("now()")
+               .IsRequired();
 
             builder.Property(x => x.LastModifiedAt)
                 .HasColumnName("updated_at")
+                .HasColumnType("timestamp")
                 .ValueGeneratedOnAddOrUpdate()
+                .HasDefaultValueSql("now()")
                 .IsRequired();
 
             builder.Property(x => x.IsDeleted)
                 .HasColumnName("is_deleted")
-                .ValueGeneratedOnAdd()
+                .HasDefaultValue(false)
                 .IsRequired();
 
-            // Relationships configuration
-
-
-            builder.ToTable("RoadType");
+            // relationships
+            builder.HasMany(x => x.Packages)
+                .WithMany(x => x.RoadTypes);
         }
     }
 }

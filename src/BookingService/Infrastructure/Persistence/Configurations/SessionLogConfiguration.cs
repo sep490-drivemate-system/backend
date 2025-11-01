@@ -40,19 +40,26 @@ namespace BookingService.Infrastructure.Persistence.Configurations
                 .IsRequired();
 
             builder.Property(x => x.CreatedAt)
-                .HasColumnName("created_at")
-                .IsRequired();
+               .HasColumnName("created_at")
+               .HasColumnType("timestamp")
+               .ValueGeneratedOnAdd()
+               .HasDefaultValueSql("now()")
+               .IsRequired();
 
             builder.Property(x => x.LastModifiedAt)
                 .HasColumnName("updated_at")
+                .HasColumnType("timestamp")
+                .ValueGeneratedOnAddOrUpdate()
+                .HasDefaultValueSql("now()")
                 .IsRequired();
 
             builder.Property(x => x.IsDeleted)
                 .HasColumnName("is_deleted")
+                .HasDefaultValue(false)
                 .IsRequired();
 
             // Relationships configuration
-            builder.HasOne(x => x.DrivingSessions)
+            builder.HasOne(x => x.DrivingSession)
                 .WithMany(x => x.SessionLogs)
                 .HasForeignKey(x => x.SessionId)
                 .OnDelete(DeleteBehavior.Cascade);

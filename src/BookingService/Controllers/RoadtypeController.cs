@@ -1,4 +1,5 @@
-﻿using BookingService.Application.Interfaces;
+﻿using BookingService.Application.Commons.DTOs.DrivingSkills;
+using BookingService.Application.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SharedLibrary.SharedKernel.ServiceResult;
@@ -22,7 +23,6 @@ namespace BookingService.Controllers
         public async Task<IActionResult> GetDrivingSkillDetail([FromRoute] Guid id)
         {
             var result = await _roadTypeService.GetRoadTypeById(id);
-
             return result.ToActionResult();
         }
     }

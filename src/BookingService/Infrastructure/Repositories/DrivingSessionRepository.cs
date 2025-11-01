@@ -14,8 +14,7 @@ namespace BookingService.Infrastructure.Repositories
         {
             return await _context.DrivingSessions
                 .Where(ds => ds.Status == status && !ds.IsDeleted)
-                .Include(ds => ds.Bookings)
-                .Include(ds => ds.SessionRoadTypes)
+                .Include(ds => ds.Booking)
                 .Include(ds => ds.SessionLogs)
                 .Include(ds => ds.SessionRoutes)
                 .OrderByDescending(ds => ds.CreatedAt)

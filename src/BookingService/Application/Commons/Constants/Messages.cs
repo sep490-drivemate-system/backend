@@ -8,7 +8,10 @@
 
         }
 
-
+        public static class Commons
+        {
+            public const string UNHANDLED = "Đã có lỗi xảy ra và hệ thống không thể khắc phục, vui lòng kiểm tra lại thông tin và thử lại sau.";
+        }
 
     }
 }

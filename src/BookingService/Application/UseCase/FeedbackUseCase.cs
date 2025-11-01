@@ -12,7 +12,7 @@ namespace BookingService.Application.UseCase
         }
         public async Task<FeedbackResponse> GetStatitic(FeedbackRequest feedbackRequest)
         {
-            return await _unitOfWork.FeedbackRepository.GetStatiicListInstructor(feedbackRequest);
+            return await _unitOfWork.FeedbackRepository.GetStatisticListInstructor(feedbackRequest);
         }
     }
 }

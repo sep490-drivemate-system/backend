@@ -2,30 +2,89 @@ using BookingService.Application.Interfaces;
 using BookingService.Domain.Interfaces;
 using BookingService.Infrastructure.Persistence.Context;
 using BookingService.Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using UserService.Infrastructure.Repositories;
 
 namespace BookingService.Infrastructure.UoW
 {
-    public class UnitOfWork(BookingDbContext context): IUnitOfWork
+    public class UnitOfWork(BookingDbContext context) : IUnitOfWork
     {
         private readonly BookingDbContext _context = context;
+        private readonly Dictionary<Type, object> _repositories = new();
 
-        private ITimeRangeRepository _timeRangeRepo;
+        private ICarRepository _carRepo;
         private IDrivingSkillRepository _skillRepo;
         private IRoadTypeRepository _roadRepo;
         private IDrivingSessionRepository _sessionRepo;
         private IBookingRepository _bookRepository;
         private IPackageRepository _packageRepo;
-     //   private ICarPackageRepository _carPackageRepo;
         private IFeedbackRepository _feedbackRepo;
 
-        public async Task<int> CommitChanges()
+        public IGenericRepository<IEntity> Repository<IEntity>() where IEntity : class
         {
-            return await _context.SaveChangesAsync();
+            var type = typeof(IEntity);
+
+            if (!_repositories.ContainsKey(type))
+            {
+                var repoInstance = new GenericRepository<IEntity>(_context);
+                _repositories[type] = repoInstance;
+            }
+
+            return (IGenericRepository<IEntity>)_repositories[type];
+
         }
 
-        public int ReverChanges()
+        public async Task<int> CommitChangesAsync()
         {
-            throw new NotImplementedException();
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var result = await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return result;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+
+        public void RevertChanges()
+        {
+            foreach (var entry in _context.ChangeTracker.Entries().ToList())
+            {
+                switch (entry.State)
+                {
+                    case EntityState.Modified:
+                        entry.CurrentValues.SetValues(entry.OriginalValues);
+                        entry.State = EntityState.Unchanged;
+                        break;
+
+                    case EntityState.Added:
+                        entry.State = EntityState.Detached;
+                        break;
+
+                    case EntityState.Deleted:
+                        entry.State = EntityState.Unchanged;
+                        break;
+                }
+            }
+        }
+
+        public EntityEntry GetTrackingEntry(object entity)
+        {
+            return _context.Entry(entity);
+        }
+
+        public ICarRepository CarRepository
+        {
+            get
+            {
+                _carRepo ??= new CarRepository(_context);
+                return _carRepo;
+            }
         }
 
         public IDrivingSessionRepository DrivingSessionRepository
@@ -36,14 +95,7 @@ namespace BookingService.Infrastructure.UoW
                 return _sessionRepo;
             }
         }
-        public ITimeRangeRepository TimeRangeRepository
-        {
-            get
-            {
-                _timeRangeRepo ??= new TimeRangeRepository(_context);
-                return _timeRangeRepo;
-            }
-        }
+        
         public IBookingRepository BookingRepository
         {
             get
@@ -52,6 +104,7 @@ namespace BookingService.Infrastructure.UoW
                 return _bookRepository;
             }
         }
+
         public IRoadTypeRepository RoadTypeRepository
         {
             get
@@ -78,15 +131,6 @@ namespace BookingService.Infrastructure.UoW
                 return _packageRepo;
             }
         }
-
-        //public ICarPackageRepository CarPackageRepository
-        //{
-        //    get
-        //    {
-        //        _carPackageRepo ??= new CarPackageRepository(_context);
-        //        return _carPackageRepo;
-        //    }
-        //}
 
         public IFeedbackRepository FeedbackRepository
         {

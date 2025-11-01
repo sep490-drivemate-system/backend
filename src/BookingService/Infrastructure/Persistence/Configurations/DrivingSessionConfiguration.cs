@@ -8,14 +8,22 @@ namespace BookingService.Infrastructure.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<DrivingSession> builder)
         {
+            builder.ToTable("DrivingSession");
+
             builder.HasKey(x => x.Id);
             
             builder.Property(x => x.Id)
                 .HasColumnName("id")
                 .ValueGeneratedOnAdd();
 
+            // foreign keys 
             builder.Property(x => x.BookingId)
                 .HasColumnName("booking_id")
+                .IsRequired();
+
+            // properties
+            builder.Property(x => x.Date)
+                .HasColumnName("date")
                 .IsRequired();
 
             builder.Property(x => x.StartTime)
@@ -56,26 +64,27 @@ namespace BookingService.Infrastructure.Persistence.Configurations
 
             builder.Property(x => x.CreatedAt)
                 .HasColumnName("created_at")
+                .HasColumnType("timestamp")
+                .ValueGeneratedOnAdd()
+                .HasDefaultValueSql("now()")
                 .IsRequired();
 
             builder.Property(x => x.LastModifiedAt)
                 .HasColumnName("updated_at")
+                .HasColumnType("timestamp")
+                .ValueGeneratedOnAddOrUpdate()
+                .HasDefaultValueSql("now()")
+                .IsRequired();
+
+            builder.Property(x => x.IsDeleted)
+                .HasColumnName("is_deleted")
+                .HasDefaultValue(false)
                 .IsRequired();
 
             // Relationships
-            builder.HasOne(x => x.Bookings)
+            builder.HasOne(x => x.Booking)
                 .WithMany(x => x.DrivingSessions)
                 .HasForeignKey(x => x.BookingId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.HasMany(x => x.SessionRoadTypes)
-                .WithOne(x => x.DrivingSessions)
-                .HasForeignKey(x => x.SessionId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.HasMany(x => x.SessionLogs)
-                .WithOne(x => x.DrivingSessions)
-                .HasForeignKey(x => x.SessionId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasMany(x => x.SessionRoutes)
@@ -83,7 +92,10 @@ namespace BookingService.Infrastructure.Persistence.Configurations
                 .HasForeignKey(x => x.SessionId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.ToTable("DrivingSession");
+            builder.HasMany(x => x.SessionLogs)
+                .WithOne(x => x.DrivingSession)
+                .HasForeignKey(x => x.SessionId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

@@ -6,22 +6,25 @@ namespace BookingService.Domain.Entities
     public class Package: BaseEntites
     {
         // Properties
-
+        public string Name { get; set; } // This is the package name
+        public string Description { get; set; }
+        public string ThumbnailUrl { get; set; }
+        public double Duration { get; set; } // Duration calculated in hours
         public decimal Price { get; set; }
-        public TypeRental TypeRental { get; set; }
 
-        // Key for relationship
-        public Guid PackageTypeId { get; set; }
-        public Guid InstructorId { get; set; }
-        public Guid CarId {  get; set; }
+        //public PackageRentalType RentalType { get; set; } // No longer required by the requirement
 
         // System properties
         public DateTime LastModifiedAt { get; set; }
-
         public bool IsDeleted { get; set; }
 
+        // Keys for relationship
+        public Guid InstructorId { get; set; } // Requires call from User microservice to get information.
+
         // Navigational Properties
-        public  virtual PackageType PackageType { get; set; } 
-        public List<Booking>? Bookings{ get; set; }
+        public virtual ICollection<RoadType>? RoadTypes { get; set; }
+        public virtual ICollection<DrivingSkill>? DrivingSkills { get; set; }
+        public virtual ICollection<Car>? Cars { get; set; }
+        public virtual ICollection<Booking>? Bookings{ get; set; }
     }
 }

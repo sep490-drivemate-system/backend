@@ -14,20 +14,28 @@ namespace BookingService.Infrastructure.Persistence.Configurations
                 .HasColumnName("id")
                 .ValueGeneratedOnAdd();
 
+            builder.Property(x => x.DurationWhenBought)
+                .HasColumnName("duration")
+                .IsRequired();
+
+            builder.Property(x => x.PriceAtBuyingTime)
+                .HasColumnName("price")
+                .IsRequired();
+
             builder.Property(x => x.DriverId)
                 .HasColumnName("driver_id")
                 .IsRequired();
 
+            builder.Property(x => x.InstructorId)
+                .HasColumnName("instructor_id")
+                .IsRequired();
+
+            builder.Property(x => x.CarId)
+                .HasColumnName("car_id")
+                .IsRequired();
+
             builder.Property(x => x.PackageId)
                 .HasColumnName("package_id")
-                .IsRequired();
-
-            builder.Property(x => x.StartDate)
-                .HasColumnName("start_date")
-                .IsRequired();
-
-            builder.Property(x => x.EndDate)
-                .HasColumnName("end_date")
                 .IsRequired();
 
             builder.Property(x => x.Status)
@@ -35,30 +43,39 @@ namespace BookingService.Infrastructure.Persistence.Configurations
                 .IsRequired();
 
             builder.Property(x => x.CreatedAt)
-                .HasColumnName("created_at")
-                .ValueGeneratedOnAdd()
-                .IsRequired();
+               .HasColumnName("created_at")
+               .HasColumnType("timestamp")
+               .ValueGeneratedOnAdd()
+               .HasDefaultValueSql("now()")
+               .IsRequired();
 
             builder.Property(x => x.LastModifiedAt)
                 .HasColumnName("updated_at")
+                .HasColumnType("timestamp")
                 .ValueGeneratedOnAddOrUpdate()
+                .HasDefaultValueSql("now()")
                 .IsRequired();
 
             builder.Property(x => x.IsDeleted)
                 .HasColumnName("is_deleted")
+                .HasDefaultValue(false)
                 .IsRequired();
 
             // Relationships
+            builder.HasOne(x => x.Car)
+                .WithMany(x => x.Bookings)
+                .HasForeignKey(x => x.CarId)
+                .HasPrincipalKey(x => x.Id);
+
             builder.HasMany(x => x.DrivingSessions)
-                .WithOne(x => x.Bookings)
+                .WithOne(x => x.Booking)
                 .HasForeignKey(x => x.BookingId)
                 .HasPrincipalKey(x => x.Id)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasMany(x => x.Feedbacks)
-                .WithOne(x => x.Bookings)
-                .HasForeignKey(x => x.BookingId)
-                .HasPrincipalKey(x => x.Id)
+            builder.HasOne(x => x.Feedback)
+                .WithOne(x => x.Booking)
+                .HasForeignKey<Feedback>(x => x.BookingId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(x => x.Package)

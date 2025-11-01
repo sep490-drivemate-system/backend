@@ -42,16 +42,22 @@ namespace BookingService.Infrastructure.Persistence.Configurations
             //    .IsRequired();
 
             builder.Property(x => x.CreatedAt)
-                .ValueGeneratedOnAdd()
-                .IsRequired();
+               .HasColumnName("created_at")
+               .HasColumnType("timestamp")
+               .ValueGeneratedOnAdd()
+               .HasDefaultValueSql("now()")
+               .IsRequired();
 
             builder.Property(x => x.LastModifiedAt)
                 .HasColumnName("updated_at")
+                .HasColumnType("timestamp")
                 .ValueGeneratedOnAddOrUpdate()
+                .HasDefaultValueSql("now()")
                 .IsRequired();
 
             builder.Property(x => x.IsDeleted)
                 .HasColumnName("is_deleted")
+                .HasDefaultValue(false)
                 .IsRequired();
 
             // Relationships

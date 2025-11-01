@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using BookingService.Application.Commons.Constants;
 using BookingService.Application.Commons.DTOs.DrivingSkills;
 using BookingService.Application.Commons.DTOs.RoadTypes;
 using BookingService.Application.Interfaces;
+using BookingService.Domain.Entities;
 using SharedLibrary.SharedKernel.ServiceResult;
 
 namespace BookingService.Application.UseCase
@@ -10,6 +12,7 @@ namespace BookingService.Application.UseCase
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IMapper _mapper = mapper;
+
         public async Task<Result<List<RoadTypeDTO>>> GetAllRoadType()
         {
             var roads = await _unitOfWork.RoadTypeRepository.GetAllRoadType();

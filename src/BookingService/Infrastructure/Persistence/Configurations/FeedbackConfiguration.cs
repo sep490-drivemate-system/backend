@@ -18,10 +18,13 @@ namespace BookingService.Infrastructure.Persistence.Configurations
                 .HasColumnName("booking_id")
                 .IsRequired();
 
+            builder.Property(x => x.CarId)
+                .HasColumnName("car_id")
+                .IsRequired();
+
             builder.Property(x => x.NoviceDriverId)
                 .HasColumnName("novice_driver_id")
                 .IsRequired();
-
 
             builder.Property(x => x.InstructorId)
                 .HasColumnName("instructor_id")
@@ -44,23 +47,26 @@ namespace BookingService.Infrastructure.Persistence.Configurations
                 .HasMaxLength(1000);
 
             builder.Property(x => x.CreatedAt)
-                .HasColumnName("created_at")
-                .IsRequired();
+               .HasColumnName("created_at")
+               .HasColumnType("timestamp")
+               .ValueGeneratedOnAdd()
+               .HasDefaultValueSql("now()")
+               .IsRequired();
 
             builder.Property(x => x.LastModifiedAt)
                 .HasColumnName("updated_at")
+                .HasColumnType("timestamp")
+                .ValueGeneratedOnAddOrUpdate()
+                .HasDefaultValueSql("now()")
                 .IsRequired();
 
             builder.Property(x => x.IsDeleted)
                 .HasColumnName("is_deleted")
-                .ValueGeneratedOnAdd()
+                .HasDefaultValue(false)
                 .IsRequired();
 
             // Relationships
-            builder.HasOne(x => x.Bookings)
-                .WithMany(x => x.Feedbacks)
-                .HasForeignKey(x => x.BookingId)
-                .OnDelete(DeleteBehavior.Cascade);
+            // The Booking - Feedback relationship is already been defined in the Booking entity config.
 
             builder.ToTable("Feedback");
         }
