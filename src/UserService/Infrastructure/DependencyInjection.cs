@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using System;
+using SharedLibrary.CloudinaryStorage;
 using UserService.Domain.Interfaces;
 using UserService.Infrastructure.Persistence.Context;
 using UserService.Infrastructure.Repositories;
@@ -20,6 +20,7 @@ namespace UserService.Infrastructure
 
             // Đăng ký Repository (nếu có)
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<ICloudinaryServiceProvider, CloudinaryServiceProvider>();
             //services.AddScoped<IOrderRepository, OrderRepository>();
 
             // Đăng ký service khác (cache, email, storage…)
