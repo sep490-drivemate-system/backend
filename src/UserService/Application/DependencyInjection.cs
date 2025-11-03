@@ -11,7 +11,7 @@ using UserService.Application.Interfaces;
 using UserService.Application.UseCases;
 using UserService.Domain.Interfaces;
 using UserService.Infrastructure.Repositories;
-using UserService.Infrastructure.UnitOfWork;
+using UserService.Infrastructure.UoW;
 using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace UserService.Application

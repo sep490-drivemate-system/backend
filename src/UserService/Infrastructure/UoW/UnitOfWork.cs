@@ -5,7 +5,7 @@ using UserService.Domain.Interfaces;
 using UserService.Infrastructure.Persistence.Context;
 using UserService.Infrastructure.Repositories;
 
-namespace UserService.Infrastructure.UnitOfWork
+namespace UserService.Infrastructure.UoW
 {
     public class UnitOfWork(UserServiceDbContext context): IUnitOfWork
     {

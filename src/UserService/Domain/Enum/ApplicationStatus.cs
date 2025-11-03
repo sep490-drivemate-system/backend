@@ -3,8 +3,8 @@
     public enum ApplicationStatus
     {
         Pending = 1,
-        Approve = 2,
-        Reject = 3,
-        ReApply = 4,        
+        Approved = 2,
+        Rejected = 3,
+        ReApplying = 4,        
     }
 }

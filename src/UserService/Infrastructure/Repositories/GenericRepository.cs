@@ -103,7 +103,7 @@ namespace UserService.Infrastructure.Repositories
 
             foreach (var property in include_properties.Split(",", StringSplitOptions.RemoveEmptyEntries))
             {
-                return_result.Include(property.Trim());
+                return_result = return_result.Include(property.Trim());
             }
 
             if (orderBy != null)

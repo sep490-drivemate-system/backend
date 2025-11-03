@@ -38,7 +38,8 @@ namespace UserService.Infrastructure.Persistence.Configurations
 
             builder.Property(x => x.Avatar)
                 .HasColumnName("avatar")
-                .HasMaxLength(500);
+                .HasMaxLength(500)
+                .IsRequired(false);
 
             builder.Property(x => x.DateOfBirth)
                 .HasColumnName("date_of_birth")

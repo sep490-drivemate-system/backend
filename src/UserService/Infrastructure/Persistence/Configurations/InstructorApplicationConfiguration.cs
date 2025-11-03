@@ -43,27 +43,34 @@ namespace UserService.Infrastructure.Persistence.Configurations
                 .HasConversion<int>()
                 .IsRequired();
 
-            builder.Property(u => u.BackgroundProfile)
-                .HasColumnName("note")
-                .IsRequired()
+            builder.Property(u => u.HealthCheckup)
+                .HasColumnName("health_checkup")
                 .HasMaxLength(500)
                 .IsRequired();
-           
+
+            builder.Property(u => u.BackgroundProfile)
+                .HasColumnName("background_profile")
+                .HasMaxLength(500)
+                .IsRequired();
+
             builder.Property(u => u.DrivingLicenseFront)
                 .HasColumnName("driving_license_front")
+                .HasMaxLength(500)
                 .IsRequired();
 
             builder.Property(u => u.DrivingLicenseBack)
                 .HasColumnName("driving_license_back")
-                .HasConversion<int>()
+                .HasMaxLength(500)
                 .IsRequired();
 
             builder.Property(u => u.TeachingLicenseFront)
-                 .HasColumnName("teaching_license_front")
-                 .IsRequired();
+                .HasColumnName("teaching_license_front")
+                .HasMaxLength(500)
+                .IsRequired();
 
             builder.Property(u => u.TeachingLicenseBack)
                 .HasColumnName("teaching_license_back")
+                .HasMaxLength(500)
                 .IsRequired();
 
             builder.Property(u => u.Status)
