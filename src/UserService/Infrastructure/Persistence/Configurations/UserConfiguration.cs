@@ -55,8 +55,9 @@ namespace UserService.Infrastructure.Persistence.Configurations
                 .IsRequired();
 
             builder.Property(x => x.MaxLicenseLevel)
-                .HasColumnName("max_vehicle_category")
-                .IsRequired();
+                .HasColumnName("driving_license_tier")
+                .HasConversion<int>()
+                .IsRequired(false);
 
             builder.Property(x => x.AccountStatus)
                 .HasColumnName("account_status")
@@ -91,10 +92,6 @@ namespace UserService.Infrastructure.Persistence.Configurations
             builder.HasOne(x => x.Instructor)
                 .WithOne(i => i.User)
                 .HasForeignKey<Instructor>(x => x.Id);
-
-            builder.HasOne(x => x.LicenseCategory)
-                .WithMany(x => x.Users)
-                .HasForeignKey(x => x.MaxLicenseLevel);
         }
     }
 }

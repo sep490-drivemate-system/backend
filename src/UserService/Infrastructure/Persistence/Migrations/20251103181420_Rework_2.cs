@@ -6,27 +6,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace UserService.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class Rework : Migration
+    public partial class Rework_2 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "LicenseCategory",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    priority = table.Column<int>(type: "integer", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp", nullable: false, defaultValueSql: "now()"),
-                    is_deleted = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
-                    created_at = table.Column<DateTime>(type: "timestamp", nullable: false, defaultValueSql: "now()")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_LicenseCategory", x => x.id);
-                });
-
             migrationBuilder.CreateTable(
                 name: "Policy",
                 columns: table => new
@@ -56,21 +40,15 @@ namespace UserService.Infrastructure.Persistence.Migrations
                     date_of_birth = table.Column<DateOnly>(type: "date", nullable: false),
                     gender = table.Column<int>(type: "integer", nullable: false),
                     role = table.Column<int>(type: "integer", nullable: false),
+                    driving_license_tier = table.Column<int>(type: "integer", nullable: true),
                     account_status = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
                     updated_at = table.Column<DateTime>(type: "timestamp", nullable: false, defaultValueSql: "now()"),
                     is_deleted = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
-                    max_vehicle_category = table.Column<Guid>(type: "uuid", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp", nullable: false, defaultValueSql: "now()")
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Users", x => x.id);
-                    table.ForeignKey(
-                        name: "FK_Users_LicenseCategory_max_vehicle_category",
-                        column: x => x.max_vehicle_category,
-                        principalTable: "LicenseCategory",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -131,7 +109,8 @@ namespace UserService.Infrastructure.Persistence.Migrations
                     date_of_birth = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     gender = table.Column<int>(type: "integer", nullable: false),
                     driving_license_front = table.Column<string>(type: "text", nullable: false),
-                    driving_license_back = table.Column<string>(type: "text", nullable: false),
+                    driving_license_back = table.Column<int>(type: "integer", nullable: false),
+                    driving_license_level = table.Column<int>(type: "integer", nullable: false),
                     teaching_license_front = table.Column<string>(type: "text", nullable: false),
                     teaching_license_back = table.Column<string>(type: "text", nullable: false),
                     note = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
@@ -140,7 +119,6 @@ namespace UserService.Infrastructure.Persistence.Migrations
                     updated_at = table.Column<DateTime>(type: "timestamp", nullable: false, defaultValueSql: "now()"),
                     is_deleted = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
                     InstructorId = table.Column<Guid>(type: "uuid", nullable: false),
-                    driving_license_level = table.Column<Guid>(type: "uuid", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp", nullable: false, defaultValueSql: "now()")
                 },
                 constraints: table =>
@@ -244,11 +222,6 @@ namespace UserService.Infrastructure.Persistence.Migrations
                 name: "IX_PersonalSchedule_instructor_id",
                 table: "PersonalSchedule",
                 column: "instructor_id");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Users_max_vehicle_category",
-                table: "Users",
-                column: "max_vehicle_category");
         }
 
         /// <inheritdoc />
@@ -277,9 +250,6 @@ namespace UserService.Infrastructure.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "Users");
-
-            migrationBuilder.DropTable(
-                name: "LicenseCategory");
         }
     }
 }

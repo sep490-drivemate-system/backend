@@ -16,7 +16,7 @@ namespace UserService.Infrastructure.Persistence.Context
         public DbSet<PersonalSchedule> PersonalSchedules { get; set; }
         public DbSet<ApplicationTracking> InstructorApplications { get; set; }
         public DbSet<InstructorApplication> InstructorDocuments { get; set; }
-        public DbSet<LicenseCategory> LicenseCategories { get; set; }
+        //public DbSet<LicenseCategory> LicenseCategories { get; set; }
         public DbSet<Policy> Policies { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

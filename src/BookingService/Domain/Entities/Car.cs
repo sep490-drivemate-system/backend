@@ -1,5 +1,6 @@
 ﻿using BookingService.Domain.Enum;
 using SharedLibrary.SharedKernel.Entities;
+using SharedLibrary.SharedKernel.Enum;
 
 namespace BookingService.Domain.Entities
 {
@@ -12,6 +13,7 @@ namespace BookingService.Domain.Entities
         public string Description { get; set; }
         public decimal Price { get; set; }
         public string DocumentJsonBlobString { get; set; } // This will be used to replace car documents
+        public DrivingLicenseTier LicenseTier { get; set; } // Requires call from User microservice to get data.
         public string CarType { get; set; }
         public string FuelType { get; set; }
         public int SeatCount { get; set; }
@@ -27,7 +29,6 @@ namespace BookingService.Domain.Entities
         public bool IsDeleted { get; set; }
 
         // Keys for relationship
-        public Guid LicenseCategoryId { get; set; } // Requires call from User microservice to get data.
         public Guid InstructorId { get; set; } // Requires call from User microservice to get data.
         public Guid ManufacturerId { get; set; }
 

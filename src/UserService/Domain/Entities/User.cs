@@ -15,18 +15,15 @@ namespace UserService.Domain.Entities
         public DateOnly DateOfBirth { get; set; }
         public GenderType Gender { get; set; }
         public UserRole Role { get; set; }
+        public DrivingLicenseTier? MaxLicenseLevel { get; set; }
         public AccountStatus AccountStatus { get; set; }
         
         // System properties
         public DateTime LastModifiedAt { get; set; }
         public bool IsDeleted { get; set; }
 
-        // Keys for relationships
-        public Guid MaxLicenseLevel { get; set; }
-
         // Relationship navigation
         public virtual NoviceDriver? NoviceDriver { get; set; }
         public virtual Instructor? Instructor { get; set; } 
-        public virtual LicenseCategory? LicenseCategory { get; set; }
     }
 }

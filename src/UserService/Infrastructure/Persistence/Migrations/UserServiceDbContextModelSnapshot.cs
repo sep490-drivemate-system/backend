@@ -137,19 +137,18 @@ namespace UserService.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("date_of_birth");
 
-                    b.Property<string>("DrivingLicenseBack")
-                        .IsRequired()
-                        .HasColumnType("text")
+                    b.Property<int>("DrivingLicenseBack")
+                        .HasColumnType("integer")
                         .HasColumnName("driving_license_back");
-
-                    b.Property<Guid>("DrivingLicenseCategoryId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("driving_license_level");
 
                     b.Property<string>("DrivingLicenseFront")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("driving_license_front");
+
+                    b.Property<int>("DrivingLicenseTier")
+                        .HasColumnType("integer")
+                        .HasColumnName("driving_license_level");
 
                     b.Property<string>("EmailAddress")
                         .IsRequired()
@@ -210,46 +209,6 @@ namespace UserService.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("InstructorApplication", (string)null);
-                });
-
-            modelBuilder.Entity("UserService.Domain.Entities.LicenseCategory", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("now()");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("is_deleted");
-
-                    b.Property<DateTime>("LastModifiedAt")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("timestamp")
-                        .HasColumnName("updated_at")
-                        .HasDefaultValueSql("now()");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("name");
-
-                    b.Property<int>("Priority")
-                        .HasColumnType("integer")
-                        .HasColumnName("priority");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("LicenseCategory", (string)null);
                 });
 
             modelBuilder.Entity("UserService.Domain.Entities.NoviceDriver", b =>
@@ -486,9 +445,9 @@ namespace UserService.Infrastructure.Persistence.Migrations
                         .HasColumnName("updated_at")
                         .HasDefaultValueSql("now()");
 
-                    b.Property<Guid>("MaxLicenseLevel")
-                        .HasColumnType("uuid")
-                        .HasColumnName("max_vehicle_category");
+                    b.Property<int?>("MaxLicenseLevel")
+                        .HasColumnType("integer")
+                        .HasColumnName("driving_license_tier");
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
@@ -507,8 +466,6 @@ namespace UserService.Infrastructure.Persistence.Migrations
                         .HasColumnName("user_name");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("MaxLicenseLevel");
 
                     b.ToTable("Users", (string)null);
                 });
@@ -579,17 +536,6 @@ namespace UserService.Infrastructure.Persistence.Migrations
                     b.Navigation("NoviceDriver");
                 });
 
-            modelBuilder.Entity("UserService.Domain.Entities.User", b =>
-                {
-                    b.HasOne("UserService.Domain.Entities.LicenseCategory", "LicenseCategory")
-                        .WithMany("Users")
-                        .HasForeignKey("MaxLicenseLevel")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("LicenseCategory");
-                });
-
             modelBuilder.Entity("UserService.Domain.Entities.Instructor", b =>
                 {
                     b.Navigation("InstructorApplication");
@@ -600,11 +546,6 @@ namespace UserService.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("UserService.Domain.Entities.InstructorApplication", b =>
                 {
                     b.Navigation("ApplicationTrackings");
-                });
-
-            modelBuilder.Entity("UserService.Domain.Entities.LicenseCategory", b =>
-                {
-                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("UserService.Domain.Entities.NoviceDriver", b =>

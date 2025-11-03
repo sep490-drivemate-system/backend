@@ -16,8 +16,9 @@ namespace BookingService.Infrastructure.Persistence.Configurations
             builder.Property(x => x.Id).HasColumnName("id");
 
             // foreign keys
-            builder.Property(c => c.LicenseCategoryId)
-                .HasColumnName("license_category_id")
+            builder.Property(c => c.LicenseTier)
+                .HasColumnName("license_tier")
+                .HasConversion<int>()
                 .IsRequired();
 
             builder.Property(c => c.ManufacturerId)

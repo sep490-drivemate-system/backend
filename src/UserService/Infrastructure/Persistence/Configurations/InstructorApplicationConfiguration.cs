@@ -16,7 +16,7 @@ namespace UserService.Infrastructure.Persistence.Configurations
             builder.Property(x => x.Id).HasColumnName("id");
 
             // foreign key
-            builder.Property(x => x.DrivingLicenseCategoryId)
+            builder.Property(x => x.DrivingLicenseTier)
                 .HasColumnName("driving_license_level")
                 .IsRequired();
 
@@ -55,6 +55,7 @@ namespace UserService.Infrastructure.Persistence.Configurations
 
             builder.Property(u => u.DrivingLicenseBack)
                 .HasColumnName("driving_license_back")
+                .HasConversion<int>()
                 .IsRequired();
 
             builder.Property(u => u.TeachingLicenseFront)

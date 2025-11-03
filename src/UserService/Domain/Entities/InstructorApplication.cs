@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using SharedLibrary.SharedKernel.Entities;
+using SharedLibrary.SharedKernel.Enum;
 using System.ComponentModel.DataAnnotations.Schema;
 using UserService.Domain.Enum;
 
@@ -18,8 +19,9 @@ namespace UserService.Domain.Entities
 
         // Driving License
         public string DrivingLicenseFront { get; set; }
-        public string DrivingLicenseBack { get; set; }   
-        
+        public string DrivingLicenseBack { get; set; }
+        public DrivingLicenseTier DrivingLicenseTier { get; set; }
+
         // Teaching License
         public string TeachingLicenseFront { get; set; } 
         public string TeachingLicenseBack { get; set; }
@@ -37,7 +39,6 @@ namespace UserService.Domain.Entities
 
         // Keys for relationship
         public Guid InstructorId { get; set; }
-        public Guid DrivingLicenseCategoryId { get; set; }
 
         // Navigational properties
         public virtual Instructor? Instructors { get; set; }
