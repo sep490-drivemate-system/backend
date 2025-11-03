@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using UserService.Domain.Entities;
+using UserService.Domain.Enum;
 
 namespace UserService.Infrastructure.Persistence.Configurations
 {
@@ -16,69 +17,84 @@ namespace UserService.Infrastructure.Persistence.Configurations
             builder.Property(x => x.Id).HasColumnName("id");
 
             // properties
-            builder.Property(u => u.UserName)
-                   .HasColumnName("user_name")
-                   .IsRequired()
-                   .HasMaxLength(30);
+            builder.Property(x => x.Username)
+                .HasColumnName("user_name")
+                .IsRequired()
+                .HasMaxLength(30);
 
-            builder.Property(u => u.Email)
-                   .HasColumnName("email")
-                   .IsRequired()
-                   .HasMaxLength(150);
+            builder.Property(x => x.Email)
+                .HasColumnName("email")
+                .IsRequired()
+                .HasMaxLength(150);
 
-            builder.Property(u => u.HashedPassword)
-                   .HasColumnName("hashed_password")
-                   .IsRequired()
-                   .HasMaxLength(255);
+            builder.Property(x => x.HashedPassword)
+                .HasColumnName("hashed_password")
+                .IsRequired()
+                .HasMaxLength(255);
 
-            builder.Property(u => u.PhoneNumber)
-                   .HasColumnName("phone_number")
-                   .IsRequired(false)
-                   .HasMaxLength(11);
+            builder.Property(x => x.PhoneNumber)
+                .HasColumnName("phone_number")
+                .HasMaxLength(11);
 
-            builder.Property(u => u.Avatar)
-                  .HasColumnName("avatar")
-                  .HasMaxLength(500)
-                   .IsRequired(false);
-            builder.Property(u => u.DateOfBirth)
-                  .HasColumnName("date_of_birth")
-                  .HasColumnType("date");
+            builder.Property(x => x.Avatar)
+                .HasColumnName("avatar")
+                .HasMaxLength(500);
 
-            builder.Property(u => u.Role)
-                   .HasColumnName("role")
-                   .HasConversion<int>()
-                   .IsRequired();
+            builder.Property(x => x.DateOfBirth)
+                .HasColumnName("date_of_birth")
+                .IsRequired();
 
-            builder.Property(u => u.Gender)
-                   .HasColumnName("gender")
-                   .HasConversion<int>();
+            builder.Property(x => x.Gender)
+                .HasColumnName("gender")
+                .HasConversion<int>()
+                .IsRequired();
 
-            builder.Property(u => u.UpdateAt)
-                   .HasColumnName("update_at")
-                   .HasColumnType("timestamp");
+            builder.Property(x => x.Role)
+                .HasColumnName("role")
+                .HasConversion<int>()
+                .IsRequired();
 
-            builder.Property(u => u.CreatedAt)
-                  .HasColumnName("create_at")
-                  .HasColumnType("timestamp");
+            builder.Property(x => x.MaxLicenseLevel)
+                .HasColumnName("max_vehicle_category")
+                .IsRequired();
 
-            builder.Property(u => u.IsDelete)
-                .HasColumnName("is_delete")
-                   .HasDefaultValue(false);
+            builder.Property(x => x.AccountStatus)
+                .HasColumnName("account_status")
+                .HasConversion<int>()
+                .HasDefaultValue(AccountStatus.Normal)
+                .IsRequired();
+
+            builder.Property(x => x.CreatedAt)
+                .HasColumnName("created_at")
+                .HasColumnType("timestamp")
+                .ValueGeneratedOnAdd()
+                .HasDefaultValueSql("now()")
+                .IsRequired();
+
+            builder.Property(x => x.LastModifiedAt)
+                .HasColumnName("updated_at")
+                .HasColumnType("timestamp")
+                .ValueGeneratedOnAddOrUpdate()
+                .HasDefaultValueSql("now()")
+                .IsRequired();
+
+            builder.Property(x => x.IsDeleted)
+                .HasColumnName("is_deleted")
+                .HasDefaultValue(false)
+                .IsRequired();
 
             // Relationships 1-1
-            builder.HasOne(u => u.NoviceDriver)
-                   .WithOne(nd => nd.User)
-                   .HasForeignKey<NoviceDriver>(nd => nd.Id);
+            builder.HasOne(x => x.NoviceDriver)
+                .WithOne(x => x.User)
+                .HasForeignKey<NoviceDriver>(x => x.Id);
 
-            builder.HasOne(u => u.Instructor)
-                   .WithOne(i => i.User)
-                   .HasForeignKey<Instructor>(i => i.Id);
+            builder.HasOne(x => x.Instructor)
+                .WithOne(i => i.User)
+                .HasForeignKey<Instructor>(x => x.Id);
 
-
-            // Relationships 1-n
-            builder.HasMany(u => u.Addresses)
-                   .WithOne(a => a.User)
-                   .HasForeignKey(a => a.UserId);
+            builder.HasOne(x => x.LicenseCategory)
+                .WithMany(x => x.Users)
+                .HasForeignKey(x => x.MaxLicenseLevel);
         }
     }
 }

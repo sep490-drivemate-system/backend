@@ -8,35 +8,41 @@ namespace UserService.Infrastructure.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<Policy> builder)
         {
+            // Table name
             builder.ToTable("Policy");
 
+            // Primary key
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id).HasColumnName("id");
 
+            // Table properties
             builder.Property(u => u.Name)
-                   .HasColumnName("name")
-                   .IsRequired()
-                   .HasMaxLength(500);
+                .HasColumnName("name")
+                .IsRequired()
+                .HasMaxLength(500);
 
             builder.Property(u => u.Description)
-                  .HasColumnName("description")
-                  .IsRequired();
+                .HasColumnName("description")
+                .IsRequired();
 
-            builder.Property(u => u.PolicyType)
-                  .HasColumnName("type")
-                  .IsRequired();
+            builder.Property(x => x.CreatedAt)
+               .HasColumnName("created_at")
+               .HasColumnType("timestamp")
+               .ValueGeneratedOnAdd()
+               .HasDefaultValueSql("now()")
+               .IsRequired();
 
-            builder.Property(u => u.UpdatedAt)
-                   .HasColumnName("update_at")
-                   .HasColumnType("timestamp");
+            builder.Property(x => x.LastModifiedAt)
+                .HasColumnName("updated_at")
+                .HasColumnType("timestamp")
+                .ValueGeneratedOnAddOrUpdate()
+                .HasDefaultValueSql("now()")
+                .IsRequired();
 
-            builder.Property(u => u.CreatedAt)
-                  .HasColumnName("create_at")
-                  .HasColumnType("timestamp");
-
-            builder.Property(u => u.IsDeleted)
-                .HasColumnName("is_delete")
-                   .HasDefaultValue(false);
+            builder.Property(x => x.IsDeleted)
+                .HasColumnName("is_deleted")
+                .HasDefaultValue(false)
+                .IsRequired();
         }
     }
 }

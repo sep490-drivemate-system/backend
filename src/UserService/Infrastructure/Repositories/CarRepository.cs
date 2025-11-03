@@ -5,7 +5,7 @@ using UserService.Infrastructure.Persistence.Context;
 
 namespace UserService.Infrastructure.Repositories
 {
-    public class CarRepository(ApplicationDbContext context): GenericRepository<Car>(context), ICarRepository
+    public class CarRepository(UserServiceDbContext context): GenericRepository<Car>(context), ICarRepository
     {
         public override async Task<Car?> GetByIdAsync<Tid>(Tid id)
         {

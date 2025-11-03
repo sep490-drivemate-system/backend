@@ -11,7 +11,7 @@ using UserService.Infrastructure.Persistence.Context;
 
 namespace UserService.Infrastructure.Persistence.Migrations
 {
-    [DbContext(typeof(ApplicationDbContext))]
+    [DbContext(typeof(UserServiceDbContext))]
     [Migration("20251024111249_Add_Policy_Entities")]
     partial class Add_Policy_Entities
     {

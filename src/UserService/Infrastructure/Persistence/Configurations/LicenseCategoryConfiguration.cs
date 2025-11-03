@@ -13,34 +13,42 @@ namespace UserService.Infrastructure.Persistence.Configurations
 
             // primary key
             builder.HasKey(x => x.Id);
-            builder.Property(x => x.Id).HasColumnName("id");
+            builder.Property(x => x.Id)
+                .HasColumnName("id");
 
             // properties
             builder.Property(lc => lc.Name)
-                   .HasColumnName("name")
-                   .IsRequired()
-                   .HasMaxLength(50);
+                .HasColumnName("name")
+                .IsRequired()
+                .HasMaxLength(50);
 
             builder.Property(lc => lc.Priority)
-                   .HasColumnName("priority")
-                   .IsRequired();
+                .HasColumnName("priority")
+                .IsRequired();
 
-            builder.Property(lc => lc.UpdateAt)
-                   .HasColumnName("update_at")
-                   .HasColumnType("timestamp");
+            builder.Property(x => x.CreatedAt)
+                .HasColumnName("created_at")
+                .HasColumnType("timestamp")
+                .ValueGeneratedOnAdd()
+                .HasDefaultValueSql("now()")
+                .IsRequired();
 
-            builder.Property(lc => lc.IsDeleted)
-                   .HasColumnName("is_deleted")
-                   .HasDefaultValue(false);
+            builder.Property(x => x.LastModifiedAt)
+                .HasColumnName("updated_at")
+                .HasColumnType("timestamp")
+                .ValueGeneratedOnAddOrUpdate()
+                .HasDefaultValueSql("now()")
+                .IsRequired();
 
-            builder.Property(lc => lc.CreatedAt)
-                   .HasColumnName("create_at")
-                   .HasColumnType("timestamp");
+            builder.Property(x => x.IsDeleted)
+                .HasColumnName("is_deleted")
+                .HasDefaultValue(false)
+                .IsRequired();
 
             // relationships
-            builder.HasMany(lc => lc.Cars)
-                   .WithOne(c => c.LicenseCategory)
-                   .HasForeignKey(c => c.LicenseCategoryId)
+            builder.HasMany(x => x.Users)
+                   .WithOne(x => x.LicenseCategory)
+                   .HasForeignKey(x => x.MaxLicenseLevel)
                    .OnDelete(DeleteBehavior.Restrict);
         }
     }

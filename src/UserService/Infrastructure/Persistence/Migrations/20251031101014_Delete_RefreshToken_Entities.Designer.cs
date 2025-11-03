@@ -11,7 +11,7 @@ using UserService.Infrastructure.Persistence.Context;
 
 namespace UserService.Infrastructure.Persistence.Migrations
 {
-    [DbContext(typeof(ApplicationDbContext))]
+    [DbContext(typeof(UserServiceDbContext))]
     [Migration("20251031101014_Delete_RefreshToken_Entities")]
     partial class Delete_RefreshToken_Entities
     {

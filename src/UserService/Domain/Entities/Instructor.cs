@@ -6,17 +6,20 @@ namespace UserService.Domain.Entities
     public class Instructor : BaseEntites
     {
         // properties
-        public string Bio {  get; set; } = string.Empty;
-        public int Experience { get; set; }
-        public DateTime UpdateAt { get; set; }
-        public bool IsDelete { get; set; }
-        public  InstructorStatus Status { get; set; }
+        public string Bio {  get; set; }
+        public int Experience { get; set; } // Instructor experience will be calculated in year
+        public InstructorStatus Status { get; set; }
+
+        // System properties
+        public DateTime LastModifiedAt { get; set; }
+        public bool IsDeleted { get; set; }
+
+        // Keys for relationships
+        public Guid UserId { get; set; }
 
         // realationship
         public virtual User? User { get; set; }
         public virtual InstructorApplication? InstructorApplication { get; set; }
-        public virtual ICollection<ScheduleUnavailability>? ScheduleAvailabilities { get; set; } 
-        public virtual ICollection<Car>? Cars { get; set; } 
-
+        public virtual ICollection<PersonalSchedule>? InstructorSchedules { get; set; } 
     }
 }

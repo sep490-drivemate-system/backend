@@ -24,13 +24,13 @@ namespace UserService.Application.Commons.Mapping
             .ForMember(dest => dest.AccessToken, opt => opt.MapFrom(src => src.AccessToken))
             .ForMember(dest => dest.RefreshToken, opt => opt.MapFrom(src => src.RefreshToken));
 
-            CreateMap<Address, UserAddressDTO>()
+            CreateMap<SavedLocation, UserAddressDTO>()
             .ForMember(dest => dest.AddressString, opt => opt.MapFrom(src => src.Location));
 
             CreateMap<Instructor, InstructorDTO>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.Avatar, opt => opt.MapFrom(src => src.User.Avatar))
-            .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.User.UserName))
+            .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.User.Username))
             .ForMember(dest => dest.ExperienceYear, opt => opt.MapFrom(src => src.Experience))
             .ForMember(dest => dest.BookingCount, opt => opt.Ignore())
             .ForMember(dest => dest.AverageRating, opt => opt.Ignore())

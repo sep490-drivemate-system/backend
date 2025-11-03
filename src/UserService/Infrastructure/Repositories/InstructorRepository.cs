@@ -6,7 +6,7 @@ using UserService.Infrastructure.Persistence.Context;
 
 namespace UserService.Infrastructure.Repositories
 {
-    public class InstructorRepository(ApplicationDbContext context): GenericRepository<Instructor>(context), IInstructorRepository
+    public class InstructorRepository(UserServiceDbContext context): GenericRepository<Instructor>(context), IInstructorRepository
     {
         public override async Task<List<Instructor>> GetAllAsync()
         {

@@ -34,7 +34,7 @@ namespace UserService.Application.UseCases
             InstructorDetailDTO parsed_instructor_info = new InstructorDetailDTO
             {
                 Id = id,
-                FullName = instructor_info.User.UserName,
+                FullName = instructor_info.User.Username,
                 ExperienceYear = instructor_info.Experience,
                 Avatar = instructor_info.User.Avatar,
                 Bio = instructor_info.Bio,
@@ -84,7 +84,7 @@ namespace UserService.Application.UseCases
                 .Success(schedule.Select(x => new InstructorScheduleDTO
                 {
                     Id = x.Id,
-                    Date = x.Date,
+                    Date = x.StartTime,
                 }).ToList());
         }
     }

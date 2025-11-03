@@ -7,9 +7,9 @@ namespace UserService.Infrastructure.Repositories
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
-        protected readonly ApplicationDbContext _context;
+        protected readonly UserServiceDbContext _context;
 
-        public GenericRepository(ApplicationDbContext context) => _context = context;
+        public GenericRepository(UserServiceDbContext context) => _context = context;
 
         public async Task<int> CommitChangesAsync()
         {

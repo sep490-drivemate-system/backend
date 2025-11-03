@@ -11,7 +11,7 @@ using UserService.Infrastructure.Persistence.Context;
 
 namespace UserService.Infrastructure.Persistence.Migrations
 {
-    [DbContext(typeof(ApplicationDbContext))]
+    [DbContext(typeof(UserServiceDbContext))]
     [Migration("20251026144548_Add_Status_Policy")]
     partial class Add_Status_Policy
     {

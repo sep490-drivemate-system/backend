@@ -7,44 +7,40 @@ namespace UserService.Domain.Entities
 {
     public class InstructorApplication : BaseEntites
     {
-        // Citizen ID
-        public string CitizenIdFront { get; set; } 
-        public string CitizenIdBack { get; set; } 
-        public string CitizenIdNumber { get; set; }
-        public DateOnly CitizenIssueDate { get; set; }
-        public DateTime CitizenExpiryDate { get; set; }
-        public string CitizenIssuePlace { get; set; }
-        public string PermanentAddress { get; set; }
-        public VerificationStatus CitizenIdStatus { get; set; }
+        // Properties
+        
+        // User personal information
+        public string Fullname { get; set; }
+        public string EmailAddress { get; set; }
+        public string PhoneNumber { get; set; }
+        public DateTime DateOfBirth { get; set; }
+        public GenderType Gender { get; set; }
 
         // Driving License
         public string DrivingLicenseFront { get; set; }
-        public string DrivingLicenseNumber { get; set; }
-        public string DrivingLicenseBack { get; set; }      
-        public DateOnly? DrivingLicenseExpiry { get; set; }
-        public DateOnly DrivingLicenseIssueDate { get; set; }
-
-        public VerificationStatus DrivingLicenseStatus { get; set; }
-
+        public string DrivingLicenseBack { get; set; }   
+        
         // Teaching License
         public string TeachingLicenseFront { get; set; } 
         public string TeachingLicenseBack { get; set; }
-        public VerificationStatus TeachingStatus { get; set; }
 
         // Background Profile
         public string BackgroundProfile { get; set; }
-        public VerificationStatus BackgroundProfileStatus { get; set; }
 
+        // Application properties
         public DateTime SubmitAt { get; set; }
-        public DocumentStatus Status { get; set; }
-        public DateTime UpdateAt { get; set; }
-        public bool IsDelete { get; set; }
+        public ApplicationStatus Status { get; set; }
 
-        // Key for relationship
+        // System properties
+        public DateTime LastModifiedAt { get; set; }
+        public bool IsDeleted { get; set; }
 
+        // Keys for relationship
+        public Guid InstructorId { get; set; }
+        public Guid DrivingLicenseCategoryId { get; set; }
 
-        // Relationship
-        public virtual Instructor? Instructor{ get; set; }
-        public virtual ICollection<ApplicationTracking>? ApplicationTracking { get; set; }
+        // Navigational properties
+        public virtual Instructor? Instructors { get; set; }
+        public virtual ICollection<ApplicationTracking>? ApplicationTrackings { get; set; }
     }
 }

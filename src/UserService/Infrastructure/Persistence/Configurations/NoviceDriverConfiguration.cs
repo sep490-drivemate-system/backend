@@ -13,30 +13,45 @@ namespace UserService.Infrastructure.Persistence.Configurations
 
             // primary key
             builder.HasKey(x => x.Id);
-            builder.Property(x => x.Id).HasColumnName("id");
+            builder.Property(x => x.Id)
+                .HasColumnName("id");
+
+            // foreign keys
+            builder.Property(x => x.UserId)
+                .HasColumnName("user_id")
+                .IsRequired();
 
             // properties
-            builder.Property(u => u.AllowedBooking)
-                   .HasColumnName("allowed_booking")
-                   .IsRequired();
+            builder.Property(x => x.DrivingLicense)
+                .HasColumnName("driving_license_image_url")
+                .IsRequired()
+                .HasMaxLength(500);
 
-            builder.Property(u => u.DrivingLicenseImageUrl)
-                   .HasColumnName("driving_license_image_url")
-                   .IsRequired()
-                   .HasMaxLength(500);
+            builder.Property(x => x.DrivingLicenseExpirationDate)
+                .IsRequired();
 
-            builder.Property(u => u.CreatedAt)
-                  .HasColumnName("create_at")
-                  .HasColumnType("timestamp");
+            builder.Property(x => x.CreatedAt)
+                .HasColumnName("created_at")
+                .HasColumnType("timestamp")
+                .ValueGeneratedOnAdd()
+                .HasDefaultValueSql("now()")
+                .IsRequired();
 
-            builder.Property(u => u.UpdateAt)
-                 .HasColumnName("update_at")
-                 .HasColumnType("timestamp");
+            builder.Property(x => x.LastModifiedAt)
+                .HasColumnName("updated_at")
+                .HasColumnType("timestamp")
+                .ValueGeneratedOnAddOrUpdate()
+                .HasDefaultValueSql("now()")
+                .IsRequired();
 
-            builder.Property(u => u.IsDelete)
-                  .HasColumnName("is_delete")
-                  .HasDefaultValue(false)
-                  .IsRequired();
+            builder.Property(x => x.IsDeleted)
+                .HasColumnName("is_deleted")
+                .HasDefaultValue(false)
+                .IsRequired();
+
+            builder.HasOne(x => x.User)
+                .WithOne(x => x.NoviceDriver)
+                .HasForeignKey<NoviceDriver>(x => x.UserId);
         }
     }
 }

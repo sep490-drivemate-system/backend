@@ -12,7 +12,7 @@ namespace UserService.Infrastructure
            this IServiceCollection services, IConfiguration configuration)
         {
             // Đăng ký DbContext
-            services.AddDbContext<ApplicationDbContext>(options =>
+            services.AddDbContext<UserServiceDbContext>(options =>
             {
                 var connectionString = configuration.GetConnectionString("USERSERVICECONNECTION");
                 options.UseNpgsql(connectionString);

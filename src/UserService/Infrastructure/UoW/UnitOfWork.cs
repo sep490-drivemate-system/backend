@@ -7,7 +7,7 @@ namespace UserService.Infrastructure.UnitOfWork
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private readonly ApplicationDbContext _context ;
+        private readonly UserServiceDbContext _context ;
         private IUserRepository _userRepository;
         private IInstructorRepository _instructorRepository;
         private ICarRepository _carRepository;
@@ -15,7 +15,7 @@ namespace UserService.Infrastructure.UnitOfWork
         private IScheduleRepository _scheduleRepository;
         private INoviceDriverRepository _noviceDriverRepository;
         
-        public UnitOfWork(ApplicationDbContext context)
+        public UnitOfWork(UserServiceDbContext context)
         {
             _context = context;
         }

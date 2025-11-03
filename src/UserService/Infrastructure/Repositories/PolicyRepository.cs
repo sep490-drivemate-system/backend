@@ -6,7 +6,7 @@ using UserService.Infrastructure.Persistence.Context;
 
 namespace UserService.Infrastructure.Repositories
 {
-    public class PolicyRepository(ApplicationDbContext context): GenericRepository<Policy>(context), IPolicyRepository
+    public class PolicyRepository(UserServiceDbContext context): GenericRepository<Policy>(context), IPolicyRepository
     {
         public async Task<List<Policy>> GetByPolicyTypeAsync(PolicyType policyType)
         {

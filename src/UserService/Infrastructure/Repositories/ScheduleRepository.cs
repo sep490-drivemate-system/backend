@@ -4,7 +4,7 @@ using UserService.Infrastructure.Persistence.Context;
 
 namespace UserService.Infrastructure.Repositories
 {
-    public class ScheduleRepository(ApplicationDbContext context): GenericRepository<ScheduleUnavailability>(context), IScheduleRepository
+    public class ScheduleRepository(UserServiceDbContext context): GenericRepository<PersonalSchedule>(context), IScheduleRepository
     {
     }
 }

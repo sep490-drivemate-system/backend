@@ -5,7 +5,7 @@ using UserService.Infrastructure.Persistence.Context;
 
 namespace UserService.Infrastructure.Repositories
 {
-    public class NoviceDriverRepository(ApplicationDbContext context) : GenericRepository<NoviceDriver>(context), INoviceDriverRepository
+    public class NoviceDriverRepository(UserServiceDbContext context) : GenericRepository<NoviceDriver>(context), INoviceDriverRepository
     {
         public override async Task<NoviceDriver?> GetByIdAsync<Tid>(Tid id)
         {

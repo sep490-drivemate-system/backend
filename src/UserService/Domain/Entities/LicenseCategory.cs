@@ -6,11 +6,10 @@ namespace UserService.Domain.Entities
     {
         public string? Name {  get; set; }
         public int Priority { get; set; }
-        public DateTime UpdateAt { get; set; }
+        public DateTime LastModifiedAt { get; set; }
         public bool IsDeleted { get; set; }
 
-        // relationship navigation
-        public virtual ICollection<Car>? Cars{ get; set; }
-
+        // Navigational properties
+        public virtual ICollection<User> Users { get; set; }
     }
 }

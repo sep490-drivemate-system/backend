@@ -11,7 +11,7 @@ using UserService.Infrastructure.Persistence.Context;
 
 namespace UserService.Infrastructure.Persistence.Migrations
 {
-    [DbContext(typeof(ApplicationDbContext))]
+    [DbContext(typeof(UserServiceDbContext))]
     [Migration("20250929151757_Upadate_Car_Entities")]
     partial class Upadate_Car_Entities
     {

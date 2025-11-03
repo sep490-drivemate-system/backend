@@ -11,7 +11,7 @@ using UserService.Infrastructure.Persistence.Context;
 
 namespace UserService.Infrastructure.Persistence.Migrations
 {
-    [DbContext(typeof(ApplicationDbContext))]
+    [DbContext(typeof(UserServiceDbContext))]
     [Migration("20250911111408_Update-Role")]
     partial class UpdateRole
     {

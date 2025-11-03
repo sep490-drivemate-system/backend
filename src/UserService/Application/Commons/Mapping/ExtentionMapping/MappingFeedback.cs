@@ -19,7 +19,7 @@ namespace UserService.Application.Commons.Mapping.ExtentionMapping
                 {
                     Id = instructor.Id,
                     Avatar = instructor.User?.Avatar,
-                    FullName = instructor.User?.UserName ?? string.Empty,
+                    FullName = instructor.User?.Username ?? string.Empty,
                     ExperienceYear = instructor.Experience,
                     BookingCount = instructorFeedback?.BookingCount ?? 0,
                     AverageRating = instructorFeedback?.AverageRating ?? 0,

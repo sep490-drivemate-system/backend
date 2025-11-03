@@ -1,33 +1,38 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using UserService.Domain.Entities;
 
 namespace UserService.Infrastructure.Persistence.Configurations
 {
-    public class ApplicationTrackingConfiguration : IEntityTypeConfiguration<ApplicationTracking>
+    public class SavedLocationConfiguration : IEntityTypeConfiguration<SavedLocation>
     {
-        public void Configure(EntityTypeBuilder<ApplicationTracking> builder)
+        public void Configure(EntityTypeBuilder<SavedLocation> builder)
         {
             // table name
-            builder.ToTable("ApplicationTracking");
+            builder.ToTable("Address");
 
             // primary key
             builder.HasKey(x => x.Id);
-            builder.Property(x => x.Id).HasColumnName("id");
-
-            // foreign keys
-            builder.Property(x => x.ApplicationId)
-                .HasColumnName("application_id")
+            builder.Property(x => x.Id)
+                .HasColumnName("id")
                 .IsRequired();
 
             // properties
-            builder.Property(x => x.Note)
-                .HasColumnName("note")
-                .HasMaxLength(1000)
+            builder.Property(x => x.DisplayName)
+                .HasColumnName("location_string")
+                .HasMaxLength(256)
                 .IsRequired();
 
-            builder.Property(x => x.Status)
-                .HasColumnType("application_status")
+            builder.Property(x => x.LocationLatitude)
+                .HasColumnName("latitude")
+                .IsRequired();
+
+            builder.Property(x => x.LocationLongtitude)
+                .HasColumnName("longtitude")
+                .IsRequired();
+
+            builder.Property(x => x.NoviceDriverId)
+                .HasColumnName("novice_driver_id")
                 .IsRequired();
 
             builder.Property(x => x.CreatedAt)
@@ -48,16 +53,6 @@ namespace UserService.Infrastructure.Persistence.Configurations
                 .HasColumnName("is_deleted")
                 .HasDefaultValue(false)
                 .IsRequired();
-
-            builder.Property(x => x.ApplicationId)
-                   .HasColumnName("application_id")
-                   .IsRequired();
-
-            // relationships
-            builder.HasOne(x => x.InstructorApplication)
-                .WithMany(x => x.ApplicationTrackings)
-                .HasForeignKey(x => x.ApplicationId)
-                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

@@ -2,12 +2,15 @@
 
 namespace UserService.Domain.Entities
 {
-    public class ScheduleUnavailability : BaseEntites
+    public class PersonalSchedule : BaseEntites
     {
         // Poperties
-        public DateOnly Date{ get; set; }
-        public DateTime UpdateAt { get; set; }
-        public bool IsDelete { get; set; }
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
+
+        // System properties
+        public DateTime LastModifiedAt { get; set; }
+        public bool IsDeleted { get; set; }
 
         // Key for relationship
         public Guid InstructorId { get; set; }
