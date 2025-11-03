@@ -10,7 +10,7 @@ namespace UserService.Application.Commons.Mapping.ExtentionMapping
             IEnumerable<Instructor> instructors, 
             FeedbackResponse feedbacks)
         {
-            return instructors.Where(x => !x.IsDelete).Select(instructor => 
+            return instructors.Where(x => !x.IsDeleted).Select(instructor => 
             {
                 var instructorFeedback = feedbacks?.InstructorStatistics?
                     .FirstOrDefault(f => f.InstructorId == instructor.Id);

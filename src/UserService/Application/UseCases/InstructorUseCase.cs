@@ -1,7 +1,6 @@
 using SharedLibrary.SharedKernel.Http.Interfaces;
 using SharedLibrary.SharedKernel.Pagination;
 using SharedLibrary.SharedKernel.ServiceResult;
-using UserService.Application.Commons.DTOs.Cars;
 using UserService.Application.Commons.DTOs.Instructors;
 using UserService.Application.Commons.Mapping.ExtentionMapping;
 using UserService.Application.Interfaces;
@@ -19,7 +18,7 @@ namespace UserService.Application.UseCases
         {
             var instructor_info = await _unitOfWork.InstructorRepository.GetByIdAsync(id);
 
-            if (instructor_info == null || instructor_info.IsDelete)
+            if (instructor_info == null || instructor_info.IsDeleted)
             {
                 return Result<InstructorDetailDTO>.Failure(ServiceError.NotFoundError("can not find the requested resource"), $"can not find instructor information for {id}");
             }
@@ -84,7 +83,8 @@ namespace UserService.Application.UseCases
                 .Success(schedule.Select(x => new InstructorScheduleDTO
                 {
                     Id = x.Id,
-                    Date = x.StartTime,
+                    StartTime = x.StartTime,
+                    EndTime = x.EndTime,
                 }).ToList());
         }
     }

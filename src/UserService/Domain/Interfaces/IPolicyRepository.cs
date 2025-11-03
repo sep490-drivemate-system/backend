@@ -5,6 +5,5 @@ namespace UserService.Domain.Interfaces
 {
     public interface IPolicyRepository: IGenericRepository<Policy>
     {
-        Task<List<Policy>> GetByPolicyTypeAsync(PolicyType policyType);
     }
 }

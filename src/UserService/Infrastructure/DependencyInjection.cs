@@ -14,7 +14,7 @@ namespace UserService.Infrastructure
             // Đăng ký DbContext
             services.AddDbContext<UserServiceDbContext>(options =>
             {
-                var connectionString = configuration.GetConnectionString("USERSERVICECONNECTION");
+                var connectionString = configuration.GetConnectionString("user_service_db_connection");
                 options.UseNpgsql(connectionString);
             });
 

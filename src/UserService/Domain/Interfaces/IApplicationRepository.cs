@@ -2,8 +2,7 @@
 
 namespace UserService.Domain.Interfaces
 {
-    public interface ICarRepository: IGenericRepository<Car>
+    public interface IApplicationRepository: IGenericRepository<InstructorApplication>
     {
-
     }
 }

@@ -1,23 +1,80 @@
-﻿using UserService.Application.Interfaces;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using UserService.Application.Interfaces;
 using UserService.Domain.Interfaces;
 using UserService.Infrastructure.Persistence.Context;
 using UserService.Infrastructure.Repositories;
 
 namespace UserService.Infrastructure.UnitOfWork
 {
-    public class UnitOfWork : IUnitOfWork
+    public class UnitOfWork(UserServiceDbContext context): IUnitOfWork
     {
-        private readonly UserServiceDbContext _context ;
+        private readonly UserServiceDbContext _context = context;
+        private readonly Dictionary<Type, object> _repositories = new();
+
         private IUserRepository _userRepository;
         private IInstructorRepository _instructorRepository;
-        private ICarRepository _carRepository;
         private IPolicyRepository _policyRepository;
         private IScheduleRepository _scheduleRepository;
         private INoviceDriverRepository _noviceDriverRepository;
-        
-        public UnitOfWork(UserServiceDbContext context)
+        private IApplicationRepository _applicationRepository;
+        private IPolicyRepository _policiesRepository;
+
+        public IGenericRepository<IEntity> Repository<IEntity>() where IEntity : class
         {
-            _context = context;
+            var type = typeof(IEntity);
+
+            if (!_repositories.ContainsKey(type))
+            {
+                var repoInstance = new GenericRepository<IEntity>(_context);
+                _repositories[type] = repoInstance;
+            }
+
+            return (IGenericRepository<IEntity>)_repositories[type];
+
+        }
+
+        public async Task<int> CommitChangesAsync()
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var result = await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return result;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+
+        public void RevertChanges()
+        {
+            foreach (var entry in _context.ChangeTracker.Entries().ToList())
+            {
+                switch (entry.State)
+                {
+                    case EntityState.Modified:
+                        entry.CurrentValues.SetValues(entry.OriginalValues);
+                        entry.State = EntityState.Unchanged;
+                        break;
+
+                    case EntityState.Added:
+                        entry.State = EntityState.Detached;
+                        break;
+
+                    case EntityState.Deleted:
+                        entry.State = EntityState.Unchanged;
+                        break;
+                }
+            }
+        }
+
+        public EntityEntry GetTrackingEntry(object entity)
+        {
+            return _context.Entry(entity);
         }
 
         public IUserRepository UserRepository
@@ -41,18 +98,6 @@ namespace UserService.Infrastructure.UnitOfWork
                     _instructorRepository = new InstructorRepository(_context);
                 }
                 return _instructorRepository;
-            }
-        }
-
-        public ICarRepository CarRepository
-        {
-            get
-            {
-                if (_carRepository == null)
-                {
-                    _carRepository = new CarRepository(_context);
-                }
-                return _carRepository;
             }
         }
 
@@ -86,39 +131,22 @@ namespace UserService.Infrastructure.UnitOfWork
             }
         }
 
-        public void Commit()
+        public IPolicyRepository PoliciesRepository
         {
-         _context.SaveChanges();  
-        }
-
-        public async Task CommitAsync()
-        {
-            await _context.SaveChangesAsync();
-        }
-
-        public void RollBack()
-        {
-            _context.ChangeTracker.Clear();
-        }
-
-        private bool disposed = false;
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!this.disposed)
+            get
             {
-                if (disposing)
-                {
-                    _context.Dispose();
-                }
+                _policiesRepository ??= new PolicyRepository(_context);
+                return _policiesRepository;
             }
-            this.disposed = true;
         }
 
-        public void Dispose()
+        public IApplicationRepository ApplicationRepository
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            get
+            {
+                _applicationRepository ??= new ApplicationRepository(_context);
+                return _applicationRepository;
+            }
         }
     }
 }

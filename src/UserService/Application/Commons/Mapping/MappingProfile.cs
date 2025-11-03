@@ -15,17 +15,9 @@ namespace UserService.Application.Commons.Mapping
             CreateMap<User, SignUpDTO>().ReverseMap();
             CreateMap<User, UserClaimTokenDTO>().ReverseMap();
 
-            CreateMap<Policy, PolicyDTO>()
-                .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.Detail, opt => opt.MapFrom(src => src.Description))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.PolicyType));
-
             CreateMap<(string AccessToken, string RefreshToken), SignInRespondDTO>()
             .ForMember(dest => dest.AccessToken, opt => opt.MapFrom(src => src.AccessToken))
             .ForMember(dest => dest.RefreshToken, opt => opt.MapFrom(src => src.RefreshToken));
-
-            CreateMap<SavedLocation, UserAddressDTO>()
-            .ForMember(dest => dest.AddressString, opt => opt.MapFrom(src => src.Location));
 
             CreateMap<Instructor, InstructorDTO>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))

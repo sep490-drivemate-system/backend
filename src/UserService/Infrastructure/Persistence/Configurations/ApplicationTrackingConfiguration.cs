@@ -27,7 +27,8 @@ namespace UserService.Infrastructure.Persistence.Configurations
                 .IsRequired();
 
             builder.Property(x => x.Status)
-                .HasColumnType("application_status")
+                .HasColumnName("application_status")
+                .HasConversion<int>()
                 .IsRequired();
 
             builder.Property(x => x.CreatedAt)

@@ -1,17 +1,16 @@
-﻿namespace UserService.Application.Commons.DTOs.Instructors
+﻿using System.Text.Json.Serialization;
+
+namespace UserService.Application.Commons.DTOs.Instructors
 {
     public class InstructorScheduleDTO
     {
+        [JsonPropertyName("id")]
         public Guid Id { get; set; }
 
-        public DateOnly Date { get; set; }
+        [JsonPropertyName("start_time")]
+        public DateTime StartTime { get; set; }
 
-        /*public DateOnly StartDate { get; set; }
-
-        public DateOnly EndDate { get; set; }
-
-        public TimeOnly StartTime { get; set; }
-
-        public TimeOnly EndTime { get; set; }*/
+        [JsonPropertyName("end_time")]
+        public DateTime EndTime { get; set; }
     }
 }
