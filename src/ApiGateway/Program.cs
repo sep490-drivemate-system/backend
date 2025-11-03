@@ -48,6 +48,7 @@ namespace ApiGetwate
             {
                 builder.Configuration.AddJsonFile(ocelotFile, optional: false, reloadOnChange: true);
             }
+
             builder.Services.AddOcelot(config);
             builder.Services.AddSwaggerForOcelot(config, c =>
             {
