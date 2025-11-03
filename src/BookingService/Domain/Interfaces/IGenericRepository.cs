@@ -70,6 +70,12 @@ namespace BookingService.Domain.Interfaces
         void Remove<Tid>(Tid id);
 
         /// <summary>
+        ///     Remove an entity of type T if found.
+        /// </summary>
+        /// <param name="entity">The entity record to remove</param>
+        void Remove(T entity);
+
+        /// <summary>
         ///     Update an entity of type <typeparamref name="T"/>.
         ///     <para>
         ///         Caution: DIRECT UPDATE WILL WORK FINE IF THE ENTITY IS NOT LOADED. BUT IF THE ENTITY IS LOADED, UPDATE THE LOADED ENTITY INSTEAD.

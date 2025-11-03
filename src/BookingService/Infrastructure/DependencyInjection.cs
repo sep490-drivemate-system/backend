@@ -16,15 +16,10 @@ namespace BookingService.Infrastructure
         public static IServiceCollection AddInfrastructure(
            this IServiceCollection services, IConfiguration configuration)
         {
-
-            Console.WriteLine("Registering infrastructure services");
-
-            Console.WriteLine(configuration.GetConnectionString("BOOKINGSERVICECONNECTION"));
-            
             // Register database context
             services.AddDbContext<BookingDbContext>(options =>
             {
-                var connectionString = configuration.GetConnectionString("BOOKINGSERVICECONNECTION");
+                var connectionString = configuration.GetConnectionString("booking_service_db_connection");
                 options.UseNpgsql(connectionString);
             });
             

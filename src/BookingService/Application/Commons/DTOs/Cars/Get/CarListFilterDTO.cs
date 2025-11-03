@@ -11,7 +11,7 @@ namespace BookingService.Application.Commons.DTOs.Cars.Get
         public int PageSize { get; set; } = 10;
 
         [FromQuery(Name = "seats")]
-        public string? SeatCounts { get; set; } = null;
+        public int? SeatCounts { get; set; } = null;
 
         [FromQuery(Name = "brand")]
         public string? Manufacturer { get; set; } = null;
@@ -22,7 +22,9 @@ namespace BookingService.Application.Commons.DTOs.Cars.Get
         [FromQuery(Name = "type")]
         public string? CarType { get; set; } = null;
 
+        [FromQuery(Name = "order_by")]
+        public string? OrderBy { get; set; } = null;
 
-        public static CarListFilterDTO Default = new();
+
     }
 }

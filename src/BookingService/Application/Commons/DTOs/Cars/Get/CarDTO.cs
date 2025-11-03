@@ -30,7 +30,7 @@ namespace BookingService.Application.Commons.DTOs.Cars.Get
         [JsonPropertyName("booking_count")]
         public int BookingCount { get; set; }
         [JsonPropertyName("average_rating")]
-        public decimal AverageRating { get; set; }
+        public double AverageRating { get; set; }
     }
 
     public class CarDetailDTO : CarDTO
@@ -43,10 +43,13 @@ namespace BookingService.Application.Commons.DTOs.Cars.Get
         public List<string> Images { get; set; }
         [JsonPropertyName("instructor_id")]
         public Guid OwnerId { get; set; }
+        [JsonPropertyName("documents_string")]
+        public string DocumentsRawString { get; set; }
+        
         [JsonPropertyName("insurance_document")]
-        public CarDocument Insurance { get; set; }
-        [JsonPropertyName("registration")]
-        public CarDocument InsuranceDocument { get; set; }
+        public CarDocument? Insurance { get; set; }
+        [JsonPropertyName("registration_document")]
+        public CarDocument? Registration { get; set; }
         [JsonPropertyName("status")]
         public string Status { get; set; }
     }
@@ -58,6 +61,10 @@ namespace BookingService.Application.Commons.DTOs.Cars.Get
         [JsonPropertyName("back_image")]
         public string? BackImageUrl { get; set; }
         [JsonPropertyName("expiration_date")]
-        public DateOnly ExpirationDate { get; set; }
+        public DateOnly? ExpirationDate { get; set; }
+        [JsonPropertyName("document_type")]
+        public string? DocumentType { get; set; }
+        [JsonPropertyName("document_details")]
+        public string DocumentDetails { get; set; }
     }
 }
