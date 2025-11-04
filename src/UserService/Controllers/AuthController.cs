@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SharedLibrary.CloudinaryStorage;
 using SharedLibrary.SharedKernel.ServiceResult;
 using System.Threading.Tasks;
 using UserService.Application.Commons.DTOs.Auth;
@@ -11,10 +12,12 @@ namespace UserService.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
+        private readonly ICloudinaryServiceProvider _cloudinaryServiceProvider;
         private readonly IAuthUseCase _usecase;
-        public AuthController(IAuthUseCase usecase)
+        public AuthController(IAuthUseCase usecase, ICloudinaryServiceProvider cloudinaryServiceProvider)
         {
             _usecase = usecase;
+            _cloudinaryServiceProvider = cloudinaryServiceProvider;
         }
 
         [HttpPost("signin")]
@@ -44,6 +47,14 @@ namespace UserService.Controllers
         [HttpPost("signin-google")]
         public IActionResult SignInGoogle()
         {
+            return Ok();
+        }
+
+        [HttpPost("test")]
+        public IActionResult Test(IFormFile formFile)           
+        {
+           var tess =  _cloudinaryServiceProvider.UploadImageFormFileResourceToCloudinary(formFile,formFile.FileName);
+            Console.WriteLine(tess);
             return Ok();
         }
     }

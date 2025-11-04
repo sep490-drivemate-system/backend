@@ -1,9 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using SharedLibrary.CloudinaryStorage;
+using System.Text;
 using UserService.Application;
 using UserService.Infrastructure;
 using UserService.Infrastructure.Persistence.Context;
-using System.Text;
 
 namespace UserService
 {
@@ -19,6 +20,7 @@ namespace UserService
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddScoped<ICloudinaryServiceProvider, CloudinaryServiceProvider>();
             builder.Services.AddInfrastructure(config);
             builder.Services.AddApplication(config);
             
@@ -57,6 +59,7 @@ namespace UserService
                     In = Microsoft.OpenApi.Models.ParameterLocation.Header,
                     Description = "Enter JWT Bearer token"
                 });
+
 
                 c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
                 {

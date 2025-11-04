@@ -21,8 +21,7 @@ namespace UserService.Application.Commons.Mapping
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.PolicyType));
 
             CreateMap<(string AccessToken, string RefreshToken), SignInRespondDTO>()
-            .ForMember(dest => dest.AccessToken, opt => opt.MapFrom(src => src.AccessToken))
-            .ForMember(dest => dest.RefreshToken, opt => opt.MapFrom(src => src.RefreshToken));
+            .ForMember(dest => dest.Token, opt => opt.MapFrom(src => src.AccessToken));
 
             CreateMap<Address, UserAddressDTO>()
             .ForMember(dest => dest.AddressString, opt => opt.MapFrom(src => src.Location));
