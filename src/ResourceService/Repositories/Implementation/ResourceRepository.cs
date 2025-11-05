@@ -36,5 +36,15 @@ namespace ResourceService.Repositories.Implementation
 
             return (blogs, totalCount);
         }
+
+        public async Task<Blog?> GetBlogDetailAsync(Guid blogId)
+        {
+            return await _context.Blogs
+                .AsNoTracking()
+                .Include(b => b.Category)
+                .Include(b => b.Contents)
+                    .ThenInclude(c => c.Images)
+                .FirstOrDefaultAsync(b => b.Id == blogId);
+        }
     }
 }

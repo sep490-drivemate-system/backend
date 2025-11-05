@@ -25,7 +25,7 @@ namespace ResourceService.Services.Implementation
 
         public async Task<PagedResult<ResourceDto>> GetBlogsPagedAsync(int page, int pageSize)
         {
-            var (blogs, totalCount) = await _unitOfWork.ResourceRepository.GetBlogsPagedAsync(page, pageSize );
+            var (blogs, totalCount) = await _unitOfWork.ResourceRepository.GetBlogsPagedAsync(page, pageSize);
             var blogDtos = _mapper.Map<IEnumerable<ResourceDto>>(blogs);
 
             return new PagedResult<ResourceDto>
@@ -35,6 +35,13 @@ namespace ResourceService.Services.Implementation
                 Page = page,
                 PageSize = pageSize
             };
+        }
+
+        public async Task<BlogDetailDto?> GetBlogDetailAsync(Guid id)
+        {
+            var blog = await _unitOfWork.ResourceRepository.GetBlogDetailAsync(id);
+            if (blog == null) return null;
+            return _mapper.Map<BlogDetailDto>(blog);
         }
     }
 }

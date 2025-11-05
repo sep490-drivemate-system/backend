@@ -6,5 +6,6 @@ namespace ResourceService.Repositories.Interfaces
     {
         Task<List<Blog>> GetBlogsAsync();
         Task<(List<Blog> blogs, int totalCount)> GetBlogsPagedAsync(int page, int pageSize);
+        Task<Blog?> GetBlogDetailAsync(Guid blogId);
     }
 }

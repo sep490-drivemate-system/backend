@@ -6,5 +6,6 @@ namespace ResourceService.Services.Interfaces
     {
         Task<IEnumerable<ResourceDto>> GetBlogsAsync();
         Task<PagedResult<ResourceDto>> GetBlogsPagedAsync(int page, int pageSize);
+        Task<BlogDetailDto?> GetBlogDetailAsync(Guid id);
     }
 }

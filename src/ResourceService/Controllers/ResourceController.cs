@@ -41,6 +41,15 @@ namespace ResourceService.Controllers
             return Ok(new { success = true, data = result });
         }
 
+        [HttpGet("blogs/{id}")]
+        public async Task<IActionResult> GetBlogDetail([FromRoute] Guid id)
+        {
+            _logger.LogInformation("Getting blog detail for {Id}", id);
+            var result = await _resourcesService.GetBlogDetailAsync(id);
+            if (result == null) return NotFound(new { success = false, message = "Blog not found" });
+            return Ok(new { success = true, data = result });
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetResource(int id)
         {
