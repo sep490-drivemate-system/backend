@@ -1,4 +1,4 @@
-name: Build and Push Docker Images
+name: Build and Push Docker Images 
 
 on:
   push:
@@ -19,29 +19,24 @@ jobs:
       matrix:
         include:
           - service: UserService
-            image: drivemate-userservice
+            image: user-service
             dockerfile: ./src/UserService/Dockerfile
-            webhook_secret: RAILWAY_USERSERVICE_WEBHOOK
             
           - service: ApiGateway
-            image: drivemate-apigateway
+            image: apigateway
             dockerfile: ./src/ApiGateway/Dockerfile
-            webhook_secret: RAILWAY_APIGATEWAY_WEBHOOK
             
           - service: BookingService
-            image: drivemate-bookingservice
+            image: booking-service
             dockerfile: ./src/BookingService/Dockerfile
-            webhook_secret: RAILWAY_BOOKINGSERVICE_WEBHOOK
             
           - service: PaymentService
-            image: drivemate-paymentservice
+            image: payment-service
             dockerfile: ./src/PaymentService/Dockerfile
-            webhook_secret: RAILWAY_PAYMENTSERVICE_WEBHOOK
             
           - service: ResourceService
-            image: drivemate-resourceservice
+            image: resource-service
             dockerfile: ./src/ResourceService/Dockerfile
-            webhook_secret: RAILWAY_RESOURCESERVICE_WEBHOOK
     
     steps:
     - name: Checkout code
@@ -85,50 +80,3 @@ jobs:
         
     - name: Image digest
       run: echo ${{ steps.meta.outputs.tags }}
-
-  deploy:
-    name: Deploy to Railway
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
-    
-    steps:
-    - name: Deploy All Services
-      env:
-        USERSERVICE_WEBHOOK: ${{ secrets.RAILWAY_USERSERVICE_WEBHOOK }}
-        APIGATEWAY_WEBHOOK: ${{ secrets.RAILWAY_APIGATEWAY_WEBHOOK }}
-        BOOKINGSERVICE_WEBHOOK: ${{ secrets.RAILWAY_BOOKINGSERVICE_WEBHOOK }}
-        PAYMENTSERVICE_WEBHOOK: ${{ secrets.RAILWAY_PAYMENTSERVICE_WEBHOOK }}
-        RESOURCESERVICE_WEBHOOK: ${{ secrets.RAILWAY_RESOURCESERVICE_WEBHOOK }}
-      run: |
-        echo "🚀 Starting deployment to Railway..."
-        echo ""
-        
-        if [ -n "$USERSERVICE_WEBHOOK" ]; then
-          echo "📦 Deploying UserService..."
-          curl -f -X POST "$USERSERVICE_WEBHOOK" && echo "✅ UserService deployed" || echo "⚠️ UserService deployment failed"
-        fi
-        
-        if [ -n "$APIGATEWAY_WEBHOOK" ]; then
-          echo "📦 Deploying ApiGateway..."
-          curl -f -X POST "$APIGATEWAY_WEBHOOK" && echo "✅ ApiGateway deployed" || echo "⚠️ ApiGateway deployment failed"
-        fi
-        
-        if [ -n "$BOOKINGSERVICE_WEBHOOK" ]; then
-          echo "📦 Deploying BookingService..."
-          curl -f -X POST "$BOOKINGSERVICE_WEBHOOK" && echo "✅ BookingService deployed" || echo "⚠️ BookingService deployment failed"
-        fi
-        
-        if [ -n "$PAYMENTSERVICE_WEBHOOK" ]; then
-          echo "📦 Deploying PaymentService..."
-          curl -f -X POST "$PAYMENTSERVICE_WEBHOOK" && echo "✅ PaymentService deployed" || echo "⚠️ PaymentService deployment failed"
-        fi
-        
-        if [ -n "$RESOURCESERVICE_WEBHOOK" ]; then
-          echo "📦 Deploying ResourceService..."
-          curl -f -X POST "$RESOURCESERVICE_WEBHOOK" && echo "✅ ResourceService deployed" || echo "⚠️ ResourceService deployment failed"
-        fi
-        
-        echo ""
-        echo "✅ Deployment process completed!"
-        echo "🔍 Check Railway dashboard for detailed status"

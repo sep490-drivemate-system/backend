@@ -42,7 +42,7 @@
           "DownstreamHostAndPorts": [
               {
                   "Host": "localhost",
-                  "Port": 5174
+                  "Port": 5200
               }
           ],
           "UpstreamPathTemplate": "/booking/{everything}",
@@ -60,7 +60,7 @@
           "DownstreamHostAndPorts": [
               {
                   "Host": "localhost",
-                  "Port": 5174
+                  "Port": 5200
               }
           ],
           "UpstreamPathTemplate": "/package/{everything}",
@@ -78,7 +78,7 @@
           "DownstreamHostAndPorts": [
               {
                   "Host": "localhost",
-                  "Port": 5174
+                  "Port": 5200
               }
           ],
           "UpstreamPathTemplate": "/skills/{everything}",
@@ -96,7 +96,7 @@
           "DownstreamHostAndPorts": [
               {
                   "Host": "localhost",
-                  "Port": 8084
+                  "Port": 5300
               }
           ],
           "UpstreamPathTemplate": "/payment/{everything}",
@@ -114,7 +114,7 @@
           "DownstreamHostAndPorts": [
               {
                   "Host": "localhost",
-                  "Port": 8084
+                  "Port": 5300
               }
           ],
           "UpstreamPathTemplate": "/wallet/{everything}",
@@ -132,7 +132,7 @@
           "DownstreamHostAndPorts": [
               {
                   "Host": "localhost",
-                  "Port": 8084
+                  "Port": 5300
               }
           ],
           "UpstreamPathTemplate": "/transaction/{everything}",
@@ -150,7 +150,7 @@
           "DownstreamHostAndPorts": [
               {
                   "Host": "localhost",
-                  "Port": 5085
+                  "Port": 5400
               }
           ],
           "UpstreamPathTemplate": "/resource/{everything}",
@@ -180,7 +180,7 @@
               {
                   "Name": "Booking Service API",
                   "Version": "v1",
-                  "Url": "http://localhost:5174/swagger/v1/swagger.json"
+                  "Url": "http://localhost:5200/swagger/v1/swagger.json"
               }
           ]
       },
@@ -190,7 +190,7 @@
               {
                   "Name": "Payment Service API",
                   "Version": "v1",
-                  "Url": "http://localhost:8084/swagger/v1/swagger.json"
+                  "Url": "http://localhost:5300/swagger/v1/swagger.json"
               }
           ]
       },
@@ -200,7 +200,7 @@
               {
                   "Name": "Resource Service API",
                   "Version": "v1",
-                  "Url": "http://localhost:5085/swagger/v1/swagger.json"
+                  "Url": "http://localhost:5400/swagger/v1/swagger.json"
               }
           ]
       }
