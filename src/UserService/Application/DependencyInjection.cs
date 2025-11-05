@@ -45,6 +45,7 @@ namespace UserService.Application
             services.AddScoped<IPackage, SharedLibrary.SharedKernel.Http.Implementation.Package>();
 
             services.AddHttpClient<ResendClient>();
+            services.AddTransient<IResend, ResendClient>();
             services.Configure<ResendClientOptions>(o =>
             {
                 o.ApiToken = Environment.GetEnvironmentVariable("RESEND_APITOKEN")!;

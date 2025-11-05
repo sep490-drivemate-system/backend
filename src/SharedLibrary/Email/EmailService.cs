@@ -2,7 +2,6 @@ using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Configuration;
 using MimeKit;
-using Resend;
 using SharedLibrary.SharedKernel.Enum;
 using System.Collections.Concurrent;
 
@@ -14,7 +13,7 @@ namespace SharedLibrary.Email
         private static readonly ConcurrentDictionary<string, string> _templateCache = new();
         private readonly string _templateBasePath;
 
-        public EmailService( IConfiguration configuration)
+        public EmailService( IConfiguration configuration )
         {
             _templateBasePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Email", "Template");
             _configuration = configuration;
@@ -23,7 +22,7 @@ namespace SharedLibrary.Email
         {
             try
             {
-                await SendEmailAsync(toEmail, EmailType.VerifyOPTCode, null, verificationCode);
+                await Task.Run(() => SendEmail(toEmail, EmailType.VerifyOPTCode, null, verificationCode));
                 return true;
             }
             catch (Exception ex)
@@ -34,22 +33,19 @@ namespace SharedLibrary.Email
         }
         public async Task SendForgotPasswordAsync(string toEmail, string resetToken)
         {
-            await SendEmailAsync(toEmail, EmailType.ForgotPassword, resetToken);
+            await Task.Run(() => SendEmail(toEmail, EmailType.ForgotPassword, resetToken));
         }
-        private async Task SendEmailAsync(string toEmail, EmailType emailType, string? token = null, string? plainPassword = null)
+        private void SendEmail(string toEmail, EmailType emailType, string? token = null, string? plainPassword = null)
         {
-
-
-            var emailBody = await GenerateEmailBodyAsync(toEmail, emailType, token, plainPassword);
+            var emailBody = GenerateEmailBody(toEmail, emailType, token, plainPassword);
             var emailMessage = BuildEmailMessage(toEmail, emailBody, emailType);
-            await SendEmailViaSmtpAsync(emailMessage);
-
+            SendEmailViaSmtp(emailMessage);
         }
 
-        private async Task<string> GenerateEmailBodyAsync(string email, EmailType emailType, string? token, string? plainPassword)
+        private string GenerateEmailBody(string email, EmailType emailType, string? token, string? plainPassword)
         {
             var templateFileName = GetTemplateFileName(emailType);
-            var htmlTemplate = await LoadEmailTemplateAsync(templateFileName);
+            var htmlTemplate = LoadEmailTemplate(templateFileName);
 
             return ReplaceTemplatePlaceholders(htmlTemplate, email, token, plainPassword, emailType);
         }
@@ -64,14 +60,20 @@ namespace SharedLibrary.Email
             };
         }
 
-        private async Task<string> LoadEmailTemplateAsync(string templateFileName)
+        private string LoadEmailTemplate(string templateFileName)
         {
             var cacheKey = templateFileName;
+            
+            // Kiểm tra cache trước
+            if (_templateCache.TryGetValue(cacheKey, out var cachedTemplate))
+            {
+                return cachedTemplate;
+            }
+            
             var templatePath = Path.Combine(_templateBasePath, templateFileName);
-            var template = await File.ReadAllTextAsync(templatePath);
+            var template = File.ReadAllText(templatePath);
             _templateCache.TryAdd(cacheKey, template);
             return template;
-
         }
 
         private static string ReplaceTemplatePlaceholders(string template, string email, string? token, string? plainPassword, EmailType emailType)
@@ -133,13 +135,14 @@ namespace SharedLibrary.Email
             };
         }
 
-        private async Task SendEmailViaSmtpAsync(MimeMessage message)
+        private void SendEmailViaSmtp(MimeMessage message)
         {
             using var client = new SmtpClient();
-            await client.ConnectAsync(_configuration["EMAIL:SMTP_SERVER"], int.Parse(_configuration["EMAIL:SMTP_PORT"]), SecureSocketOptions.StartTls);
-            await client.AuthenticateAsync(_configuration["EMAIL:SENDER_EMAIL"], _configuration["EMAIL:SENDER_PASSWORD"]);
-            await client.SendAsync(message);
-            await client.DisconnectAsync(true);
+            // client.ServerCertificateValidationCallback = (s, c, h, e) => true;
+            client.Connect(_configuration["EMAIL:SMTP_SERVER"], int.Parse(_configuration["EMAIL:SMTP_PORT"]), SecureSocketOptions.StartTls);
+            client.Authenticate(_configuration["EMAIL:SENDER_EMAIL"], _configuration["EMAIL:SENDER_PASSWORD"]);
+            client.Send(message);
+            client.Disconnect(true);
         }
 
     }
