@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ResourceService.Repositories.Implementation;
+using ResourceService.Repositories.Interfaces;
 using ResourceService.Repositories.Models;
 
 namespace ResourceService.Repositories
@@ -12,9 +14,9 @@ namespace ResourceService.Repositories
             services.AddDbContext<ResourceDbContext>(options =>
                 options.UseNpgsql(configuration.GetConnectionString("BLOGSERVICECONNECTION"))); 
 
-            // Đăng ký Repository (nếu có)
-
-            //services.AddScoped<IOrderRepository, OrderRepository>();
+            // Đăng ký Repository & UnitOfWork
+            services.AddScoped<IResourceRepository, ResourceRepository>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             // Đăng ký service khác (cache, email, storage…)
             // services.AddScoped<IEmailService, EmailService>();

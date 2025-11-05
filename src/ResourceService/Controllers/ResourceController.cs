@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using ResourceService.Services.Interfaces;
 
 namespace ResourceService.Controllers
 {
@@ -7,25 +8,37 @@ namespace ResourceService.Controllers
     public class ResourceController : ControllerBase
     {
         private readonly ILogger<ResourceController> _logger;
+        private readonly IResourcesService _resourcesService;
 
-        public ResourceController(ILogger<ResourceController> logger)
+        public ResourceController(ILogger<ResourceController> logger, IResourcesService resourcesService)
         {
             _logger = logger;
+            _resourcesService = resourcesService;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetResources()
+        [HttpGet("blogs")]
+        public async Task<IActionResult> GetBlogs()
         {
-            _logger.LogInformation("Getting all resources");
-            
-            // TODO: Implement actual resource retrieval logic
-            var resources = new List<object>
-            {
-                new { Id = 1, Name = "Sample Resource 1", Type = "Document" },
-                new { Id = 2, Name = "Sample Resource 2", Type = "Video" }
-            };
-
+            _logger.LogInformation("Getting blogs list");
+            var resources = await _resourcesService.GetBlogsAsync();
             return Ok(new { success = true, data = resources });
+        }
+
+        [HttpGet("blogs/paged")]
+        public async Task<IActionResult> GetBlogsPaged(
+            [FromQuery] int page, 
+            [FromQuery] int pageSize
+            )
+        {
+            _logger.LogInformation("Getting blogs list with pagination - Page: {Page}, PageSize: {PageSize}", page, pageSize);
+            
+            // Validate pagination parameters
+            if (page < 1) page = 1;
+            if (pageSize < 1) pageSize = 10;
+            if (pageSize > 100) pageSize = 100; // Limit max page size
+
+            var result = await _resourcesService.GetBlogsPagedAsync(page, pageSize);
+            return Ok(new { success = true, data = result });
         }
 
         [HttpGet("{id}")]

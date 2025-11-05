@@ -1,5 +1,10 @@
-
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using ResourceService.Services.Mapping;
+using ResourceService.Repositories;
+using ResourceService.Services.Interfaces;
+using ResourceService.Services.Implementation;
+using Services;
 namespace ResourceService
 {
     public class Program
@@ -15,6 +20,21 @@ namespace ResourceService
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            // AutoMapper registration
+            var mapperConfig = new MapperConfiguration(cfg =>
+            {
+                cfg.AddProfile<MappingProfile>();
+            });
+            IMapper mapper = mapperConfig.CreateMapper();
+            builder.Services.AddSingleton(mapper);
+
+            // Repositories & DbContext
+            builder.Services.AddRepositories(config);
+
+            // Services
+            builder.Services.AddScoped<IResourcesService, ResourcesService>();
+            builder.Services.AddScoped<IServiceProviders, ServiceProviders>();
 
             builder.Services.AddCors(options =>
             {

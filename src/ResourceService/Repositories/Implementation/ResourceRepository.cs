@@ -10,9 +10,31 @@ namespace ResourceService.Repositories.Implementation
 
         public ResourceRepository(ResourceDbContext context)
         {
-            _context = context;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public ResourceRepository() => _context ??= new ResourceDbContext();
+        public async Task<List<Blog>> GetBlogsAsync()
+        {
+            return await _context.Blogs
+                .AsNoTracking()
+                .Include(b => b.Category)
+                .ToListAsync();
+        }
+
+        public async Task<(List<Blog> blogs, int totalCount)> GetBlogsPagedAsync(int page, int pageSize)
+        {
+            var query = _context.Blogs
+                .AsNoTracking()
+                .Include(b => b.Category);
+
+            var totalCount = await query.CountAsync();
+
+            var blogs = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (blogs, totalCount);
+        }
     }
 }

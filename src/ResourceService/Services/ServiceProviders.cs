@@ -15,21 +15,13 @@ namespace Services
 
     public class ServiceProviders : IServiceProviders
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private IResourcesService _resourceService;
+        private readonly IResourcesService _resourceService;
 
-        public IResourcesService ResourcesService
+        public IResourcesService ResourcesService => _resourceService;
+
+        public ServiceProviders(IResourcesService resourceService)
         {
-            get { return _resourceService ??= new ResourcesService(); }
-        }
-
-
-
-        public ServiceProviders(
-            IUnitOfWork unitOfWork
-            )
-        {
-            _unitOfWork = unitOfWork;
+            _resourceService = resourceService;
         }
 
 
