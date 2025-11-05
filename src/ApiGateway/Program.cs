@@ -87,22 +87,18 @@ namespace ApiGetwate
             });
             var app = builder.Build();
 
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwaggerForOcelotUI(opt =>
-                {
-                    opt.PathToSwaggerGenerator = "/swagger/docs";
-                });
-            }
+            // CORS must be first
+            app.UseCors("AllowAll");
 
-            // Remove HTTPS redirection for HTTP-only setup
-            // app.UseHttpsRedirection();
-
+            // Authentication and Authorization
+            app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseCors("AllowAll");
-            app.UseAuthentication();
-            app.UseOcelot().Wait();
+            // Enable Swagger and Ocelot (chained together)
+            app.UseSwaggerForOcelotUI(opt =>
+            {
+                opt.PathToSwaggerGenerator = "/swagger/docs";
+            }).UseOcelot().Wait();
 
             app.Run();
         }
