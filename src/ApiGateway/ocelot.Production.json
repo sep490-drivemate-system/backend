@@ -6,7 +6,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "${USERSERVICE_HOST}",
-          "Port": 80
+          "Port": 443
         }
       ],
       "UpstreamPathTemplate": "/auth/{everything}",
@@ -24,7 +24,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "${USERSERVICE_HOST}",
-          "Port": 80
+          "Port": 443
         }
       ],
       "UpstreamPathTemplate": "/user/{everything}",
@@ -42,7 +42,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "${BOOKINGSERVICE_HOST}",
-          "Port": 80
+          "Port": 443
         }
       ],
       "UpstreamPathTemplate": "/booking/{everything}",
@@ -60,7 +60,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "${BOOKINGSERVICE_HOST}",
-          "Port": 80
+          "Port": 443
         }
       ],
       "UpstreamPathTemplate": "/package/{everything}",
@@ -78,7 +78,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "${BOOKINGSERVICE_HOST}",
-          "Port": 80
+          "Port": 443
         }
       ],
       "UpstreamPathTemplate": "/skills/{everything}",
@@ -96,7 +96,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "${PAYMENTSERVICE_HOST}",
-          "Port": 80
+          "Port": 443
         }
       ],
       "UpstreamPathTemplate": "/payment/{everything}",
@@ -114,7 +114,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "${PAYMENTSERVICE_HOST}",
-          "Port": 80
+          "Port": 443
         }
       ],
       "UpstreamPathTemplate": "/wallet/{everything}",
@@ -132,7 +132,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "${PAYMENTSERVICE_HOST}",
-          "Port": 80
+          "Port": 443
         }
       ],
       "UpstreamPathTemplate": "/transaction/{everything}",
@@ -150,7 +150,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "${USERSERVICE_HOST}",
-          "Port": 80
+          "Port": 443
         }
       ],
       "UpstreamPathTemplate": "/instructors/{everything}",
@@ -168,7 +168,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "${USERSERVICE_HOST}",
-          "Port": 80
+          "Port": 443
         }
       ],
       "UpstreamPathTemplate": "/policy/{everything}",
@@ -186,7 +186,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "${USERSERVICE_HOST}",
-          "Port": 80
+          "Port": 443
         }
       ],
       "UpstreamPathTemplate": "/novice-driver/{everything}",
@@ -204,7 +204,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "${USERSERVICE_HOST}",
-          "Port": 80
+          "Port": 443
         }
       ],
       "UpstreamPathTemplate": "/document/{everything}",
@@ -222,7 +222,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "${RESOURCESERVICE_HOST}",
-          "Port": 80
+          "Port": 443
         }
       ],
       "UpstreamPathTemplate": "/resource/{everything}",

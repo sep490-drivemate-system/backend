@@ -1,9 +1,12 @@
 
+using Microsoft.Extensions.Http;
 using Microsoft.IdentityModel.Tokens;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 using Ocelot.Values;
 using SharedLibrary.Jwt;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
 namespace ApiGetwate
@@ -49,7 +52,18 @@ namespace ApiGetwate
                 builder.Configuration.AddJsonFile(ocelotFile, optional: false, reloadOnChange: true);
             }
 
+            // Configure Ocelot with SSL certificate validation disabled for production
+            if (builder.Environment.IsProduction())
+            {
+                builder.Services.AddHttpClient()
+                    .ConfigurePrimaryHttpMessageHandler(() => new System.Net.Http.HttpClientHandler
+                    {
+                        ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+                    });
+            }
+            
             builder.Services.AddOcelot(config);
+            
             builder.Services.AddSwaggerForOcelot(config, c =>
             {
                 c.GenerateDocsForGatewayItSelf = false;
