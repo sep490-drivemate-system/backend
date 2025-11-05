@@ -145,6 +145,78 @@
       "SwaggerKey": "paymentService"
     },
     {
+      "DownstreamPathTemplate": "/api/instructors/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${USERSERVICE_HOST}",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/instructors/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "SwaggerKey": "userService"
+    },
+    {
+      "DownstreamPathTemplate": "/api/policy/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${USERSERVICE_HOST}",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/policy/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "SwaggerKey": "userService"
+    },
+    {
+      "DownstreamPathTemplate": "/api/novice-driver/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${USERSERVICE_HOST}",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/novice-driver/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "SwaggerKey": "userService"
+    },
+    {
+      "DownstreamPathTemplate": "/api/document/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${USERSERVICE_HOST}",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/document/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "SwaggerKey": "userService"
+    },
+    {
       "DownstreamPathTemplate": "/api/resource/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
@@ -170,7 +242,7 @@
         {
           "Name": "User Service API",
           "Version": "v1",
-          "Url": "${USERSERVICE_HOST}/swagger/v1/swagger.json"
+          "Url": "https://${USERSERVICE_HOST}:443/swagger/v1/swagger.json"
         }
       ]
     },
@@ -180,7 +252,7 @@
         {
           "Name": "Booking Service API",
           "Version": "v1",
-          "Url": "${BOOKINGSERVICE_HOST}/swagger/v1/swagger.json"
+          "Url": "https://${BOOKINGSERVICE_HOST}:443/swagger/v1/swagger.json"
         }
       ]
     },
@@ -190,7 +262,7 @@
         {
           "Name": "Payment Service API",
           "Version": "v1",
-          "Url": "${PAYMENTSERVICE_HOST}/swagger/v1/swagger.json"
+          "Url": "https://${PAYMENTSERVICE_HOST}:443/swagger/v1/swagger.json"
         }
       ]
     },
@@ -200,12 +272,12 @@
         {
           "Name": "Resource Service API",
           "Version": "v1",
-          "Url": "${RESOURCESERVICE_HOST}/swagger/v1/swagger.json"
+          "Url": "https://${RESOURCESERVICE_HOST}:443/swagger/v1/swagger.json"
         }
       ]
     }
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "http://${APIGATEWAY_HOST}"
+    "BaseUrl": "https://${APIGATEWAY_HOST}"
   }
 }
