@@ -1,10 +1,11 @@
 
-using Microsoft.Extensions.Http;
 using Microsoft.IdentityModel.Tokens;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
+using Ocelot.Requester;
 using Ocelot.Values;
 using SharedLibrary.Jwt;
+using System.Net.Http;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -55,14 +56,14 @@ namespace ApiGetwate
             // Configure Ocelot with SSL certificate validation disabled for production
             if (builder.Environment.IsProduction())
             {
-                builder.Services.AddHttpClient()
-                    .ConfigurePrimaryHttpMessageHandler(() => new System.Net.Http.HttpClientHandler
-                    {
-                        ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
-                    });
+                builder.Services.AddTransient<IgnoreSslDelegatingHandler>();
+                builder.Services.AddOcelot(config)
+                    .AddDelegatingHandler<IgnoreSslDelegatingHandler>();
             }
-            
-            builder.Services.AddOcelot(config);
+            else
+            {
+                builder.Services.AddOcelot(config);
+            }
             
             builder.Services.AddSwaggerForOcelot(config, c =>
             {
@@ -70,7 +71,8 @@ namespace ApiGetwate
             });
 
             var jwtSettings = config.GetSection("Jwt");
-            var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]);
+            var keyString = jwtSettings["Key"] ?? throw new InvalidOperationException("JWT Key is not configured");
+            var key = Encoding.UTF8.GetBytes(keyString);
 
             builder.Services.AddAuthentication("Bearer")
                 .AddJwtBearer("Bearer", options =>
@@ -115,6 +117,18 @@ namespace ApiGetwate
             }).UseOcelot().Wait();
 
             app.Run();
+        }
+    }
+
+    // DelegatingHandler to ignore SSL certificate validation in production
+    public class IgnoreSslDelegatingHandler : DelegatingHandler
+    {
+        public IgnoreSslDelegatingHandler()
+        {
+            InnerHandler = new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+            };
         }
     }
 }
