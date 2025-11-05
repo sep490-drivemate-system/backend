@@ -46,5 +46,39 @@ namespace ResourceService.Repositories.Implementation
                     .ThenInclude(c => c.Images)
                 .FirstOrDefaultAsync(b => b.Id == blogId);
         }
+
+        public async Task<bool> SoftDeleteBlogAsync(Guid blogId)
+        {
+            var blog = await _context.Blogs
+                .IgnoreQueryFilters() 
+                .Include(b => b.Category)
+                .Include(b => b.Contents)
+                    .ThenInclude(c => c.Images)
+                .FirstOrDefaultAsync(b => b.Id == blogId);
+
+            if (blog == null) return false;
+
+            blog.IsDelete = true;
+            blog.UpdateAt = DateTime.Now;
+
+            if (blog.Contents != null)
+            {
+                foreach (var content in blog.Contents)
+                {
+                    content.IsDelete = true;
+                    content.UpdateAt = DateTime.Now;
+                    if (content.Images != null)
+                    {
+                        foreach (var img in content.Images)
+                        {
+                            img.IsDelete = true;
+                            img.UpdateAt = DateTime.Now;
+                        }
+                    }
+                }
+            }
+
+            return true;
+        }
     }
 }

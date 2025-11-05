@@ -43,5 +43,13 @@ namespace ResourceService.Services.Implementation
             if (blog == null) return null;
             return _mapper.Map<BlogDetailDto>(blog);
         }
+
+        public async Task<bool> DeleteBlogAsync(Guid id)
+        {
+            var marked = await _unitOfWork.ResourceRepository.SoftDeleteBlogAsync(id);
+            if (!marked) return false;
+            var result = await _unitOfWork.SaveChangesWithTransactionAsync();
+            return result > 0;
+        }
     }
 }

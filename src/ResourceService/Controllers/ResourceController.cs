@@ -83,14 +83,14 @@ namespace ResourceService.Controllers
             return Ok(new { success = true, data = updatedResource });
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteResource(int id)
+        
+        [HttpDelete("blogs/{id}")]
+        public async Task<IActionResult> DeleteBlog([FromRoute] Guid id)
         {
-            _logger.LogInformation("Deleting resource with ID: {ResourceId}", id);
-            
-            // TODO: Implement actual resource deletion logic
-            
-            return Ok(new { success = true, message = $"Resource {id} deleted successfully" });
+            _logger.LogInformation("Deleting blog {Id}", id);
+            var ok = await _resourcesService.DeleteBlogAsync(id);
+            if (!ok) return NotFound(new { success = false, message = "Blog not found" });
+            return Ok(new { success = true, message = "Blog deleted (soft)" });
         }
     }
 }
