@@ -1,35 +1,22 @@
-# Build stage
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy project files
-COPY ["PaymentService/PaymentService.csproj", "PaymentService/"]
-COPY ["SharedLibrary/SharedLibrary.csproj", "SharedLibrary/"]
+# Copy csproj files and restore dependencies
+COPY ["src/PaymentService/PaymentService.csproj", "src/PaymentService/"]
+COPY ["src/SharedLibrary/SharedLibrary.csproj", "src/SharedLibrary/"]
+RUN dotnet restore "src/PaymentService/PaymentService.csproj"
 
-# Restore dependencies
-RUN dotnet restore "PaymentService/PaymentService.csproj"
+# Copy source code and build
+COPY src/ src/
+WORKDIR /src/src/PaymentService
+RUN dotnet publish -c Release -o /app/publish
 
-# Copy source code
-COPY . .
-
-# Build the application
-WORKDIR "/src/PaymentService"
-RUN dotnet build "PaymentService.csproj" -c Release -o /app/build
-
-# Publish stage
-FROM build AS publish
-RUN dotnet publish "PaymentService.csproj" -c Release -o /app/publish /p:UseAppHost=false
-
-# Runtime stage
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+# Runtime image
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
-COPY --from=publish /app/publish .
+COPY --from=build /app/publish .
 
-# Expose port
-EXPOSE 8080
-
-# Set environment variables
-ENV ASPNETCORE_URLS=http://+:8080
 ENV ASPNETCORE_ENVIRONMENT=Production
+ENV ASPNETCORE_URLS=http://+:80
 
 ENTRYPOINT ["dotnet", "PaymentService.dll"]
