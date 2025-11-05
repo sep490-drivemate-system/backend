@@ -11,13 +11,15 @@ namespace UserService.Application.UseCases
         private readonly IUnitOfWork _unitOfWork = unitofwork;
         private readonly IMapper _mapper = mapper;
 
-        public async Task<Result<List<PolicyDTO>>> GetAllPolicy(PolicyType policyType)
+        public async Task<Result<List<PolicyDTO>>> GetAllPolicy()
         {
-            var policies = await _unitOfWork.PolicyRepository.GetByPolicyTypeAsync(policyType);
-
-            var policyDTOs = _mapper.Map<List<PolicyDTO>>(policies);
-            
-            return Result<List<PolicyDTO>>.Success(policyDTOs);
+            var policies = await _unitOfWork.PoliciesRepository.GetAllAsync();
+            return Result<List<PolicyDTO>>.Success(policies.Select(x => new PolicyDTO
+            {
+                Id = x.Id,
+                Title = x.Name,
+                Detail = x.Description
+            }).ToList());
         }
     }
 }

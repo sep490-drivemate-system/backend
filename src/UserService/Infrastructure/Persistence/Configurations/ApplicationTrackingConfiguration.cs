@@ -15,35 +15,50 @@ namespace UserService.Infrastructure.Persistence.Configurations
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id).HasColumnName("id");
 
+            // foreign keys
+            builder.Property(x => x.ApplicationId)
+                .HasColumnName("application_id")
+                .IsRequired();
+
             // properties
-            builder.Property(u => u.Note)
-                   .HasColumnName("note")
-                   .IsRequired()
-                   .HasMaxLength(1000);
+            builder.Property(x => x.Note)
+                .HasColumnName("note")
+                .HasMaxLength(1000)
+                .IsRequired();
 
-            builder.Property(u => u.UpdateAt)
-                   .HasColumnName("update_at")
-                   .HasColumnType("timestamp");
+            builder.Property(x => x.Status)
+                .HasColumnName("application_status")
+                .HasConversion<int>()
+                .IsRequired();
 
-            builder.Property(u => u.IsDelete)
-                   .HasColumnName("is_delete")
-                   .HasDefaultValue(false);
+            builder.Property(x => x.CreatedAt)
+               .HasColumnName("created_at")
+               .HasColumnType("timestamp")
+               .ValueGeneratedOnAdd()
+               .HasDefaultValueSql("now()")
+               .IsRequired();
 
+            builder.Property(x => x.LastModifiedAt)
+                .HasColumnName("updated_at")
+                .HasColumnType("timestamp")
+                .ValueGeneratedOnAddOrUpdate()
+                .HasDefaultValueSql("now()")
+                .IsRequired();
 
-            builder.Property(u => u.TypeId)
-                   .HasColumnName("type_id")
-                   .IsRequired();
-            builder.Property(u => u.ApplicationId)
+            builder.Property(x => x.IsDeleted)
+                .HasColumnName("is_deleted")
+                .HasDefaultValue(false)
+                .IsRequired();
+
+            builder.Property(x => x.ApplicationId)
                    .HasColumnName("application_id")
                    .IsRequired();
 
-            builder.Property(u => u.CreatedAt)
-                   .HasColumnName("create_at")
-                   .HasColumnType("timestamp");
-
-            // foreign keys
-
             // relationships
+            builder.HasOne(x => x.InstructorApplication)
+                .WithMany(x => x.ApplicationTrackings)
+                .HasForeignKey(x => x.ApplicationId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

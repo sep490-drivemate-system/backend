@@ -183,6 +183,11 @@ namespace BookingService.Infrastructure.Repositories
             }
         }
 
+        public void Remove(T entity)
+        {
+            _dbSet.Remove(entity);
+        }
+
         public async void Update(T entity)
         {
             _dbSet.Update(entity);

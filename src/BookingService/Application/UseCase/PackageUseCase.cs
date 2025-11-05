@@ -42,7 +42,6 @@ namespace BookingService.Application.UseCase
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"{ex.Message}\nStacktrace:\n{ex.StackTrace}\nHelp link: {ex.HelpLink}");
 
                 return Result<Package>.Failure(ServiceError.UnhandledException(Messages.Commons.UNHANDLED), Messages.Commons.UNHANDLED);
             }
@@ -61,7 +60,6 @@ namespace BookingService.Application.UseCase
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"{ex.Message}\nStacktrace:\n{ex.StackTrace}\nHelp link: {ex.HelpLink}");
 
                 return Result<Package>.Failure(ServiceError.UnhandledException(Messages.Commons.UNHANDLED), Messages.Commons.UNHANDLED);
             }

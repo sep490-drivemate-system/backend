@@ -141,13 +141,13 @@ namespace BookingService.Migrations
                         .HasColumnName("updated_at")
                         .HasDefaultValueSql("now()");
 
-                    b.Property<Guid>("LicenseCategoryId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("license_category_id");
-
                     b.Property<string>("LicensePlate")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int>("LicenseTier")
+                        .HasColumnType("integer")
+                        .HasColumnName("license_tier");
 
                     b.Property<Guid>("ManufacturerId")
                         .HasColumnType("uuid")

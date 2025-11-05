@@ -8,12 +8,9 @@ namespace UserService.Application.Commons.DTOs.Policy
         public Guid Id { get; set; }
 
         [JsonPropertyName("title")]
-        public string Title { get; set; }
+        public string? Title { get; set; }
 
         [JsonPropertyName("description")]
-        public string Detail { get; set; }
-
-        [JsonPropertyName("type")]
-        public string Type { get; set; }
+        public string? Detail { get; set; }
     }
 }

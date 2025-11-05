@@ -6,6 +6,6 @@ namespace UserService.Application.Interfaces
 {
     public interface IPolicyUseCase
     {
-        Task<Result<List<PolicyDTO>>> GetAllPolicy(PolicyType policyType);
+        Task<Result<List<PolicyDTO>>> GetAllPolicy();
     }
 }

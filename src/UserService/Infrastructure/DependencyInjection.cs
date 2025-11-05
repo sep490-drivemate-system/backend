@@ -1,8 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using SharedLibrary.CloudinaryStorage;
-using UserService.Domain.Interfaces;
+using SharedLibrary.Email;
+using SharedLibrary.SharedKernel.Password;
+using UserService.Application.Interfaces;
 using UserService.Infrastructure.Persistence.Context;
-using UserService.Infrastructure.Repositories;
+using UserService.Infrastructure.UoW;
 
 namespace UserService.Infrastructure
 {
@@ -12,16 +14,17 @@ namespace UserService.Infrastructure
            this IServiceCollection services, IConfiguration configuration)
         {
             // Đăng ký DbContext
-            services.AddDbContext<ApplicationDbContext>(options =>
+            services.AddDbContext<UserServiceDbContext>(options =>
             {
                 var connectionString = configuration.GetConnectionString("USERSERVICECONNECTION");
                 options.UseNpgsql(connectionString);
             });
 
             // Đăng ký Repository (nếu có)
-            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IPasswordHasherService, PasswordHasherService>();
+            services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<ICloudinaryServiceProvider, CloudinaryServiceProvider>();
-            //services.AddScoped<IOrderRepository, OrderRepository>();
 
             // Đăng ký service khác (cache, email, storage…)
             // services.AddScoped<IEmailService, EmailService>();

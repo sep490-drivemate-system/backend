@@ -15,114 +15,101 @@ namespace UserService.Infrastructure.Persistence.Configurations
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id).HasColumnName("id");
 
-            // properties
+            // foreign key
+            builder.Property(x => x.DrivingLicenseTier)
+                .HasColumnName("driving_license_level")
+                .IsRequired();
+
+            // Properties
+            builder.Property(x => x.Fullname)
+                .HasColumnName("fullname")
+                .HasMaxLength(64)
+                .IsRequired();
+
+            builder.Property(x => x.EmailAddress)
+                .HasColumnName("email")
+                .IsRequired();
+
+            builder.Property(x => x.PhoneNumber)
+                .HasColumnName("phone")
+                .IsRequired();
+
+            builder.Property(x => x.DateOfBirth)
+                .HasColumnName("date_of_birth")
+                .IsRequired();
+
+            builder.Property(x => x.Gender)
+                .HasColumnName("gender")
+                .HasConversion<int>()
+                .IsRequired();
+
+            builder.Property(u => u.HealthCheckup)
+                .HasColumnName("health_checkup")
+                .HasMaxLength(500)
+                .IsRequired();
+
             builder.Property(u => u.BackgroundProfile)
-                   .HasColumnName("note")
-                   .IsRequired()
-                   .HasMaxLength(500);
-            // Citizen ID
-            builder.Property(u => u.CitizenIdNumber)
-               .HasColumnName("citizen_id_number")
-               .IsRequired();
-            builder.Property(u => u.CitizenIdFront)
-                   .HasColumnName("citizen_id_front")
-                   .IsRequired();
+                .HasColumnName("background_profile")
+                .HasMaxLength(500)
+                .IsRequired();
 
-            builder.Property(u => u.CitizenIdBack)
-                   .HasColumnName("citizen_id_back")
-                   .IsRequired();
-
-            builder.Property(u => u.CitizenIssueDate)
-                   .HasColumnName("citizen_issue_date")
-                   .HasColumnType("date")
-                   .IsRequired();
-
-            builder.Property(u => u.CitizenExpiryDate)
-                   .HasColumnName("citizen_expiry_date")
-                   .HasColumnType("date")
-                   .IsRequired();
-
-            builder.Property(u => u.CitizenIssuePlace)
-                   .HasColumnName("citizen_issue_place")
-                   .IsRequired();
-
-            builder.Property(u => u.PermanentAddress)
-                   .HasColumnName("permanent_address")
-                   .IsRequired();
-
-            builder.Property(u => u.CitizenIdStatus)
-                   .HasColumnName("citizen_id_status")
-                   .IsRequired();
-
-            // DrivingLicense
             builder.Property(u => u.DrivingLicenseFront)
-                   .HasColumnName("driving_license_front")
-                   .IsRequired();
-            builder.Property(u => u.DrivingLicenseBack)
-                   .HasColumnName("driving_license_back")
-                   .IsRequired();
-            builder.Property(u => u.DrivingLicenseNumber)
-                    .HasColumnName("driving_license_number")
-                    .IsRequired();
-            builder.Property(u => u.DrivingLicenseIssueDate)
-                   .HasColumnName("driving_license_issue_date")
-                   .HasColumnType("date")
-                   .IsRequired();
-            builder.Property(u => u.DrivingLicenseExpiry)
-                    .HasColumnName("driving_license_expiry")
-                    .HasColumnType("date");
-            builder.Property(u => u.DrivingLicenseStatus)
-                  .HasColumnName("driving_license_status")
-                  .IsRequired();
+                .HasColumnName("driving_license_front")
+                .HasMaxLength(500)
+                .IsRequired();
 
-            // Teaching License
+            builder.Property(u => u.DrivingLicenseBack)
+                .HasColumnName("driving_license_back")
+                .HasMaxLength(500)
+                .IsRequired();
+
             builder.Property(u => u.TeachingLicenseFront)
-                 .HasColumnName("teaching_license_front")
-                 .IsRequired();
+                .HasColumnName("teaching_license_front")
+                .HasMaxLength(500)
+                .IsRequired();
 
             builder.Property(u => u.TeachingLicenseBack)
-                   .HasColumnName("teaching_license_back")
-                   .IsRequired();
-
-            builder.Property(u => u.TeachingStatus)
-                   .HasColumnName("teaching_status")
-                   .IsRequired();
-
-            builder.Property(u => u.BackgroundProfileStatus)
-                   .HasColumnName("background_profile_status")
-                   .IsRequired();
-
-            builder.Property(u => u.SubmitAt)
-                   .HasColumnName("submit_at")
-                   .HasColumnType("timestamp");
-
-            builder.Property(u => u.UpdateAt)
-                   .HasColumnName("update_at")
-                   .HasColumnType("date");
-
-            builder.Property(u => u.CreatedAt)
-                  .HasColumnName("create_at")
-                  .HasColumnType("timestamp");
-
-            builder.Property(u => u.IsDelete)
-                .HasColumnName("is_delete")
-                   .HasDefaultValue(false);
+                .HasColumnName("teaching_license_back")
+                .HasMaxLength(500)
+                .IsRequired();
 
             builder.Property(u => u.Status)
-                   .HasColumnName("status")
-                   .IsRequired();
+                .HasColumnName("status")
+                .IsRequired();
 
-            // foreign keys
+            builder.Property(u => u.SubmitAt)
+                .HasColumnName("submit_at")
+                .HasColumnType("timestamp");
 
-            // Relationships 1-1
-            builder.HasOne(u => u.Instructor)
-                   .WithOne(i => i.InstructorApplication)
-                   .HasForeignKey<InstructorApplication>(u => u.Id);
+            builder.Property(x => x.CreatedAt)
+               .HasColumnName("created_at")
+               .HasColumnType("timestamp")
+               .ValueGeneratedOnAdd()
+               .HasDefaultValueSql("now()")
+               .IsRequired();
 
-            // Relationships 1-n
-            builder.HasMany(u => u.ApplicationTracking)
-                 .WithOne(a => a.InstructorApplication)
-                 .HasForeignKey(a => a.ApplicationId);
+            builder.Property(x => x.LastModifiedAt)
+                .HasColumnName("updated_at")
+                .HasColumnType("timestamp")
+                .ValueGeneratedOnAddOrUpdate()
+                .HasDefaultValueSql("now()")
+                .IsRequired();
+
+            builder.Property(x => x.IsDeleted)
+                .HasColumnName("is_deleted")
+                .HasDefaultValue(false)
+                .IsRequired();
+
+            // Relationships
+            builder.HasOne(x => x.Instructors)
+                .WithOne(x => x.InstructorApplication)
+                .HasForeignKey<InstructorApplication>(x => x.InstructorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasMany(x => x.ApplicationTrackings)
+                .WithOne(x => x.InstructorApplication)
+                .HasForeignKey(x => x.ApplicationId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

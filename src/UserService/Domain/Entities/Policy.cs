@@ -6,13 +6,12 @@ namespace UserService.Domain.Entities
 {
     public class Policy: BaseEntites
     {
+        // Properties
         public string Name { get; set; }
-
         public string Description { get; set; }
 
-        public PolicyType PolicyType { get; set; }
-
-        public DateTime UpdatedAt { get; set; }
+        // System properties
+        public DateTime LastModifiedAt { get; set; }
 
         public bool IsDeleted { get; set; }
     }

@@ -11,52 +11,64 @@ namespace UserService.Infrastructure.Persistence.Configurations
             // table name
             builder.ToTable("Instructor");
 
-            // primary key
+            // primary keys
             builder.HasKey(x => x.Id);
-            builder.Property(x => x.Id).HasColumnName("id");
+            builder.Property(x => x.Id)
+                .HasColumnName("id")
+                .IsRequired();
+
+            // foreign keys
+            builder.Property(x => x.UserId)
+                .HasColumnName("user_id")
+                .IsRequired();
 
             // properties
-            builder.Property(u => u.Bio)
-                   .HasColumnName("bio")
-                   .IsRequired(false)
-                   .HasMaxLength(1000);
+            builder.Property(x => x.Bio)
+                .HasColumnName("bio")
+                .HasMaxLength(1024)
+                .IsRequired(false);
 
-            builder.Property(u => u.Experience)
-                   .HasColumnName("experience")
-                   .IsRequired();
-                   
+            builder.Property(x => x.Experience)
+                .HasColumnName("experience")
+                .IsRequired();
+                  
+            builder.Property(x => x.Status)
+                .HasColumnName("status")
+                .HasConversion<int>()
+                .IsRequired();
 
-            builder.Property(u => u.Status)
-                   .HasColumnName("status")
-                   .IsRequired();
+            builder.Property(x => x.CreatedAt)
+               .HasColumnName("created_at")
+               .HasColumnType("timestamp")
+               .ValueGeneratedOnAdd()
+               .HasDefaultValueSql("now()")
+               .IsRequired();
 
+            builder.Property(x => x.LastModifiedAt)
+                .HasColumnName("updated_at")
+                .HasColumnType("timestamp")
+                .ValueGeneratedOnAddOrUpdate()
+                .HasDefaultValueSql("now()")
+                .IsRequired();
 
-            builder.Property(u => u.UpdateAt)
-                   .HasColumnName("update_at")
-                   .HasColumnType("timestamp");
+            builder.Property(x => x.IsDeleted)
+                .HasColumnName("is_deleted")
+                .HasDefaultValue(false)
+                .IsRequired();
 
-            builder.Property(u => u.CreatedAt)
-                  .HasColumnName("create_at")
-                  .HasColumnType("timestamp");
+            // Relationships
+            builder.HasOne(x => x.User)
+                   .WithOne(x => x.Instructor)
+                   .HasForeignKey<Instructor>(x => x.Id);
 
-            builder.Property(u => u.IsDelete)
-                .HasColumnName("is_delete")
-                   .HasDefaultValue(false);
-
-            // Relationships 1-1
-            builder.HasOne(u => u.User)
-                   .WithOne(nd => nd.Instructor)
-                   .HasForeignKey<Instructor>(nd => nd.Id);
-
-            // Relationships 1-n
-            builder.HasMany(u => u.ScheduleAvailabilities)
-                   .WithOne(a => a.Instructor)
-                   .HasForeignKey(a => a.InstructorId)
+            builder.HasMany(x => x.InstructorSchedules)
+                   .WithOne(x => x.Instructor)
+                   .HasForeignKey(x => x.InstructorId)
                    .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasMany(u => u.Cars)
-                   .WithOne(c => c.Instructor)
-                   .HasForeignKey(c => c.InstructorId)
+            builder.HasOne(x => x.InstructorApplication)
+                   .WithOne(x => x.Instructors)
+                   .HasForeignKey<InstructorApplication>(c => c.InstructorId)
                    .OnDelete(DeleteBehavior.Restrict);
         }
     }

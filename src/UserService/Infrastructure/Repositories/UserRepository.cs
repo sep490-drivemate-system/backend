@@ -8,7 +8,7 @@ namespace UserService.Infrastructure.Repositories
 {
     public class UserRepository : GenericRepository<User>, IUserRepository
     {
-        public UserRepository(ApplicationDbContext context) : base(context) { }
+        public UserRepository(UserServiceDbContext context) : base(context) { }
         public async Task<bool> IsEsxitEmail(string email)=> await _context.Users.AnyAsync(u => u.Email == email);
 
         public async Task<bool> IsEsxitPhone(string phone) => await _context.Users.AnyAsync(u => u.PhoneNumber == phone);
@@ -19,6 +19,7 @@ namespace UserService.Infrastructure.Repositories
                 .FirstOrDefaultAsync(u => u.Email == emailOrPhone || u.PhoneNumber == emailOrPhone);
         }
 
-        public async Task<bool> IsEsxitUserName(string userName) => await _context.Users.AnyAsync(u => u.UserName == userName);
+        public async Task<bool> IsEsxitUserName(string userName) => await _context.Users.AnyAsync(u => u.Username == userName);
+
     }
 }

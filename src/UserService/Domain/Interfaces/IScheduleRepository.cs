@@ -2,7 +2,7 @@
 
 namespace UserService.Domain.Interfaces
 {
-    public interface IScheduleRepository: IGenericRepository<ScheduleUnavailability>
+    public interface IScheduleRepository: IGenericRepository<PersonalSchedule>
     {
     }
 }

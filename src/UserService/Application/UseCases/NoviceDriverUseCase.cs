@@ -20,7 +20,13 @@ namespace UserService.Application.UseCases
                     .Failure(ServiceError.NotFoundError(Commons.Constants.Messages.Common.NotFoundError));
             }
 
-            return Result<List<UserAddressDTO>>.Success( _mapper.Map<List<UserAddressDTO>>(driver.User.Addresses));
+            return Result<List<UserAddressDTO>>.Success( driver.SavedLocations.Select(x => new UserAddressDTO
+            {
+                Id = x.Id,
+                AddressString = x.DisplayName,
+                Latitude = x.LocationLatitude,
+                Longitude = x.LocationLongtitude
+            }).ToList());
         }
     }
 }

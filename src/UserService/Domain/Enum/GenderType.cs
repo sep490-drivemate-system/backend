@@ -3,6 +3,6 @@
     public enum GenderType
     {
         Male = 1,
-        Famale = 2,
+        Female = 2,
     }
 }

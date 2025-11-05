@@ -43,12 +43,12 @@ namespace SharedLibrary.CloudinaryStorage
 
             Console.WriteLine(result.JsonObj);
 
-            return result.SecureUrl.AbsolutePath;
+            return result.SecureUrl.ToString();
         }
 
         public string UploadImageFormFileResourceToCloudinary(IFormFile file, string file_name)
         {
-            return UploadImageStreamResourceToCloudinary(file.OpenReadStream(), file_name);
+            return UploadImageStreamResourceToCloudinary(file.OpenReadStream(), $"{file_name}-{file.FileName}");
         }
 
         public bool DeleteResourceFromCloudinary(string public_id)

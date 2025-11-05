@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using SharedLibrary.SharedKernel.Pagination;
-using UserService.Application.Commons.DTOs.Cars;
 
 namespace UserService.Application.Commons.DTOs.Instructors
 {

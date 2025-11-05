@@ -5,14 +5,19 @@ namespace UserService.Domain.Entities
     public class NoviceDriver : BaseEntites
     {
         // Properties
-        public string DrivingLicenseImageUrl { get; set; }
-        public bool AllowedBooking { get; set; }
-        public DateTime UpdateAt { get; set; }
-        public bool IsDelete { get; set; }
+        public string DrivingLicense { get; set; }
+        public DateOnly DrivingLicenseExpirationDate { get; set; }
 
+        // System properties
+        public DateTime LastModifiedAt { get; set; }
+        public bool IsDeleted { get; set; }
+
+        // Keys for relationships
+        public Guid UserId { get; set; }
 
         // Relationship navigation
         public virtual User? User {get; set; }
+        public virtual ICollection<SavedLocation>? SavedLocations { get; set; }
 
     }
 }

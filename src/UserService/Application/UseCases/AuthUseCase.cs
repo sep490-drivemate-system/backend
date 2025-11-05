@@ -84,7 +84,7 @@ namespace UserService.Application.UseCases
         // implememt usecase signup 
         public async Task<Result<SignUpRespondDTO>> SignUp(SignUpDTO signUpDTO)
         {
-            // 1.Check input data
+            // 1.Check User Name input data
             var isUserNameExist = await _unitOfWork.UserRepository.IsEsxitUserName(signUpDTO.UserName);
             if (isUserNameExist)
             {
@@ -92,27 +92,31 @@ namespace UserService.Application.UseCases
                 new ServiceError(ServiceError.Existed, Messages.Auth.UserNameAlreadyExists));
             }
 
+            var isPhoneExist = await _unitOfWork.UserRepository.IsEsxitPhone(signUpDTO.PhoneNumber);
+            if (isUserNameExist)
+            {
+                return Result<SignUpRespondDTO>.Failure(
+                new ServiceError(ServiceError.Existed, Messages.Auth.PhoneAlreadyExists));
+            }
+
+
             // 2. Generate hash password and save data
             var hashedPassword = await _passwordHasherService.HashPassword(signUpDTO.Password);
 
             // 3. Map and save information
             var userMap = _mapper.Map<User>(signUpDTO);
             userMap.HashedPassword = hashedPassword;
-            userMap.Role = UserRole.NoviceDriver;
 
             var user = await _unitOfWork.UserRepository.CreateAsync(userMap);
-            var token = await _jwtService.GenerateRefreshToken();
+            await _unitOfWork.CommitChangesAsync();
+            var userClaimToken = _mapper.Map<UserClaimTokenDTO>(user);
+            var token = await _jwtService.GenerateAccessToken(userClaimToken);           
 
-         
 
             // 4. Provide token(assign into responde)
-            var accessToken = await _jwtService.GenerateAccessToken(user);
 
-            var respond = new SignUpRespondDTO
-            {
-                AccessToken = accessToken,
-                RefreshToken = token,
-            };
+
+            var respond = _mapper.Map<SignUpRespondDTO>(token);
 
             return Result<SignUpRespondDTO>.Success(respond);
 

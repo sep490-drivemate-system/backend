@@ -63,9 +63,9 @@ namespace BookingService.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteACar([FromRoute] Guid id, [FromForm] CarUpdateDTO car)
+        public async Task<IActionResult> DeleteACar([FromRoute] Guid id)
         {
-            var result = await _usecase.UpdateCarInformation(id, car);
+            var result = await _usecase.DeleteCar(id);
             return result.ToActionResult();
         }
     }

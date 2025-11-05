@@ -2,20 +2,46 @@ name: Build and Push Docker Images
 
 on:
   push:
-    branches: [ main, master, feature/auth, develop ]
+    branches: [ main, develope ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main, develope ]
+  workflow_dispatch:
 
 env:
   REGISTRY: docker.io
-  USERSERVICE_IMAGE: drivemate-userservice
-  APIGATEWAY_IMAGE: drivemate-apigateway
-  BOOKINGSERVICE_IMAGE: drivemate-bookingservice
-  RESOURCESERVICE_IMAGE: drivemate-resourceservice
 
 jobs:
   build-and-push:
+    name: Build ${{ matrix.service }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - service: UserService
+            image: drivemate-userservice
+            dockerfile: ./src/UserService/Dockerfile
+            webhook_secret: RAILWAY_USERSERVICE_WEBHOOK
+            
+          - service: ApiGateway
+            image: drivemate-apigateway
+            dockerfile: ./src/ApiGateway/Dockerfile
+            webhook_secret: RAILWAY_APIGATEWAY_WEBHOOK
+            
+          - service: BookingService
+            image: drivemate-bookingservice
+            dockerfile: ./src/BookingService/Dockerfile
+            webhook_secret: RAILWAY_BOOKINGSERVICE_WEBHOOK
+            
+          - service: PaymentService
+            image: drivemate-paymentservice
+            dockerfile: ./src/PaymentService/Dockerfile
+            webhook_secret: RAILWAY_PAYMENTSERVICE_WEBHOOK
+            
+          - service: ResourceService
+            image: drivemate-resourceservice
+            dockerfile: ./src/ResourceService/Dockerfile
+            webhook_secret: RAILWAY_RESOURCESERVICE_WEBHOOK
     
     steps:
     - name: Checkout code
@@ -32,99 +58,77 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
         
-    - name: Extract metadata for UserService
-      id: meta-userservice
+    - name: Extract Docker metadata
+      id: meta
       uses: docker/metadata-action@v5
       with:
-        images: ${{ env.REGISTRY }}/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.USERSERVICE_IMAGE }}
+        images: ${{ env.REGISTRY }}/${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.image }}
         tags: |
           type=ref,event=branch
           type=ref,event=pr
           type=sha,prefix={{branch}}-
           type=raw,value=latest,enable={{is_default_branch}}
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
           
-    - name: Extract metadata for API Gateway
-      id: meta-apigateway
-      uses: docker/metadata-action@v5
-      with:
-        images: ${{ env.REGISTRY }}/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.APIGATEWAY_IMAGE }}
-        tags: |
-          type=ref,event=branch
-          type=ref,event=pr
-          type=sha,prefix={{branch}}-
-          type=raw,value=latest,enable={{is_default_branch}}
-          
-    - name: Extract metadata for BookingService
-      id: meta-bookingservice
-      uses: docker/metadata-action@v5
-      with:
-        images: ${{ env.REGISTRY }}/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.BOOKINGSERVICE_IMAGE }}
-        tags: |
-          type=ref,event=branch
-          type=ref,event=pr
-          type=sha,prefix={{branch}}-
-          type=raw,value=latest,enable={{is_default_branch}}
-          
-    - name: Extract metadata for ResourceService
-      id: meta-resourceservice
-      uses: docker/metadata-action@v5
-      with:
-        images: ${{ env.REGISTRY }}/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.RESOURCESERVICE_IMAGE }}
-        tags: |
-          type=ref,event=branch
-          type=ref,event=pr
-          type=sha,prefix={{branch}}-
-          type=raw,value=latest,enable={{is_default_branch}}
-          
-    - name: Build and push UserService
+    - name: Build and push Docker image
       uses: docker/build-push-action@v5
       with:
         context: .
-        file: ./src/UserService/Dockerfile
+        file: ${{ matrix.dockerfile }}
         push: ${{ github.event_name != 'pull_request' }}
-        tags: ${{ steps.meta-userservice.outputs.tags }}
-        labels: ${{ steps.meta-userservice.outputs.labels }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha,scope=${{ matrix.service }}
+        cache-to: type=gha,mode=max,scope=${{ matrix.service }}
+        platforms: linux/amd64
         
-    - name: Build and push API Gateway
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        file: ./src/ApiGetwate/Dockerfile
-        push: ${{ github.event_name != 'pull_request' }}
-        tags: ${{ steps.meta-apigateway.outputs.tags }}
-        labels: ${{ steps.meta-apigateway.outputs.labels }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
-        
-    - name: Build and push BookingService
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        file: ./src/BookingService/Dockerfile
-        push: ${{ github.event_name != 'pull_request' }}
-        tags: ${{ steps.meta-bookingservice.outputs.tags }}
-        labels: ${{ steps.meta-bookingservice.outputs.labels }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
-        
-    - name: Build and push ResourceService
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        file: ./src/ResourceService/Dockerfile
-        push: ${{ github.event_name != 'pull_request' }}
-        tags: ${{ steps.meta-resourceservice.outputs.tags }}
-        labels: ${{ steps.meta-resourceservice.outputs.labels }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
-        
-    - name: Deploy to Railway
-      if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    - name: Image digest
+      run: echo ${{ steps.meta.outputs.tags }}
+
+  deploy:
+    name: Deploy to Railway
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    
+    steps:
+    - name: Deploy All Services
+      env:
+        USERSERVICE_WEBHOOK: ${{ secrets.RAILWAY_USERSERVICE_WEBHOOK }}
+        APIGATEWAY_WEBHOOK: ${{ secrets.RAILWAY_APIGATEWAY_WEBHOOK }}
+        BOOKINGSERVICE_WEBHOOK: ${{ secrets.RAILWAY_BOOKINGSERVICE_WEBHOOK }}
+        PAYMENTSERVICE_WEBHOOK: ${{ secrets.RAILWAY_PAYMENTSERVICE_WEBHOOK }}
+        RESOURCESERVICE_WEBHOOK: ${{ secrets.RAILWAY_RESOURCESERVICE_WEBHOOK }}
       run: |
-        echo "Triggering Railway redeploy..."
-        curl -X POST ${{ secrets.RAILWAY_USERSERVICE_WEBHOOK }} || echo "UserService webhook failed"
-        curl -X POST ${{ secrets.RAILWAY_APIGATEWAY_WEBHOOK }} || echo "API Gateway webhook failed"
-        curl -X POST ${{ secrets.RAILWAY_BOOKINGSERVICE_WEBHOOK }} || echo "BookingService webhook failed"
-        curl -X POST ${{ secrets.RAILWAY_RESOURCESERVICE_WEBHOOK }} || echo "ResourceService webhook failed"
+        echo "🚀 Starting deployment to Railway..."
+        echo ""
+        
+        if [ -n "$USERSERVICE_WEBHOOK" ]; then
+          echo "📦 Deploying UserService..."
+          curl -f -X POST "$USERSERVICE_WEBHOOK" && echo "✅ UserService deployed" || echo "⚠️ UserService deployment failed"
+        fi
+        
+        if [ -n "$APIGATEWAY_WEBHOOK" ]; then
+          echo "📦 Deploying ApiGateway..."
+          curl -f -X POST "$APIGATEWAY_WEBHOOK" && echo "✅ ApiGateway deployed" || echo "⚠️ ApiGateway deployment failed"
+        fi
+        
+        if [ -n "$BOOKINGSERVICE_WEBHOOK" ]; then
+          echo "📦 Deploying BookingService..."
+          curl -f -X POST "$BOOKINGSERVICE_WEBHOOK" && echo "✅ BookingService deployed" || echo "⚠️ BookingService deployment failed"
+        fi
+        
+        if [ -n "$PAYMENTSERVICE_WEBHOOK" ]; then
+          echo "📦 Deploying PaymentService..."
+          curl -f -X POST "$PAYMENTSERVICE_WEBHOOK" && echo "✅ PaymentService deployed" || echo "⚠️ PaymentService deployment failed"
+        fi
+        
+        if [ -n "$RESOURCESERVICE_WEBHOOK" ]; then
+          echo "📦 Deploying ResourceService..."
+          curl -f -X POST "$RESOURCESERVICE_WEBHOOK" && echo "✅ ResourceService deployed" || echo "⚠️ ResourceService deployment failed"
+        fi
+        
+        echo ""
+        echo "✅ Deployment process completed!"
+        echo "🔍 Check Railway dashboard for detailed status"
