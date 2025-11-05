@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Resend;
 using SharedLibrary.Email;
 using SharedLibrary.Jwt;
 using SharedLibrary.SharedKernel.Http;
@@ -32,7 +33,6 @@ namespace UserService.Application
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             // Register library external
-            services.Configure<EmailSettings>(configuration.GetSection("Email"));
             services.Configure<SpeedSmsSettings>(configuration.GetSection("SpeedSMS"));
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IPasswordHasherService, PasswordHasherService>();
@@ -43,6 +43,12 @@ namespace UserService.Application
 
             services.AddScoped<IFeedback,Feedback>();
             services.AddScoped<IPackage, SharedLibrary.SharedKernel.Http.Implementation.Package>();
+
+            services.AddHttpClient<ResendClient>();
+            services.Configure<ResendClientOptions>(o =>
+            {
+                o.ApiToken = Environment.GetEnvironmentVariable("RESEND_APITOKEN")!;
+            });
 
             // Đăng ký service khác (cache, email, storage…)
             // services.AddScoped<IEmailService, EmailService>();

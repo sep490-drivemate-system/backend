@@ -1,12 +1,10 @@
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using MimeKit;
+using Resend;
 using SharedLibrary.SharedKernel.Enum;
 using System.Collections.Concurrent;
-using System.Threading.Tasks.Sources;
 
 namespace SharedLibrary.Email
 {
@@ -16,7 +14,7 @@ namespace SharedLibrary.Email
         private static readonly ConcurrentDictionary<string, string> _templateCache = new();
         private readonly string _templateBasePath;
 
-        public EmailService(IOptions<EmailSettings> emailSettings, IConfiguration configuration)
+        public EmailService( IConfiguration configuration)
         {
             _templateBasePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Email", "Template");
             _configuration = configuration;
@@ -33,10 +31,6 @@ namespace SharedLibrary.Email
                 Console.WriteLine($"LOI NE: {ex}");
                 return false;
             }
-        }
-        private IConfigurationSection GetEmailSettings()
-        {
-            return _configuration.GetSection("EMAIL");
         }
         public async Task SendForgotPasswordAsync(string toEmail, string resetToken)
         {
@@ -116,11 +110,10 @@ namespace SharedLibrary.Email
 
         private MimeMessage BuildEmailMessage(string toEmail, string body, EmailType emailType)
         {
-            var emailSettings = GetEmailSettings();
             var subject = GetEmailSubject(emailType);
 
             var message = new MimeMessage();
-            message.From.Add(new MailboxAddress(emailSettings["SENDER_NAME"], emailSettings["SENDER_EMAIL"]));
+            message.From.Add(new MailboxAddress(_configuration["EMAIL:SENDER_NAME"], _configuration["EMAIL:SENDER_EMAIL"]));
             message.To.Add(new MailboxAddress(string.Empty, toEmail));
             message.Subject = subject;
 
@@ -142,12 +135,9 @@ namespace SharedLibrary.Email
 
         private async Task SendEmailViaSmtpAsync(MimeMessage message)
         {
-            var emailSettings = GetEmailSettings();
             using var client = new SmtpClient();
-
-
-            await client.ConnectAsync(emailSettings["SMTP_SERVER"], int.Parse(emailSettings["SMTP_PORT"]), SecureSocketOptions.StartTls);
-            await client.AuthenticateAsync(emailSettings["SENDER_EMAIL"], emailSettings["SENDER_PASSWORD"]);
+            await client.ConnectAsync(_configuration["EMAIL:SMTP_SERVER"], int.Parse(_configuration["EMAIL:SMTP_PORT"]), SecureSocketOptions.StartTls);
+            await client.AuthenticateAsync(_configuration["EMAIL:SENDER_EMAIL"], _configuration["EMAIL:SENDER_PASSWORD"]);
             await client.SendAsync(message);
             await client.DisconnectAsync(true);
         }
