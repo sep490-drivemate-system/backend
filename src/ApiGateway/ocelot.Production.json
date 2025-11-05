@@ -170,7 +170,7 @@
         {
           "Name": "User Service API",
           "Version": "v1",
-          "Url": "https://${USERSERVICE_HOST}/swagger/v1/swagger.json"
+          "Url": "${USERSERVICE_HOST}/swagger/v1/swagger.json"
         }
       ]
     },
@@ -180,7 +180,7 @@
         {
           "Name": "Booking Service API",
           "Version": "v1",
-          "Url": "https://${BOOKINGSERVICE_HOST}/swagger/v1/swagger.json"
+          "Url": "${BOOKINGSERVICE_HOST}/swagger/v1/swagger.json"
         }
       ]
     },
@@ -190,7 +190,7 @@
         {
           "Name": "Payment Service API",
           "Version": "v1",
-          "Url": "https://${PAYMENTSERVICE_HOST}/swagger/v1/swagger.json"
+          "Url": "${PAYMENTSERVICE_HOST}/swagger/v1/swagger.json"
         }
       ]
     },
@@ -200,7 +200,7 @@
         {
           "Name": "Resource Service API",
           "Version": "v1",
-          "Url": "https://${RESOURCESERVICE_HOST}/swagger/v1/swagger.json"
+          "Url": "${RESOURCESERVICE_HOST}/swagger/v1/swagger.json"
         }
       ]
     }
