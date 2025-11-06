@@ -1,13 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using BookingService.Infrastructure.Persistence.Context;
-using BookingService.Domain.Interfaces;
-using BookingService.Infrastructure.Repositories;
 using BookingService.Application.Interfaces;
 using BookingService.Infrastructure.UoW;
-using BookingService.Infrastructure.Messaging.Config;
-using BookingService.Infrastructure.Messaging.Implementation;
-using BookingService.Infrastructure.Messaging.Interface;
 using SharedLibrary.CloudinaryStorage;
+using SharedLibrary.Jwt;
 
 
 namespace BookingService.Infrastructure
@@ -26,18 +22,10 @@ namespace BookingService.Infrastructure
             
             // Đăng ký dịch vụ hệ thống
             services.AddScoped<IUnitOfWork,UnitOfWork>();
+            services.AddScoped<IJwtService, JwtService>();
 
             // Đăng ký dịch vụ bên thứ ba
             services.AddScoped<ICloudinaryServiceProvider, CloudinaryServiceProvider>();
-
-            // Đăng ký Repository
-            //services.AddScoped<IBookingRepository, BookingRepository>();
-            //services.AddScoped<IPackageRepository, PackageRepository>();
-            //services.AddScoped<IDrivingSessionRepository, DrivingSessionRepository>();
-            //services.AddScoped<IFeedbackRepository, FeedbackRepository>();
-            //services.AddScoped<IDrivingSkillRepository, DrivingSkillRepository>();
-            //services.AddScoped<IRoadTypeRepository, RoadTypeRepository>();
-            //services.AddScoped<IFeedbackRepository, FeedbackRepository>();
 
             // Register RabbitMQ service (with fallback to mock if connection fails)            
             //services.AddSingleton<IRabbitMQService, RabbitMQService>();

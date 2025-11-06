@@ -6,9 +6,8 @@ namespace BookingService.Domain.Entities
     public class DrivingSession: BaseEntites
     {
         // Properties
-        public DateTime Date { get; set; }
-        public TimeOnly StartTime { get; set; }
-        public TimeOnly EndTime { get; set; }
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
         public DateTime ActualStart { get; set; }
         public DateTime ActualEnd { get; set; }
         public decimal TotalDistance { get; set; }
@@ -17,6 +16,9 @@ namespace BookingService.Domain.Entities
         public decimal StartingLongtitude { get; set; }
         public decimal EndingLatitude { get; set; }
         public decimal EndingLongtitude { get; set; }
+        public string? NoviceDriverNote { get; set; }
+        public string? InstructorNote { get; set; }
+
         public SessionStatus Status { get; set; }
 
         // System properties

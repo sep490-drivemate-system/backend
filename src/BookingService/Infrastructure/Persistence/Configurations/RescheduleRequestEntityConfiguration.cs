@@ -18,8 +18,8 @@ namespace BookingService.Infrastructure.Persistence.Configurations
                 .ValueGeneratedOnAdd();
 
             // properties
-            builder.Property(x => x.Date)
-                .HasColumnName("date")
+            builder.Property(x => x.Note)
+                .HasColumnName("note")
                 .IsRequired();
 
             builder.Property(x => x.StartTime)
@@ -28,6 +28,10 @@ namespace BookingService.Infrastructure.Persistence.Configurations
 
             builder.Property(x => x.EndTime)
                 .HasColumnName("end_time")
+                .IsRequired();
+
+            builder.Property(x => x.Side)
+                .HasColumnName("request_side")
                 .IsRequired();
 
             builder.Property(x => x.CreatedAt)
