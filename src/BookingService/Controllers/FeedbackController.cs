@@ -26,6 +26,14 @@ namespace BookingService.Controllers
             var result = await _useCase.GetStatitic(request);
             return Ok(result);
         }
+
+        [HttpGet("instructors/{id}")]
+        public async Task<IActionResult> GetInstructorFeedback(Guid id)
+        {
+            var result = await _useCase.GetInstructorFeedback(id);
+            return Ok(result);
+        }
+
         //[HttpGet("instructor/{id}")]
         //public async Task<IActionResult> GetInstructorFeedback(Guid id)
         //{

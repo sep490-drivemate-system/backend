@@ -6,7 +6,6 @@ namespace BookingService.Domain.Entities
     {
         // Properties
         public string Name { get; set; }
-
         public string IllustrationUrl { get; set; }
 
         // System properties

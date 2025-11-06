@@ -10,6 +10,12 @@ namespace BookingService.Application.UseCase
         {
             _unitOfWork = unitOfWork;
         }
+
+        public Task<FeedbackResponse> GetInstructorFeedback(Guid id)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<FeedbackResponse> GetStatitic(FeedbackRequest feedbackRequest)
         {
             return await _unitOfWork.FeedbackRepository.GetStatisticListInstructor(feedbackRequest);

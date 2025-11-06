@@ -84,14 +84,14 @@ namespace BookingService.Application.UseCase
 
         public async Task<Result<PaginatedList<CarDTO>>> GetCarPaginatedList(CarListFilterDTO filter)
         {
-            Expression<Func<Car, bool>>? filter_expression = null;
+            Expression<Func<Car, bool>>? filter_expression = x => (filter.Manufacturer == null || x.Manufacturer!.Name.StartsWith(filter.Manufacturer!))
+            && (filter.LicenseTier == null || x.LicenseTier >= filter.LicenseTier)
+            && (filter.SeatCounts == null || x.SeatCount == filter.SeatCounts)
+            && (filter.CarType == null || x.CarType == filter.CarType)
+            && !x.IsDeleted; ;
             Func<IQueryable<Car>, IOrderedQueryable<Car>>? order_expression = null;
             string included_properties = "Manufacturer,Packages,CarImages,Bookings,Feedbacks";
 
-            filter_expression = x => (filter.Manufacturer == null || x.Manufacturer!.Name.StartsWith(filter.Manufacturer!))
-                && (filter.SeatCounts == null || x.SeatCount == filter.SeatCounts)
-                && (filter.CarType == null || x.CarType == filter.CarType)
-                && !x.IsDeleted;
 
             if (filter.OrderBy != null)
             {
@@ -132,6 +132,7 @@ namespace BookingService.Application.UseCase
                 FuelType = x.FuelType,
                 VehicleType = x.CarType,
                 UnitPrice = x.Price,
+                LicenseTier = x.LicenseTier,
                 BookingCount = x.Bookings?.Count ?? 0,
                 AverageRating = x.Feedbacks?.Count > 0 ? x.Feedbacks.Average(x => x.CarRating) : 0,
             });
@@ -157,6 +158,7 @@ namespace BookingService.Application.UseCase
                 ThumbnailUrl = x.ThumbnailUrl,
                 UnitPrice = x.Price,
                 VehicleType = x.CarType,
+                LicenseTier = x.LicenseTier,
                 BookingCount = x.Bookings?.Count ?? 0,
                 AverageRating = x.Feedbacks?.Count > 0 ? x.Feedbacks.Average(x => x.CarRating) : 0,
             }).ToList(), message: Messages.Commons.SUCCESS);

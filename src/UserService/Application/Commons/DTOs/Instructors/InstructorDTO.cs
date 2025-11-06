@@ -1,44 +1,30 @@
-﻿namespace UserService.Application.Commons.DTOs.Instructors
+﻿using System.Text.Json.Serialization;
+
+namespace UserService.Application.Commons.DTOs.Instructors
 {
-
-    public class InstructorFeedbackDTO
-    {
-        public string Username { get; set; }
-
-        public string AvatarUrl { get; set; }
-
-        public int Score { get; set; }
-
-        public string Comment { get; set; }
-
-        public DateTime FeedbackDate { get; set; }
-    }
-
-    public class InstructorPackageDTO
-    {
-        public string Name { get; set; }
-
-        public string Description { get; set; }
-
-        public decimal Price { get; set; }
-    }
-
     public class InstructorDTO
     {
+        [JsonPropertyName("id")]
         public Guid Id { get; set; }
-
+        [JsonPropertyName("fullname")]
         public string FullName { get; set; }
-
-        public string Avatar {  get; set; }
-
-        public decimal UnitPrice { get; set; }
-
+        [JsonPropertyName("avatar_url")]
+        public string Avatar { get; set; }
+        [JsonPropertyName("bio")]
+        public string Bio { get; set; }
+        [JsonPropertyName("gender")]
+        public string Gender { get; set; }
+        [JsonPropertyName("birthdate")]
+        public DateOnly Birthdate { get; set; }
+        [JsonPropertyName("experiences_year")]
         public int ExperienceYear { get; set; }
-
+        [JsonPropertyName("booking_count")]
         public int BookingCount { get; set; }
-
+        [JsonPropertyName("average_rating")]
         public decimal AverageRating { get; set; }
     }
+    public class InstructorDetailDTO : InstructorDTO
+    {
+    }
 
-   
 }

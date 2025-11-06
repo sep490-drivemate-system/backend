@@ -7,6 +7,7 @@ using BookingService.Infrastructure.UoW;
 using BookingService.Infrastructure.Messaging.Config;
 using BookingService.Infrastructure.Messaging.Implementation;
 using BookingService.Infrastructure.Messaging.Interface;
+using SharedLibrary.CloudinaryStorage;
 
 
 namespace BookingService.Infrastructure
@@ -23,8 +24,11 @@ namespace BookingService.Infrastructure
                 options.UseNpgsql(connectionString);
             });
             
-            // Register Unit Of Work.
+            // Đăng ký dịch vụ hệ thống
             services.AddScoped<IUnitOfWork,UnitOfWork>();
+
+            // Đăng ký dịch vụ bên thứ ba
+            services.AddScoped<ICloudinaryServiceProvider, CloudinaryServiceProvider>();
 
             // Đăng ký Repository
             //services.AddScoped<IBookingRepository, BookingRepository>();
@@ -38,9 +42,6 @@ namespace BookingService.Infrastructure
             // Register RabbitMQ service (with fallback to mock if connection fails)            
             //services.AddSingleton<IRabbitMQService, RabbitMQService>();
             //services.AddHostedService<RabbitMQHostedService>();
-
-            Console.WriteLine("Completed");
-
             return services;
         }
     }

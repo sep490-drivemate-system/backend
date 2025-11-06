@@ -8,6 +8,7 @@ namespace UserService.Domain.Entities
     {
         // Propertíe
         public string Username { get; set; } 
+        public string Fullname { get; set; }
         public string Email { get; set; } 
         public string HashedPassword { get; set; } 
         public string? Avatar { get; set; } 

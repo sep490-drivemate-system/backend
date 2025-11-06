@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using SharedLibrary.SharedKernel.Enum;
+using System.Text.Json.Serialization;
 
 namespace BookingService.Application.Commons.DTOs.Cars.Get
 {
@@ -23,6 +24,8 @@ namespace BookingService.Application.Commons.DTOs.Cars.Get
         public int SeatCounts { get; set; }
         [JsonPropertyName("car_type")]
         public string VehicleType { get; set; }
+        [JsonPropertyName("min_driving_license_level")]
+        public DrivingLicenseTier LicenseTier { get; set; }
         [JsonPropertyName("brand")]
         public string ManufacturerName { get; set; }
         [JsonPropertyName("fuel")]
@@ -45,7 +48,6 @@ namespace BookingService.Application.Commons.DTOs.Cars.Get
         public Guid OwnerId { get; set; }
         [JsonPropertyName("documents_string")]
         public string DocumentsRawString { get; set; }
-        
         [JsonPropertyName("insurance_document")]
         public CarDocument? Insurance { get; set; }
         [JsonPropertyName("registration_document")]

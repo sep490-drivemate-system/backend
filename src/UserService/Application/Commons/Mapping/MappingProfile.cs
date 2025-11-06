@@ -26,12 +26,7 @@ namespace UserService.Application.Commons.Mapping
             .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.User.Username))
             .ForMember(dest => dest.ExperienceYear, opt => opt.MapFrom(src => src.Experience))
             .ForMember(dest => dest.BookingCount, opt => opt.Ignore())
-            .ForMember(dest => dest.AverageRating, opt => opt.Ignore())
-            .ForMember(dest => dest.UnitPrice, opt => opt.Ignore());
-
-            CreateMap<string, SignUpRespondDTO>()
-            .ForMember(dest => dest.Token, opt => opt.MapFrom(src => src));
-
+            .ForMember(dest => dest.AverageRating, opt => opt.Ignore());
         }
     }
 }
