@@ -23,8 +23,4 @@ namespace UserService.Application.Commons.DTOs.Instructors
         [JsonPropertyName("average_rating")]
         public decimal AverageRating { get; set; }
     }
-    public class InstructorDetailDTO : InstructorDTO
-    {
-    }
-
 }

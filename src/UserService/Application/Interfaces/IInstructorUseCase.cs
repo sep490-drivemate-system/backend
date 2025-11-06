@@ -10,7 +10,7 @@ namespace UserService.Application.Interfaces
     {
         Task<Result<PaginatedList<InstructorDTO>>> GetInstructors(InstructorListFilterDTO filter);
 
-        Task<Result<InstructorDetailDTO>> GetInstructorDetail(Guid id);
+        Task<Result<InstructorDTO>> GetInstructorDetail(Guid id);
 
         Task<Result<List<InstructorScheduleDTO>>> GetInstructorSchedule(Guid instructor_id);
 
