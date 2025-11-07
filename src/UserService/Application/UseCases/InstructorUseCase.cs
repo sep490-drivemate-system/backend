@@ -28,7 +28,7 @@ namespace UserService.Application.UseCases
         private readonly IPasswordHasherService _passwordHasher = passwordHasher;
 
         #region Instructor Details
-        public async Task<Result<InstructorDetailDTO>> GetInstructorDetail(Guid id)
+        public async Task<Result<InstructorDTO>> GetInstructorDetail(Guid id)
         {
             string included_properties = "User";
 
@@ -36,7 +36,7 @@ namespace UserService.Application.UseCases
 
             if (instructor_info == null || instructor_info.IsDeleted)
             {
-                return Result<InstructorDetailDTO>.Failure(ServiceError.NotFoundError($"{id}"), Messages.Common.NotFoundError);
+                return Result<InstructorDTO>.Failure(ServiceError.NotFoundError($"{id}"), Messages.Common.NotFoundError);
             }
 
             /*
@@ -75,7 +75,7 @@ namespace UserService.Application.UseCases
             };
             */
 
-            return Result<InstructorDetailDTO>.Success(new InstructorDetailDTO
+            return Result<InstructorDTO>.Success(new InstructorDTO
             {
                 Id = instructor_info.Id,
                 FullName = instructor_info.User?.Fullname ?? "",
@@ -399,6 +399,7 @@ namespace UserService.Application.UseCases
                 User = new User
                 {
                     Username = instructor_registration.Email,
+                    Fullname = instructor_registration.Fullname,
                     Avatar = avatar_url,
                     PhoneNumber = instructor_registration.PhoneNumber,
                     Email = instructor_registration.Email,

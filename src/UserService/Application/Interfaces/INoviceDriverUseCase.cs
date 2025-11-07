@@ -1,4 +1,5 @@
 using SharedLibrary.SharedKernel.Http.DTOs.Feedback;
+using SharedLibrary.SharedKernel.Http.DTOs.User;
 using SharedLibrary.SharedKernel.ServiceResult;
 using UserService.Application.Commons.DTOs.NoviceDriver;
 
@@ -8,5 +9,6 @@ namespace UserService.Application.Interfaces
     {
         Task<Result<List<UserAddressDTO>>> GetNoviceDriverAddress(Guid id);
         Task<Result<NoviceDriverInfoFeedbackDTO>> GetNoviceDriverInfoForFeedback(Guid noviceDriverId);
+        Task<Result<IEnumerable<UserAddressDTO>>> GetNoviceDriverAddress(Guid id);
     }
 }

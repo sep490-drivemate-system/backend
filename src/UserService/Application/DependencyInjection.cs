@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Identity;
 using Resend;
 using SharedLibrary.Email;
 using SharedLibrary.Jwt;
@@ -7,12 +6,8 @@ using SharedLibrary.SharedKernel.Http.Implementation;
 using SharedLibrary.SharedKernel.Http.Interfaces;
 using SharedLibrary.SharedKernel.Password;
 using SharedLibrary.Sms;
-using System;
 using UserService.Application.Interfaces;
 using UserService.Application.UseCases;
-using UserService.Domain.Interfaces;
-using UserService.Infrastructure.Repositories;
-using UserService.Infrastructure.UoW;
 using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace UserService.Application
@@ -24,8 +19,8 @@ namespace UserService.Application
         {
 
             // Register Usecase
+            services.AddScoped<IUserUseCase, UserUseCase>();
             services.AddScoped<IAuthUseCase, AuthUseCase>();
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<INoviceDriverUseCase, NoviceDriverUseCase>();
             services.AddScoped<IInstructorUseCase, InstructorUseCase>();
             services.AddScoped<IPolicyUseCase, PolicyUseCase>();
