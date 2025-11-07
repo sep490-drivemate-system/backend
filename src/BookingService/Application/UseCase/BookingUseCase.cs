@@ -27,72 +27,23 @@ namespace BookingService.Application.UseCase
 
         public async Task<Result<bool>> CreateBooking(BookingDTO bookingDTO, Guid userId)
         {
-            //// 1. Check payment
-            //var walletCheckResponse = await _payment.CheckWalletBooking(
-            //    userId, 
-            //    bookingDTO.Price);
+            // 1. Check payment
+            var walletCheckResponse = await _payment.CheckWalletBooking(
+                userId,
+                bookingDTO.PriceAtBuyingTime);
 
-            //if (!walletCheckResponse.IsPayment)
-            //{
-            //    return Result<bool>.Failure(ServiceError.BadRequestError(Messages.Booking.INSUFFICENTCREDIT));
-            //}
+            if (!walletCheckResponse.IsPayment)
+            {
+                return Result<bool>.Failure(ServiceError.BadRequestError(Messages.Booking.INSUFFICENTCREDIT));
+            }
 
-            //// 2. Add All booking information into booking and time range
-            //var booking = _mapper.Map<Booking>(bookingDTO);
+            var booking = _mapper.Map<Booking>(bookingDTO);
 
+            var createdBooking = await _unitOfWork.BookingRepository.CreateAsync(booking);
+            await _unitOfWork.CommitChangesAsync();
 
-            //// Create booking first
-            //var createdBooking = await _unitOfWork.BookingRepository.CreateAsync(booking);
+            return Result<bool>.Success(true);
 
-            //// 3. Add time ranges for the booking
-            //var timeRanges = new List<TimeRange>();
-            //foreach (var timeRangeDto in bookingDTO.TimeRanges)
-            //{
-            //    var timeRange = _mapper.Map<TimeRange>(timeRangeDto);
-            //    timeRange.BookingId = createdBooking.Id;
-            //    timeRanges.Add(timeRange);
-            //}
-
-            //foreach (var timeRange in timeRanges)
-            //{
-            //    await _unitOfWork.TimeRangeRepository.CreateAsync(timeRange);
-            //}
-
-
-
-            //foreach (var drivingSkillDto in bookingDTO.DrivingSkills)
-            //{
-            //    // Check if driving skill exists
-            //    var existingSkill = await _unitOfWork.SkillRepository.GetByIdAsync(drivingSkillDto.DrivingSkillId);
-            //    if (existingSkill != null)
-            //    {
-            //        // Add to booking's driving skills collection
-            //        createdBooking.DrivingSkills.Add(existingSkill);
-            //    }
-            //}
-
-            //// 5. Add road types (many-to-many relationship)
-
-
-            //foreach (var roadTypeDto in bookingDTO.RoadTypes)
-            //{
-            //    // Check if road type exists
-            //    var existingRoadType = await _unitOfWork.RoadTypeRepository.GetByIdAsync(roadTypeDto.RoadTypeId);
-            //    if (existingRoadType != null)
-            //    {
-            //        // Add to booking's road types collection
-            //        createdBooking.RoadTypes.Add(existingRoadType);
-            //    }
-            //}
-
-            //await _unitOfWork.BookingRepository.Update(createdBooking);
-
-            //// Save all changes to database
-            //await _unitOfWork.CommitChanges();
-
-            //return Result<bool>.Success(true);
-
-            throw new NotImplementedException();
         }
     }
 }

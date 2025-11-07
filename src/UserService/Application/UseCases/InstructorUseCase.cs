@@ -15,13 +15,15 @@ using SharedLibrary.SharedKernel.Password;
 using System.Linq.Expressions;
 using System.Reflection;
 using Twilio.TwiML.Messaging;
+using AutoMapper;
 
 namespace UserService.Application.UseCases
 {
-    public class InstructorUseCase(IUnitOfWork unitOfWork, ICloudinaryServiceProvider cloudinary, IPasswordHasherService passwordHasher, IHttpClientFactory http_client_factory) : IInstructorUseCase
+    public class InstructorUseCase(IUnitOfWork unitOfWork, ICloudinaryServiceProvider cloudinary, IPasswordHasherService passwordHasher, IHttpClientFactory http_client_factory,IIntructor intructor,IMapper mapper) : IInstructorUseCase
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
-        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IIntructor _intructor = intructor;
+        private readonly IMapper _mapper = mapper;
         private readonly ICloudinaryServiceProvider _cloudinary = cloudinary;
         private readonly IPasswordHasherService _passwordHasher = passwordHasher;
 
@@ -76,10 +78,7 @@ namespace UserService.Application.UseCases
             return Result<InstructorDetailDTO>.Success(new InstructorDetailDTO
             {
                 Id = instructor_info.Id,
-                Bio = instructor_info.Bio,
                 FullName = instructor_info.User?.Fullname ?? "",
-                Gender = instructor_info.User.Gender == GenderType.Male ? "Nam" : "Nữ",
-                Birthdate = instructor_info.User.DateOfBirth,
                 ExperienceYear = instructor_info.Experience,
                 Avatar = instructor_info.User?.Avatar ?? "",
                 AverageRating = 0,
@@ -89,28 +88,29 @@ namespace UserService.Application.UseCases
 
         public async Task<Result<PaginatedList<InstructorDTO>>> GetInstructors(InstructorListFilterDTO filter)
         {
-            Expression<Func<Instructor, bool>> filter_expression = x => (filter.DrivingLicenseTier == null || filter.DrivingLicenseTier <= x.User.MaxLicenseLevel)
-            && (filter.Experience == null || filter.Experience == 0 || filter.Experience <= x.Experience)
-            && (string.IsNullOrEmpty(filter.SearchKey) || x.User.Fullname.Contains(filter.SearchKey)) // What exactly are we trying to achieve here ???
-            && !x.IsDeleted;
+            Expression<Func<Instructor, bool>> filter_expression = x =>
+          (string.IsNullOrEmpty(filter.SearchKey) || x.User.Fullname.Contains(filter.SearchKey)) && !x.IsDeleted;
+
             string included_properties = "User";
 
             var instructors = await _unitOfWork.InstructorRepository.GetAllAsync(filter: filter_expression, orderBy: null, include_properties: included_properties);
 
+                var instructorDTOs = new List<InstructorDTO>();
+            foreach (var instructor in instructors)
+            {
+                var overviewFeedback = await _intructor.GetInstructorOverviewFeedback(instructor.Id);
+
+                var instructorDTO = _mapper.Map<InstructorDTO>(instructor);
+                instructorDTO.AverageRating = overviewFeedback.AverageRating;
+                instructorDTO.BookingCount = overviewFeedback.BookingCount;
+                instructorDTO.PackageCount = overviewFeedback.PackageCount;
+
+                instructorDTOs.Add(instructorDTO);
+            }
+
             return Result<PaginatedList<InstructorDTO>>.Success(
-                PaginatedList<InstructorDTO>.Create(instructors.Select(x => new InstructorDTO
-                {
-                    Id = x.Id,
-                    Bio = x.Bio,
-                    FullName = x.User.Fullname ?? "",
-                    Birthdate = x.User.DateOfBirth,
-                    ExperienceYear = x.Experience,
-                    Gender = x.User.Gender.ToString(),
-                    Avatar = x.User?.Avatar ?? "",
-                    AverageRating = 0,
-                    BookingCount = 0,
-                }), filter.PageNumber, filter.PageSize)
-            );
+     PaginatedList<InstructorDTO>.Create(instructorDTOs, filter.PageNumber, filter.PageSize)
+ );
         }
 
         public async Task<Result<List<InstructorScheduleDTO>>> GetInstructorSchedule(Guid instructor_id)

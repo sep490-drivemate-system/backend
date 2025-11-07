@@ -12,19 +12,12 @@ namespace BookingService.Application.Commons.DTOs.Cars.Get
 
     public class CarDTO
     {
-        [JsonPropertyName("id")]
         public Guid Id { get; set; }
-        [JsonPropertyName("thumbnail_url")]
         public string ThumbnailUrl { get; set; }
-        [JsonPropertyName("name")]
         public string ModelName { get; set; }
-        [JsonPropertyName("price")]
         public decimal UnitPrice { get; set; }
-        [JsonPropertyName("seats")]
         public int SeatCounts { get; set; }
-        [JsonPropertyName("car_type")]
         public string VehicleType { get; set; }
-        [JsonPropertyName("min_driving_license_level")]
         public DrivingLicenseTier LicenseTier { get; set; }
         [JsonPropertyName("brand")]
         public string ManufacturerName { get; set; }
@@ -68,5 +61,14 @@ namespace BookingService.Application.Commons.DTOs.Cars.Get
         public string? DocumentType { get; set; }
         [JsonPropertyName("document_details")]
         public string DocumentDetails { get; set; }
+    }
+    public class CarInstructorDetailDTO
+    {
+        public Guid Id { get; set; }
+        public string ThumbnailUrl { get; set; }
+        public string ModelName { get; set; }
+        public decimal UnitPrice { get; set; }
+        public int SeatCounts { get; set; }
+        public string VehicleType { get; set; }
     }
 }

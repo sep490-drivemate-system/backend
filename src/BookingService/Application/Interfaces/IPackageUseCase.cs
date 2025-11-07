@@ -11,6 +11,6 @@ namespace BookingService.Application.Interfaces
         Task<Result<Package>> CreatePackageAsync(Package package);
         Task<Result<Package>> UpdatePackageAsync(Package package);
         Task<Result<bool>> DeletePackageAsync(Guid id);
-        Task<Result<PackageResponse>> GetInstructorPackagesAsync(Guid instructorId);
+        Task<Result<List<PackageDto>>> GetInstructorPackagesAsync(Guid instructorId);
     }
 }

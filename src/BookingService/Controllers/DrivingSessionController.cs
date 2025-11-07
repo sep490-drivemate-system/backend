@@ -24,6 +24,13 @@ namespace BookingService.Controllers
             return result.ToActionResult();
         }
 
+
+        [HttpPost]
+        public async Task<IActionResult> CreateDrivingSession(DrivingSessionCreationDTO sessionStatus)
+        {
+            var result = await _drivingSessionUseCase.CreateDrivingSession(sessionStatus);
+            return result.ToActionResult();
+        }
         [HttpGet("/users/{id}/sessions")]
         public async Task<IActionResult> GetAllUserSessions([FromRoute] Guid id, [FromQuery] SessionFilterDTO filter)
         {

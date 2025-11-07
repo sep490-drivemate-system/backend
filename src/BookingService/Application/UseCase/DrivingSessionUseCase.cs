@@ -1,4 +1,4 @@
-﻿using BookingService.Application.Commons.Constants;
+using BookingService.Application.Commons.Constants;
 using BookingService.Application.Commons.DTOs.DrivingSessions;
 using BookingService.Application.Interfaces;
 using BookingService.Domain.Entities;
@@ -25,6 +25,67 @@ namespace BookingService.Application.UseCase
                 return Result<ICollection<DrivingSession>>.Success(result);
            
         }
+
+        public async Task<Result<bool>> CreateDrivingSession(DrivingSessionCreationDTO drivingSessionCreationDTO)
+        {
+            // Validate booking exists
+            var booking = await _unitOfWork.BookingRepository.GetByIdAsync(drivingSessionCreationDTO.BookingId);
+            if (booking == null)
+            {
+                return Result<bool>.Failure(
+                    ServiceError.NotFoundError($"Booking {drivingSessionCreationDTO.BookingId}"),
+                    Messages.Commons.NOTFOUND);
+            }
+
+            // Validate booking status
+            if (booking.Status != BookingStatus.Planned && booking.Status != BookingStatus.Planned)
+            {
+                return Result<bool>.Failure(
+                    ServiceError.InvalidStateError($"Booking status: {booking.Status}"),
+                    "Booking must be confirmed or planned to create driving session");
+            }
+
+            // Calculate end time based on duration
+            DateTime endTime = drivingSessionCreationDTO.StartTime.AddMinutes(drivingSessionCreationDTO.Duration);
+
+            // Create new driving session entity
+            var drivingSession = new DrivingSession
+            {
+                Id = Guid.NewGuid(),
+                BookingId = drivingSessionCreationDTO.BookingId,
+                StartTime = drivingSessionCreationDTO.StartTime,
+                EndTime = endTime,
+                StartingLatitude = drivingSessionCreationDTO.StartingLatitude,
+                StartingLongtitude = drivingSessionCreationDTO.StartingLongtitude,
+                NoviceDriverNote = drivingSessionCreationDTO.SessionNote,
+                Status = SessionStatus.Planned,
+                CreatedAt = DateTime.UtcNow,
+                LastModifiedAt = DateTime.UtcNow,
+                IsDeleted = false,
+                // Initialize default values for fields that will be updated later
+                ActualStart = DateTime.MinValue,
+                ActualEnd = DateTime.MinValue,
+                TotalDistance = 0,
+                AverageSpeed = 0,
+                EndingLatitude = 0,
+                EndingLongtitude = 0
+            };
+
+            try
+            {
+                await _unitOfWork.DrivingSessionRepository.CreateAsync(drivingSession);
+                await _unitOfWork.CommitChangesAsync();
+
+                return Result<bool>.Success(true, Messages.Commons.SUCCESS);
+            }
+            catch (Exception ex)
+            {
+                return Result<bool>.Failure(
+                    ServiceError.UnhandledException(ex.Message),
+                    Messages.Commons.UNHANDLED);
+            }
+        }
+
         public Task<Result<IEnumerable<DrivingSessionDTO>>> GetUserSessions(Guid user_id, SessionFilterDTO session_filter)
         {
             throw new NotImplementedException();

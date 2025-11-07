@@ -19,6 +19,16 @@ namespace SharedLibrary.SharedKernel.Http.Implementation
             _httpService = httpService;
              _config = configuration;
         }
+
+        public async Task<NoviceDriverInfoFeedbackDTO> GetNoviceDriverInfor(Guid noviceDriverid)
+        {
+
+            string userServiceUrl = _config["USERSERVICE:URL"];
+            string url = $"{userServiceUrl}/api//user/driver-feedback";
+            var result = await _httpService.PostAsync<Guid, NoviceDriverInfoFeedbackDTO>(url, noviceDriverid);
+            return result;
+        }
+
         public async Task<FeedbackResponse> GetStatiticFeedback(List<Guid> listGuidInstructor)
         {
             var request = new FeedbackRequest
