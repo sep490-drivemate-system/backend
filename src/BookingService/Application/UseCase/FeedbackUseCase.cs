@@ -1,3 +1,4 @@
+using AutoMapper;
 using BookingService.Application.Commons.DTOs.Feedbacks;
 using BookingService.Application.Interfaces;
 using BookingService.Domain.Entities;
@@ -12,22 +13,23 @@ namespace BookingService.Application.UseCase
     public class FeedbackUseCase : IFeedbackUseCase
     {
         private readonly IUnitOfWork _unitOfWork;
-        public FeedbackUseCase(IUnitOfWork unitOfWork)
+        private readonly IMapper _mapper;
+        public FeedbackUseCase(IUnitOfWork unitOfWork,IMapper _mapper)
         {
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<InstructorFeedbackDTO> GetInstructorFeedback(Guid id)
-        {
-            Expression<Func<Feedback, bool>> filter_expression = x => x.InstructorId == id && !x.IsDeleted;
-            Func<IQueryable<Package>, IOrderedQueryable<Package>> order_expression = x => x.OrderBy(u => u.CreatedAt);
+        //public async Task<InstructorFeedbackDTO> GetInstructorFeedback(Guid id)
+        //{
+        //    Expression<Func<Feedback, bool>> filter_expression = x => x.InstructorId == id && !x.IsDeleted;
+        //    Func<IQueryable<Package>, IOrderedQueryable<Package>> order_expression = x => x.OrderBy(u => u.CreatedAt);
             
-            var packages = await _unitOfWork.FeedbackRepository.GetAllAsync(filter: filter_expression, orderBy: order_expression, include_properties: null);
+        //    var packages = await _unitOfWork.FeedbackRepository.GetAllAsync(filter: filter_expression, orderBy: order_expression, include_properties: null);
 
-            var packageDtos = _mapper.Map<List<PackageDto>>(packages);
+        //    var packageDtos = _mapper.Map<List<PackageDto>>(packages);
 
-            return Result<List<PackageDto>>.Success(packageDtos);
-        }
+        //    return Result<List<PackageDto>>.Success(packageDtos);
+        //}
 
         public async Task<InstructorOverviewFeedbackResponse> GetStatitic(Guid id)
         {

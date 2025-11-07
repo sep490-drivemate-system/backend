@@ -27,12 +27,12 @@ namespace BookingService.Controllers
             return Ok(result);
         }
 
-        [HttpGet("instructor/{id}")]
-        public async Task<IActionResult> GetInstructorFeedback(Guid id)
-        {
-            var result = await _useCase.GetInstructorFeedback(id);
-            return Ok(result);
-        }
+        //[HttpGet("instructor/{id}")]
+        //public async Task<IActionResult> GetInstructorFeedback(Guid id)
+        //{
+        //    var result = await _useCase.GetInstructorFeedback(id);
+        //    return Ok(result);
+        //}
 
         //[HttpGet("instructor/{id}")]
         //public async Task<IActionResult> GetInstructorFeedback(Guid id)

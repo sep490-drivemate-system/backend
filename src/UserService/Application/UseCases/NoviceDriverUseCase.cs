@@ -47,5 +47,10 @@ namespace UserService.Application.UseCases
 
             return Result<NoviceDriverInfoFeedbackDTO>.Success(result);
         }
+
+        Task<Result<List<UserAddressDTO>>> INoviceDriverUseCase.GetNoviceDriverAddres(Guid id)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

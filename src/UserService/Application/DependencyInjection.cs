@@ -8,6 +8,7 @@ using SharedLibrary.SharedKernel.Password;
 using SharedLibrary.Sms;
 using UserService.Application.Interfaces;
 using UserService.Application.UseCases;
+using UserService.Domain.Entities;
 using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace UserService.Application
@@ -35,6 +36,8 @@ namespace UserService.Application
             services.AddScoped<ISmsService, SpeedSmsService>();
             services.AddScoped<PasswordHasherService>();
             services.AddScoped<HttpService>();
+            services.AddScoped<IIntructor, Intructor>();
+
 
             services.AddScoped<IFeedback,Feedback>();
             services.AddScoped<IPackage, SharedLibrary.SharedKernel.Http.Implementation.Package>();

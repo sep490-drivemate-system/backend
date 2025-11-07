@@ -21,7 +21,7 @@ namespace UserService.Controllers
         public async Task<IActionResult> GetAlDrvierAddress()
         {
             var driverId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
-            var result = await _usecases.GetNoviceDriverAddress(driverId);
+            var result = await _usecases.GetNoviceDriverAddres(driverId);
             return result.ToActionResult();
         }
     }

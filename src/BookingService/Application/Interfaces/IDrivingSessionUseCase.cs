@@ -8,7 +8,7 @@ namespace BookingService.Application.Interfaces
     public interface IDrivingSessionUseCase
     {
         Task<Result<ICollection<DrivingSession>>> GetAllDrivingSession(SessionStatus sessionStatus);
-        Task<Result<bool> CreateDrivingSession(DrivingSessionCreationDTO drivingSessionCreationDTO);
+        Task<Result<bool>> CreateDrivingSession(DrivingSessionCreationDTO drivingSessionCreationDTO);
 
         Task<Result<IEnumerable<DrivingSessionDTO>>> GetUserSessions(Guid user_id, SessionFilterDTO session_filter);
 
