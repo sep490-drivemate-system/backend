@@ -24,6 +24,20 @@ namespace BookingService.Infrastructure
             services.AddScoped<IUnitOfWork,UnitOfWork>();
             services.AddScoped<IJwtService, JwtService>();
 
+            // Đăng ký sử dụng HttpClient gọi đến các Microservice bằng phương thức http.
+            services.AddHttpClient("UserServiceClient", client =>
+            {
+                var base_address = configuration.GetConnectionString("Userservice_connection");
+
+                if (string.IsNullOrEmpty(base_address))
+                {
+                    throw new ApplicationException("Can not find base address for user service");
+                }
+
+                client.BaseAddress = new Uri(base_address);
+                client.DefaultRequestHeaders.Add("User-Agent", "DriveMate_BookingService");
+            });
+
             // Đăng ký dịch vụ bên thứ ba
             services.AddScoped<ICloudinaryServiceProvider, CloudinaryServiceProvider>();
 
