@@ -32,6 +32,30 @@ namespace UserService.Infrastructure.Persistence.Configurations
 
             builder.Property(x => x.PhoneNumber)
                 .HasColumnName("phone")
+                .HasMaxLength(11)
+                .IsRequired();
+
+            builder.Property(x => x.NationalId)
+                .HasColumnName("national_id_number")
+                .HasMaxLength(64)
+                .IsRequired();
+
+            builder.Property(x => x.PermanentAddress)
+                .HasColumnName("permanent_address")
+                .HasMaxLength(256)
+                .IsRequired();
+
+            builder.Property(x => x.NationalIdIssuedLocation)
+                .HasColumnName("id_issued_location")
+                .HasMaxLength(256)
+                .IsRequired();
+
+            builder.Property(x => x.NationalIdIssuedDate)
+                .HasColumnName("id_issued_date")
+                .IsRequired();
+
+            builder.Property(x => x.NationalIdExpiryDatee)
+                .HasColumnName("id_expiry_date")
                 .IsRequired();
 
             builder.Property(x => x.DateOfBirth)
@@ -43,41 +67,62 @@ namespace UserService.Infrastructure.Persistence.Configurations
                 .HasConversion<int>()
                 .IsRequired();
 
-            builder.Property(u => u.HealthCheckup)
+            builder.Property(x => x.HealthCheckup)
                 .HasColumnName("health_checkup")
                 .HasMaxLength(500)
                 .IsRequired();
 
-            builder.Property(u => u.BackgroundProfile)
+            builder.Property(x => x.BackgroundProfile)
                 .HasColumnName("background_profile")
                 .HasMaxLength(500)
                 .IsRequired();
 
-            builder.Property(u => u.DrivingLicenseFront)
+            builder.Property(x => x.DrivingLicenseFront)
                 .HasColumnName("driving_license_front")
                 .HasMaxLength(500)
                 .IsRequired();
 
-            builder.Property(u => u.DrivingLicenseBack)
+            builder.Property(x => x.DrivingLicenseBack)
                 .HasColumnName("driving_license_back")
                 .HasMaxLength(500)
                 .IsRequired();
 
-            builder.Property(u => u.TeachingLicenseFront)
+            builder.Property(x => x.DrivingLicenseNumber)
+                .HasColumnName("driving_license_number")
+                .HasMaxLength(64)
+                .IsRequired();
+
+            builder.Property(x => x.DrivingLicenseIssuesDate)
+                .HasColumnName("driving_license_issued_date")
+                .IsRequired();
+
+            builder.Property(x => x.DrivingLicenseExpiryDate)
+                .HasColumnName("driving_license_expiry_date")
+                .IsRequired();
+
+            builder.Property(x => x.DrivingLicenseTier)
+                .HasColumnName("driving_license_tier")
+                .IsRequired();
+
+            builder.Property(x => x.TeachingLicenseFront)
                 .HasColumnName("teaching_license_front")
                 .HasMaxLength(500)
                 .IsRequired();
 
-            builder.Property(u => u.TeachingLicenseBack)
+            builder.Property(x => x.TeachingLicenseBack)
                 .HasColumnName("teaching_license_back")
                 .HasMaxLength(500)
                 .IsRequired();
 
-            builder.Property(u => u.Status)
+            builder.Property(x => x.TeachingLicenseTier)
+                .HasColumnName("teaching_license_tier")
+                .IsRequired();
+
+            builder.Property(x => x.Status)
                 .HasColumnName("status")
                 .IsRequired();
 
-            builder.Property(u => u.SubmitAt)
+            builder.Property(x => x.SubmitAt)
                 .HasColumnName("submit_at")
                 .HasColumnType("timestamp");
 

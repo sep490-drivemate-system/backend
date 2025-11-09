@@ -370,7 +370,22 @@ namespace UserService.Application.UseCases
                 return Result<bool>.Failure(ServiceError.BadRequestError($"Driving license (back):{instructor_registration.DrivingLicenseFront.ContentType}"), Messages.Common.InvalidDocumentType);
             }
 
+            if (!instructor_registration.TeachingLicenseFront?.ContentType.StartsWith("image") ?? true)
+            {
+                return Result<bool>.Failure(ServiceError.BadRequestError($"Teaching license (front):{instructor_registration.DrivingLicenseFront.ContentType}"), Messages.Common.InvalidDocumentType);
+            }
+
+            if (!instructor_registration.TeachingLicenseBack?.ContentType.StartsWith("image") ?? true)
+            {
+                return Result<bool>.Failure(ServiceError.BadRequestError($"Teaching license (back):{instructor_registration.DrivingLicenseFront.ContentType}"), Messages.Common.InvalidDocumentType);
+            }
+
             // Checking for valid license tier.
+            if (!Enum.TryParse(instructor_registration.DrivingLicenseTier, true, out DrivingLicenseTier driving_license_tier))
+            {
+                return Result<bool>.Failure(ServiceError.BadRequestError($"{instructor_registration.TeachingTier}"), Messages.InstructorApplication.InvalidDrivingLicenseTier);
+            }
+
             if (!Enum.TryParse(instructor_registration.TeachingTier, true, out DrivingLicenseTier instructor_license_tier))
             {
                 return Result<bool>.Failure(ServiceError.BadRequestError($"{instructor_registration.TeachingTier}"), Messages.InstructorApplication.InvalidDrivingLicenseTier);
@@ -415,17 +430,26 @@ namespace UserService.Application.UseCases
                     Fullname = instructor_registration.Fullname,
                     EmailAddress = instructor_registration.Email,
                     PhoneNumber = instructor_registration.PhoneNumber,
+                    NationalId = instructor_registration.NationalIdNumber,
+                    NationalIdIssuedDate = (DateOnly)instructor_registration.NationalIssusesDate,
+                    NationalIdExpiryDatee = (DateOnly)instructor_registration.NationalExpiryDate,
+                    NationalIdIssuedLocation = instructor_registration.IssuedLocation,
+                    PermanentAddress = instructor_registration.Location,
                     Gender = instructor_gender,
                     DateOfBirth = (DateOnly)instructor_registration.BirthDate,
                     SubmitAt = DateTime.Now,
                     Status = ApplicationStatus.Pending,
                     DrivingLicenseFront = driving_license_front_url,
                     DrivingLicenseBack = driving_license_back_url,
+                    DrivingLicenseNumber = instructor_registration.DrivingLicenseNumber,
+                    DrivingLicenseIssuesDate = (DateOnly) instructor_registration.DrivingLicenseIssuesDate,
+                    DrivingLicenseExpiryDate = (DateOnly) instructor_registration.DrivingLicenseExpiryDate,
+                    DrivingLicenseTier = instructor_license_tier,
                     TeachingLicenseFront = teaching_license_front_url,
                     TeachingLicenseBack = teaching_license_back_url,
+                    TeachingLicenseTier = instructor_license_tier,
                     BackgroundProfile = personal_porfolio_url,
                     HealthCheckup = health_checkup_url,
-                    DrivingLicenseTier = instructor_license_tier,
                 }
             };
 
