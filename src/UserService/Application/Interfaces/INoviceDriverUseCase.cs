@@ -9,6 +9,5 @@ namespace UserService.Application.Interfaces
     {
         Task<Result<List<UserAddressDTO>>> GetNoviceDriverAddres(Guid id);
         Task<Result<NoviceDriverInfoFeedbackDTO>> GetNoviceDriverInfoForFeedback(Guid noviceDriverId);
-        Task<Result<IEnumerable<UserAddressDTO>>> GetNoviceDriverAddress(Guid id);
     }
 }

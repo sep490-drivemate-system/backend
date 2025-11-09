@@ -11,20 +11,13 @@ namespace SharedLibrary.SharedKernel.Http.DTOs.Package
         public string Duration { get; set; }
         public decimal Price { get; set; }
         public Guid InstructorId { get; set; }
-        public IList<DrivingSkill> DrivingSkills{ get; set; }
-        public IList<RoadType> RoadTypes{ get; set; }
+        public IList<string> DrivingSkills{ get; set; }
+        public IList<string> RoadTypes{ get; set; }
         public bool IsRentalCar { get; set; }
 
 
     }
 
-    public class DrivingSkill
-    {
-        public string Name { get; set; }
-    }
-    public class RoadType
-    {
-        public string Name { get; set; }
-    }
+   
 
 }

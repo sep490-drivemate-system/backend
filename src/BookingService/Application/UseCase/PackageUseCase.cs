@@ -1,8 +1,11 @@
 using AutoMapper;
 using BookingService.Application.Commons.Constants;
+using BookingService.Application.Commons.DTOs.Booking;
+using BookingService.Application.Commons.DTOs.Package;
 using BookingService.Application.Interfaces;
 using BookingService.Domain.Entities;
 using SharedLibrary.SharedKernel.Http.DTOs.Package;
+using SharedLibrary.SharedKernel.Http.Interfaces;
 using SharedLibrary.SharedKernel.ServiceResult;
 using System.Linq.Expressions;
 
@@ -12,11 +15,13 @@ namespace BookingService.Application.UseCase
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IPayment _payment;
 
-        public PackageUseCase(IUnitOfWork unitOfWork, IMapper mapper)
+        public PackageUseCase(IUnitOfWork unitOfWork, IMapper mapper, IPayment payment)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _payment = payment; 
         }
 
         public async Task<Result<IEnumerable<Package>>> GetAllPackagesAsync()
@@ -91,16 +96,32 @@ namespace BookingService.Application.UseCase
 
         public async Task<Result<List<PackageDto>>> GetInstructorPackagesAsync(Guid instructorId)
         {
-
-            Expression<Func<Package, bool>> filter_expression = x => x.InstructorId == instructorId && !x.IsDeleted;
-            Func<IQueryable<Package>, IOrderedQueryable<Package>> order_expression = x => x.OrderBy(u => u.Name);
-            string included_properties = "Cars,RoadTypes,DrivingSkills";
-            var packages = await _unitOfWork.PackageRepository.GetAllAsync(filter: filter_expression, orderBy: order_expression, include_properties: included_properties, disable_tracking: true);
+            var packages = await _unitOfWork.PackageRepository.GetInstructorPackages(instructorId);
 
             var packageDtos = _mapper.Map<List<PackageDto>>(packages);
 
             return Result<List<PackageDto>>.Success(packageDtos);
+        }
 
+        public async Task<Result<Booking>> BuyPackageAsync(PackageBuyingDTO packageBuyingDTO)
+        {
+            Guid id = Guid.NewGuid();
+            var walletCheckResponse = await _payment.CheckWalletBooking(
+               packageBuyingDTO.DriverId,
+               packageBuyingDTO.PriceAtBuyingTime,
+              id);
+
+            if (!walletCheckResponse.IsPayment)
+            {
+                return Result<Booking>.Failure(ServiceError.BadRequestError(Messages.Booking.INSUFFICENTCREDIT));
+            }
+            var booking = _mapper.Map<Booking>(packageBuyingDTO);
+            booking.Id = id;
+            var createdBooking = await _unitOfWork.BookingRepository.CreateAsync(booking);
+            await _unitOfWork.CommitChangesAsync();
+
+            return Result<Booking>.Success(createdBooking);
+            
         }
     }
 }

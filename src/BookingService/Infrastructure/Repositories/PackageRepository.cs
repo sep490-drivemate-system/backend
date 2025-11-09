@@ -59,5 +59,17 @@ namespace BookingService.Infrastructure.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<List<Package>> GetInstructorPackages(Guid instructorId)
+        {
+            return await _context.Packages
+                .Include(p => p.RoadTypes)
+                .Include(p => p.DrivingSkills)
+                .Include(p => p.Cars)
+                .Where(p => p.InstructorId == instructorId && !p.IsDeleted)
+                .OrderBy(p => p.Name)
+                .AsNoTracking()
+                .ToListAsync();
+        }
     }
 }

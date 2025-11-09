@@ -32,7 +32,7 @@ namespace BookingService.Infrastructure.Persistence.Configurations
 
             builder.Property(x => x.CarId)
                 .HasColumnName("car_id")
-                .IsRequired();
+                .IsRequired(false);
 
             builder.Property(x => x.PackageId)
                 .HasColumnName("package_id")

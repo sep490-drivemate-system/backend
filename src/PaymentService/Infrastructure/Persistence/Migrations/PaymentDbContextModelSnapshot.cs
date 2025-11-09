@@ -34,8 +34,10 @@ namespace PaymentService.Migrations
                         .HasColumnName("booking_id");
 
                     b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("timestamp")
-                        .HasColumnName("created_at");
+                        .HasColumnName("updated_at")
+                        .HasDefaultValueSql("now()");
 
                     b.Property<Guid>("FromWalletId")
                         .HasColumnType("uuid")
@@ -47,12 +49,11 @@ namespace PaymentService.Migrations
                         .HasDefaultValue(false)
                         .HasColumnName("is_delete");
 
-                    b.Property<int>("PaymentMethod")
+                    b.Property<int?>("PaymentMethod")
                         .HasColumnType("integer")
                         .HasColumnName("payment_method");
 
                     b.Property<string>("ReferenceCode")
-                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("reference_code");
@@ -71,8 +72,7 @@ namespace PaymentService.Migrations
                         .HasColumnName("transaction_value");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp")
-                        .HasColumnName("updated_at");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 

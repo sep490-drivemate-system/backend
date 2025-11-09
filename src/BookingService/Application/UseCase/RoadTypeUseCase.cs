@@ -20,7 +20,6 @@ namespace BookingService.Application.UseCase
                 await _unitOfWork.RoadTypeRepository.CreateAsync(new RoadType
                 {
                     Name = road_type.Name,
-                    Description = road_type.Description,
                 });
 
                 await _unitOfWork.CommitChangesAsync();
@@ -52,7 +51,7 @@ namespace BookingService.Application.UseCase
         {
             var roads = await _unitOfWork.RoadTypeRepository.GetAllAsync();
             return Result<IEnumerable<RoadTypeDTO>>.Success(roads.Select(x => new RoadTypeDTO { 
-                Id = x.Id, Name = x.Name, Description = x.Description}),
+                Id = x.Id, Name = x.Name}),
                 Messages.Commons.SUCCESS);
         }
 
@@ -65,7 +64,6 @@ namespace BookingService.Application.UseCase
                 {
                     Id = id,
                     Name = road.Name,
-                    Description = road.Description,
                 });
             }
             return Result<RoadTypeDTO>.Failure(ServiceError.NotFoundError("Can not find road type"));
@@ -81,7 +79,6 @@ namespace BookingService.Application.UseCase
             }
 
             road_type_info.Name = road_type.Name;
-            road_type_info.Description = road_type.Description;
 
             try
             {

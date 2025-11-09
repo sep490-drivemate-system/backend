@@ -10,23 +10,23 @@ namespace UserService.Application.UseCases
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-        public async Task<Result<IEnumerable<UserAddressDTO>>> GetNoviceDriverAddress(Guid id)
+        public async Task<Result<List<UserAddressDTO>>> GetNoviceDriverAddres(Guid id)
         {
             var driver = await _unitOfWork.NoviceDriverRepository.GetByIdAsync(id);
 
             if (driver == null)
             {
-                return Result<IEnumerable<UserAddressDTO>>
+                return Result<List<UserAddressDTO>>
                     .Failure(ServiceError.NotFoundError(Commons.Constants.Messages.Common.NotFoundError));
             }
 
-            return Result<IEnumerable<UserAddressDTO>>.Success(driver.SavedLocations.Select(x => new UserAddressDTO
+            return Result<List<UserAddressDTO>>.Success( driver.SavedLocations.Select(x => new UserAddressDTO
             {
                 Id = x.Id,
                 AddressString = x.DisplayName,
                 Latitude = x.LocationLatitude,
                 Longitude = x.LocationLongtitude
-            }));
+            }).ToList());
         }
 
         public async Task<Result<NoviceDriverInfoFeedbackDTO>> GetNoviceDriverInfoForFeedback(Guid noviceDriverId)
@@ -48,9 +48,7 @@ namespace UserService.Application.UseCases
             return Result<NoviceDriverInfoFeedbackDTO>.Success(result);
         }
 
-        Task<Result<List<UserAddressDTO>>> INoviceDriverUseCase.GetNoviceDriverAddres(Guid id)
-        {
-            throw new NotImplementedException();
-        }
+        
+        
     }
 }

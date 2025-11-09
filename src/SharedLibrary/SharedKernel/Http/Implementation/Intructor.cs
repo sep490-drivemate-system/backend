@@ -25,7 +25,7 @@ namespace SharedLibrary.SharedKernel.Http.Implementation
         public async Task<InstructorOverviewFeedbackResponse> GetInstructorOverviewFeedback(Guid instructorId)
         {
             string userServiceUrl = _config["BOOKINGSERVICE:URL"];
-            string url = $"{userServiceUrl}/api/feedback/list-overview-instructo";
+            string url = $"{userServiceUrl}/api/feedback/list-overview-instructor";
             var result = await _httpService.PostAsync<Guid, InstructorOverviewFeedbackResponse>(url, instructorId);
             return result;
         }

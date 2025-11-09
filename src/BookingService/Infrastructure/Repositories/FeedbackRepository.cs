@@ -41,7 +41,6 @@ namespace BookingService.Infrastructure.Repositories
 
             var instructorPackageCount = instructorPackage
                   .Select(f => f.InstructorId)
-                    .Distinct()
                     .Count();
 
 

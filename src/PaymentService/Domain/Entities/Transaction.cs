@@ -9,9 +9,9 @@ namespace PaymentService.Domain.Entities
         // Properties 
         public Guid BookingId { get; set; }
         public decimal TransactionValue { get; set; }
-        public PaymentMethod PaymentMethod { get; set; }
+        public PaymentMethod? PaymentMethod { get; set; }
         public PaymentStatus Status { get; set; }
-        public string ReferenceCode { get; set; } = string.Empty;
+        public string? ReferenceCode { get; set; } = string.Empty;
         public DateTime UpdatedAt { get; set; }
         public Guid? ToWalletId { get; set; }
         public bool IsDelete { get; set; }
@@ -19,7 +19,7 @@ namespace PaymentService.Domain.Entities
         public Guid FromWalletId {  get; set; }
 
         // Navigation relationship
-        public virtual Wallet Wallet {  get; set; } = new Wallet();
+        public virtual Wallet? Wallet {  get; set; } 
 
     }
 

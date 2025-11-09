@@ -55,6 +55,24 @@
       "SwaggerKey": "bookingService"
     },
     {
+      "DownstreamPathTemplate": "/api/car/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "bookingservice",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/car/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "SwaggerKey": "bookingService"
+    },
+    {
       "DownstreamPathTemplate": "/api/package/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [

@@ -1,6 +1,7 @@
 using BookingService.Application.Commons.DTOs.Booking;
 using BookingService.Application.Interfaces;
 using BookingService.Domain.Entities;
+using BookingService.Domain.Enum;
 using BookingService.Domain.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +19,7 @@ namespace BookingService.Controllers
         private readonly IBookingUseCase _bookingUseCase;
         private readonly IJwtService _jwtService;
 
-        public BookingController(IBookingUseCase bookingUseCase,IJwtService jwtService)
+        public BookingController(IBookingUseCase bookingUseCase, IJwtService jwtService)
         {
             _bookingUseCase = bookingUseCase;
             _jwtService = jwtService;
@@ -26,7 +27,7 @@ namespace BookingService.Controllers
 
 
         [HttpPost]
-    //   [Authorize(Roles = nameof(UserRole.NoviceDriver))]
+        //   [Authorize(Roles = nameof(UserRole.NoviceDriver))]
         public async Task<IActionResult> CreateBooking([FromBody] BookingDTO bookingDTO)
         {
             var driverId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
@@ -34,6 +35,15 @@ namespace BookingService.Controllers
             return result.ToActionResult();
         }
 
-      
+       // [HttpGet]
+        //   [Authorize(Roles = nameof(UserRole.NoviceDriver))]
+        //public async Task<IActionResult> GetBooking(BookingStatus bookingStatus)
+        //{
+        //    var driverId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
+        //    var result = await _bookingUseCase.CreateBooking(bookingDTO, driverId);
+        //    return result.ToActionResult();
+        //}
+
     }
+    
 }

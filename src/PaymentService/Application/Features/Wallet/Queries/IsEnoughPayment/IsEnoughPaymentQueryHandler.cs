@@ -16,7 +16,7 @@ namespace PaymentService.Application.Features.Wallet.Queries.IsEnoughPayment
 
         public async Task<PaymentResponse> Handle(IsEnoughPaymentQuery request, CancellationToken cancellationToken)
         {
-            bool isEnough = await _unitOfWork.WalletRepository.CheckWallet(request.UserId, request.Amount);
+            bool isEnough = await _unitOfWork.WalletRepository.CheckWallet(request.UserId, request.Amount,request.BookingId);
 
 
             return new PaymentResponse

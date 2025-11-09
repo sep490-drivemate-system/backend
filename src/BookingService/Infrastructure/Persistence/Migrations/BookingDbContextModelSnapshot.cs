@@ -29,7 +29,7 @@ namespace BookingService.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<Guid>("CarId")
+                    b.Property<Guid?>("CarId")
                         .HasColumnType("uuid")
                         .HasColumnName("car_id");
 
@@ -588,11 +588,6 @@ namespace BookingService.Migrations
                         .HasColumnName("created_at")
                         .HasDefaultValueSql("now()");
 
-                    b.Property<string>("Description")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
-                        .HasColumnName("description");
-
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
@@ -780,8 +775,7 @@ namespace BookingService.Migrations
                     b.HasOne("BookingService.Domain.Entities.Car", "Car")
                         .WithMany("Bookings")
                         .HasForeignKey("CarId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("BookingService.Domain.Entities.Package", "Package")
                         .WithMany("Bookings")

@@ -344,6 +344,10 @@ namespace UserService.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(500)")
                         .HasColumnName("name");
 
+                    b.Property<int>("Type")
+                        .HasColumnType("integer")
+                        .HasColumnName("type");
+
                     b.HasKey("Id");
 
                     b.ToTable("Policy", (string)null);

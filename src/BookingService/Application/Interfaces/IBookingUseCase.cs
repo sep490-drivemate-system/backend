@@ -6,6 +6,6 @@ namespace BookingService.Application.Interfaces
 {
     public interface IBookingUseCase
     {
-        Task<Result<bool>> CreateBooking(BookingDTO bookingDTO, Guid driverId);
+        Task<Result<Booking>> CreateBooking(BookingDTO bookingDTO, Guid driverId);
     }
 }

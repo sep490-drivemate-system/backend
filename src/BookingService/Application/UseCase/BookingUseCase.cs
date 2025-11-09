@@ -25,25 +25,27 @@ namespace BookingService.Application.UseCase
             _payment = payment;
         }
 
-        public async Task<Result<bool>> CreateBooking(BookingDTO bookingDTO, Guid userId)
+        public async Task<Result<Booking>> CreateBooking(BookingDTO bookingDTO, Guid userId)
         {
-            // 1. Check payment
-            var walletCheckResponse = await _payment.CheckWalletBooking(
-                userId,
-                bookingDTO.PriceAtBuyingTime);
 
-            if (!walletCheckResponse.IsPayment)
-            {
-                return Result<bool>.Failure(ServiceError.BadRequestError(Messages.Booking.INSUFFICENTCREDIT));
-            }
+                var walletCheckResponse = await _payment.CheckWalletBooking(
+                    userId,
+                    bookingDTO.PriceAtBuyingTime,
+                    bookingDTO.Id);
 
-            var booking = _mapper.Map<Booking>(bookingDTO);
 
-            var createdBooking = await _unitOfWork.BookingRepository.CreateAsync(booking);
-            await _unitOfWork.CommitChangesAsync();
+                if (!walletCheckResponse.IsPayment)
+                {
+                    return Result<Booking>.Failure(ServiceError.BadRequestError(Messages.Booking.INSUFFICENTCREDIT));
+                }
 
-            return Result<bool>.Success(true);
+                var booking = _mapper.Map<Booking>(bookingDTO);
 
+                var createdBooking = await _unitOfWork.BookingRepository.CreateAsync(booking);
+                await _unitOfWork.CommitChangesAsync();
+
+                return Result<Booking>.Success(createdBooking);
+           
         }
     }
 }

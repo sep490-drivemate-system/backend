@@ -36,9 +36,9 @@ namespace UserService.Application.UseCases
             return Result<bool>.Success(true, Messages.Common.Success);
         }
 
-        public async Task<Result<IEnumerable<PolicyDTO>>> GetAllPolicy()
+        public async Task<Result<IEnumerable<PolicyDTO>>> GetAllPolicy(PolicyType policyType)
         {
-            Expression<Func<Policy, bool>> filter_expression = x => !x.IsDeleted;
+            Expression<Func<Policy, bool>> filter_expression = x => !x.IsDeleted && x.Type == policyType;
 
             var policies = await _unitOfWork.PoliciesRepository.GetAllAsync(filter: filter_expression);
 

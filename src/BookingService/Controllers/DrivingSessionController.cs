@@ -67,5 +67,11 @@ namespace BookingService.Controllers
             var result = await _drivingSessionUseCase.RescheduleSession(id, request);
             return result.ToActionResult();
         }
+        //[HttpGet("{id}/schedule/instructor")]
+        //public async Task<IActionResult> ScheduleInstructor([FromRoute] Guid id )
+        //{           
+        //    var result = await _drivingSessionUseCase.ScheduleInstructor(id);
+        //    return result.ToActionResult();
+        //}
     }
 }

@@ -1,6 +1,7 @@
-using Microsoft.AspNetCore.Mvc;
-using BookingService.Domain.Entities;
+using BookingService.Application.Commons.DTOs.Package;
 using BookingService.Application.Interfaces;
+using BookingService.Domain.Entities;
+using Microsoft.AspNetCore.Mvc;
 using SharedLibrary.SharedKernel.ServiceResult;
 
 namespace BookingService.Controllers
@@ -37,6 +38,13 @@ namespace BookingService.Controllers
             return result.ToActionResult();
         }
 
+        [HttpPost("buy-package")]
+        public async Task<IActionResult> BuyPackage([FromBody] PackageBuyingDTO packageBuyingDTO)
+        {
+            var result = await _packageUseCase.BuyPackageAsync(packageBuyingDTO);
+            return result.ToActionResult();
+        }
+
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdatePackage(Guid id, [FromBody] Package package)
         {
@@ -56,10 +64,10 @@ namespace BookingService.Controllers
             return result.ToActionResult();
         }
 
-        [HttpGet("instructor/{instructorId}")]
-        public async Task<IActionResult> GetInstructorPackages(Guid instructorId)
+        [HttpGet("instructor/{id}")]
+        public async Task<IActionResult> GetInstructorPackages(Guid id)
         {
-            var result = await _packageUseCase.GetInstructorPackagesAsync(instructorId);
+            var result = await _packageUseCase.GetInstructorPackagesAsync(id);
             return result.ToActionResult();
         }
     }

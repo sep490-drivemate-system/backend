@@ -1,4 +1,4 @@
-﻿using BookingService.Application.Commons.DTOs.DrivingSessions;
+using BookingService.Application.Commons.DTOs.DrivingSessions;
 using BookingService.Domain.Entities;
 using BookingService.Domain.Enum;
 using SharedLibrary.SharedKernel.ServiceResult;
@@ -19,6 +19,7 @@ namespace BookingService.Application.Interfaces
         Task<Result<bool>> CancelSession(Guid session_id, SessionCancelRequestDTO cancelationDTO);
 
         Task<Result<bool>> RescheduleSession(Guid session_id, SessionRescheduleRequestDTO rescheduleDTO);
+       // Task<Result<IEnumerable<InstructorScheduleResponseDTO>>> ScheduleInstructor(Guid instructorId);
     }
 }
 

@@ -1,3 +1,4 @@
+using AutoMapper;
 using BookingService.Application.Commons.Constants;
 using BookingService.Application.Commons.DTOs.DrivingSessions;
 using BookingService.Application.Interfaces;
@@ -10,10 +11,11 @@ using System.Linq.Expressions;
 
 namespace BookingService.Application.UseCase
 {
-    public class DrivingSessionUseCase(IUnitOfWork unitOfWok, IJwtService jwtService): IDrivingSessionUseCase
+    public class DrivingSessionUseCase(IUnitOfWork unitOfWok, IJwtService jwtService, IMapper mapper): IDrivingSessionUseCase
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWok;
         private readonly IJwtService _jwtService = jwtService;
+        private readonly IMapper _mapper = mapper;
 
         public async Task<Result<ICollection<DrivingSession>>> GetAllDrivingSession(SessionStatus sessionStatus)
         {
@@ -38,12 +40,12 @@ namespace BookingService.Application.UseCase
             }
 
             // Validate booking status
-            if (booking.Status != BookingStatus.Planned && booking.Status != BookingStatus.Planned)
-            {
-                return Result<bool>.Failure(
-                    ServiceError.InvalidStateError($"Booking status: {booking.Status}"),
-                    "Booking must be confirmed or planned to create driving session");
-            }
+            //if (booking.Status != BookingStatus.Planned && booking.Status != BookingStatus.Planned)
+            //{
+            //    return Result<bool>.Failure(
+            //        ServiceError.InvalidStateError($"Booking status: {booking.Status}"),
+            //        "Booking must be confirmed or planned to create driving session");
+            //}
 
             // Calculate end time based on duration
             DateTime endTime = drivingSessionCreationDTO.StartTime.AddMinutes(drivingSessionCreationDTO.Duration);
@@ -231,5 +233,53 @@ namespace BookingService.Application.UseCase
 
             return Result<bool>.Success(true, Messages.Commons.SUCCESS);
         }
+
+        //public async Task<Result<IEnumerable<InstructorScheduleResponseDTO>>> ScheduleInstructor(Guid instructorId)
+        //{
+        //    try
+        //    {
+        //        Expression<Func<Booking, bool>> filter = b => 
+        //            b.InstructorId == instructorId && 
+        //            !b.IsDeleted  );
+
+        //        var bookings = await _unitOfWork.BookingRepository.GetAllAsync(
+        //            filter: filter,
+        //            include_properties: "DrivingSessions"
+        //        );
+
+        //        var busySessions = bookings
+        //            .SelectMany(b => b.DrivingSessions ?? new List<DrivingSession>())
+        //            .Where(ds => 
+        //                !ds.IsDeleted && 
+        //                ds.Status != SessionStatus.Cancelled &&
+        //                ds.EndTime >= DateTime.UtcNow) 
+        //            .OrderBy(ds => ds.StartTime)
+        //            .ToList();
+
+        //        var scheduleByDate = busySessions
+        //            .GroupBy(ds => ds.StartTime.Date)
+        //            .Select(group => new InstructorScheduleResponseDTO
+        //            {
+        //                Date = group.Key,
+        //                BusySlots = _mapper.Map<List<InstructorScheduleDTO>>(
+        //                    group.OrderBy(ds => ds.StartTime).ToList()
+        //                )
+        //            })
+        //            .OrderBy(schedule => schedule.Date)
+        //            .ToList();
+
+        //        return Result<IEnumerable<InstructorScheduleResponseDTO>>.Success(
+        //            scheduleByDate, 
+        //            Messages.Commons.SUCCESS
+        //        );
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Result<IEnumerable<InstructorScheduleResponseDTO>>.Failure(
+        //            ServiceError.UnhandledException(ex.Message),
+        //            Messages.Commons.UNHANDLED
+        //        );
+        //    }
+        //}
     }
 }

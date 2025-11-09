@@ -5,6 +5,7 @@
         public static class Booking
         {
             public const string INSUFFICENTCREDIT = "Bạn không đủ tiền trong ví. Vui lòng nạp thêm tiền";
+            public const string PAYMENTSUCCESS = "Thanh toán thành công";
         }
 
         public static class Commons

@@ -12,33 +12,33 @@ namespace UserService.Controllers
     [ApiController]
     public class UserController(IUserUseCase userUseCase): ControllerBase
     {
-        private readonly IUserUseCase _user_use_case = userUseCase;
+        private readonly IUserUseCase _userUseCase= userUseCase;
 
         [HttpPost("ids")]
         public async Task<IActionResult> GetWithUserId([FromBody] IEnumerable<Guid> ids)
         {
-            var result = await _user_use_case.GetUserWithUserId(ids);
+            var result = await _userUseCase.GetUserWithUserId(ids);
             return result.ToActionResult();
         }
 
         [HttpPost("instructor-ids")]
         public async Task<IActionResult> GetWithInstructorId([FromBody] IEnumerable<Guid> ids)
         {
-            var result = await _user_use_case.GetUserWithInstructorId(ids);
+            var result = await _userUseCase.GetUserWithInstructorId(ids);
             return result.ToActionResult();
         }
 
         [HttpPost("driver-ids")]
         public async Task<IActionResult> GetWithDriverId([FromBody] IEnumerable<Guid> ids)
         {
-            var result = await _user_use_case.GetUserWithNoviceDriverId(ids);
+            var result = await _userUseCase.GetUserWithNoviceDriverId(ids);
             return result.ToActionResult();
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateDefaultUserAccount([FromBody] UserCreationDTO details)
         {
-            var result = await _user_use_case.CreateDefaultUserAccount(details);
+            var result = await _userUseCase.CreateDefaultUserAccount(details);
             return result.ToActionResult();
         }
     }

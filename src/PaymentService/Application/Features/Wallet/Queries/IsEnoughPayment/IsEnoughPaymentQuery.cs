@@ -8,5 +8,6 @@ namespace PaymentService.Application.Features.Wallet.Queries.IsEnoughPayment
     {
         public Guid UserId { get; set; }
         public decimal Amount { get; set; }
+        public Guid BookingId {  get; set; }
     }
 }

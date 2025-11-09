@@ -9,6 +9,6 @@ namespace SharedLibrary.SharedKernel.Http.Interfaces
 {
     public interface IPayment
     {
-        Task<PaymentResponse> CheckWalletBooking(Guid userId,decimal amount);
+        Task<PaymentResponse> CheckWalletBooking(Guid userId,decimal amount,Guid BookingId);
     }
 }

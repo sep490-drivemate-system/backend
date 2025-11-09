@@ -10,5 +10,6 @@ namespace BookingService.Domain.Interfaces
         Task<Package> CreatePackageAsync(Package package);
         Task<Package> UpdatePackageAsync(Package package);
         Task DeletePackageAsync(Guid id);
+        Task<List<Package>> GetInstructorPackages(Guid instructorId);
     }
 }

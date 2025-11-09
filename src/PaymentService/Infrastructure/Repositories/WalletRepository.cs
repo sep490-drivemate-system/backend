@@ -47,7 +47,7 @@ namespace PaymentService.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        public async Task<bool> CheckWallet(Guid walletId, decimal amount)
+        public async Task<bool> CheckWallet(Guid walletId, decimal amount,Guid bookingId)
         {
             var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.Id == walletId);
 
@@ -65,8 +65,25 @@ namespace PaymentService.Infrastructure.Repositories
                 return false; 
             }
 
-            if (wallet.Balance >= amount)
+            if (wallet.Balance >= amount) {
+                wallet.Balance = wallet.Balance - amount;
+                var transaction = new Transaction
+                {
+                    FromWalletId = walletId,
+                    ToWalletId = null, 
+                    TransactionValue = amount,
+                    PaymentMethod = null,
+                    Status = Domain.Enum.PaymentStatus.Completed,
+                    BookingId = bookingId, 
+                };
+
+                await _context.Transactions.AddAsync(transaction);
+                await _context.SaveChangesAsync();
+                
                 return true;
+            }
+
+
 
             return false;
         }
