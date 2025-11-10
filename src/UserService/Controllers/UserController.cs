@@ -8,7 +8,7 @@ using UserService.Application.Interfaces;
 
 namespace UserService.Controllers
 {
-    [Route("api/user")]
+    [Route("api/users")]
     [ApiController]
     public class UserController(IUserUseCase userUseCase): ControllerBase
     {

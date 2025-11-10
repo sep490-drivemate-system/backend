@@ -7,10 +7,10 @@ namespace BookingService.Application.Commons.DTOs.DrivingSessions
     public class SessionFilterDTO
     {
         [FromQuery(Name = "page")]
-        public int PageIndex { get; set; } = 1;
+        public int PageIndex { get; set; } = 1; // Not used, might be changed later
 
         [FromQuery(Name = "page_size")]
-        public int PageSize { get; set;} = 15;
+        public int PageSize { get; set;} = 15; // Not used, might be changed later,
 
         [FromQuery(Name="from")]
         public DateOnly? StartDate { get; set; }
@@ -19,6 +19,6 @@ namespace BookingService.Application.Commons.DTOs.DrivingSessions
         public DateOnly? EndDate { get; set; }
 
         [FromQuery(Name="status")]
-        public string Status { get; set; } // status: planning, ongoing, completed, canceled
+        public SessionStatus Status { get; set; } // status: planning, ongoing, completed, canceled
     }
 }

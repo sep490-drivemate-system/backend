@@ -4,17 +4,22 @@ using BookingService.Application.Commons.DTOs.DrivingSessions;
 using BookingService.Application.Interfaces;
 using BookingService.Domain.Entities;
 using BookingService.Domain.Enum;
+using Newtonsoft.Json;
 using SharedLibrary.Jwt;
 using SharedLibrary.SharedKernel.Enum;
+using SharedLibrary.SharedKernel.Http.DTOs.ApiResponse;
+using SharedLibrary.SharedKernel.Http.DTOs.User;
 using SharedLibrary.SharedKernel.ServiceResult;
 using System.Linq.Expressions;
 
 namespace BookingService.Application.UseCase
 {
+    public class DrivingSessionUseCase(IUnitOfWork unitOfWok, IJwtService jwtService, IHttpClientFactory http_client_factory): IDrivingSessionUseCase
     public class DrivingSessionUseCase(IUnitOfWork unitOfWok, IJwtService jwtService, IMapper mapper): IDrivingSessionUseCase
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWok;
         private readonly IJwtService _jwtService = jwtService;
+        private readonly IHttpClientFactory _httpClientFactory = http_client_factory;
         private readonly IMapper _mapper = mapper;
 
         public async Task<Result<ICollection<DrivingSession>>> GetAllDrivingSession(SessionStatus sessionStatus)
@@ -88,9 +93,59 @@ namespace BookingService.Application.UseCase
             }
         }
 
-        public Task<Result<IEnumerable<DrivingSessionDTO>>> GetUserSessions(Guid user_id, SessionFilterDTO session_filter)
+        public async Task<Result<IEnumerable<DrivingSessionDTO>>> GetUserSessions(Guid user_id, SessionFilterDTO session_filter)
         {
-            throw new NotImplementedException();
+            var http_client = _httpClientFactory.CreateClient("UserServiceClient");
+            var http_message = await http_client.PostAsJsonAsync<IEnumerable<Guid>>("api/users/ids", new List<Guid>() { user_id });
+
+            try
+            {
+                http_message.EnsureSuccessStatusCode();
+                var result = await http_message.Content.ReadFromJsonAsync<DefaultApiResponse<IEnumerable<UserDetailDTO>>>();
+
+                if (!result.Value.Any())
+                {
+                    return Result<IEnumerable<DrivingSessionDTO>>.Failure(ServiceError.NotFoundError($"{user_id}"), Messages.Commons.NOTFOUND);
+                }
+
+                UserDetailDTO user_info = result.Value.First() ?? throw new Exception($"{user_id}");
+
+                if (user_info.Role != UserRole.Instructor && user_info.Role != UserRole.NoviceDriver)
+                {
+                    throw new Exception($"{user_info.Role}");
+                }
+
+                Expression<Func<DrivingSession, bool>> filter_expression = x => 
+                    (user_info.Role == UserRole.NoviceDriver ? x.Booking.DriverId == user_info.NoviceDriver.NoviceDriverId :
+                    x.Booking.InstructorId == user_info.Instructor.InstructorId)
+                    && (session_filter.StartDate == null || DateOnly.FromDateTime(x.StartTime) > session_filter.StartDate)
+                    && (session_filter.EndDate == null || DateOnly.FromDateTime(x.StartTime) < session_filter.EndDate)
+                    && !x.IsDeleted;
+                Func<IQueryable<DrivingSession>, IOrderedQueryable<DrivingSession>> order_by = x => x.OrderByDescending(u => u.StartTime);
+                string included_properties = "Booking,Booking.Package,RescheduleRequests";
+                
+                IEnumerable<DrivingSession> user_driving_sessions = await _unitOfWork.DrivingSessionRepository.GetAllAsync(filter: filter_expression, orderBy: order_by, include_properties: included_properties);
+                var sessions_mapped_list = user_driving_sessions.Select(x => new DrivingSessionDTO
+                {
+                    Id = x.Id,
+                    BookingId = x.BookingId,
+                    PackageName = x.Booking?.Package?.Name ?? "", // Default to empty string
+                    Latitude = x.StartingLatitude,
+                    Longtitude = x.StartingLongtitude,
+                    PickupLocation = "", // How can we get the display name for location ?
+                    StartTime = x.StartTime,
+                    EndTime = x.EndTime,
+                    Status = x.Status,
+                    StatusDisplayString = x.Status.ToString()
+                });
+
+                // TODO: Add pagination support if later required.
+                return Result<IEnumerable<DrivingSessionDTO>>.Success(sessions_mapped_list, Messages.Commons.SUCCESS);
+            }
+            catch (Exception ex) 
+            {
+                return Result<IEnumerable<DrivingSessionDTO>>.Failure(ServiceError.NotFoundError($"{ex.Message}"), Messages.Commons.UNHANDLED);
+            }
         }
         public Task<Result<IEnumerable<DrivingSessionDTO>>> GetUserSessionsWithChangeRequest(Guid user_id)
         {
