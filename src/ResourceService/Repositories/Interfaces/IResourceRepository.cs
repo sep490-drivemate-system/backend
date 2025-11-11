@@ -10,5 +10,7 @@ namespace ResourceService.Repositories.Interfaces
         Task<Blog?> GetBlogDetailAsync(Guid blogId);
         Task<Blog?> GetMyBlogDetailAsync(Guid id, Guid instructorId);
         Task<bool> SoftDeleteBlogAsync(Guid blogId);
+
+        Task<bool> CreateBlog(Blog blog);
     }
 }

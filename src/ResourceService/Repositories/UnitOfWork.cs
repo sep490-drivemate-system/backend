@@ -77,6 +77,8 @@ namespace ResourceService.Repositories
         {
             int result = -1;
 
+            return await _context.SaveChangesAsync();
+
             //System.Data.IsolationLevel.Snapshot
             using (var dbContextTransaction = _context.Database.BeginTransaction())
             {

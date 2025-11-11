@@ -1,10 +1,12 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-using ResourceService.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using ResourceService.Services.DTOs;
+using ResourceService.Services.Interfaces;
 using SharedLibrary.Jwt;
 using SharedLibrary.SharedKernel.Enum;
 using SharedLibrary.SharedKernel.ServiceResult;
+using System.Threading.Tasks;
 using Twilio.Jwt.AccessToken;
 
 namespace ResourceService.Controllers
@@ -20,6 +22,13 @@ namespace ResourceService.Controllers
         {
             _resourcesService = resourcesService;
             _jwtService = jwtService;
+        }
+
+        [HttpPost("blog-image")]
+        public async Task<IActionResult> UploadBlogImage(IFormFile file)
+        {
+            var result = await _resourcesService.UploadImageForBlog(file);
+            return result.ToActionResult();
         }
 
         [HttpGet("blogs")]
@@ -80,6 +89,15 @@ namespace ResourceService.Controllers
         {
             var instructorId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
             var result = await _resourcesService.DeleteBlogAsync(id, instructorId);
+            return result.ToActionResult();
+        }
+
+        [HttpPost("my-blogs")]
+        [Authorize(Roles = nameof(UserRole.Instructor))]
+        public async Task<IActionResult> CreateBlog([FromBody] BlogCreateDto createBlogDto)
+        {
+            var instructorId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
+            var result = await _resourcesService.CreateBlogAsync(createBlogDto, instructorId);
             return result.ToActionResult();
         }
     }

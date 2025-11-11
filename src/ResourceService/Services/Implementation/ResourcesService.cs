@@ -1,9 +1,12 @@
 ﻿using AutoMapper;
 using ResourceService.Repositories;
+using ResourceService.Repositories.Enum;
 using ResourceService.Repositories.Interfaces;
+using ResourceService.Repositories.Models;
 using ResourceService.Services.Commons.Constants;
 using ResourceService.Services.DTOs;
 using ResourceService.Services.Interfaces;
+using SharedLibrary.CloudinaryStorage;
 using SharedLibrary.SharedKernel.ServiceResult;
 
 namespace ResourceService.Services.Implementation
@@ -12,11 +15,13 @@ namespace ResourceService.Services.Implementation
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly ICloudinaryServiceProvider _cloudinary;
 
-        public ResourcesService(IUnitOfWork unitOfWork, IMapper mapper)
+        public ResourcesService(IUnitOfWork unitOfWork, ICloudinaryServiceProvider cloudinary, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _cloudinary = cloudinary;
         }
 
         public async Task<Result<ICollection<ResourceDto>>> GetBlogsAsync()
@@ -183,6 +188,62 @@ namespace ResourceService.Services.Implementation
                 return Result<bool>.Failure(
                     ServiceError.UnhandledException($"{Messages.Blog.DELETE_FAILED}: {ex.Message}"),
                     Messages.Commons.UNHANDLED);
+            }
+        }
+
+        public async Task<Result<bool>> CreateBlogAsync(BlogCreateDto createBlogDto, Guid instructorId)
+        {
+            try
+            {
+                var blog = _mapper.Map<Blog>(createBlogDto);
+                blog.InstructorId = instructorId;
+                blog.CreatedAt = DateTime.Now;
+                blog.Status = BlogStatus.Active;
+                blog.IsDelete = false;
+
+                await _unitOfWork.ResourceRepository.CreateBlog(blog);
+                var result = await _unitOfWork.SaveChangesWithTransactionAsync();
+                if (result <= 0)
+                {
+                    return Result<bool>.Failure(
+                        ServiceError.UnhandledException(Messages.Blog.CREATE_FAILED),
+                        Messages.Blog.CREATE_FAILED);
+                }
+                return Result<bool>.Success(true, Messages.Blog.CREATE_SUCCESS);
+            }
+            catch (Exception ex)
+            {
+                return Result<bool>.Failure(
+                    ServiceError.UnhandledException($"{Messages.Blog.CREATE_FAILED}: {ex.Message}"),
+                    Messages.Commons.UNHANDLED);
+            }
+        }
+        
+        //public async Task<Result<bool>> UpdateBlogAsync(Guid id, BlogUpdateDto updateBlogDto, Guid instructorId)
+        //{
+        //    try
+        //    {
+        //        var blog = await _unitOfWork.ResourceRepository.GetBlogDetailAsync(id);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Result<bool>.Failure(
+        //            ServiceError.UnhandledException($"{Messages.Blog.UPDATE_FAILED}: {ex.Message}"),
+        //            Messages.Commons.UNHANDLED);
+        //    }
+        //}
+
+        public async Task<Result<string>> UploadImageForBlog(IFormFile file)
+        {
+            try
+            {
+                string url = _cloudinary.UploadImageFormFileResourceToCloudinary(file, $"blog_{file.Name}_{DateTime.Now}");
+
+                return Result<string>.Success(url);
+            }
+            catch (Exception exception)
+            {
+                return Result<string>.Failure(ServiceError.UnhandledException(""),Messages.Commons.UNHANDLED);
             }
         }
     }

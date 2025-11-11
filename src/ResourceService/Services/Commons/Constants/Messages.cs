@@ -8,6 +8,8 @@ namespace ResourceService.Services.Commons.Constants
             public const string RETRIEVE_ERROR = "Lỗi khi lấy danh sách blog";
             public const string DELETE_SUCCESS = "Xóa blog thành công";
             public const string DELETE_FAILED = "Không thể xóa blog";
+            public const string CREATE_FAILED = "Tạo không thành công";
+            public const string CREATE_SUCCESS = "Tạo thành công";
         }
 
         public static class Commons

@@ -11,5 +11,11 @@ namespace ResourceService.Services.Interfaces
         Task<Result<ICollection<ResourceDto>>> GetMyBlogsAsync(Guid instructorId);
         Task<Result<BlogDetailDto>> GetMyBlogDetailAsync( Guid id, Guid instructorId);
         Task<Result<bool>> DeleteBlogAsync(Guid id, Guid instructorId);
+        Task<Result<bool>> CreateBlogAsync(BlogCreateDto createBlogDto, Guid instructorId);
+        
+
+
+        // Upload Image
+        Task<Result<string>> UploadImageForBlog(IFormFile file);
     }
 }

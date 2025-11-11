@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 
@@ -37,15 +38,10 @@ namespace ResourceService.Services.DTOs
     {
         public string Content { get; set; }
         public int No { get; set; }
-        public IList<BlogImageCreateDto> Images { get; set; }
-    }
-
-    public class BlogImageCreateDto
-    {
         public string ImageUrl { get; set; }
-        public int No { get; set; }
     }
 
+    
     // Update DTOs (nullable for partial updates)
     public class BlogUpdateDto
     {

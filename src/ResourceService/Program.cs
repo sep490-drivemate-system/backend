@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Text;
 using SharedLibrary.Jwt;
+using SharedLibrary.CloudinaryStorage;
 namespace ResourceService
 {
     public class Program
@@ -41,6 +42,7 @@ namespace ResourceService
             builder.Services.AddScoped<IResourcesService, ResourcesService>();
             builder.Services.AddScoped<IServiceProviders, ServiceProviders>();
             builder.Services.AddScoped<IJwtService, JwtService>();
+            builder.Services.AddScoped<ICloudinaryServiceProvider, CloudinaryServiceProvider>();
 
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
@@ -107,7 +109,7 @@ namespace ResourceService
 
             var app = builder.Build();
 
-            // Auto-migrate database on startup
+            // Auto-migrate database on startupCloudinaryStorage.ICloudinaryServiceProvider
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())

@@ -19,7 +19,6 @@ namespace ResourceService.Repositories.Models
         public DbSet<Category> Categories { get; set; }
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<BlogContent> BlogContents { get; set; }
-        public DbSet<BlogImage> BlogImages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

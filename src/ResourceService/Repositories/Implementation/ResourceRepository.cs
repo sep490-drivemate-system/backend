@@ -51,7 +51,6 @@ namespace ResourceService.Repositories.Implementation
                 .AsNoTracking()
                 .Include(b => b.Category)
                 .Include(b => b.Contents)
-                    .ThenInclude(c => c.Images)
                 .FirstOrDefaultAsync(b => b.Id == blogId);
         }
 
@@ -61,7 +60,6 @@ namespace ResourceService.Repositories.Implementation
                 .AsNoTracking()
                 .Include(b => b.Category)
                 .Include(b => b.Contents)
-                    .ThenInclude(c => c.Images)
                 .FirstOrDefaultAsync(b => b.Id == id && b.InstructorId == instructorId);
         }
 
@@ -71,7 +69,6 @@ namespace ResourceService.Repositories.Implementation
                 .IgnoreQueryFilters() 
                 .Include(b => b.Category)
                 .Include(b => b.Contents)
-                    .ThenInclude(c => c.Images)
                 .FirstOrDefaultAsync(b => b.Id == blogId);
 
             if (blog == null) return false;
@@ -85,18 +82,16 @@ namespace ResourceService.Repositories.Implementation
                 {
                     content.IsDelete = true;
                     content.UpdateAt = DateTime.Now;
-                    if (content.Images != null)
-                    {
-                        foreach (var img in content.Images)
-                        {
-                            img.IsDelete = true;
-                            img.UpdateAt = DateTime.Now;
-                        }
-                    }
                 }
             }
 
             return true;
         }
+        public async Task<bool> CreateBlog(Blog blog)
+        {
+            await _context.Blogs.AddAsync(blog);
+            return true;
+        }
     }
+    
 }
