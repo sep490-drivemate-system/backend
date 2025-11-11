@@ -20,6 +20,14 @@ namespace ResourceService.Repositories.Implementation
                 .Include(b => b.Category)
                 .ToListAsync();
         }
+        public async Task<List<Blog>> GetMyBlogsAsync(Guid instructorId)
+        {
+            return await _context.Blogs
+                .AsNoTracking()
+                .Include(b => b.Category)
+                .Where(b => b.InstructorId == instructorId)
+                .ToListAsync();
+        }
 
         public async Task<(List<Blog> blogs, int totalCount)> GetBlogsPagedAsync(int page, int pageSize)
         {
@@ -45,6 +53,16 @@ namespace ResourceService.Repositories.Implementation
                 .Include(b => b.Contents)
                     .ThenInclude(c => c.Images)
                 .FirstOrDefaultAsync(b => b.Id == blogId);
+        }
+
+        public async Task<Blog?> GetMyBlogDetailAsync(Guid id, Guid instructorId)
+        {
+            return await _context.Blogs
+                .AsNoTracking()
+                .Include(b => b.Category)
+                .Include(b => b.Contents)
+                    .ThenInclude(c => c.Images)
+                .FirstOrDefaultAsync(b => b.Id == id && b.InstructorId == instructorId);
         }
 
         public async Task<bool> SoftDeleteBlogAsync(Guid blogId)

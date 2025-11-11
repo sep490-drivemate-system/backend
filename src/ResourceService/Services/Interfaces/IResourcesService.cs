@@ -1,12 +1,15 @@
 ﻿using ResourceService.Services.DTOs;
+using SharedLibrary.SharedKernel.ServiceResult;
 
 namespace ResourceService.Services.Interfaces
 {
     public interface IResourcesService
     {
-        Task<IEnumerable<ResourceDto>> GetBlogsAsync();
-        Task<PagedResult<ResourceDto>> GetBlogsPagedAsync(int page, int pageSize);
-        Task<BlogDetailDto?> GetBlogDetailAsync(Guid id);
-        Task<bool> DeleteBlogAsync(Guid id);
+        Task<Result<ICollection<ResourceDto>>> GetBlogsAsync();
+        Task<Result<PagedResult<ResourceDto>>> GetBlogsPagedAsync(int page, int pageSize);
+        Task<Result<BlogDetailDto>> GetBlogDetailAsync(Guid id);
+        Task<Result<ICollection<ResourceDto>>> GetMyBlogsAsync(Guid instructorId);
+        Task<Result<BlogDetailDto>> GetMyBlogDetailAsync( Guid id, Guid instructorId);
+        Task<Result<bool>> DeleteBlogAsync(Guid id, Guid instructorId);
     }
 }

@@ -5,6 +5,10 @@ using ResourceService.Repositories;
 using ResourceService.Services.Interfaces;
 using ResourceService.Services.Implementation;
 using Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
+using System.Text;
 namespace ResourceService
 {
     public class Program
@@ -36,6 +40,59 @@ namespace ResourceService
             builder.Services.AddScoped<IResourcesService, ResourcesService>();
             builder.Services.AddScoped<IServiceProviders, ServiceProviders>();
 
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidIssuer = config["Jwt:Issuer"],
+
+                        ValidateAudience = true,
+                        ValidAudience = config["Jwt:Audience"],
+
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"])),
+
+                        ValidateLifetime = true,
+                        ClockSkew = TimeSpan.Zero,
+                        RoleClaimType = ClaimTypes.Role,
+                    };
+                });
+
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+                {
+                    Title = "Booking Service API",
+                    Version = "v1",
+                });
+                c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+                });
+
+                c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+                {
+                    {
+                        new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                        {
+                            Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                            {
+                                Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        new string[] {}
+                    }
+                });
+            });
+
+
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowAll", policy =>
@@ -66,6 +123,7 @@ namespace ResourceService
 
             // Remove HTTPS redirection for HTTP-only setup
             // app.UseHttpsRedirection();
+            app.UseAuthentication();
             app.UseAuthorization();
             app.UseCors("AllowAll");
 
