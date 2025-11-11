@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using PaymentService.Application.Interfaces;
 using SharedLibrary.SharedKernel.Http.DTOs.Payment;
 using SharedLibrary.SharedKernel.ServiceResult;
@@ -16,12 +16,18 @@ namespace PaymentService.Application.Features.Wallet.Queries.IsEnoughPayment
 
         public async Task<PaymentResponse> Handle(IsEnoughPaymentQuery request, CancellationToken cancellationToken)
         {
-            bool isEnough = await _unitOfWork.WalletRepository.CheckWallet(request.UserId, request.Amount,request.BookingId);
-
+            var (isSuccess, message, currentBalance) = await _unitOfWork.WalletRepository.CheckAndDeductWallet(
+                request.UserId, 
+                request.Amount, 
+                request.BookingId,
+                request.DrivingSessionId
+            );
 
             return new PaymentResponse
             {
-                IsPayment = isEnough,
+                IsPayment = isSuccess,
+                Message = message,
+                CurrentBalance = currentBalance
             };
         }
     }

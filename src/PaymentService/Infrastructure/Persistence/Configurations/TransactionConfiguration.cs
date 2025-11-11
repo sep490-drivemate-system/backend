@@ -24,6 +24,9 @@ namespace PaymentService.Infrastructure.Persistence.Configurations
                    .HasColumnName("transaction_value")
                    .HasPrecision(18, 2)
                    .IsRequired();
+            builder.Property(t => t.DrivingSessionId)
+                 .HasColumnName("driving_session_id")
+                 .IsRequired(false);
 
             builder.Property(t => t.PaymentMethod)
                    .HasColumnName("payment_method")

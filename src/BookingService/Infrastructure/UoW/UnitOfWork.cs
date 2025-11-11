@@ -20,6 +20,7 @@ namespace BookingService.Infrastructure.UoW
         private IBookingRepository _bookRepository;
         private IPackageRepository _packageRepo;
         private IFeedbackRepository _feedbackRepo;
+        private ISessionRouteRepository _sessionRouteRepo;
 
         public IGenericRepository<IEntity> Repository<IEntity>() where IEntity : class
         {
@@ -138,6 +139,15 @@ namespace BookingService.Infrastructure.UoW
             {
                 _feedbackRepo ??= new FeedbackRepository(_context);
                 return _feedbackRepo;
+            }
+        }
+
+        public ISessionRouteRepository SessionRouteRepository
+        {
+            get
+            {
+                _sessionRouteRepo ??= new SessionRouteRepository(_context);
+                return _sessionRouteRepo;
             }
         }
     }

@@ -2,6 +2,7 @@ using AutoMapper;
 using BookingService.Application.Commons.Constants;
 using BookingService.Application.Commons.DTOs.Booking;
 using BookingService.Application.Commons.DTOs.DrivingSession;
+using BookingService.Application.Commons.DTOs.DrivingSessions;
 using BookingService.Application.Commons.Mapping;
 using BookingService.Application.Interfaces;
 using BookingService.Domain.Entities;
@@ -103,13 +104,74 @@ namespace BookingService.Application.UseCase
 
             var sessionDTOs = upcomingSessions.Select(s => new DrivingSessionScheduleDTO
             {
-                Id = s.Id,
                 StartTime = s.StartTime,
                 EndTime = s.EndTime,
-                Status = s.Status
             }).ToList();
 
             return Result<List<DrivingSessionScheduleDTO>>.Success(sessionDTOs);
+        }
+
+        public async Task<Result<List<DrivingSessionDetailDTO>>> GetDrivingSessions(SessionStatus status, Guid instructorId)
+        {
+                var sessions = await _unitOfWork.DrivingSessionRepository.GetSessionsByInstructorIdAsync(instructorId, status);
+                var sessionsList = sessions.ToList();
+
+                if (!sessionsList.Any())
+                {
+                    return Result<List<DrivingSessionDetailDTO>>.Success(new List<DrivingSessionDetailDTO>());
+                }
+
+                // Get unique novice driver IDs from all sessions
+                var noviceDriverIds = sessions.Select(s => s.Booking.DriverId).Distinct().ToList();
+
+                // Get novice driver info from UserService
+                var noviceDriverInfos = await _user.GetBatchNoviceDriverInfo(noviceDriverIds);
+
+                var sessionDTOs = sessions.Select(session =>
+                {
+                    var duration = (session.EndTime - session.StartTime).TotalHours;
+                    var hasRoute = session.SessionRoutes?.Any(sr => !sr.IsDeleted) ?? false;
+                    var noviceDriverInfo = noviceDriverInfos.GetValueOrDefault(session.Booking.DriverId);
+
+                    return new DrivingSessionDetailDTO
+                    {
+                        Id = session.Id,
+                        PackageId = session.Booking.PackageId,
+                        PackageName = session.Booking.Package?.Name ?? "Unknown Package",
+                        NoviceDriverName = noviceDriverInfo?.Fullname ?? "Unknown Driver",
+                        NoviceAvatar = noviceDriverInfo?.AvatarUrl,
+                        Date = session.StartTime.ToString("yyyy-MM-dd"),
+                        StartTime = session.StartTime.ToString("HH:mm"),
+                        EndTime = session.EndTime.ToString("HH:mm"),
+                        Duration = Math.Round(duration, 2),
+                        Location = session.DisplayName,
+                        StartingLatitude = session.StartingLatitude,
+                        StartingLongtitude = session.StartingLongtitude,
+                        VehicleId = session.Booking.CarId,
+                        VehicleName = session.Booking.Car?.Name,
+                        Status = session.Status,
+                        StatusDisplayString = GetStatusDisplayString(session.Status),
+                        CreatedAt = session.CreatedAt,
+                        HasRoute = hasRoute,
+                        PriceForCar = session.PriceForCar
+                    };
+                }).ToList();
+
+         return   Result<List<DrivingSessionDetailDTO>>.Success(sessionDTOs);
+        }
+
+        private string GetStatusDisplayString(SessionStatus status)
+        {
+            return status switch
+            {
+                SessionStatus.Planning => "planning",
+                SessionStatus.Upcoming => "upcoming",
+                SessionStatus.InProgress => "in-progress",
+                SessionStatus.Completed => "completed",
+                SessionStatus.Cancelled => "cancelled",
+                SessionStatus.Reschedule => "reschedule",
+                _ => status.ToString().ToLower()
+            };
         }
     }
 }

@@ -50,6 +50,14 @@ namespace BookingService.Controllers
             return result.ToActionResult();
         }
 
+        [HttpGet("sessions")]
+        public async Task<IActionResult> GetDrivingSessions([FromQuery] SessionStatus status = 0)
+        {
+            var instructorId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
+            var result = await _bookingUseCase.GetDrivingSessions(status, instructorId);
+            return result.ToActionResult();
+        }
+
     }
     
 }

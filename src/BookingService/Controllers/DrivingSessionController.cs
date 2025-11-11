@@ -75,5 +75,30 @@ namespace BookingService.Controllers
             var result = await _drivingSessionUseCase.GetDrivingSessionsByBooking(bookingId, status);
             return result.ToActionResult();
         }
+
+        [HttpPost("{sessionId}/routes")]
+        public async Task<IActionResult> CreateSessionRoutes(
+            [FromRoute] Guid sessionId,
+            [FromBody] List<SessionRouteCreateDTO> routes)
+        {
+            var result = await _drivingSessionUseCase.CreateSessionRoutes(sessionId, routes);
+            return result.ToActionResult();
+        }
+
+        [HttpPatch("{sessionId}/status")]
+        public async Task<IActionResult> UpdateSessionStatus(
+            [FromRoute] Guid sessionId,
+            [FromBody] UpdateSessionStatusDTO updateStatusDTO)
+        {
+            var result = await _drivingSessionUseCase.UpdateSessionStatus(sessionId, updateStatusDTO);
+            return result.ToActionResult();
+        }
+
+        [HttpGet("{sessionId}/routes")]
+        public async Task<IActionResult> GetSessionRoutes([FromRoute] Guid sessionId)
+        {
+            var result = await _drivingSessionUseCase.GetSessionRoutesBySessionId(sessionId);
+            return result.ToActionResult();
+        }
     }
 }

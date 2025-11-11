@@ -24,5 +24,15 @@ namespace SharedLibrary.SharedKernel.Http.Implementation
             
             return result ?? new Dictionary<Guid, InstructorBasicInfoDTO>();
         }
+
+        public async Task<Dictionary<Guid, NoviceDriverBasicInfoDTO>> GetBatchNoviceDriverInfo(List<Guid> noviceDriverIds)
+        {
+            string userServiceUrl = _config["USERSERVICE:URL"];
+            string url = $"{userServiceUrl}/api/users/batch-novice-driver-info";
+            
+            var result = await _httpService.PostAsync<List<Guid>, Dictionary<Guid, NoviceDriverBasicInfoDTO>>(url, noviceDriverIds);
+            
+            return result ?? new Dictionary<Guid, NoviceDriverBasicInfoDTO>();
+        }
     }
 }

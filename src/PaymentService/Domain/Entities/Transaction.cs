@@ -8,6 +8,7 @@ namespace PaymentService.Domain.Entities
     {
         // Properties 
         public Guid BookingId { get; set; }
+        public Guid? DrivingSessionId { get; set; }
         public decimal TransactionValue { get; set; }
         public PaymentMethod? PaymentMethod { get; set; }
         public PaymentStatus Status { get; set; }

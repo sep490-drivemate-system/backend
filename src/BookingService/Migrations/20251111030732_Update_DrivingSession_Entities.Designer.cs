@@ -3,6 +3,7 @@ using System;
 using BookingService.Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BookingService.Migrations
 {
     [DbContext(typeof(BookingDbContext))]
-    partial class BookingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251111030732_Update_DrivingSession_Entities")]
+    partial class Update_DrivingSession_Entities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -235,11 +238,11 @@ namespace BookingService.Migrations
                         .HasColumnName("id");
 
                     b.Property<DateTime>("ActualEnd")
-                        .HasColumnType("timestamptz")
+                        .HasColumnType("timestamp")
                         .HasColumnName("actual_end_time");
 
                     b.Property<DateTime>("ActualStart")
-                        .HasColumnType("timestamptz")
+                        .HasColumnType("timestamp")
                         .HasColumnName("actual_start_time");
 
                     b.Property<decimal>("AverageSpeed")
@@ -252,17 +255,12 @@ namespace BookingService.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamptz")
+                        .HasColumnType("timestamp")
                         .HasColumnName("created_at")
                         .HasDefaultValueSql("now()");
 
-                    b.Property<string>("DisplayName")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("display_name");
-
                     b.Property<DateTime>("EndTime")
-                        .HasColumnType("timestamptz")
+                        .HasColumnType("timestamp")
                         .HasColumnName("end_time");
 
                     b.Property<decimal>("EndingLatitude")
@@ -286,7 +284,7 @@ namespace BookingService.Migrations
 
                     b.Property<DateTime>("LastModifiedAt")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("timestamptz")
+                        .HasColumnType("timestamp")
                         .HasColumnName("updated_at")
                         .HasDefaultValueSql("now()");
 
@@ -300,7 +298,7 @@ namespace BookingService.Migrations
                         .HasColumnName("price_for_car");
 
                     b.Property<DateTime>("StartTime")
-                        .HasColumnType("timestamptz")
+                        .HasColumnType("timestamp")
                         .HasColumnName("start_time");
 
                     b.Property<decimal>("StartingLatitude")

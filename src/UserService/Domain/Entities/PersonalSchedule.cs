@@ -5,8 +5,8 @@ namespace UserService.Domain.Entities
     public class PersonalSchedule : BaseEntites
     {
         // Poperties
-        public DateTime StartTime { get; set; }
-        public DateTime EndTime { get; set; }
+        public DateOnly StartTime { get; set; }
+        public DateOnly EndTime { get; set; }
 
         // System properties
         public DateTime LastModifiedAt { get; set; }

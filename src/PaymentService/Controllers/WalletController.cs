@@ -25,7 +25,7 @@ namespace PaymentService.Controllers
                 UserId = paymentRequest.UserId,
                 Amount = paymentRequest.Amount,
                 BookingId = paymentRequest.BookingId,
-
+                DrivingSessionId = paymentRequest.DrivingSessionId
             };
 
             var result = await _mediator.Send(query);

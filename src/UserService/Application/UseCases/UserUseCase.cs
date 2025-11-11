@@ -185,5 +185,33 @@ namespace UserService.Application.UseCases
                 }
             );
         }
+
+        public async Task<Dictionary<Guid, NoviceDriverBasicInfoDTO>> GetBatchNoviceDriverBasicInfo(List<Guid> noviceDriverIds)
+        {
+            if (noviceDriverIds == null || !noviceDriverIds.Any())
+            {
+                return new Dictionary<Guid, NoviceDriverBasicInfoDTO>();
+            }
+
+            Expression<Func<User, bool>> filter = x => 
+                x.Role == UserRole.NoviceDriver && 
+                noviceDriverIds.Contains(x.NoviceDriver.Id) &&
+                !x.IsDeleted;
+
+            var users = await _unitOfWork.UserRepository.GetAllAsync(
+                filter: filter,
+                include_properties: "NoviceDriver"
+            );
+
+            return users.ToDictionary(
+                user => user.NoviceDriver.Id,
+                user => new NoviceDriverBasicInfoDTO
+                {
+                    NoviceDriverId = user.NoviceDriver.Id,
+                    Fullname = user.Username,
+                    AvatarUrl = user.Avatar ?? ""
+                }
+            );
+        }
     }
 }

@@ -42,6 +42,13 @@ namespace UserService.Controllers
             return Ok(result);
         }
 
+        [HttpPost("batch-novice-driver-info")]
+        public async Task<IActionResult> GetBatchNoviceDriverBasicInfo([FromBody] List<Guid> noviceDriverIds)
+        {
+            var result = await _userUseCase.GetBatchNoviceDriverBasicInfo(noviceDriverIds);
+            return Ok(result);
+        }
+
         [HttpPost]
         public async Task<IActionResult> CreateDefaultUserAccount([FromBody] UserCreationDTO details)
         {

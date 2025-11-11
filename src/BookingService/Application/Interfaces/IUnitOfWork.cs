@@ -41,5 +41,6 @@ namespace BookingService.Application.Interfaces
         IRoadTypeRepository RoadTypeRepository { get; }
         IPackageRepository PackageRepository { get; }
         IFeedbackRepository FeedbackRepository { get; }
+        ISessionRouteRepository SessionRouteRepository { get; }
     }
 }
