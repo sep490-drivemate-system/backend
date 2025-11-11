@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Text;
+using SharedLibrary.Jwt;
 namespace ResourceService
 {
     public class Program
@@ -39,6 +40,7 @@ namespace ResourceService
             // Services
             builder.Services.AddScoped<IResourcesService, ResourcesService>();
             builder.Services.AddScoped<IServiceProviders, ServiceProviders>();
+            builder.Services.AddScoped<IJwtService, JwtService>();
 
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
