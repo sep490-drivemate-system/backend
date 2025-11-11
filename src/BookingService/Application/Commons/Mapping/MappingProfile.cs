@@ -1,8 +1,10 @@
 using AutoMapper;
 using BookingService.Application.Commons.DTOs.Booking;
+using BookingService.Application.Commons.DTOs.Cars.Get;
 using BookingService.Application.Commons.DTOs.DrivingSkills;
 using BookingService.Application.Commons.DTOs.RoadTypes;
 using BookingService.Domain.Entities;
+using SharedLibrary.SharedKernel.Http.DTOs.Package;
 
 namespace BookingService.Application.Commons.Mapping
 {
@@ -37,8 +39,24 @@ namespace BookingService.Application.Commons.Mapping
             //    .ForMember(dest => dest.Bookings, opt => opt.Ignore());
 
 
-            CreateMap<DrivingSkill, DrivingSkillDTO>();
-            CreateMap<RoadType, RoadTypeDTO>();
+            CreateMap<Domain.Entities.DrivingSkill, DrivingSkillDTO>();
+            CreateMap<Domain.Entities.RoadType, RoadTypeDTO>();
+
+            // Mapping for Package DTOs
+            CreateMap<Package, PackageDto>()
+                .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration.ToString()))
+                .ForMember(dest => dest.IsRentalCar, opt => opt.MapFrom(src => src.Cars != null && src.Cars.Any()))
+                .ForMember(dest => dest.RoadTypes, opt => opt.MapFrom(src => src.RoadTypes))
+                .ForMember(dest => dest.DrivingSkills, opt => opt.MapFrom(src => src.DrivingSkills));
+
+            CreateMap<Domain.Entities.RoadType, SharedLibrary.SharedKernel.Http.DTOs.Package.RoadType>();
+            CreateMap<Domain.Entities.DrivingSkill, SharedLibrary.SharedKernel.Http.DTOs.Package.DrivingSkill>();
+
+            // Mapping for Car DTOs
+            CreateMap<Car, CarInstructorDetailDTO>()
+                .ForMember(dest => dest.ModelName, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.SeatCounts, opt => opt.MapFrom(src => src.SeatCount))
+                .ForMember(dest => dest.UnitPrice, opt => opt.MapFrom(src => src.Price));
 
         }
     }

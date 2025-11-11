@@ -1,4 +1,5 @@
-﻿using BookingService.Application.Commons.Constants;
+using AutoMapper;
+using BookingService.Application.Commons.Constants;
 using BookingService.Application.Commons.DTOs.Cars.Create;
 using BookingService.Application.Commons.DTOs.Cars.Get;
 using BookingService.Application.Commons.DTOs.Cars.Update;
@@ -11,10 +12,11 @@ using System.Text.Json;
 
 namespace BookingService.Application.UseCase
 {
-    public class CarUseCase(IUnitOfWork unit_of_work, IHttpClientFactory http_client_factory) : ICarUseCase
+    public class CarUseCase(IUnitOfWork unit_of_work, IHttpClientFactory http_client_factory, IMapper mapper) : ICarUseCase
     {
         private readonly IUnitOfWork _unitOfWork = unit_of_work;
         private readonly IHttpClientFactory _http_client_factory = http_client_factory;
+        private readonly IMapper _mapper = mapper;
 
         public Task<Result<Guid>> CreateNewCar(CarCreationDTO information)
         {
@@ -84,14 +86,14 @@ namespace BookingService.Application.UseCase
 
         public async Task<Result<PaginatedList<CarDTO>>> GetCarPaginatedList(CarListFilterDTO filter)
         {
-            Expression<Func<Car, bool>>? filter_expression = null;
+            Expression<Func<Car, bool>>? filter_expression = x => (filter.Manufacturer == null || x.Manufacturer!.Name.StartsWith(filter.Manufacturer!))
+            && (filter.LicenseTier == null || x.LicenseTier >= filter.LicenseTier)
+            && (filter.SeatCounts == null || x.SeatCount == filter.SeatCounts)
+            && (filter.CarType == null || x.CarType == filter.CarType)
+            && !x.IsDeleted; ;
             Func<IQueryable<Car>, IOrderedQueryable<Car>>? order_expression = null;
             string included_properties = "Manufacturer,Packages,CarImages,Bookings,Feedbacks";
 
-            filter_expression = x => (filter.Manufacturer == null || x.Manufacturer!.Name.StartsWith(filter.Manufacturer!))
-                && (filter.SeatCounts == null || x.SeatCount == filter.SeatCounts)
-                && (filter.CarType == null || x.CarType == filter.CarType)
-                && !x.IsDeleted;
 
             if (filter.OrderBy != null)
             {
@@ -132,6 +134,7 @@ namespace BookingService.Application.UseCase
                 FuelType = x.FuelType,
                 VehicleType = x.CarType,
                 UnitPrice = x.Price,
+                LicenseTier = x.LicenseTier,
                 BookingCount = x.Bookings?.Count ?? 0,
                 AverageRating = x.Feedbacks?.Count > 0 ? x.Feedbacks.Average(x => x.CarRating) : 0,
             });
@@ -139,7 +142,7 @@ namespace BookingService.Application.UseCase
             return Result<PaginatedList<CarDTO>>.Success(PaginatedList<CarDTO>.Create(mapped_results, filter.PageIndex, filter.PageSize));
         }
 
-        public async Task<Result<List<CarDTO>>> GetInstructorCarList(Guid id)
+        public async Task<Result<List<CarInstructorDetailDTO>>> GetInstructorCarList(Guid id)
         {
             Expression<Func<Car, bool>> filter_expression = x => x.InstructorId == id && !x.IsDeleted;
             Func<IQueryable<Car>, IOrderedQueryable<Car>> order_expression = x => x.OrderBy(u => u.CreatedAt);
@@ -147,19 +150,9 @@ namespace BookingService.Application.UseCase
 
             var instructor_cars = await _unitOfWork.CarRepository.GetAllAsync(filter: filter_expression, orderBy: order_expression, include_properties: included_properties, disable_tracking: true);
 
-            return Result<List<CarDTO>>.Success(instructor_cars.Select(x => new CarDTO
-            {
-                Id = x.Id,
-                ModelName = x.Name,
-                FuelType = x.FuelType,
-                ManufacturerName = x.Manufacturer?.Name ?? "Unknown",
-                SeatCounts = x.SeatCount,
-                ThumbnailUrl = x.ThumbnailUrl,
-                UnitPrice = x.Price,
-                VehicleType = x.CarType,
-                BookingCount = x.Bookings?.Count ?? 0,
-                AverageRating = x.Feedbacks?.Count > 0 ? x.Feedbacks.Average(x => x.CarRating) : 0,
-            }).ToList(), message: Messages.Commons.SUCCESS);
+            var carDtos = _mapper.Map<List<CarInstructorDetailDTO>>(instructor_cars);
+
+            return Result<List<CarInstructorDetailDTO>>.Success(carDtos, message: Messages.Commons.SUCCESS);
         }
 
         public Task<Result<List<CarDTO>>> GetRecommendedCarList(int max_count = 5)

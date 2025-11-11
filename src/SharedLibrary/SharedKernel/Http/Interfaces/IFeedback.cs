@@ -11,5 +11,6 @@ namespace SharedLibrary.SharedKernel.Http.Interfaces
     public interface IFeedback
     {
        public Task<FeedbackResponse> GetStatiticFeedback(List<Guid> listGuidInstructor);
+       public Task<NoviceDriverInfoFeedbackDTO> GetNoviceDriverInfor(Guid noviceDriverid);
     }
 }

@@ -1,9 +1,10 @@
-using Microsoft.EntityFrameworkCore;
 using BookingService.Domain.Entities;
+using BookingService.Domain.Enum;
 using BookingService.Domain.Interfaces;
 using BookingService.Infrastructure.Persistence.Context;
+using Microsoft.EntityFrameworkCore;
 using SharedLibrary.SharedKernel.Http.DTOs.Feedback;
-using BookingService.Domain.Enum;
+using SharedLibrary.SharedKernel.Http.DTOs.Instructor;
 
 namespace BookingService.Infrastructure.Repositories
 {
@@ -20,12 +21,8 @@ namespace BookingService.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        public async Task<FeedbackResponse> GetStatisticListInstructor(FeedbackRequest feedbackRequest)
+        public async Task<InstructorOverviewFeedbackResponse> GetStatisticListInstructor(Guid instructorId)
         {
-            var instructorStatistics = new List<InstructorStatisticDto>();
-
-            foreach (var instructorId in feedbackRequest.ListInstructor)
-            {
                 var instructorFeedbacks = await _context.Feedbacks
                     .Where(f => f.InstructorId == instructorId && !f.IsDeleted)
                     .ToListAsync();
@@ -38,27 +35,25 @@ namespace BookingService.Infrastructure.Repositories
                 var averageRating = instructorFeedbacks.Any() 
                     ? (decimal)instructorFeedbacks.Average(f => f.InstructorRating)
                     : 0m;
+            var instructorPackage= await _context.Packages
+                   .Where(f => f.InstructorId == instructorId && !f.IsDeleted)
+                   .ToListAsync();
 
-                var pricePerHour = await _context.Packages
-                    .Where(p => p.InstructorId == instructorId && 
-                               //p. == PackageRentalType.Instructor && 
-                               !p.IsDeleted)
-                    .Select(p => p.Price)
-                    .FirstOrDefaultAsync();
+            var instructorPackageCount = instructorPackage
+                  .Select(f => f.InstructorId)
+                    .Distinct()
+                    .Count();
 
-                instructorStatistics.Add(new InstructorStatisticDto
-                {
-                    InstructorId = instructorId,
-                    BookingCount = bookingCount,
-                    AverageRating = Math.Round(averageRating, 2),
-                    PricePerHours = pricePerHour
-                });
-            }
 
-            return new FeedbackResponse
+            var instructorOverviewStatistics = new InstructorOverviewFeedbackResponse
             {
-                InstructorStatistics = instructorStatistics
+                AverageRating = averageRating,
+                BookingCount = bookingCount,
+                PackageCount = instructorPackageCount
             };
+
+            return instructorOverviewStatistics;
+
         }
 
         public async Task<Feedback?> GetFeedbackByIdAsync(Guid id)

@@ -143,15 +143,29 @@ namespace UserService.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(500)")
                         .HasColumnName("driving_license_back");
 
+                    b.Property<DateOnly>("DrivingLicenseExpiryDate")
+                        .HasColumnType("date")
+                        .HasColumnName("driving_license_expiry_date");
+
                     b.Property<string>("DrivingLicenseFront")
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)")
                         .HasColumnName("driving_license_front");
 
+                    b.Property<DateOnly>("DrivingLicenseIssuesDate")
+                        .HasColumnType("date")
+                        .HasColumnName("driving_license_issued_date");
+
+                    b.Property<string>("DrivingLicenseNumber")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("driving_license_number");
+
                     b.Property<int>("DrivingLicenseTier")
                         .HasColumnType("integer")
-                        .HasColumnName("driving_license_level");
+                        .HasColumnName("driving_license_tier");
 
                     b.Property<string>("EmailAddress")
                         .IsRequired()
@@ -189,9 +203,36 @@ namespace UserService.Infrastructure.Persistence.Migrations
                         .HasColumnName("updated_at")
                         .HasDefaultValueSql("now()");
 
+                    b.Property<string>("NationalId")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("national_id_number");
+
+                    b.Property<DateOnly>("NationalIdExpiryDatee")
+                        .HasColumnType("date")
+                        .HasColumnName("id_expiry_date");
+
+                    b.Property<DateOnly>("NationalIdIssuedDate")
+                        .HasColumnType("date")
+                        .HasColumnName("id_issued_date");
+
+                    b.Property<string>("NationalIdIssuedLocation")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("id_issued_location");
+
+                    b.Property<string>("PermanentAddress")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("permanent_address");
+
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(11)
+                        .HasColumnType("character varying(11)")
                         .HasColumnName("phone");
 
                     b.Property<int>("Status")
@@ -213,6 +254,10 @@ namespace UserService.Infrastructure.Persistence.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)")
                         .HasColumnName("teaching_license_front");
+
+                    b.Property<int>("TeachingLicenseTier")
+                        .HasColumnType("integer")
+                        .HasColumnName("teaching_license_tier");
 
                     b.HasKey("Id");
 
@@ -432,6 +477,12 @@ namespace UserService.Infrastructure.Persistence.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)")
                         .HasColumnName("email");
+
+                    b.Property<string>("Fullname")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("fullname");
 
                     b.Property<int>("Gender")
                         .HasColumnType("integer")

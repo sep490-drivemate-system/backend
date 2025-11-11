@@ -1,11 +1,12 @@
 using BookingService.Domain.Entities;
 using SharedLibrary.SharedKernel.Http.DTOs.Feedback;
+using SharedLibrary.SharedKernel.Http.DTOs.Instructor;
 
 namespace BookingService.Domain.Interfaces
 {
     public interface IFeedbackRepository : IGenericRepository<Feedback>
     {
-        Task<FeedbackResponse> GetStatisticListInstructor(FeedbackRequest feedbackRequest);
+        Task<InstructorOverviewFeedbackResponse> GetStatisticListInstructor(Guid instructorId);
         Task<IEnumerable<Feedback>> GetAllFeedbacksAsync();
         Task<Feedback?> GetFeedbackByIdAsync(Guid id);
         Task<IEnumerable<Feedback>> GetByBookingIdAsync(Guid bookingId);

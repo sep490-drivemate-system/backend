@@ -1,10 +1,13 @@
+using BookingService.Application.Commons.DTOs.Feedbacks;
 using SharedLibrary.SharedKernel.Http.DTOs.Feedback;
+using SharedLibrary.SharedKernel.Http.DTOs.Instructor;
 
 namespace BookingService.Application.Interfaces
 {
     public interface IFeedbackUseCase
     {
-        Task<FeedbackResponse> GetStatitic(FeedbackRequest feedbackRequest);
-      //  Task<FeedbackResponse> GetInstructorFeedback(Guid );
+        Task<InstructorOverviewFeedbackResponse> GetStatitic(Guid instructorId );
+       // Task<InstructorFeedbackDTO> GetInstructorFeedback(Guid id);
     }
 }
+

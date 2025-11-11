@@ -1,12 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using BookingService.Infrastructure.Persistence.Context;
-using BookingService.Domain.Interfaces;
-using BookingService.Infrastructure.Repositories;
 using BookingService.Application.Interfaces;
 using BookingService.Infrastructure.UoW;
-using BookingService.Infrastructure.Messaging.Config;
-using BookingService.Infrastructure.Messaging.Implementation;
-using BookingService.Infrastructure.Messaging.Interface;
+using SharedLibrary.CloudinaryStorage;
+using SharedLibrary.Jwt;
 
 
 namespace BookingService.Infrastructure
@@ -23,24 +20,30 @@ namespace BookingService.Infrastructure
                 options.UseNpgsql(connectionString);
             });
             
-            // Register Unit Of Work.
+            // Đăng ký dịch vụ hệ thống
             services.AddScoped<IUnitOfWork,UnitOfWork>();
+            services.AddScoped<IJwtService, JwtService>();
 
-            // Đăng ký Repository
-            //services.AddScoped<IBookingRepository, BookingRepository>();
-            //services.AddScoped<IPackageRepository, PackageRepository>();
-            //services.AddScoped<IDrivingSessionRepository, DrivingSessionRepository>();
-            //services.AddScoped<IFeedbackRepository, FeedbackRepository>();
-            //services.AddScoped<IDrivingSkillRepository, DrivingSkillRepository>();
-            //services.AddScoped<IRoadTypeRepository, RoadTypeRepository>();
-            //services.AddScoped<IFeedbackRepository, FeedbackRepository>();
+            // Đăng ký sử dụng HttpClient gọi đến các Microservice bằng phương thức http.
+            services.AddHttpClient("UserServiceClient", client =>
+            {
+                var base_address = configuration.GetConnectionString("Userservice_connection");
+
+                if (string.IsNullOrEmpty(base_address))
+                {
+                    throw new ApplicationException("Can not find base address for user service");
+                }
+
+                client.BaseAddress = new Uri(base_address);
+                client.DefaultRequestHeaders.Add("User-Agent", "DriveMate_BookingService");
+            });
+
+            // Đăng ký dịch vụ bên thứ ba
+            services.AddScoped<ICloudinaryServiceProvider, CloudinaryServiceProvider>();
 
             // Register RabbitMQ service (with fallback to mock if connection fails)            
             //services.AddSingleton<IRabbitMQService, RabbitMQService>();
             //services.AddHostedService<RabbitMQHostedService>();
-
-            Console.WriteLine("Completed");
-
             return services;
         }
     }

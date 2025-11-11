@@ -22,10 +22,6 @@ namespace BookingService.Infrastructure.Persistence.Configurations
                 .IsRequired();
 
             // properties
-            builder.Property(x => x.Date)
-                .HasColumnName("date")
-                .IsRequired();
-
             builder.Property(x => x.StartTime)
                 .HasColumnName("start_time")
                 .IsRequired();
@@ -57,6 +53,16 @@ namespace BookingService.Infrastructure.Persistence.Configurations
 
             builder.Property(x => x.EndingLongtitude)
                 .HasColumnName("end_long");
+
+            builder.Property(x => x.NoviceDriverNote)
+                .HasColumnName("novice_driver_note")
+                .HasMaxLength(500)
+                .IsRequired(false);
+
+            builder.Property(x => x.InstructorNote)
+                .HasColumnName("instructor_note")
+                .HasMaxLength(500)
+                .IsRequired(false);
 
             builder.Property(x => x.Status)
                 .HasColumnName("status")

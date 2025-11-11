@@ -23,7 +23,6 @@ namespace UserService.Application.Commons.Mapping.ExtentionMapping
                     ExperienceYear = instructor.Experience,
                     BookingCount = instructorFeedback?.BookingCount ?? 0,
                     AverageRating = instructorFeedback?.AverageRating ?? 0,
-                    UnitPrice = instructorFeedback?.PricePerHours ?? 0,
                 };
             }).ToList();
         }

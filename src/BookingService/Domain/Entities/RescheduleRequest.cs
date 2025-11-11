@@ -6,9 +6,9 @@ namespace BookingService.Domain.Entities
     public class RescheduleRequest: BaseEntites
     {
         // Properties
-        public DateOnly Date {  get; set; }
-        public TimeOnly StartTime { get; set; }
-        public TimeOnly EndTime { get; set; }
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
+        public string? Note {  get; set; }
         public RequestSide Side { get; set; }
 
         // Keys for relationships

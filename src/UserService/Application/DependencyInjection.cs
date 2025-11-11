@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Identity;
 using Resend;
 using SharedLibrary.Email;
 using SharedLibrary.Jwt;
@@ -7,12 +6,9 @@ using SharedLibrary.SharedKernel.Http.Implementation;
 using SharedLibrary.SharedKernel.Http.Interfaces;
 using SharedLibrary.SharedKernel.Password;
 using SharedLibrary.Sms;
-using System;
 using UserService.Application.Interfaces;
 using UserService.Application.UseCases;
-using UserService.Domain.Interfaces;
-using UserService.Infrastructure.Repositories;
-using UserService.Infrastructure.UoW;
+using UserService.Domain.Entities;
 using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace UserService.Application
@@ -24,8 +20,8 @@ namespace UserService.Application
         {
 
             // Register Usecase
+            services.AddScoped<IUserUseCase, UserUseCase>();
             services.AddScoped<IAuthUseCase, AuthUseCase>();
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<INoviceDriverUseCase, NoviceDriverUseCase>();
             services.AddScoped<IInstructorUseCase, InstructorUseCase>();
             services.AddScoped<IPolicyUseCase, PolicyUseCase>();
@@ -40,6 +36,8 @@ namespace UserService.Application
             services.AddScoped<ISmsService, SpeedSmsService>();
             services.AddScoped<PasswordHasherService>();
             services.AddScoped<HttpService>();
+            services.AddScoped<IIntructor, Intructor>();
+
 
             services.AddScoped<IFeedback,Feedback>();
             services.AddScoped<IPackage, SharedLibrary.SharedKernel.Http.Implementation.Package>();

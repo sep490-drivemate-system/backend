@@ -10,5 +10,8 @@ namespace BookingService.Application.Commons.DTOs.RoadTypes
 
         [JsonPropertyName("name")]
         public string Name { get; set; }
+
+        [JsonPropertyName("description")]
+        public string? Description { get; set; }
     }
 }

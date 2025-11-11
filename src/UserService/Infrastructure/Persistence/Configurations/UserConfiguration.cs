@@ -22,6 +22,11 @@ namespace UserService.Infrastructure.Persistence.Configurations
                 .IsRequired()
                 .HasMaxLength(30);
 
+            builder.Property(x => x.Fullname)
+                .HasColumnName("fullname")
+                .IsRequired()
+                .HasMaxLength(64);
+
             builder.Property(x => x.Email)
                 .HasColumnName("email")
                 .IsRequired()

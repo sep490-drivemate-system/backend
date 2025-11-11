@@ -1,3 +1,4 @@
+using AutoMapper;
 using BookingService.Application.Commons.Constants;
 using BookingService.Application.Interfaces;
 using BookingService.Domain.Entities;
@@ -10,10 +11,12 @@ namespace BookingService.Application.UseCase
     public class PackageUseCase : IPackageUseCase
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public PackageUseCase(IUnitOfWork unitOfWork)
+        public PackageUseCase(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
         public async Task<Result<IEnumerable<Package>>> GetAllPackagesAsync()
@@ -86,58 +89,18 @@ namespace BookingService.Application.UseCase
 
         }
 
-        public async Task<Result<PackageResponse>> GetInstructorPackagesAsync(Guid instructorId)
+        public async Task<Result<List<PackageDto>>> GetInstructorPackagesAsync(Guid instructorId)
         {
-            //// Get packages with PackageType included
-            //var allPackages = await _unitOfWork.PackageRepository.GetAllAsync();
-            //var instructorPackages = allPackages.Where(p => p.InstructorId == instructorId && !p.IsDeleted);
-
-            //var packageDtos = instructorPackages.Select(p => new PackageDto
-            //{
-            //    Id = p.Id,
-            //    Price = p.Price,
-            //    TypeRental = (int)p.TypeRental,
-            //    PackageTypeId = p.PackageTypeId,
-            //    InstructorId = p.InstructorId,
-            //    CarId = p.CarId,
-            //    PackageTypeName = string.Empty,
-            //    Description = p.PackageType?.Description ?? string.Empty
-            //}).ToList();
-
-            //var response = new PackageResponse
-            //{
-            //    Packages = packageDtos
-            //};
-
-            //return Result<PackageResponse>.Success(response);
 
             Expression<Func<Package, bool>> filter_expression = x => x.InstructorId == instructorId && !x.IsDeleted;
             Func<IQueryable<Package>, IOrderedQueryable<Package>> order_expression = x => x.OrderBy(u => u.Name);
-            string included_properties = "Cars";
+            string included_properties = "Cars,RoadTypes,DrivingSkills";
+            var packages = await _unitOfWork.PackageRepository.GetAllAsync(filter: filter_expression, orderBy: order_expression, include_properties: included_properties, disable_tracking: true);
 
-            try
-            {
-                var packages = await _unitOfWork.PackageRepository.GetAllAsync(filter: filter_expression, orderBy: order_expression, include_properties: included_properties, disable_tracking: true);
+            var packageDtos = _mapper.Map<List<PackageDto>>(packages);
 
-                return Result<PackageResponse>.Success(new PackageResponse
-                {
-                    Packages = packages.Select(x => new PackageDto
-                    {
-                        Id = x.Id,
-                        Name = x.Name,
-                        Description = x.Description,
-                        Price = x.Price,
-                        InstructorId = x.InstructorId,
-                        CarIds = x.Cars.Select(x => x.Id).ToList(),
-                    }).ToList(),
-                });
-            }
-            catch (Exception)
-            {
-                {
-                    return Result<PackageResponse>.Failure(ServiceError.UnhandledException(Messages.Commons.UNHANDLED), Messages.Commons.UNHANDLED);
-                }
-            }
+            return Result<List<PackageDto>>.Success(packageDtos);
+
         }
     }
 }

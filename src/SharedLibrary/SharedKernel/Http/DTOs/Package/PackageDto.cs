@@ -5,17 +5,26 @@ namespace SharedLibrary.SharedKernel.Http.DTOs.Package
 {
     public class PackageDto
     {
-        [JsonPropertyName("id")]
         public Guid Id { get; set; }
-        [JsonPropertyName("name")]
         public string Name { get; set; }
-        [JsonPropertyName("description")]
         public string Description { get; set; }
-        [JsonPropertyName("price")]
+        public string Duration { get; set; }
         public decimal Price { get; set; }
-        [JsonPropertyName("instructor_id")]
         public Guid InstructorId { get; set; }
-        [JsonPropertyName("available_car_ids")]
-        public List<Guid> CarIds { get; set; }
+        public IList<DrivingSkill> DrivingSkills{ get; set; }
+        public IList<RoadType> RoadTypes{ get; set; }
+        public bool IsRentalCar { get; set; }
+
+
     }
+
+    public class DrivingSkill
+    {
+        public string Name { get; set; }
+    }
+    public class RoadType
+    {
+        public string Name { get; set; }
+    }
+
 }

@@ -20,12 +20,20 @@ namespace BookingService.Controllers
             _useCase = useCase;
         }
 
-        [HttpPost("list-instructor")]
-        public async Task<ActionResult<FeedbackResponse>> GetStatisticFeedback([FromBody] FeedbackRequest request)
+        [HttpPost("list-overview-instructor")]
+        public async Task<ActionResult<FeedbackResponse>> GetStatisticFeedback([FromBody] Guid instructorId)
         {
-            var result = await _useCase.GetStatitic(request);
+            var result = await _useCase.GetStatitic(instructorId);
             return Ok(result);
         }
+
+        //[HttpGet("instructor/{id}")]
+        //public async Task<IActionResult> GetInstructorFeedback(Guid id)
+        //{
+        //    var result = await _useCase.GetInstructorFeedback(id);
+        //    return Ok(result);
+        //}
+
         //[HttpGet("instructor/{id}")]
         //public async Task<IActionResult> GetInstructorFeedback(Guid id)
         //{

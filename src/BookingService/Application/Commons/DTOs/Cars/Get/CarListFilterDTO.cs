@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SharedLibrary.SharedKernel.Enum;
 
 namespace BookingService.Application.Commons.DTOs.Cars.Get
 {
@@ -21,6 +22,9 @@ namespace BookingService.Application.Commons.DTOs.Cars.Get
 
         [FromQuery(Name = "type")]
         public string? CarType { get; set; } = null;
+
+        [FromQuery(Name = "license")]
+        public DrivingLicenseTier? LicenseTier{ get; set; } = null;
 
         [FromQuery(Name = "order_by")]
         public string? OrderBy { get; set; } = null;

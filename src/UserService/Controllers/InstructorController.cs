@@ -51,7 +51,7 @@ namespace UserService.Controllers
         }
 
         [HttpGet("{id}/applicants")]
-        public async Task<IActionResult> GetInstructorApplicantd(Guid id)
+        public async Task<IActionResult> GetInstructorApplicants(Guid id)
         {
             var result = await _usecase.GetInstructorApplication(id);
             return result.ToActionResult();
@@ -68,6 +68,13 @@ namespace UserService.Controllers
         public async Task<IActionResult> ModerateActionForApplication([FromRoute] Guid id, [FromQuery] string action, [FromBody] InstructorNoteDTO note)
         {
             var result = await _usecase.ModerateInstructorApplication(id, action, note.Note);
+            return result.ToActionResult();
+        }
+
+        [HttpPatch("{id}/applicants")]
+        public async Task<IActionResult> UpdatePartialInstructorApplicant([FromRoute] Guid id, [FromForm] RegistrationDTO registration)
+        {
+            var result = await _usecase.UpdateInstructorApplication(id, registration);
             return result.ToActionResult();
         }
     }

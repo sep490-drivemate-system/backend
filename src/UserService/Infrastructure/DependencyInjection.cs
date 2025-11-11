@@ -19,15 +19,28 @@ namespace UserService.Infrastructure
                 var connectionString = configuration.GetConnectionString("USERSERVICECONNECTION");
                 options.UseNpgsql(connectionString);
             });
-
-            // Đăng ký Repository (nếu có)
+            
+            // Đăng ký service khác (cache, email, storage…)
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IPasswordHasherService, PasswordHasherService>();
             services.AddScoped<IEmailService, EmailService>();
-            services.AddScoped<ICloudinaryServiceProvider, CloudinaryServiceProvider>();
+            
+            // Đăng ký sử dụng HttpClient gọi đến các Microservice bằng phương thức http.
+            services.AddHttpClient("BookingServiceClient", client =>
+            {
+                var base_address = configuration.GetConnectionString("Bookingservice_connection");
 
-            // Đăng ký service khác (cache, email, storage…)
-            // services.AddScoped<IEmailService, EmailService>();
+                if (string.IsNullOrEmpty(base_address))
+                {
+                    throw new ApplicationException("Can not find base address for booking service");
+                }
+
+                client.BaseAddress = new Uri(base_address);
+                client.DefaultRequestHeaders.Add("User-Agent", "DriveMate_UserService");
+            });
+
+            // Đăng ký các service bên thứ 3
+            services.AddScoped<ICloudinaryServiceProvider, CloudinaryServiceProvider>();
 
             return services;
         }
