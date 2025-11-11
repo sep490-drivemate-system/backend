@@ -3,20 +3,17 @@ using System;
 using BookingService.Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace BookingService.Infrastructure.Persistence.Migrations
+namespace BookingService.Migrations
 {
     [DbContext(typeof(BookingDbContext))]
-    [Migration("20251107081751_Update_Entitites")]
-    partial class Update_Entitites
+    partial class BookingDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -32,7 +29,7 @@ namespace BookingService.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<Guid>("CarId")
+                    b.Property<Guid?>("CarId")
                         .HasColumnType("uuid")
                         .HasColumnName("car_id");
 
@@ -238,11 +235,11 @@ namespace BookingService.Infrastructure.Persistence.Migrations
                         .HasColumnName("id");
 
                     b.Property<DateTime>("ActualEnd")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp")
                         .HasColumnName("actual_end_time");
 
                     b.Property<DateTime>("ActualStart")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp")
                         .HasColumnName("actual_start_time");
 
                     b.Property<decimal>("AverageSpeed")
@@ -260,7 +257,7 @@ namespace BookingService.Infrastructure.Persistence.Migrations
                         .HasDefaultValueSql("now()");
 
                     b.Property<DateTime>("EndTime")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp")
                         .HasColumnName("end_time");
 
                     b.Property<decimal>("EndingLatitude")
@@ -294,7 +291,7 @@ namespace BookingService.Infrastructure.Persistence.Migrations
                         .HasColumnName("novice_driver_note");
 
                     b.Property<DateTime>("StartTime")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp")
                         .HasColumnName("start_time");
 
                     b.Property<decimal>("StartingLatitude")
@@ -778,8 +775,7 @@ namespace BookingService.Infrastructure.Persistence.Migrations
                     b.HasOne("BookingService.Domain.Entities.Car", "Car")
                         .WithMany("Bookings")
                         .HasForeignKey("CarId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("BookingService.Domain.Entities.Package", "Package")
                         .WithMany("Bookings")

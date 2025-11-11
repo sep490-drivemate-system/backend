@@ -6,6 +6,7 @@ using BookingService.Infrastructure.Persistence.Context;
 using BookingService.Application.Interfaces;
 using SharedLibrary.SharedKernel.ServiceResult;
 using Microsoft.AspNetCore.Mvc;
+using SharedLibrary.SharedKernel.Http.DTOs.Instructor;
 
 namespace BookingService.Controllers
 {
@@ -24,6 +25,14 @@ namespace BookingService.Controllers
         public async Task<ActionResult<FeedbackResponse>> GetStatisticFeedback([FromBody] Guid instructorId)
         {
             var result = await _useCase.GetStatitic(instructorId);
+            return Ok(result);
+        }
+
+        [HttpPost("batch-statistics")]
+        public async Task<ActionResult<Dictionary<Guid, InstructorOverviewFeedbackResponse>>> GetBatchStatistics([FromBody] List<Guid> instructorIds)
+        {
+
+            var result = await _useCase.GetBatchStatistics(instructorIds);
             return Ok(result);
         }
 

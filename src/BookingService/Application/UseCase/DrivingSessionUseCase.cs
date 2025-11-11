@@ -9,18 +9,20 @@ using SharedLibrary.Jwt;
 using SharedLibrary.SharedKernel.Enum;
 using SharedLibrary.SharedKernel.Http.DTOs.ApiResponse;
 using SharedLibrary.SharedKernel.Http.DTOs.User;
+using SharedLibrary.SharedKernel.Http.Interfaces;
 using SharedLibrary.SharedKernel.ServiceResult;
 using System.Linq.Expressions;
+using System.Net.Http;
 
 namespace BookingService.Application.UseCase
 {
-    public class DrivingSessionUseCase(IUnitOfWork unitOfWok, IJwtService jwtService, IHttpClientFactory http_client_factory): IDrivingSessionUseCase
-    public class DrivingSessionUseCase(IUnitOfWork unitOfWok, IJwtService jwtService, IMapper mapper): IDrivingSessionUseCase
+    public class DrivingSessionUseCase(IUnitOfWork unitOfWok, IJwtService jwtService, IUser userService, IMapper mapper, IHttpClientFactory httpClientFactory ) : IDrivingSessionUseCase
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWok;
         private readonly IJwtService _jwtService = jwtService;
-        private readonly IHttpClientFactory _httpClientFactory = http_client_factory;
+        private readonly IUser _userService = userService;
         private readonly IMapper _mapper = mapper;
+    private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
 
         public async Task<Result<ICollection<DrivingSession>>> GetAllDrivingSession(SessionStatus sessionStatus)
         {
@@ -65,7 +67,7 @@ namespace BookingService.Application.UseCase
                 StartingLatitude = drivingSessionCreationDTO.StartingLatitude,
                 StartingLongtitude = drivingSessionCreationDTO.StartingLongtitude,
                 NoviceDriverNote = drivingSessionCreationDTO.SessionNote,
-                Status = SessionStatus.Planned,
+                Status = SessionStatus.Planning,
                 CreatedAt = DateTime.UtcNow,
                 LastModifiedAt = DateTime.UtcNow,
                 IsDeleted = false,
@@ -171,7 +173,7 @@ namespace BookingService.Application.UseCase
             DrivingSession target_session = target_booking.DrivingSessions.FirstOrDefault(x => x.Id == session_id); // Get the target session.
 
             // Check if the session is available for reschedule.
-            if (target_session.Status != SessionStatus.Planned)
+            if (target_session.Status != SessionStatus.Planning)
             {
                 return Result<bool>.Failure(ServiceError.InvalidStateError($"{target_session.Status.ToString()}"), Messages.Commons.UNHANDLED);
             }
@@ -336,5 +338,87 @@ namespace BookingService.Application.UseCase
         //        );
         //    }
         //}
+
+        public async Task<Result<List<DrivingSessionListDTO>>> GetDrivingSessionsByBooking(Guid bookingId, SessionStatus? status)
+        {
+            // Build filter expression
+            Expression<Func<DrivingSession, bool>> filter = status.HasValue
+                ? ds => ds.BookingId == bookingId && ds.Status == status.Value && !ds.IsDeleted
+                : ds => ds.BookingId == bookingId && !ds.IsDeleted;
+
+            // Get driving sessions (without includes for better performance)
+            var sessions = await _unitOfWork.DrivingSessionRepository.GetAllAsync(
+                filter: filter,
+                orderBy: q => q.OrderBy(ds => ds.StartTime),
+                include_properties: ""
+            );
+
+            if (!sessions.Any())
+            {
+                return Result<List<DrivingSessionListDTO>>.Success(new List<DrivingSessionListDTO>());
+            }
+
+            // Get booking IDs from sessions
+            var bookingIds = sessions.Select(s => s.BookingId).Distinct().ToList();
+
+            // Query bookings with related data directly from repository
+            var bookings = await _unitOfWork.BookingRepository.GetAllAsync(
+                filter: b => bookingIds.Contains(b.Id) && !b.IsDeleted,
+                include_properties: "Package,Car"
+            );
+
+            // Create booking lookup dictionary for fast access
+            var bookingDict = bookings.ToDictionary(b => b.Id);
+
+            // Get unique instructor IDs from bookings
+            var instructorIds = bookings.Select(b => b.InstructorId).Distinct().ToList();
+
+            // Call UserService to get instructor info via SharedLibrary
+            var instructorInfos = new Dictionary<Guid, string>();
+            try
+            {
+                var instructorData = await _userService.GetBatchInstructorInfo(instructorIds);
+                instructorInfos = instructorData.ToDictionary(
+                    kvp => kvp.Key,
+                    kvp => kvp.Value.Fullname
+                );
+            }
+            catch (Exception ex)
+            {
+                // Log error but continue with empty instructor info
+                Console.WriteLine($"Error fetching instructor info: {ex.Message}");
+            }
+
+            // Map sessions to DTOs using booking dictionary
+            var sessionDTOs = sessions
+                .Where(session => bookingDict.ContainsKey(session.BookingId))
+                .Select(session =>
+                {
+                    var booking = bookingDict[session.BookingId];
+                    var duration = (session.EndTime - session.StartTime).TotalHours;
+                    var instructorName = instructorInfos.TryGetValue(booking.InstructorId, out var name)
+                        ? name
+                        : "Unknown";
+
+                    return new DrivingSessionListDTO
+                    {
+                        Id = session.Id,
+                        PackageId = booking.PackageId,
+                        InstructorId = booking.InstructorId,
+                        InstructorName = instructorName,
+                        Date = session.StartTime.ToString("yyyy-MM-dd"),
+                        StartTime = session.StartTime.ToString("HH:mm"),
+                        EndTime = session.EndTime.ToString("HH:mm"),
+                        Duration = Math.Round(duration, 2),
+                        Location = $"{session.StartingLatitude},{session.StartingLongtitude}",
+                        VehicleId = booking.CarId,
+                        VehicleName = booking.Car?.Name,
+                        Status = session.Status,
+                        CreatedAt = session.CreatedAt
+                    };
+                }).ToList();
+
+            return Result<List<DrivingSessionListDTO>>.Success(sessionDTOs);
+        }
     }
 }

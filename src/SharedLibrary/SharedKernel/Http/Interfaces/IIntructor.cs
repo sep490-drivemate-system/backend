@@ -1,4 +1,4 @@
-﻿using SharedLibrary.SharedKernel.Http.DTOs.Instructor;
+using SharedLibrary.SharedKernel.Http.DTOs.Instructor;
 using SharedLibrary.SharedKernel.Http.DTOs.Package;
 using System;
 using System.Collections.Generic;
@@ -10,6 +10,6 @@ namespace SharedLibrary.SharedKernel.Http.Interfaces
 {
     public interface IIntructor
     {
-        Task<InstructorOverviewFeedbackResponse> GetInstructorOverviewFeedback(Guid instructorId);
+        Task<Dictionary<Guid, InstructorOverviewFeedbackResponse>> GetBatchInstructorOverviewFeedback(List<Guid> instructorIds);
     }
 }

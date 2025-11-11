@@ -35,6 +35,13 @@ namespace UserService.Controllers
             return result.ToActionResult();
         }
 
+        [HttpPost("batch-instructor-info")]
+        public async Task<IActionResult> GetBatchInstructorBasicInfo([FromBody] List<Guid> instructorIds)
+        {
+            var result = await _userUseCase.GetBatchInstructorBasicInfo(instructorIds);
+            return Ok(result);
+        }
+
         [HttpPost]
         public async Task<IActionResult> CreateDefaultUserAccount([FromBody] UserCreationDTO details)
         {

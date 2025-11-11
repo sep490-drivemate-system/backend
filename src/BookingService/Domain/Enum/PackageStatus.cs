@@ -1,6 +1,6 @@
 ﻿namespace BookingService.Domain.Enum
 {
-    public enum PackageCategory
+    public enum PackageStatus
     {
         Session,
         Cycle

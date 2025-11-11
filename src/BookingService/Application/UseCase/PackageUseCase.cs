@@ -4,6 +4,7 @@ using BookingService.Application.Commons.DTOs.Booking;
 using BookingService.Application.Commons.DTOs.Package;
 using BookingService.Application.Interfaces;
 using BookingService.Domain.Entities;
+using BookingService.Domain.Enum;
 using SharedLibrary.SharedKernel.Http.DTOs.Package;
 using SharedLibrary.SharedKernel.Http.Interfaces;
 using SharedLibrary.SharedKernel.ServiceResult;
@@ -117,6 +118,7 @@ namespace BookingService.Application.UseCase
             }
             var booking = _mapper.Map<Booking>(packageBuyingDTO);
             booking.Id = id;
+            booking.Status = BookingStatus.Purchased;
             var createdBooking = await _unitOfWork.BookingRepository.CreateAsync(booking);
             await _unitOfWork.CommitChangesAsync();
 

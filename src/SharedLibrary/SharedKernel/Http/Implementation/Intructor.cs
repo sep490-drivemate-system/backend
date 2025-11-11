@@ -1,4 +1,4 @@
-﻿using CloudinaryDotNet;
+using CloudinaryDotNet;
 using Microsoft.Extensions.Configuration;
 using SharedLibrary.SharedKernel.Http.DTOs.Instructor;
 using SharedLibrary.SharedKernel.Http.DTOs.Payment;
@@ -22,12 +22,13 @@ namespace SharedLibrary.SharedKernel.Http.Implementation
             _config = configuration;
         }
 
-        public async Task<InstructorOverviewFeedbackResponse> GetInstructorOverviewFeedback(Guid instructorId)
+
+        public async Task<Dictionary<Guid, InstructorOverviewFeedbackResponse>> GetBatchInstructorOverviewFeedback(List<Guid> instructorIds)
         {
-            string userServiceUrl = _config["BOOKINGSERVICE:URL"];
-            string url = $"{userServiceUrl}/api/feedback/list-overview-instructor";
-            var result = await _httpService.PostAsync<Guid, InstructorOverviewFeedbackResponse>(url, instructorId);
-            return result;
+            string bookingServiceUrl = _config["BOOKINGSERVICE:URL"];
+            string url = $"{bookingServiceUrl}/api/feedback/batch-statistics";
+            var result = await _httpService.PostAsync<List<Guid>, Dictionary<Guid, InstructorOverviewFeedbackResponse>>(url, instructorIds);
+            return result ?? new Dictionary<Guid, InstructorOverviewFeedbackResponse>();
         }
     }
 }

@@ -29,7 +29,7 @@ namespace BookingService.Domain.Entities
         public Guid BookingId { get; set; }
 
         // Navigational properties
-        public virtual Booking? Booking { get; set; }
+        public virtual Booking Booking { get; set; }
         public virtual ICollection<SessionLog>? SessionLogs { get; set; }
         public virtual ICollection<SessionRoute>? SessionRoutes { get; set; }
         public virtual ICollection<RescheduleRequest>? RescheduleRequests { get; set; }

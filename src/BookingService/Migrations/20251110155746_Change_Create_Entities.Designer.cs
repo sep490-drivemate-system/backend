@@ -9,11 +9,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace BookingService.Infrastructure.Persistence.Migrations
+namespace BookingService.Migrations
 {
     [DbContext(typeof(BookingDbContext))]
-    [Migration("20251107151317_Update_Booking_Entities")]
-    partial class Update_Booking_Entities
+    [Migration("20251110155746_Change_Create_Entities")]
+    partial class Change_Create_Entities
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -238,11 +238,11 @@ namespace BookingService.Infrastructure.Persistence.Migrations
                         .HasColumnName("id");
 
                     b.Property<DateTime>("ActualEnd")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp")
                         .HasColumnName("actual_end_time");
 
                     b.Property<DateTime>("ActualStart")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp")
                         .HasColumnName("actual_start_time");
 
                     b.Property<decimal>("AverageSpeed")
@@ -260,7 +260,7 @@ namespace BookingService.Infrastructure.Persistence.Migrations
                         .HasDefaultValueSql("now()");
 
                     b.Property<DateTime>("EndTime")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp")
                         .HasColumnName("end_time");
 
                     b.Property<decimal>("EndingLatitude")
@@ -294,7 +294,7 @@ namespace BookingService.Infrastructure.Persistence.Migrations
                         .HasColumnName("novice_driver_note");
 
                     b.Property<DateTime>("StartTime")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp")
                         .HasColumnName("start_time");
 
                     b.Property<decimal>("StartingLatitude")

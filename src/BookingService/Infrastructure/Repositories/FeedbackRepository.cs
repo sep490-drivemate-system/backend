@@ -106,5 +106,50 @@ namespace BookingService.Infrastructure.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<Dictionary<Guid, InstructorOverviewFeedbackResponse>> GetBatchStatistics(List<Guid> instructorIds)
+        {
+            if (instructorIds == null || !instructorIds.Any())
+            {
+                return new Dictionary<Guid, InstructorOverviewFeedbackResponse>();
+            }
+
+            var feedbackStats = await _context.Feedbacks
+                .Where(f => instructorIds.Contains(f.InstructorId) && !f.IsDeleted)
+                .GroupBy(f => f.InstructorId)
+                .Select(g => new
+                {
+                    InstructorId = g.Key,
+                    AverageRating = g.Average(f => (decimal)f.InstructorRating),
+                    BookingCount = g.Select(f => f.BookingId).Distinct().Count()
+                })
+                .ToListAsync();
+
+            var packageStats = await _context.Packages
+                .Where(p => instructorIds.Contains(p.InstructorId) && !p.IsDeleted)
+                .GroupBy(p => p.InstructorId)
+                .Select(g => new
+                {
+                    InstructorId = g.Key,
+                    PackageCount = g.Count()
+                })
+                .ToListAsync();
+            var result = new Dictionary<Guid, InstructorOverviewFeedbackResponse>();
+
+            foreach (var instructorId in instructorIds)
+            {
+                var feedback = feedbackStats.FirstOrDefault(f => f.InstructorId == instructorId);
+                var package = packageStats.FirstOrDefault(p => p.InstructorId == instructorId);
+
+                result[instructorId] = new InstructorOverviewFeedbackResponse
+                {
+                    AverageRating = feedback?.AverageRating ?? 0m,
+                    BookingCount = feedback?.BookingCount ?? 0,
+                    PackageCount = package?.PackageCount ?? 0
+                };
+            }
+
+            return result;
+        }
     }
 }

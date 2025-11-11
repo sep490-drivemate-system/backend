@@ -19,7 +19,8 @@ namespace BookingService.Application.Interfaces
         Task<Result<bool>> CancelSession(Guid session_id, SessionCancelRequestDTO cancelationDTO);
 
         Task<Result<bool>> RescheduleSession(Guid session_id, SessionRescheduleRequestDTO rescheduleDTO);
-       // Task<Result<IEnumerable<InstructorScheduleResponseDTO>>> ScheduleInstructor(Guid instructorId);
+
+        Task<Result<List<DrivingSessionListDTO>>> GetDrivingSessionsByBooking(Guid bookingId, SessionStatus? status);
     }
 }
 

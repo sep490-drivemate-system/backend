@@ -12,7 +12,7 @@ namespace UserService.Application.UseCases
 
         public async Task<Result<List<UserAddressDTO>>> GetNoviceDriverAddres(Guid id)
         {
-            var driver = await _unitOfWork.NoviceDriverRepository.GetByIdAsync(id);
+            var driver = await _unitOfWork.NoviceDriverRepository.GetByIdWithSavedLocationsAsync(id);
 
             if (driver == null)
             {
@@ -20,13 +20,15 @@ namespace UserService.Application.UseCases
                     .Failure(ServiceError.NotFoundError(Commons.Constants.Messages.Common.NotFoundError));
             }
 
-            return Result<List<UserAddressDTO>>.Success( driver.SavedLocations.Select(x => new UserAddressDTO
+            var addresses = driver.SavedLocations?.Select(x => new UserAddressDTO
             {
                 Id = x.Id,
                 AddressString = x.DisplayName,
                 Latitude = x.LocationLatitude,
                 Longitude = x.LocationLongtitude
-            }).ToList());
+            }).ToList() ?? new List<UserAddressDTO>();
+
+            return Result<List<UserAddressDTO>>.Success(addresses);
         }
 
         public async Task<Result<NoviceDriverInfoFeedbackDTO>> GetNoviceDriverInfoForFeedback(Guid noviceDriverId)

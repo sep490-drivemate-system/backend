@@ -27,6 +27,7 @@ namespace BookingService.Application
             services.AddScoped<ICarUseCase, CarUseCase>();
 
             services.AddScoped<IPayment, Payment>();
+            services.AddScoped<IUser, User>();
 
             services.AddScoped<IJwtService, JwtService>();
             services.AddHttpClient<HttpService>();

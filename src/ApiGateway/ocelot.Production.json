@@ -91,6 +91,108 @@
       "SwaggerKey": "bookingService"
     },
     {
+      "DownstreamPathTemplate": "/api/session/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${BOOKINGSERVICE_HOST}",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/session/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "SwaggerKey": "bookingService"
+    },
+    {
+      "DownstreamPathTemplate": "/users/{id}/sessions",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${BOOKINGSERVICE_HOST}",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/users/{id}/sessions",
+      "UpstreamHttpMethod": [
+        "GET"
+      ],
+      "SwaggerKey": "bookingService"
+    },
+    {
+      "DownstreamPathTemplate": "/users/{id}/requests",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${BOOKINGSERVICE_HOST}",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/users/{id}/requests",
+      "UpstreamHttpMethod": [
+        "GET"
+      ],
+      "SwaggerKey": "bookingService"
+    },
+    {
+      "DownstreamPathTemplate": "/api/roadtype/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${BOOKINGSERVICE_HOST}",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/roadtype/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "SwaggerKey": "bookingService"
+    },
+    {
+      "DownstreamPathTemplate": "/api/feedback/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${BOOKINGSERVICE_HOST}",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/feedback/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "SwaggerKey": "bookingService"
+    },
+    {
+      "DownstreamPathTemplate": "/api/car/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${BOOKINGSERVICE_HOST}",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/car/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "SwaggerKey": "bookingService"
+    },
+    {
       "DownstreamPathTemplate": "/api/payment/{everything}",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [

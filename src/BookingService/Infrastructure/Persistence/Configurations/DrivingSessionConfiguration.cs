@@ -24,17 +24,21 @@ namespace BookingService.Infrastructure.Persistence.Configurations
             // properties
             builder.Property(x => x.StartTime)
                 .HasColumnName("start_time")
+                .HasColumnType("timestamp")
                 .IsRequired();
 
             builder.Property(x => x.EndTime)
                 .HasColumnName("end_time")
+                .HasColumnType("timestamp")
                 .IsRequired();
 
             builder.Property(x => x.ActualStart)
-                .HasColumnName("actual_start_time");
+                .HasColumnName("actual_start_time")
+                .HasColumnType("timestamp");
 
             builder.Property(x => x.ActualEnd)
-                .HasColumnName("actual_end_time");
+                .HasColumnName("actual_end_time")
+                .HasColumnType("timestamp");
 
             builder.Property(x => x.TotalDistance)
                 .HasColumnName("distance");

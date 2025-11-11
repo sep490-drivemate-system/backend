@@ -73,6 +73,42 @@
       "SwaggerKey": "userService"
     },
     {
+      "DownstreamPathTemplate": "/api/novice-driver/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5100
+        }
+      ],
+      "UpstreamPathTemplate": "/novice-driver/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "SwaggerKey": "userService"
+    },
+    {
+      "DownstreamPathTemplate": "/api/policy/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5100
+        }
+      ],
+      "UpstreamPathTemplate": "/policy/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "SwaggerKey": "userService"
+    },
+    {
       "DownstreamPathTemplate": "/api/booking/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
@@ -118,6 +154,90 @@
         }
       ],
       "UpstreamPathTemplate": "/skills/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "SwaggerKey": "bookingService"
+    },
+    {
+      "DownstreamPathTemplate": "/api/session/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5200
+        }
+      ],
+      "UpstreamPathTemplate": "/session/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "SwaggerKey": "bookingService"
+    },
+    {
+      "DownstreamPathTemplate": "/users/{id}/sessions",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5200
+        }
+      ],
+      "UpstreamPathTemplate": "/users/{id}/sessions",
+      "UpstreamHttpMethod": [
+        "GET"
+      ],
+      "SwaggerKey": "bookingService"
+    },
+    {
+      "DownstreamPathTemplate": "/users/{id}/requests",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5200
+        }
+      ],
+      "UpstreamPathTemplate": "/users/{id}/requests",
+      "UpstreamHttpMethod": [
+        "GET"
+      ],
+      "SwaggerKey": "bookingService"
+    },
+    {
+      "DownstreamPathTemplate": "/api/roadtype/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5200
+        }
+      ],
+      "UpstreamPathTemplate": "/roadtype/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "SwaggerKey": "bookingService"
+    },
+    {
+      "DownstreamPathTemplate": "/api/feedback/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5200
+        }
+      ],
+      "UpstreamPathTemplate": "/feedback/{everything}",
       "UpstreamHttpMethod": [
         "GET",
         "POST",

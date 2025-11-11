@@ -35,14 +35,20 @@ namespace BookingService.Controllers
             return result.ToActionResult();
         }
 
-       // [HttpGet]
-        //   [Authorize(Roles = nameof(UserRole.NoviceDriver))]
-        //public async Task<IActionResult> GetBooking(BookingStatus bookingStatus)
-        //{
-        //    var driverId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
-        //    var result = await _bookingUseCase.CreateBooking(bookingDTO, driverId);
-        //    return result.ToActionResult();
-        //}
+        [HttpGet]
+        public async Task<IActionResult> GetBooking(BookingStatus bookingStatus)
+        {
+            var driverId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
+            var result = await _bookingUseCase.GetBookings(bookingStatus, driverId);
+            return result.ToActionResult();
+        }
+
+        [HttpGet("instructor/{instructorId}/upcoming-sessions")]
+        public async Task<IActionResult> GetUpcomingDrivingSessions([FromRoute] Guid instructorId)
+        {
+            var result = await _bookingUseCase.GetUpcomingDrivingSessions(instructorId);
+            return result.ToActionResult();
+        }
 
     }
     

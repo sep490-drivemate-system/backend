@@ -1,4 +1,4 @@
-﻿using SharedLibrary.SharedKernel.Enum;
+using SharedLibrary.SharedKernel.Enum;
 using SharedLibrary.SharedKernel.Http.DTOs.User;
 using SharedLibrary.SharedKernel.Password;
 using SharedLibrary.SharedKernel.ServiceResult;
@@ -156,6 +156,34 @@ namespace UserService.Application.UseCases
                     NoviceDriverId = x.NoviceDriver.Id
                 } : null,
             }));
+        }
+
+        public async Task<Dictionary<Guid, InstructorBasicInfoDTO>> GetBatchInstructorBasicInfo(List<Guid> instructorIds)
+        {
+            if (instructorIds == null || !instructorIds.Any())
+            {
+                return new Dictionary<Guid, InstructorBasicInfoDTO>();
+            }
+
+            Expression<Func<User, bool>> filter = x => 
+                x.Role == UserRole.Instructor && 
+                instructorIds.Contains(x.Instructor.Id) &&
+                !x.IsDeleted;
+
+            var users = await _unitOfWork.UserRepository.GetAllAsync(
+                filter: filter,
+                include_properties: "Instructor"
+            );
+
+            return users.ToDictionary(
+                user => user.Instructor.Id,
+                user => new InstructorBasicInfoDTO
+                {
+                    InstructorId = user.Instructor.Id,
+                    Fullname = user.Fullname,
+                    AvatarUrl = user.Avatar ?? ""
+                }
+            );
         }
     }
 }
