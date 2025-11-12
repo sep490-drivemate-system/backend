@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ResourceService.Repositories.Interfaces;
 using ResourceService.Repositories.Models;
+using System.Linq;
 
 namespace ResourceService.Repositories.Implementation
 {
@@ -63,6 +64,33 @@ namespace ResourceService.Repositories.Implementation
                 .FirstOrDefaultAsync(b => b.Id == id && b.InstructorId == instructorId);
         }
 
+        public async Task<Blog?> GetMyBlogDetailTrackedAsync(Guid id, Guid instructorId)
+        {
+            return await _context.Blogs
+                .Include(b => b.Category)
+                .Include(b => b.Contents)
+                .FirstOrDefaultAsync(b => b.Id == id && b.InstructorId == instructorId);
+        }
+
+        public async Task<bool> CategoryExistsAsync(Guid categoryId)
+        {
+            return await _context.Categories.AnyAsync(c => c.Id == categoryId && !c.IsDelete);
+        }
+
+        public async Task<List<Category>> GetCategoriesAsync()
+        {
+            return await _context.Categories
+                .AsNoTracking()
+                .Where(c => !c.IsDelete)
+                .OrderBy(c => c.Name)
+                .ToListAsync();
+        }
+
+        public void AddBlogContent(BlogContent content)
+        {
+            _context.BlogContents.Add(content);
+        }
+
         public async Task<bool> SoftDeleteBlogAsync(Guid blogId)
         {
             var blog = await _context.Blogs
@@ -91,6 +119,16 @@ namespace ResourceService.Repositories.Implementation
         {
             await _context.Blogs.AddAsync(blog);
             return true;
+        }
+
+        public Task<bool> UpdateBlog(Blog blog)
+        {
+            var entry = _context.Entry(blog);
+            if (entry.State == EntityState.Detached)
+            {
+                _context.Blogs.Attach(blog);
+            }
+            return Task.FromResult(true);
         }
     }
     

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using System.Linq;
 using ResourceService.Repositories;
 using ResourceService.Repositories.Enum;
 using ResourceService.Repositories.Interfaces;
@@ -44,6 +45,22 @@ namespace ResourceService.Services.Implementation
             {
                 return Result<ICollection<ResourceDto>>.Failure(
                     ServiceError.UnhandledException(Messages.Blog.RETRIEVE_ERROR), 
+                    Messages.Commons.UNHANDLED);
+            }
+        }
+
+        public async Task<Result<ICollection<CategoryDto>>> GetCategoriesAsync()
+        {
+            try
+            {
+                var categories = await _unitOfWork.ResourceRepository.GetCategoriesAsync();
+                var categoryDtos = _mapper.Map<ICollection<CategoryDto>>(categories);
+                return Result<ICollection<CategoryDto>>.Success(categoryDtos, Messages.Commons.SUCCESS);
+            }
+            catch (Exception)
+            {
+                return Result<ICollection<CategoryDto>>.Failure(
+                    ServiceError.UnhandledException(Messages.Blog.RETRIEVE_ERROR),
                     Messages.Commons.UNHANDLED);
             }
         }
@@ -218,20 +235,133 @@ namespace ResourceService.Services.Implementation
                     Messages.Commons.UNHANDLED);
             }
         }
-        
-        //public async Task<Result<bool>> UpdateBlogAsync(Guid id, BlogUpdateDto updateBlogDto, Guid instructorId)
-        //{
-        //    try
-        //    {
-        //        var blog = await _unitOfWork.ResourceRepository.GetBlogDetailAsync(id);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Result<bool>.Failure(
-        //            ServiceError.UnhandledException($"{Messages.Blog.UPDATE_FAILED}: {ex.Message}"),
-        //            Messages.Commons.UNHANDLED);
-        //    }
-        //}
+
+        public async Task<Result<bool>> UpdateBlogAsync(Guid id, BlogUpdateDto updateBlogDto, Guid instructorId)
+        {
+            try
+            {
+                var blog = await _unitOfWork.ResourceRepository.GetMyBlogDetailTrackedAsync(id, instructorId);
+                if (blog == null)
+                {
+                    return Result<bool>.Failure(
+                        ServiceError.NotFoundError(Messages.Blog.NOTFOUND),
+                        Messages.Blog.NOTFOUND);
+                }
+
+                var applyError = await ApplyBlogUpdatesAsync(blog, updateBlogDto);
+                if (applyError != null)
+                {
+                    return Result<bool>.Failure(applyError, applyError.Description ?? Messages.Blog.UPDATE_FAILED);
+                }
+
+                var updateResult = await _unitOfWork.ResourceRepository.UpdateBlog(blog);
+                if (!updateResult)
+                {
+                    return Result<bool>.Failure(
+                        ServiceError.UnhandledException(Messages.Blog.UPDATE_FAILED),
+                        Messages.Blog.UPDATE_FAILED);
+                }
+
+                var saveResult = await _unitOfWork.SaveChangesWithTransactionAsync();
+                if (saveResult <= 0)
+                {
+                    return Result<bool>.Failure(
+                        ServiceError.UnhandledException(Messages.Blog.UPDATE_FAILED),
+                        Messages.Blog.UPDATE_FAILED);
+                }
+
+                return Result<bool>.Success(true, Messages.Blog.UPDATE_SUCCESS);
+            }
+            catch (Exception ex)
+            {
+                return Result<bool>.Failure(
+                    ServiceError.UnhandledException($"{Messages.Blog.UPDATE_FAILED}: {ex.Message}"),
+                    Messages.Commons.UNHANDLED);
+            }
+        }
+
+        private async Task<ServiceError?> ApplyBlogUpdatesAsync(Blog blog, BlogUpdateDto updateBlogDto)
+        {
+            var now = DateTime.Now;
+
+            if (!string.IsNullOrWhiteSpace(updateBlogDto.Title))
+            {
+                blog.Title = updateBlogDto.Title.Trim();
+            }
+
+            if (!string.IsNullOrWhiteSpace(updateBlogDto.ThumbnailUrl))
+            {
+                blog.ThumbnailUrl = updateBlogDto.ThumbnailUrl.Trim();
+            }
+
+            if (updateBlogDto.CategoryId.HasValue && updateBlogDto.CategoryId.Value != blog.CategoryId)
+            {
+                var categoryExists = await _unitOfWork.ResourceRepository.CategoryExistsAsync(updateBlogDto.CategoryId.Value);
+                if (!categoryExists)
+                {
+                    return ServiceError.NotFoundError(Messages.Blog.CATEGORY_NOT_FOUND);
+                }
+
+                blog.CategoryId = updateBlogDto.CategoryId.Value;
+            }
+
+            if (updateBlogDto.Contents != null && updateBlogDto.Contents.Any())
+            {
+                blog.Contents ??= new List<BlogContent>();
+                var contentLookup = blog.Contents.ToDictionary(c => c.Id);
+
+                foreach (var contentDto in updateBlogDto.Contents)
+                {
+                    if (contentDto.Id.HasValue && contentLookup.TryGetValue(contentDto.Id.Value, out var existingContent))
+                    {
+                        if (contentDto.IsDeleted == true)
+                        {
+                            existingContent.IsDelete = true;
+                        }
+                        else
+                        {
+                            if (contentDto.Content != null)
+                            {
+                                existingContent.Content = contentDto.Content.Trim();
+                            }
+
+                            if (contentDto.No.HasValue)
+                            {
+                                existingContent.No = contentDto.No.Value;
+                            }
+
+                            if (contentDto.ImageUrl != null)
+                            {
+                                existingContent.ImageUrl = contentDto.ImageUrl;
+                            }
+
+                            existingContent.IsDelete = false;
+                        }
+
+                        existingContent.UpdateAt = now;
+                    }
+                    else if (!contentDto.Id.HasValue && contentDto.IsDeleted != true)
+                    {
+                        var newContent = new BlogContent
+                        {
+                            BlogId = blog.Id,
+                            Content = contentDto.Content?.Trim() ?? string.Empty,
+                            No = contentDto.No ?? 0,
+                            ImageUrl = contentDto.ImageUrl ?? string.Empty,
+                            CreatedAt = now,
+                            UpdateAt = now,
+                            IsDelete = false
+                        };
+
+                        _unitOfWork.ResourceRepository.AddBlogContent(newContent);
+                        blog.Contents.Add(newContent);
+                    }
+                }
+            }
+
+            blog.UpdateAt = now;
+            return null;
+        }
 
         public async Task<Result<string>> UploadImageForBlog(IFormFile file)
         {

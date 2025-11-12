@@ -21,6 +21,9 @@ namespace ResourceService.Services.Mapping
             CreateMap<BlogContent, BlogContentDto>()
                 .ForMember(dest => dest.Images, opt => opt.Ignore()); // Images đã bị xóa khỏi entity
 
+            // Category -> CategoryDto
+            CreateMap<Category, CategoryDto>();
+
             // Create mappings (DTO -> Entity)
             CreateMap<BlogContentCreateDto, BlogContent>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
@@ -35,13 +38,6 @@ namespace ResourceService.Services.Mapping
                 .ForMember(dest => dest.Contents, opt => opt.MapFrom(src => src.Contents))
                 .ForMember(dest => dest.Category, opt => opt.Ignore());
 
-            // Update mappings (partial updates; ignore nulls)
-            CreateMap<BlogContentUpdateDto, BlogContent>()
-                .ForMember(dest => dest.ImageUrl, opt => opt.Ignore())
-                .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null)); 
-
-            CreateMap<BlogUpdateDto, Blog>()
-                .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
         }
     }
 }

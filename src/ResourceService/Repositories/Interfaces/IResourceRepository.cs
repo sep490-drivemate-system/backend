@@ -9,8 +9,13 @@ namespace ResourceService.Repositories.Interfaces
         Task<(List<Blog> blogs, int totalCount)> GetBlogsPagedAsync(int page, int pageSize);
         Task<Blog?> GetBlogDetailAsync(Guid blogId);
         Task<Blog?> GetMyBlogDetailAsync(Guid id, Guid instructorId);
+        Task<Blog?> GetMyBlogDetailTrackedAsync(Guid id, Guid instructorId);
+        Task<bool> CategoryExistsAsync(Guid categoryId);
+        Task<List<Category>> GetCategoriesAsync();
         Task<bool> SoftDeleteBlogAsync(Guid blogId);
 
         Task<bool> CreateBlog(Blog blog);
+        Task<bool> UpdateBlog(Blog blog);
+        void AddBlogContent(BlogContent content);
     }
 }

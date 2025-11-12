@@ -24,10 +24,12 @@ namespace ResourceService.Controllers
             _jwtService = jwtService;
         }
 
-        [HttpPost("blog-image")]
-        public async Task<IActionResult> UploadBlogImage(IFormFile file)
+        
+
+        [HttpGet("categories")]
+        public async Task<IActionResult> GetCategories()
         {
-            var result = await _resourcesService.UploadImageForBlog(file);
+            var result = await _resourcesService.GetCategoriesAsync();
             return result.ToActionResult();
         }
 
@@ -83,12 +85,11 @@ namespace ResourceService.Controllers
              return result.ToActionResult();
         }
         
-        [HttpDelete("my-blogs/{id}")]
-        [Authorize(Roles = nameof(UserRole.Instructor))]
-        public async Task<IActionResult> DeleteBlog([FromRoute] Guid id)
+
+        [HttpPost("blog-image")]
+        public async Task<IActionResult> UploadBlogImage(IFormFile file)
         {
-            var instructorId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
-            var result = await _resourcesService.DeleteBlogAsync(id, instructorId);
+            var result = await _resourcesService.UploadImageForBlog(file);
             return result.ToActionResult();
         }
 
@@ -98,6 +99,24 @@ namespace ResourceService.Controllers
         {
             var instructorId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
             var result = await _resourcesService.CreateBlogAsync(createBlogDto, instructorId);
+            return result.ToActionResult();
+        }
+
+        [HttpPut("my-blogs/{id}")]
+        [Authorize(Roles = nameof(UserRole.Instructor))]
+        public async Task<IActionResult> UpdateBlog([FromRoute] Guid id, [FromBody] BlogUpdateDto updateBlogDto)
+        {
+            var instructorId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
+            var result = await _resourcesService.UpdateBlogAsync(id, updateBlogDto, instructorId);
+            return result.ToActionResult();
+        }
+
+        [HttpDelete("my-blogs/{id}")]
+        [Authorize(Roles = nameof(UserRole.Instructor))]
+        public async Task<IActionResult> DeleteBlog([FromRoute] Guid id)
+        {
+            var instructorId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
+            var result = await _resourcesService.DeleteBlogAsync(id, instructorId);
             return result.ToActionResult();
         }
     }

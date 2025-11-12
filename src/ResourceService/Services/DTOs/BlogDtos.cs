@@ -41,11 +41,10 @@ namespace ResourceService.Services.DTOs
         public string ImageUrl { get; set; }
     }
 
-    
-    // Update DTOs (nullable for partial updates)
+
+    // Update DTOs (nullable cho partial updates)
     public class BlogUpdateDto
     {
-        public Guid? InstructorId { get; set; }
         public string Title { get; set; }
         public string ThumbnailUrl { get; set; }
         public Guid? CategoryId { get; set; }
@@ -57,14 +56,8 @@ namespace ResourceService.Services.DTOs
         public Guid? Id { get; set; }
         public string Content { get; set; }
         public int? No { get; set; }
-        public IList<BlogImageUpdateDto> Images { get; set; }
-    }
-
-    public class BlogImageUpdateDto
-    {
-        public Guid? Id { get; set; }
         public string ImageUrl { get; set; }
-        public int? No { get; set; }
+        public bool? IsDeleted { get; set; }
     }
 }
 
