@@ -51,19 +51,18 @@ namespace PaymentService.Infrastructure.Repositories
             Guid userId, decimal amount, Guid bookingId, Guid? drivingSessionId = null)
         {
             // Find wallet by UserId
-            var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.UserId == userId && !w.IsDelete);
+            var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.Id == userId && !w.IsDelete);
 
             // If wallet doesn't exist, create new wallet with 0 balance
             if (wallet == null)
             {
                 wallet = new Wallet
                 {
-                    Id = Guid.NewGuid(),
+                    Id = userId,
                     UserId = userId,
                     Balance = 0,
+                    CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow,
-                    UpdatedDate = DateTime.UtcNow,
-                    IsDelete = false
                 };
 
                 _context.Wallets.Add(wallet);
@@ -80,23 +79,26 @@ namespace PaymentService.Infrastructure.Repositories
 
             // Deduct amount from wallet
             wallet.Balance -= amount;
+            wallet.CreatedAt = DateTime.UtcNow;
             wallet.UpdatedAt = DateTime.UtcNow;
-            wallet.UpdatedDate = DateTime.UtcNow;
+
 
             // Create transaction record
             var transaction = new Transaction
             {
                 Id = Guid.NewGuid(),
                 FromWalletId = wallet.Id,
-                ToWalletId = null, // Payment to system (car rental)
+                ToWalletId = null, 
                 TransactionValue = amount,
                 PaymentMethod = Domain.Enum.PaymentMethod.Wallet,
                 Status = Domain.Enum.PaymentStatus.Completed,
                 BookingId = bookingId,
                 DrivingSessionId = drivingSessionId,
+                CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                IsDelete = false,
-                ReferenceCode = $"CAR-{bookingId.ToString().Substring(0, 8)}-{DateTime.UtcNow:yyyyMMddHHmmss}"
+                
+
+
             };
 
             await _context.Transactions.AddAsync(transaction);

@@ -12,8 +12,8 @@ using PaymentService.Infrastructure.Data;
 namespace PaymentService.Migrations
 {
     [DbContext(typeof(PaymentDbContext))]
-    [Migration("20251111025405_Update_Transaction_Entity")]
-    partial class Update_Transaction_Entity
+    [Migration("20251111130115_Init_Case")]
+    partial class Init_Case
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -37,9 +37,9 @@ namespace PaymentService.Migrations
                         .HasColumnName("booking_id");
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("timestamp")
-                        .HasColumnName("updated_at")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("created_at")
                         .HasDefaultValueSql("now()");
 
                     b.Property<Guid?>("DrivingSessionId")
@@ -79,7 +79,10 @@ namespace PaymentService.Migrations
                         .HasColumnName("transaction_value");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("updated_at")
+                        .HasDefaultValueSql("now()");
 
                     b.HasKey("Id");
 
@@ -103,8 +106,10 @@ namespace PaymentService.Migrations
                         .HasColumnName("balance");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp")
-                        .HasColumnName("created_at");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("now()");
 
                     b.Property<bool>("IsDelete")
                         .ValueGeneratedOnAdd()
@@ -113,12 +118,13 @@ namespace PaymentService.Migrations
                         .HasColumnName("is_delete");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp")
-                        .HasColumnName("updated_at");
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("updated_at")
+                        .HasDefaultValueSql("now()");
 
                     b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("timestamp")
-                        .HasColumnName("updated_date");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid")

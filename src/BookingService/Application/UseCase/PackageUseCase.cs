@@ -104,13 +104,13 @@ namespace BookingService.Application.UseCase
             return Result<List<PackageDto>>.Success(packageDtos);
         }
 
-        public async Task<Result<Booking>> BuyPackageAsync(PackageBuyingDTO packageBuyingDTO)
+        public async Task<Result<Booking>> BuyPackageAsync(PackageBuyingDTO packageBuyingDTO,Guid driverId)
         {
             Guid id = Guid.NewGuid();
             var walletCheckResponse = await _payment.CheckWalletBooking(
-               packageBuyingDTO.DriverId,
+               driverId,
                packageBuyingDTO.PriceAtBuyingTime,
-              id);
+              id,null);
 
             if (!walletCheckResponse.IsPayment)
             {

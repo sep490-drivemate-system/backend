@@ -26,17 +26,19 @@ namespace PaymentService.Infrastructure.Persistence.Configurations
                    .IsRequired()
                    .HasDefaultValue(0);
 
-            builder.Property(w => w.UpdatedAt)
-                   .HasColumnName("updated_at")
-                   .HasColumnType("timestamp");
+            builder.Property(x => x.CreatedAt)
+     .HasColumnName("created_at")
+     .HasColumnType("timestamptz")
+     .ValueGeneratedOnAdd()
+     .HasDefaultValueSql("now()")
+     .IsRequired();
 
-            builder.Property(w => w.UpdatedDate)
-                   .HasColumnName("updated_date")
-                   .HasColumnType("timestamp");
-
-            builder.Property(w => w.CreatedAt)
-                   .HasColumnName("created_at")
-                   .HasColumnType("timestamp");
+            builder.Property(x => x.UpdatedAt)
+                .HasColumnName("updated_at")
+                .HasColumnType("timestamptz")
+                .ValueGeneratedOnAddOrUpdate()
+                .HasDefaultValueSql("now()")
+                .IsRequired();
 
             builder.Property(w => w.IsDelete)
                    .HasColumnName("is_delete")

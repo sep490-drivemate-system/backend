@@ -31,7 +31,6 @@ namespace PaymentService.Application.Services
                 Balance = 0,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                UpdatedDate = DateTime.UtcNow,
                 IsDelete = false
             };
 
@@ -53,7 +52,6 @@ namespace PaymentService.Application.Services
             }
 
             wallet.Balance += amount;
-            wallet.UpdatedDate = DateTime.UtcNow;
 
             await _unitOfWork.WalletRepository.UpdateAsync(wallet);
             await _unitOfWork.SaveChangesAsync();

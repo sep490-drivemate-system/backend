@@ -25,11 +25,7 @@ namespace BookingService.Application.Interfaces
         Task<Result<List<SessionRouteDTO>>> CreateSessionRoutes(Guid sessionId, List<SessionRouteCreateDTO> routes);
 
         Task<Result<bool>> UpdateSessionStatus(Guid sessionId, UpdateSessionStatusDTO updateStatusDTO);
-        /// <summary>
-        /// Get all routes for a specific driving session
-        /// </summary>
-        /// <param name="sessionId">The ID of the driving session</param>
-        /// <returns>Session route response containing starting location and routes</returns>
         Task<Result<SessionRouteResponseDTO>> GetSessionRoutesBySessionId(Guid sessionId);
+        Task<Result<SessionLogDTO>> CreateSessionLog(Guid sessionId, SessionLogCreateDTO log);
     }
 }

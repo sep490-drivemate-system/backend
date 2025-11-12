@@ -73,6 +73,7 @@ namespace BookingService.Application.UseCase
                 Status = SessionStatus.Planning,
                 CreatedAt = DateTime.UtcNow,
                 LastModifiedAt = DateTime.UtcNow,
+                DisplayName = drivingSessionCreationDTO.DisplayName,
                 IsDeleted = false,
                 // Initialize default values for fields that will be updated later
                 ActualStart = DateTime.MinValue,
@@ -613,6 +614,64 @@ namespace BookingService.Application.UseCase
                 return Result<SessionRouteResponseDTO>.Failure(
                     ServiceError.UnhandledException(ex.Message),
                     "Đã xảy ra lỗi khi lấy danh sách tuyến đường");
+            }
+        }
+
+        public async Task<Result<SessionLogDTO>> CreateSessionLog(Guid sessionId, SessionLogCreateDTO log)
+        {
+            try
+            {
+                // Validate session exists
+                var session = await _unitOfWork.DrivingSessionRepository.GetByIdAsync(sessionId);
+                if (session == null)
+                {
+                    return Result<SessionLogDTO>.Failure(
+                        ServiceError.NotFoundError($"Driving session {sessionId}"),
+                        "Không tìm thấy buổi học lái xe");
+                }
+
+  
+
+                // Create session log
+                var sessionLog = new SessionLog
+                {
+                    Id = Guid.NewGuid(),
+                    SessionId = sessionId,
+                    StreetName = log.StreetName,
+                    Latitude = log.Latitude,
+                    Longitude = log.Longitude,
+                    Heading = log.Heading,
+                    Speed = log.Speed,
+                    CreatedAt = DateTime.UtcNow,
+                    LastModifiedAt = DateTime.UtcNow,
+                    IsDeleted = false
+                };
+
+                // Add to repository
+                await _unitOfWork.SessionLogRepository.CreateAsync(sessionLog);
+                await _unitOfWork.CommitChangesAsync();
+
+                // Map to DTO
+                var sessionLogDTO = new SessionLogDTO
+                {
+                    Id = sessionLog.Id,
+                    SessionId = sessionLog.SessionId,
+                    StreetName = sessionLog.StreetName,
+                    Latitude = sessionLog.Latitude,
+                    Longitude = sessionLog.Longitude,
+                    Heading = sessionLog.Heading,
+                    Speed = sessionLog.Speed,
+                    CreatedAt = sessionLog.CreatedAt,
+                    LastModifiedAt = sessionLog.LastModifiedAt
+                };
+
+                return Result<SessionLogDTO>.Success(sessionLogDTO, "Tạo session log thành công");
+            }
+            catch (Exception ex)
+            {
+                return Result<SessionLogDTO>.Failure(
+                    ServiceError.UnhandledException(ex.Message),
+                    "Đã xảy ra lỗi khi tạo session log");
             }
         }
     }

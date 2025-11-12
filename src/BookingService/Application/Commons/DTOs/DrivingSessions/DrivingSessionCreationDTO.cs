@@ -5,7 +5,7 @@ namespace BookingService.Application.Commons.DTOs.DrivingSessions
     public class DrivingSessionCreationDTO
     {
         public Guid BookingId { get; set; }
-
+        public string DisplayName { get; set; }
         public DateTime StartTime { get; set; }
         public decimal StartingLatitude { get; set; }
         public decimal StartingLongtitude { get; set; }

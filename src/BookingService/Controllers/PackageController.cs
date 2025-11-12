@@ -2,6 +2,7 @@ using BookingService.Application.Commons.DTOs.Package;
 using BookingService.Application.Interfaces;
 using BookingService.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
+using SharedLibrary.Jwt;
 using SharedLibrary.SharedKernel.ServiceResult;
 
 namespace BookingService.Controllers
@@ -11,10 +12,12 @@ namespace BookingService.Controllers
     public class PackageController : ControllerBase
     {
         private readonly IPackageUseCase _packageUseCase;
+        private readonly IJwtService _jwtService;
 
-        public PackageController(IPackageUseCase packageUseCase)
+        public PackageController(IPackageUseCase packageUseCase,IJwtService jwtService)
         {
             _packageUseCase = packageUseCase;
+            _jwtService = jwtService;
         }
 
         [HttpGet]
@@ -41,7 +44,8 @@ namespace BookingService.Controllers
         [HttpPost("buy-package")]
         public async Task<IActionResult> BuyPackage([FromBody] PackageBuyingDTO packageBuyingDTO)
         {
-            var result = await _packageUseCase.BuyPackageAsync(packageBuyingDTO);
+            var driverId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
+            var result = await _packageUseCase.BuyPackageAsync(packageBuyingDTO, driverId);
             return result.ToActionResult();
         }
 
