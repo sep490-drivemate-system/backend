@@ -44,6 +44,10 @@ namespace BookingService.Infrastructure.Persistence.Configurations
                 .HasColumnType("decimal(18,2)")
                 .IsRequired();
 
+            builder.Property(x => x.AllowNoviceVehicle)
+                .HasColumnName("allow_own_vehicle")
+                .IsRequired();
+
             builder.Property(x => x.CreatedAt)
                 .HasColumnName("created_at")
                 .HasColumnType("timestamp")

@@ -11,6 +11,7 @@ namespace BookingService.Domain.Entities
         public string ThumbnailUrl { get; set; }
         public double Duration { get; set; } // Duration calculated in hours
         public decimal Price { get; set; }
+        public bool AllowNoviceVehicle {  get; set; }
 
         //public PackageRentalType RentalType { get; set; } // No longer required by the requirement
 

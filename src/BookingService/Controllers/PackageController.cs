@@ -4,6 +4,7 @@ using BookingService.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using SharedLibrary.Jwt;
 using SharedLibrary.SharedKernel.ServiceResult;
+using BookingService.Application.Commons.DTOs.Package;
 
 namespace BookingService.Controllers
 {
@@ -35,7 +36,7 @@ namespace BookingService.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreatePackage([FromBody] Package package)
+        public async Task<IActionResult> CreatePackage([FromBody] PackageCreationDTO package)
         {
             var result = await _packageUseCase.CreatePackageAsync(package);
             return result.ToActionResult();

@@ -89,15 +89,32 @@ namespace BookingService.Application.UseCase
 
         public async Task<Result<Package?>> GetPackageByIdAsync(Guid id)
         {
-
             var package = await _unitOfWork.PackageRepository.GetByIdAsync(id);
             return Result<Package?>.Success(package);
-
         }
 
-        public async Task<Result<Package>> CreatePackageAsync(Package package)
+        public async Task<Result<bool>> CreatePackageAsync(PackageCreationDTO package)
         {
-            var createdPackage = await _unitOfWork.PackageRepository.CreateAsync(package);
+            // Get other resources required for package creation
+            var package_driving_skills = await _unitOfWork.SkillRepository.GetAllAsync(filter: x => package.DrivingSkills.Contains(x.Id));
+            var package_road_types = await _unitOfWork.RoadTypeRepository.GetAllAsync(filter: x => package.RoadTypes.Contains(x.Id));
+            var package_cars = await _unitOfWork.CarRepository.GetAllAsync(filter: x => package.PackageCars.Contains(x.Id));
+
+            // Create package
+            Package packageEntity = new Package
+            {
+                Name = package.Name,
+                Description = package.Description,
+                Duration = package.Duration,
+                Price = package.Price,
+                InstructorId = package.InstructorId,
+                AllowNoviceVehicle = package.AllowNoviceCar,
+                DrivingSkills = package_driving_skills,
+                RoadTypes = package_road_types,
+                Cars = package_cars,
+            };
+
+            var createdPackage = await _unitOfWork.PackageRepository.CreateAsync(packageEntity);
 
             try
             {
@@ -105,12 +122,11 @@ namespace BookingService.Application.UseCase
             }
             catch (Exception ex)
             {
-
-                return Result<Package>.Failure(ServiceError.UnhandledException(Messages.Commons.UNHANDLED), Messages.Commons.UNHANDLED);
+                return Result<bool>.Failure(ServiceError.UnhandledException(Messages.Commons.UNHANDLED), Messages.Commons.UNHANDLED);
             }
 
-            return Result<Package>.Success(createdPackage);
 
+            return Result<bool>.Success(true, Messages.Commons.SUCCESS);
         }
 
         public async Task<Result<Package>> UpdatePackageAsync(Package package)
