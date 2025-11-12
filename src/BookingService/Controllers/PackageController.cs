@@ -21,9 +21,9 @@ namespace BookingService.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllPackages()
+        public async Task<IActionResult> GetAllPackages(PackageListFilterDTO filter)
         {
-            var result = await _packageUseCase.GetAllPackagesAsync();
+            var result = await _packageUseCase.GetAllPackagesAsync(filter);
             return result.ToActionResult();
         }
 
