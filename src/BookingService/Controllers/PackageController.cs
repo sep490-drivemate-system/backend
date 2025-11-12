@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using SharedLibrary.Jwt;
 using SharedLibrary.SharedKernel.ServiceResult;
 using BookingService.Application.Commons.DTOs.Package;
+using Microsoft.AspNetCore.Authorization;
+using SharedLibrary.SharedKernel.Enum;
 
 namespace BookingService.Controllers
 {
@@ -36,8 +38,10 @@ namespace BookingService.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = nameof(UserRole.Instructor))]
         public async Task<IActionResult> CreatePackage([FromBody] PackageCreationDTO package)
         {
+            package.InstructorId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
             var result = await _packageUseCase.CreatePackageAsync(package);
             return result.ToActionResult();
         }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Text.Json.Serialization;
 
 namespace BookingService.Application.Commons.DTOs.Package
 {
@@ -10,7 +11,7 @@ namespace BookingService.Application.Commons.DTOs.Package
         [FromForm(Name = "description")]
         public string Description { get; set; }
 
-        [FromForm(Name = "instructor_id")]
+        [JsonIgnore]
         public Guid InstructorId { get; set; }
 
         [FromForm(Name = "duration")]
