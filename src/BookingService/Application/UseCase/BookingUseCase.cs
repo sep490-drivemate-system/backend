@@ -71,10 +71,7 @@ namespace BookingService.Application.UseCase
                 return Result<List<BookingsDTO>>.Success(new List<BookingsDTO>());
             }
 
-            var instructorIds = bookings.Select(b => b.InstructorId).Distinct().ToList();
-            var instructorInfos = await _user.GetBatchInstructorInfo(instructorIds);
-
-            var bookingDTOs = bookings.MapToBookingsDTOWithStats(instructorInfos);
+            var bookingDTOs = _mapper.Map<List<BookingsDTO>>(bookings);
 
             return Result<List<BookingsDTO>>.Success(bookingDTOs);
         }

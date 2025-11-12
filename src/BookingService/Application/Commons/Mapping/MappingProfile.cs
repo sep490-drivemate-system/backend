@@ -64,6 +64,21 @@ namespace BookingService.Application.Commons.Mapping
             // Mapping for Instructor Schedule DTOs
             CreateMap<DrivingSession, InstructorScheduleDTO>();
 
+            CreateMap<Booking, BookingsDTO>()
+                           .ForMember(dest => dest.NamePackake,
+                               opt => opt.MapFrom(src => src.Package != null ? src.Package.Name : ""))
+                           .ForMember(dest => dest.BookingStatus,
+                               opt => opt.MapFrom(src => src.Status))
+                           .ForMember(dest => dest.BuyDate,
+                               opt => opt.MapFrom(src => src.CreatedAt))
+                           .ForMember(dest => dest.Duration,
+                               opt => opt.MapFrom(src => (int)src.DurationWhenBought))
+                           .ForMember(dest => dest.DurationInUse,
+                               opt => opt.MapFrom(src => src.CalculateDurationUsed()))
+                           .ForMember(dest => dest.RemainingTime,
+                               opt => opt.MapFrom(src => src.CalculateRemainingTime()))
+                           .ForMember(dest => dest.PrecentInUse,
+                               opt => opt.MapFrom(src => src.CalculatePercentInUse()));
         }
     }
 }

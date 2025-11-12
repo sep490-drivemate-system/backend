@@ -1,50 +1,52 @@
 using BookingService.Application.Commons.DTOs.Booking;
 using BookingService.Domain.Entities;
+using BookingService.Domain.Enum;
 using SharedLibrary.SharedKernel.Http.DTOs.User;
 
 namespace BookingService.Application.Commons.Mapping
 {
     public static class BookingMappingExtensions
     {
-        /// <summary>
-        /// Maps bookings to BookingsDTO with instructor info and calculated duration statistics
-        /// </summary>
-        public static List<BookingsDTO> MapToBookingsDTOWithStats(
-            this IEnumerable<Booking> bookings,
-            Dictionary<Guid, InstructorBasicInfoDTO> instructorInfos)
+        public static int CalculateDurationUsed(this Booking booking)
         {
-            return bookings.Select(booking =>
-            {
-                var durationInUse = booking.DrivingSessions?
-                    .Where(ds => !ds.IsDeleted && ds.ActualStart != default && ds.ActualEnd != default)
-                    .Sum(ds => (ds.ActualEnd - ds.ActualStart).TotalHours) ?? 0;
+            var durationInUse = booking.DrivingSessions?
+                .Where(ds => !ds.IsDeleted
+                    && ds.Status == SessionStatus.Completed
+                    && ds.ActualStart != default
+                    && ds.ActualEnd != default)
+                .Sum(ds => (ds.ActualEnd - ds.ActualStart).TotalHours) ?? 0;
 
-                var duration = (int)booking.DurationWhenBought;
-                var durationUsed = (int)Math.Round(durationInUse);
-                var remainingTime = Math.Max(0, duration - durationUsed);
-                var percentInUse = duration > 0 ? (int)Math.Round((double)durationUsed / duration * 100) : 0;
+            return (int)Math.Round(durationInUse);
+        }
+        public static int CalculateRemainingTime(this Booking booking)
+        {
+            var duration = (int)booking.DurationWhenBought;
 
-                var instructorInfo = instructorInfos.TryGetValue(booking.InstructorId, out var info)
-                    ? info
-                    : null;
+            var completedDuration = booking.DrivingSessions?
+                .Where(ds => !ds.IsDeleted
+                    && ds.Status == SessionStatus.Completed
+                    && ds.ActualStart != default
+                    && ds.ActualEnd != default)
+                .Sum(ds => (ds.ActualEnd - ds.ActualStart).TotalHours) ?? 0;
 
-                return new BookingsDTO
-                {
-                    Id = booking.Id,
-                    InstructorId = booking.InstructorId,
-                    CarId = booking.CarId,
-                    CarPrice = booking.Car?.Price,
-                    NameInstructor = instructorInfo?.Fullname ?? "Unknown",
-                    AvatarInstructor = instructorInfo?.AvatarUrl ?? "",
-                    NamePackake = booking.Package?.Name ?? "",
-                    BookingStatus = booking.Status,
-                    BuyDate = booking.CreatedAt,
-                    Duration = duration,
-                    DurationInUse = durationUsed,
-                    RemainingTime = remainingTime,
-                    PrecentInUse = percentInUse
-                };
-            }).ToList();
+            var upcomingDuration = booking.DrivingSessions?
+                .Where(ds => !ds.IsDeleted
+                    && ds.Status == SessionStatus.Upcoming
+                    && ds.StartTime != default
+                    && ds.EndTime != default)
+                .Sum(ds => (ds.EndTime - ds.StartTime).TotalHours) ?? 0;
+
+            var totalUsedAndPlanned = (int)Math.Round(completedDuration + upcomingDuration);
+
+            return Math.Max(0, duration - totalUsedAndPlanned);
+        }
+        public static int CalculatePercentInUse(this Booking booking)
+        {
+            var duration = (int)booking.DurationWhenBought;
+            if (duration <= 0) return 0;
+
+            var durationUsed = booking.CalculateDurationUsed();
+            return (int)Math.Round((double)durationUsed / duration * 100);
         }
     }
 }

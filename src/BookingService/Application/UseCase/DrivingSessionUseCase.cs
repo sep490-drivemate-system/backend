@@ -621,30 +621,15 @@ namespace BookingService.Application.UseCase
         {
             try
             {
-                // Validate session exists
-                var session = await _unitOfWork.DrivingSessionRepository.GetByIdAsync(sessionId);
-                if (session == null)
-                {
-                    return Result<SessionLogDTO>.Failure(
-                        ServiceError.NotFoundError($"Driving session {sessionId}"),
-                        "Không tìm thấy buổi học lái xe");
-                }
 
-  
-
-                // Create session log
                 var sessionLog = new SessionLog
                 {
-                    Id = Guid.NewGuid(),
                     SessionId = sessionId,
                     StreetName = log.StreetName,
                     Latitude = log.Latitude,
                     Longitude = log.Longitude,
                     Heading = log.Heading,
-                    Speed = log.Speed,
-                    CreatedAt = DateTime.UtcNow,
-                    LastModifiedAt = DateTime.UtcNow,
-                    IsDeleted = false
+                    Speed = log.Speed
                 };
 
                 // Add to repository

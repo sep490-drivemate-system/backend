@@ -32,13 +32,11 @@ namespace BookingService.Application.UseCase
         {
             try
             {
-                // Get packages with filter from repository
                 var (packages, totalCount) = await _unitOfWork.PackageRepository.GetPackagesWithFilterAsync(
                     filter.SearchKey,
                     filter.PageNumber,
                     filter.PageSize);
 
-                // Get unique instructor IDs
                 var instructorIds = packages
                     .Select(p => p.InstructorId)
                     .Distinct()
