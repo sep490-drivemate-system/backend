@@ -1,6 +1,8 @@
-using Microsoft.AspNetCore.Mvc;
-using BookingService.Domain.Entities;
+using BookingService.Application.Commons.DTOs.Package;
 using BookingService.Application.Interfaces;
+using BookingService.Domain.Entities;
+using Microsoft.AspNetCore.Mvc;
+using SharedLibrary.Jwt;
 using SharedLibrary.SharedKernel.ServiceResult;
 
 namespace BookingService.Controllers
@@ -10,16 +12,18 @@ namespace BookingService.Controllers
     public class PackageController : ControllerBase
     {
         private readonly IPackageUseCase _packageUseCase;
+        private readonly IJwtService _jwtService;
 
-        public PackageController(IPackageUseCase packageUseCase)
+        public PackageController(IPackageUseCase packageUseCase,IJwtService jwtService)
         {
             _packageUseCase = packageUseCase;
+            _jwtService = jwtService;
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllPackages()
+        public async Task<IActionResult> GetAllPackages(PackageListFilterDTO filter)
         {
-            var result = await _packageUseCase.GetAllPackagesAsync();
+            var result = await _packageUseCase.GetAllPackagesAsync(filter);
             return result.ToActionResult();
         }
 
@@ -34,6 +38,14 @@ namespace BookingService.Controllers
         public async Task<IActionResult> CreatePackage([FromBody] Package package)
         {
             var result = await _packageUseCase.CreatePackageAsync(package);
+            return result.ToActionResult();
+        }
+
+        [HttpPost("buy-package")]
+        public async Task<IActionResult> BuyPackage([FromBody] PackageBuyingDTO packageBuyingDTO)
+        {
+            var driverId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
+            var result = await _packageUseCase.BuyPackageAsync(packageBuyingDTO, driverId);
             return result.ToActionResult();
         }
 
@@ -56,10 +68,10 @@ namespace BookingService.Controllers
             return result.ToActionResult();
         }
 
-        [HttpGet("instructor/{instructorId}")]
-        public async Task<IActionResult> GetInstructorPackages(Guid instructorId)
+        [HttpGet("instructor/{id}")]
+        public async Task<IActionResult> GetInstructorPackages(Guid id)
         {
-            var result = await _packageUseCase.GetInstructorPackagesAsync(instructorId);
+            var result = await _packageUseCase.GetInstructorPackagesAsync(id);
             return result.ToActionResult();
         }
     }

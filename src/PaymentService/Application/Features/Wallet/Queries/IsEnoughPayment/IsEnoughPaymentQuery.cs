@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using SharedLibrary.SharedKernel.Http.DTOs.Payment;
 using SharedLibrary.SharedKernel.ServiceResult;
 
@@ -8,5 +8,7 @@ namespace PaymentService.Application.Features.Wallet.Queries.IsEnoughPayment
     {
         public Guid UserId { get; set; }
         public decimal Amount { get; set; }
+        public Guid BookingId { get; set; }
+        public Guid? DrivingSessionId { get; set; }
     }
 }

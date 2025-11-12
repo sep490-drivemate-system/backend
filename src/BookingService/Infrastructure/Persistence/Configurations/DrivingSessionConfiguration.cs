@@ -24,23 +24,34 @@ namespace BookingService.Infrastructure.Persistence.Configurations
             // properties
             builder.Property(x => x.StartTime)
                 .HasColumnName("start_time")
+                .HasColumnType("timestamptz")
                 .IsRequired();
+
+            builder.Property(x => x.PriceForCar)
+              .HasColumnName("price_for_car")
+              .IsRequired(false);
 
             builder.Property(x => x.EndTime)
                 .HasColumnName("end_time")
+                .HasColumnType("timestamptz")
                 .IsRequired();
 
             builder.Property(x => x.ActualStart)
-                .HasColumnName("actual_start_time");
+                .HasColumnName("actual_start_time")
+                .HasColumnType("timestamptz");
 
             builder.Property(x => x.ActualEnd)
-                .HasColumnName("actual_end_time");
+                .HasColumnName("actual_end_time")
+                .HasColumnType("timestamptz");
 
             builder.Property(x => x.TotalDistance)
                 .HasColumnName("distance");
 
             builder.Property(x => x.AverageSpeed)
                 .HasColumnName("speed");
+
+            builder.Property(x => x.DisplayName)
+               .HasColumnName("display_name");
 
             builder.Property(x => x.StartingLatitude)
                 .HasColumnName("starting_lat");
@@ -70,14 +81,14 @@ namespace BookingService.Infrastructure.Persistence.Configurations
 
             builder.Property(x => x.CreatedAt)
                 .HasColumnName("created_at")
-                .HasColumnType("timestamp")
+                .HasColumnType("timestamptz")
                 .ValueGeneratedOnAdd()
                 .HasDefaultValueSql("now()")
                 .IsRequired();
 
             builder.Property(x => x.LastModifiedAt)
                 .HasColumnName("updated_at")
-                .HasColumnType("timestamp")
+                .HasColumnType("timestamptz")
                 .ValueGeneratedOnAddOrUpdate()
                 .HasDefaultValueSql("now()")
                 .IsRequired();

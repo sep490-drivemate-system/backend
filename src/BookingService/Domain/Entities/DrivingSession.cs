@@ -1,4 +1,4 @@
-﻿using BookingService.Domain.Enum;
+using BookingService.Domain.Enum;
 using SharedLibrary.SharedKernel.Entities;
 
 namespace BookingService.Domain.Entities
@@ -8,10 +8,12 @@ namespace BookingService.Domain.Entities
         // Properties
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
+        public decimal? PriceForCar { get; set; }
         public DateTime ActualStart { get; set; }
         public DateTime ActualEnd { get; set; }
         public decimal TotalDistance { get; set; }
         public decimal AverageSpeed { get; set; }
+        public string DisplayName { get; set; }
         public decimal StartingLatitude { get; set; }
         public decimal StartingLongtitude { get; set; }
         public decimal EndingLatitude { get; set; }
@@ -29,7 +31,7 @@ namespace BookingService.Domain.Entities
         public Guid BookingId { get; set; }
 
         // Navigational properties
-        public virtual Booking? Booking { get; set; }
+        public virtual Booking Booking { get; set; }
         public virtual ICollection<SessionLog>? SessionLogs { get; set; }
         public virtual ICollection<SessionRoute>? SessionRoutes { get; set; }
         public virtual ICollection<RescheduleRequest>? RescheduleRequests { get; set; }

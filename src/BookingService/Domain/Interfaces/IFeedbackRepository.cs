@@ -7,6 +7,7 @@ namespace BookingService.Domain.Interfaces
     public interface IFeedbackRepository : IGenericRepository<Feedback>
     {
         Task<InstructorOverviewFeedbackResponse> GetStatisticListInstructor(Guid instructorId);
+        Task<Dictionary<Guid, InstructorOverviewFeedbackResponse>> GetBatchStatistics(List<Guid> instructorIds);
         Task<IEnumerable<Feedback>> GetAllFeedbacksAsync();
         Task<Feedback?> GetFeedbackByIdAsync(Guid id);
         Task<IEnumerable<Feedback>> GetByBookingIdAsync(Guid bookingId);

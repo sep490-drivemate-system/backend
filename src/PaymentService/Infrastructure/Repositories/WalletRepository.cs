@@ -47,28 +47,64 @@ namespace PaymentService.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        public async Task<bool> CheckWallet(Guid walletId, decimal amount)
+        public async Task<(bool IsSuccess, string Message, decimal CurrentBalance)> CheckAndDeductWallet(
+            Guid userId, decimal amount, Guid bookingId, Guid? drivingSessionId = null)
         {
-            var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.Id == walletId);
+            // Find wallet by UserId
+            var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.Id == userId && !w.IsDelete);
 
+            // If wallet doesn't exist, create new wallet with 0 balance
             if (wallet == null)
             {
                 wallet = new Wallet
                 {
-                    Id = walletId,
-                    Balance = 0, 
+                    Id = userId,
+                    UserId = userId,
+                    Balance = 0,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
                 };
 
                 _context.Wallets.Add(wallet);
                 await _context.SaveChangesAsync();
 
-                return false; 
+                return (false, $"Số dư không đủ. Số dư hiện tại: {wallet.Balance:N0} VNĐ, cần: {amount:N0} VNĐ", wallet.Balance);
             }
 
-            if (wallet.Balance >= amount)
-                return true;
+            // Check if balance is sufficient
+            if (wallet.Balance < amount)
+            {
+                return (false, $"Số dư không đủ. Số dư hiện tại: {wallet.Balance:N0} VNĐ, cần: {amount:N0} VNĐ", wallet.Balance);
+            }
 
-            return false;
+            // Deduct amount from wallet
+            wallet.Balance -= amount;
+            wallet.CreatedAt = DateTime.UtcNow;
+            wallet.UpdatedAt = DateTime.UtcNow;
+
+
+            // Create transaction record
+            var transaction = new Transaction
+            {
+                Id = Guid.NewGuid(),
+                FromWalletId = wallet.Id,
+                ToWalletId = null, 
+                TransactionValue = amount,
+                PaymentMethod = Domain.Enum.PaymentMethod.Wallet,
+                Status = Domain.Enum.PaymentStatus.Completed,
+                BookingId = bookingId,
+                DrivingSessionId = drivingSessionId,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                
+
+
+            };
+
+            await _context.Transactions.AddAsync(transaction);
+            await _context.SaveChangesAsync();
+
+            return (true, $"Thanh toán thành công. Số dư còn lại: {wallet.Balance:N0} VNĐ", wallet.Balance);
         }
 
     }

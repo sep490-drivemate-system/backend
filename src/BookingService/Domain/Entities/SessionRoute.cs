@@ -15,9 +15,6 @@ namespace BookingService.Domain.Entities
 
         public decimal LongitudeStart { get; set; }
 
-        //public decimal LatitudeEnd { get; set; }
-
-        //public decimal LongtitudeEnd { get; set; }
 
         // System properties
         public DateTime LastModifiedAt { get; set; }

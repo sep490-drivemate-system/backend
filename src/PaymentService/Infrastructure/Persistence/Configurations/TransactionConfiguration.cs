@@ -24,11 +24,14 @@ namespace PaymentService.Infrastructure.Persistence.Configurations
                    .HasColumnName("transaction_value")
                    .HasPrecision(18, 2)
                    .IsRequired();
+            builder.Property(t => t.DrivingSessionId)
+                 .HasColumnName("driving_session_id")
+                 .IsRequired(false);
 
             builder.Property(t => t.PaymentMethod)
                    .HasColumnName("payment_method")
                    .HasConversion<int>()
-                   .IsRequired();
+                   .IsRequired(false);
 
             builder.Property(t => t.Status)
                    .HasColumnName("status")
@@ -38,11 +41,21 @@ namespace PaymentService.Infrastructure.Persistence.Configurations
             builder.Property(t => t.ReferenceCode)
                    .HasColumnName("reference_code")
                    .HasMaxLength(255)
-                   .IsRequired();
+                   .IsRequired(false);
 
-            builder.Property(t => t.UpdatedAt)
-                   .HasColumnName("updated_at")
-                   .HasColumnType("timestamp");
+            builder.Property(x => x.CreatedAt)
+                .HasColumnName("created_at")
+                .HasColumnType("timestamptz")
+                .ValueGeneratedOnAdd()
+                .HasDefaultValueSql("now()")
+                .IsRequired();
+
+            builder.Property(x => x.UpdatedAt)
+                .HasColumnName("updated_at")
+                .HasColumnType("timestamptz")
+                .ValueGeneratedOnAddOrUpdate()
+                .HasDefaultValueSql("now()")
+                .IsRequired();
 
             builder.Property(t => t.ToWalletId)
                    .HasColumnName("to_wallet_id")
@@ -52,9 +65,7 @@ namespace PaymentService.Infrastructure.Persistence.Configurations
                    .HasColumnName("from_wallet_id")
                    .IsRequired();
 
-            builder.Property(t => t.CreatedAt)
-                   .HasColumnName("created_at")
-                   .HasColumnType("timestamp");
+
 
             builder.Property(t => t.IsDelete)
                    .HasColumnName("is_delete")

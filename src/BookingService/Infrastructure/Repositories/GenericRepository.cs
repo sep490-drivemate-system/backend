@@ -1,4 +1,4 @@
-﻿using BookingService.Domain.Interfaces;
+using BookingService.Domain.Interfaces;
 using BookingService.Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;

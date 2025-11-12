@@ -322,8 +322,8 @@ namespace UserService.Infrastructure.Persistence.Migrations
                         .HasColumnName("created_at")
                         .HasDefaultValueSql("now()");
 
-                    b.Property<DateTime>("EndTime")
-                        .HasColumnType("timestamp with time zone")
+                    b.Property<DateOnly>("EndTime")
+                        .HasColumnType("date")
                         .HasColumnName("end_time");
 
                     b.Property<Guid>("InstructorId")
@@ -342,8 +342,8 @@ namespace UserService.Infrastructure.Persistence.Migrations
                         .HasColumnName("updated_at")
                         .HasDefaultValueSql("now()");
 
-                    b.Property<DateTime>("StartTime")
-                        .HasColumnType("timestamp with time zone")
+                    b.Property<DateOnly>("StartTime")
+                        .HasColumnType("date")
                         .HasColumnName("start_time");
 
                     b.HasKey("Id");
@@ -388,6 +388,10 @@ namespace UserService.Infrastructure.Persistence.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)")
                         .HasColumnName("name");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer")
+                        .HasColumnName("type");
 
                     b.HasKey("Id");
 

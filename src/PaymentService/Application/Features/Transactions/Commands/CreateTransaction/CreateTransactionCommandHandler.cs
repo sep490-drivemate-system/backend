@@ -33,8 +33,6 @@ namespace PaymentService.Application.Features.Transactions.Commands.CreateTransa
                 PaymentMethod = request.PaymentMethod,
                 Status = PaymentStatus.Pending,
                 ReferenceCode = request.ReferenceCode ?? Guid.NewGuid().ToString(),
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
                 FromWalletId = request.FromWalletId,
                 ToWalletId = request.ToWalletId,
                 IsDelete = false

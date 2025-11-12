@@ -21,6 +21,10 @@ namespace UserService.Infrastructure.Persistence.Configurations
                 .IsRequired()
                 .HasMaxLength(500);
 
+            builder.Property(u => u.Type)
+               .HasColumnName("type")
+               .IsRequired();
+
             builder.Property(u => u.Description)
                 .HasColumnName("description")
                 .IsRequired();

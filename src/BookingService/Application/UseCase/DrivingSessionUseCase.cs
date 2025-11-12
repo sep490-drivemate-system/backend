@@ -1,3 +1,4 @@
+using AutoMapper;
 using BookingService.Application.Commons.Constants;
 using BookingService.Application.Commons.DTOs.DrivingSessions;
 using BookingService.Application.Interfaces;
@@ -8,26 +9,31 @@ using SharedLibrary.Jwt;
 using SharedLibrary.SharedKernel.Enum;
 using SharedLibrary.SharedKernel.Http.DTOs.ApiResponse;
 using SharedLibrary.SharedKernel.Http.DTOs.User;
+using SharedLibrary.SharedKernel.Http.Interfaces;
 using SharedLibrary.SharedKernel.ServiceResult;
 using System.Linq.Expressions;
+using System.Net.Http;
 
 namespace BookingService.Application.UseCase
 {
-    public class DrivingSessionUseCase(IUnitOfWork unitOfWok, IJwtService jwtService, IHttpClientFactory http_client_factory): IDrivingSessionUseCase
+    public class DrivingSessionUseCase(IUnitOfWork unitOfWok, IJwtService jwtService, IUser userService, IMapper mapper, IHttpClientFactory httpClientFactory, IPayment paymentService) : IDrivingSessionUseCase
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWok;
         private readonly IJwtService _jwtService = jwtService;
-        private readonly IHttpClientFactory _httpClientFactory = http_client_factory;
+        private readonly IUser _userService = userService;
+        private readonly IMapper _mapper = mapper;
+        private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
+        private readonly IPayment _paymentService = paymentService;
 
         public async Task<Result<ICollection<DrivingSession>>> GetAllDrivingSession(SessionStatus sessionStatus)
         {
 
-                var drivingSessions = await _unitOfWork.DrivingSessionRepository.GetAllByStatus(sessionStatus);
-                
-                var result = drivingSessions.ToList();
-                
-                return Result<ICollection<DrivingSession>>.Success(result);
-           
+            var drivingSessions = await _unitOfWork.DrivingSessionRepository.GetAllByStatus(sessionStatus);
+
+            var result = drivingSessions.ToList();
+
+            return Result<ICollection<DrivingSession>>.Success(result);
+
         }
 
         public async Task<Result<bool>> CreateDrivingSession(DrivingSessionCreationDTO drivingSessionCreationDTO)
@@ -42,29 +48,32 @@ namespace BookingService.Application.UseCase
             }
 
             // Validate booking status
-            if (booking.Status != BookingStatus.Planned && booking.Status != BookingStatus.Planned)
-            {
-                return Result<bool>.Failure(
-                    ServiceError.InvalidStateError($"Booking status: {booking.Status}"),
-                    "Booking must be confirmed or planned to create driving session");
-            }
+            //if (booking.Status != BookingStatus.Planned && booking.Status != BookingStatus.Planned)
+            //{
+            //    return Result<bool>.Failure(
+            //        ServiceError.InvalidStateError($"Booking status: {booking.Status}"),
+            //        "Booking must be confirmed or planned to create driving session");
+            //}
 
             // Calculate end time based on duration
             DateTime endTime = drivingSessionCreationDTO.StartTime.AddMinutes(drivingSessionCreationDTO.Duration);
 
-            // Create new driving session entity
+            // Create new driving session entity with temporary ID
+            var sessionId = Guid.NewGuid();
             var drivingSession = new DrivingSession
             {
-                Id = Guid.NewGuid(),
+                Id = sessionId,
                 BookingId = drivingSessionCreationDTO.BookingId,
                 StartTime = drivingSessionCreationDTO.StartTime,
                 EndTime = endTime,
+                PriceForCar = drivingSessionCreationDTO.PriceForCar,
                 StartingLatitude = drivingSessionCreationDTO.StartingLatitude,
                 StartingLongtitude = drivingSessionCreationDTO.StartingLongtitude,
                 NoviceDriverNote = drivingSessionCreationDTO.SessionNote,
-                Status = SessionStatus.Planned,
+                Status = SessionStatus.Planning,
                 CreatedAt = DateTime.UtcNow,
                 LastModifiedAt = DateTime.UtcNow,
+                DisplayName = drivingSessionCreationDTO.DisplayName,
                 IsDeleted = false,
                 // Initialize default values for fields that will be updated later
                 ActualStart = DateTime.MinValue,
@@ -77,6 +86,37 @@ namespace BookingService.Application.UseCase
 
             try
             {
+                // Check if PriceForCar has value, then call PaymentService
+                if (drivingSessionCreationDTO.PriceForCar.HasValue && drivingSessionCreationDTO.PriceForCar.Value > 0)
+                {
+                    try
+                    {
+                        var paymentResponse = await _paymentService.CheckWalletBooking(
+                            booking.DriverId,
+                            drivingSessionCreationDTO.PriceForCar.Value,
+                            drivingSessionCreationDTO.BookingId,
+                            sessionId
+                        );
+
+                        if (!paymentResponse.IsPayment)
+                        {
+                            // Insufficient balance
+                            return Result<bool>.Failure(
+                                ServiceError.BadRequestError("Insufficient wallet balance"),
+                                paymentResponse.Message ?? "Số dư trong ví không đủ để thanh toán cho xe. Vui lòng nạp thêm tiền.");
+                        }
+
+                        // Payment successful, continue to create session
+                    }
+                    catch (Exception paymentEx)
+                    {
+                        return Result<bool>.Failure(
+                            ServiceError.UnhandledException($"Payment service error: {paymentEx.Message}"),
+                            "Không thể kết nối đến dịch vụ thanh toán. Vui lòng thử lại sau.");
+                    }
+                }
+
+                // Create driving session in database
                 await _unitOfWork.DrivingSessionRepository.CreateAsync(drivingSession);
                 await _unitOfWork.CommitChangesAsync();
 
@@ -112,7 +152,7 @@ namespace BookingService.Application.UseCase
                     throw new Exception($"{user_info.Role}");
                 }
 
-                Expression<Func<DrivingSession, bool>> filter_expression = x => 
+                Expression<Func<DrivingSession, bool>> filter_expression = x =>
                     (user_info.Role == UserRole.NoviceDriver ? x.Booking.DriverId == user_info.NoviceDriver.NoviceDriverId :
                     x.Booking.InstructorId == user_info.Instructor.InstructorId)
                     && (session_filter.StartDate == null || DateOnly.FromDateTime(x.StartTime) > session_filter.StartDate)
@@ -120,7 +160,7 @@ namespace BookingService.Application.UseCase
                     && !x.IsDeleted;
                 Func<IQueryable<DrivingSession>, IOrderedQueryable<DrivingSession>> order_by = x => x.OrderByDescending(u => u.StartTime);
                 string included_properties = "Booking,Booking.Package,RescheduleRequests";
-                
+
                 IEnumerable<DrivingSession> user_driving_sessions = await _unitOfWork.DrivingSessionRepository.GetAllAsync(filter: filter_expression, orderBy: order_by, include_properties: included_properties);
                 var sessions_mapped_list = user_driving_sessions.Select(x => new DrivingSessionDTO
                 {
@@ -139,7 +179,7 @@ namespace BookingService.Application.UseCase
                 // TODO: Add pagination support if later required.
                 return Result<IEnumerable<DrivingSessionDTO>>.Success(sessions_mapped_list, Messages.Commons.SUCCESS);
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 return Result<IEnumerable<DrivingSessionDTO>>.Failure(ServiceError.NotFoundError($"{ex.Message}"), Messages.Commons.UNHANDLED);
             }
@@ -159,7 +199,7 @@ namespace BookingService.Application.UseCase
 
             var filtered_bookings = await _unitOfWork.BookingRepository.GetAllAsync(filter: filter_expression, include_properties: included_properties);
 
-            if (!filtered_bookings.Any()) 
+            if (!filtered_bookings.Any())
             {
                 return Result<bool>.Failure(ServiceError.NotFoundError($"{session_id}"), Messages.Commons.NOTFOUND);
             }
@@ -168,7 +208,7 @@ namespace BookingService.Application.UseCase
             DrivingSession target_session = target_booking.DrivingSessions.FirstOrDefault(x => x.Id == session_id); // Get the target session.
 
             // Check if the session is available for reschedule.
-            if (target_session.Status != SessionStatus.Planned)
+            if (target_session.Status != SessionStatus.Planning)
             {
                 return Result<bool>.Failure(ServiceError.InvalidStateError($"{target_session.Status.ToString()}"), Messages.Commons.UNHANDLED);
             }
@@ -273,7 +313,7 @@ namespace BookingService.Application.UseCase
                         // Add more time as compensation when instructor cancel near start time according to business rule.
                         target_session.Booking.DurationWhenBought += (target_session.StartTime - target_session.EndTime).TotalHours * 0.5;
                     }
-                    
+
                     target_session.Status = SessionStatus.Cancelled;
 
                     _unitOfWork.DrivingSessionRepository.Update(target_session);
@@ -284,6 +324,355 @@ namespace BookingService.Application.UseCase
             }
 
             return Result<bool>.Success(true, Messages.Commons.SUCCESS);
+        }
+
+        //public async Task<Result<IEnumerable<InstructorScheduleResponseDTO>>> ScheduleInstructor(Guid instructorId)
+        //{
+        //    try
+        //    {
+        //        Expression<Func<Booking, bool>> filter = b => 
+        //            b.InstructorId == instructorId && 
+        //            !b.IsDeleted  );
+
+        //        var bookings = await _unitOfWork.BookingRepository.GetAllAsync(
+        //            filter: filter,
+        //            include_properties: "DrivingSessions"
+        //        );
+
+        //        var busySessions = bookings
+        //            .SelectMany(b => b.DrivingSessions ?? new List<DrivingSession>())
+        //            .Where(ds => 
+        //                !ds.IsDeleted && 
+        //                ds.Status != SessionStatus.Cancelled &&
+        //                ds.EndTime >= DateTime.UtcNow) 
+        //            .OrderBy(ds => ds.StartTime)
+        //            .ToList();
+
+        //        var scheduleByDate = busySessions
+        //            .GroupBy(ds => ds.StartTime.Date)
+        //            .Select(group => new InstructorScheduleResponseDTO
+        //            {
+        //                Date = group.Key,
+        //                BusySlots = _mapper.Map<List<InstructorScheduleDTO>>(
+        //                    group.OrderBy(ds => ds.StartTime).ToList()
+        //                )
+        //            })
+        //            .OrderBy(schedule => schedule.Date)
+        //            .ToList();
+
+        //        return Result<IEnumerable<InstructorScheduleResponseDTO>>.Success(
+        //            scheduleByDate, 
+        //            Messages.Commons.SUCCESS
+        //        );
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Result<IEnumerable<InstructorScheduleResponseDTO>>.Failure(
+        //            ServiceError.UnhandledException(ex.Message),
+        //            Messages.Commons.UNHANDLED
+        //        );
+        //    }
+        //}
+
+        public async Task<Result<List<DrivingSessionListDTO>>> GetDrivingSessionsByBooking(Guid bookingId, SessionStatus? status)
+        {
+            // Build filter expression
+            Expression<Func<DrivingSession, bool>> filter = status.HasValue
+                ? ds => ds.BookingId == bookingId && ds.Status == status.Value && !ds.IsDeleted
+                : ds => ds.BookingId == bookingId && !ds.IsDeleted;
+
+            // Get driving sessions (without includes for better performance)
+            var sessions = await _unitOfWork.DrivingSessionRepository.GetAllAsync(
+                filter: filter,
+                orderBy: q => q.OrderBy(ds => ds.StartTime),
+                include_properties: ""
+            );
+
+            if (!sessions.Any())
+            {
+                return Result<List<DrivingSessionListDTO>>.Success(new List<DrivingSessionListDTO>());
+            }
+
+            // Get booking IDs from sessions
+            var bookingIds = sessions.Select(s => s.BookingId).Distinct().ToList();
+
+            // Query bookings with related data directly from repository
+            var bookings = await _unitOfWork.BookingRepository.GetAllAsync(
+                filter: b => bookingIds.Contains(b.Id) && !b.IsDeleted,
+                include_properties: "Package,Car"
+            );
+
+            // Create booking lookup dictionary for fast access
+            var bookingDict = bookings.ToDictionary(b => b.Id);
+
+            // Get unique instructor IDs from bookings
+            var instructorIds = bookings.Select(b => b.InstructorId).Distinct().ToList();
+
+            // Call UserService to get instructor info via SharedLibrary
+            var instructorInfos = new Dictionary<Guid, string>();
+            try
+            {
+                var instructorData = await _userService.GetBatchInstructorInfo(instructorIds);
+                instructorInfos = instructorData.ToDictionary(
+                    kvp => kvp.Key,
+                    kvp => kvp.Value.Fullname
+                );
+            }
+            catch (Exception ex)
+            {
+                // Log error but continue with empty instructor info
+                Console.WriteLine($"Error fetching instructor info: {ex.Message}");
+            }
+
+            // Map sessions to DTOs using booking dictionary
+            var sessionDTOs = sessions
+                .Where(session => bookingDict.ContainsKey(session.BookingId))
+                .Select(session =>
+                {
+                    var booking = bookingDict[session.BookingId];
+                    var duration = (session.EndTime - session.StartTime).TotalHours;
+                    var instructorName = instructorInfos.TryGetValue(booking.InstructorId, out var name)
+                        ? name
+                        : "Unknown";
+
+                    return new DrivingSessionListDTO
+                    {
+                        Id = session.Id,
+                        PackageId = booking.PackageId,
+                        InstructorId = booking.InstructorId,
+                        InstructorName = instructorName,
+                        Date = session.StartTime.ToString("yyyy-MM-dd"),
+                        StartTime = session.StartTime.ToString("HH:mm"),
+                        EndTime = session.EndTime.ToString("HH:mm"),
+                        Duration = Math.Round(duration, 2),
+                        Location = $"{session.StartingLatitude},{session.StartingLongtitude}",
+                        VehicleId = booking.CarId,
+                        VehicleName = booking.Car?.Name,
+                        Status = session.Status,
+                        CreatedAt = session.CreatedAt
+                    };
+                }).ToList();
+
+            return Result<List<DrivingSessionListDTO>>.Success(sessionDTOs);
+        }
+
+        public async Task<Result<List<SessionRouteDTO>>> CreateSessionRoutes(Guid sessionId, List<SessionRouteCreateDTO> routes)
+        {
+            try
+            {
+                // Validate session exists
+                var session = await _unitOfWork.DrivingSessionRepository.GetByIdAsync(sessionId);
+                if (session == null)
+                {
+                    return Result<List<SessionRouteDTO>>.Failure(
+                        ServiceError.NotFoundError($"DrivingSession {sessionId}"),
+                        Messages.Commons.NOTFOUND);
+                }
+
+                // Validate routes list is not empty
+                if (routes == null || !routes.Any())
+                {
+                    return Result<List<SessionRouteDTO>>.Failure(
+                        ServiceError.BadRequestError("Routes list cannot be empty"),
+                        "Danh sách tuyến đường không được để trống");
+                }
+
+                // Create SessionRoute entities
+                var sessionRoutes = routes.Select(r => new SessionRoute
+                {
+                    Id = Guid.NewGuid(),
+                    SessionId = sessionId,
+                    TextInstruction = r.TextInstruction,
+                    StreetName = r.StreetName,
+                    LatitudeStart = r.LatitudeStart,
+                    LongitudeStart = r.LongitudeStart,
+                }).ToList();
+
+                // Update session status to Upcoming after routes are created
+                if (session.Status == SessionStatus.Planning)
+                {
+                    session.Status = SessionStatus.Planning;
+                    session.LastModifiedAt = DateTime.UtcNow;
+                    _unitOfWork.DrivingSessionRepository.Update(session);
+                }
+
+                // Save to database
+                await _unitOfWork.SessionRouteRepository.CreateMultipleAsync(sessionRoutes);
+                await _unitOfWork.CommitChangesAsync();
+
+                // Map to DTOs for response
+                var routeDTOs = sessionRoutes.Select(sr => new SessionRouteDTO
+                {
+                    Id = sr.Id,
+                    SessionId = sr.SessionId,
+                    TextInstruction = sr.TextInstruction,
+                    StreetName = sr.StreetName,
+                    LatitudeStart = sr.LatitudeStart,
+                    LongitudeStart = sr.LongitudeStart,
+                }).ToList();
+
+                return Result<List<SessionRouteDTO>>.Success(routeDTOs, Messages.Commons.SUCCESS);
+            }
+            catch (Exception ex)
+            {
+                return Result<List<SessionRouteDTO>>.Failure(
+                    ServiceError.UnhandledException(ex.Message),
+                    Messages.Commons.UNHANDLED);
+            }
+        }
+
+        public async Task<Result<bool>> UpdateSessionStatus(Guid sessionId, UpdateSessionStatusDTO updateStatusDTO)
+        {
+            try
+            {
+                // Get the session with related data
+                var session = await _unitOfWork.DrivingSessionRepository.GetByIdAsync(sessionId);
+                if (session == null)
+                {
+                    return Result<bool>.Failure(
+                        ServiceError.NotFoundError($"DrivingSession {sessionId}"),
+                        "Không tìm thấy buổi học");
+                }
+
+                // Validate status transition (add your validation logic here)
+                if (session.Status == updateStatusDTO.Status)
+                {
+                    return Result<bool>.Failure(
+                        ServiceError.BadRequestError("Invalid status transition"),
+                        "Trạng thái mới phải khác trạng thái hiện tại");
+                }
+
+                // Update session status
+                session.Status = updateStatusDTO.Status;
+                session.LastModifiedAt = DateTime.UtcNow;
+
+                // Additional logic based on status
+                switch (updateStatusDTO.Status)
+                {
+                    case SessionStatus.InProgress:
+                        session.ActualStart = DateTime.UtcNow;
+                        break;
+                    case SessionStatus.Completed:
+                        session.ActualEnd = DateTime.UtcNow;
+                        // You might want to calculate actual duration, distance, etc. here
+                        break;
+                }
+
+                _unitOfWork.DrivingSessionRepository.Update(session);
+                await _unitOfWork.CommitChangesAsync();
+
+                return Result<bool>.Success(true, "Cập nhật trạng thái thành công");
+            }
+            catch (Exception ex)
+            {
+                return Result<bool>.Failure(
+                    ServiceError.UnhandledException(ex.Message),
+                    "Đã xảy ra lỗi khi cập nhật trạng thái");
+            }
+        }
+
+        public async Task<Result<SessionRouteResponseDTO>> GetSessionRoutesBySessionId(Guid sessionId)
+        {
+            try
+            {
+                // Check if session exists
+                var session = await _unitOfWork.DrivingSessionRepository.GetByIdAsync(sessionId);
+                if (session == null)
+                {
+                    return Result<SessionRouteResponseDTO>.Failure(
+                        ServiceError.NotFoundError($"DrivingSession {sessionId}"),
+                        "Không tìm thấy buổi học");
+                }
+
+                // Get routes for the session
+                var routes = await _unitOfWork.SessionRouteRepository
+                    .GetRoutesBySessionIdAsync(sessionId);
+
+                // Map to DTOs
+                var routeDTOs = routes.Select(r => new SessionRouteDTO
+                {
+                    Id = r.Id,
+                    SessionId = r.SessionId,
+                    TextInstruction = r.TextInstruction,
+                    StreetName = r.StreetName,
+                    LatitudeStart = r.LatitudeStart,
+                    LongitudeStart = r.LongitudeStart
+                }).ToList();
+
+                // Create response with session's starting location and routes
+                var response = new SessionRouteResponseDTO
+                {
+                    SessionStartingLat = session.StartingLatitude,
+                    SessionStartingLong = session.StartingLongtitude,
+                    Routes = routeDTOs
+                };
+
+                return Result<SessionRouteResponseDTO>.Success(response, "Lấy danh sách tuyến đường thành công");
+            }
+            catch (Exception ex)
+            {
+                return Result<SessionRouteResponseDTO>.Failure(
+                    ServiceError.UnhandledException(ex.Message),
+                    "Đã xảy ra lỗi khi lấy danh sách tuyến đường");
+            }
+        }
+
+        public async Task<Result<SessionLogDTO>> CreateSessionLog(Guid sessionId, SessionLogCreateDTO log)
+        {
+            try
+            {
+                // Validate session exists
+                var session = await _unitOfWork.DrivingSessionRepository.GetByIdAsync(sessionId);
+                if (session == null)
+                {
+                    return Result<SessionLogDTO>.Failure(
+                        ServiceError.NotFoundError($"Driving session {sessionId}"),
+                        "Không tìm thấy buổi học lái xe");
+                }
+
+  
+
+                // Create session log
+                var sessionLog = new SessionLog
+                {
+                    Id = Guid.NewGuid(),
+                    SessionId = sessionId,
+                    StreetName = log.StreetName,
+                    Latitude = log.Latitude,
+                    Longitude = log.Longitude,
+                    Heading = log.Heading,
+                    Speed = log.Speed,
+                    CreatedAt = DateTime.UtcNow,
+                    LastModifiedAt = DateTime.UtcNow,
+                    IsDeleted = false
+                };
+
+                // Add to repository
+                await _unitOfWork.SessionLogRepository.CreateAsync(sessionLog);
+                await _unitOfWork.CommitChangesAsync();
+
+                // Map to DTO
+                var sessionLogDTO = new SessionLogDTO
+                {
+                    Id = sessionLog.Id,
+                    SessionId = sessionLog.SessionId,
+                    StreetName = sessionLog.StreetName,
+                    Latitude = sessionLog.Latitude,
+                    Longitude = sessionLog.Longitude,
+                    Heading = sessionLog.Heading,
+                    Speed = sessionLog.Speed,
+                    CreatedAt = sessionLog.CreatedAt,
+                    LastModifiedAt = sessionLog.LastModifiedAt
+                };
+
+                return Result<SessionLogDTO>.Success(sessionLogDTO, "Tạo session log thành công");
+            }
+            catch (Exception ex)
+            {
+                return Result<SessionLogDTO>.Failure(
+                    ServiceError.UnhandledException(ex.Message),
+                    "Đã xảy ra lỗi khi tạo session log");
+            }
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using SharedLibrary.SharedKernel.Http.DTOs.Payment;
+using SharedLibrary.SharedKernel.Http.DTOs.Payment;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +9,6 @@ namespace SharedLibrary.SharedKernel.Http.Interfaces
 {
     public interface IPayment
     {
-        Task<PaymentResponse> CheckWalletBooking(Guid userId,decimal amount);
+        Task<PaymentResponse> CheckWalletBooking(Guid userId, decimal amount, Guid bookingId, Guid? drivingSessionId = null);
     }
 }

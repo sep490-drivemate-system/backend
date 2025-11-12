@@ -59,5 +59,49 @@ namespace BookingService.Infrastructure.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<List<Package>> GetInstructorPackages(Guid instructorId)
+        {
+            return await _context.Packages
+                .Include(p => p.RoadTypes)
+                .Include(p => p.DrivingSkills)
+                .Include(p => p.Cars)
+                .Where(p => p.InstructorId == instructorId && !p.IsDeleted)
+                .OrderBy(p => p.Name)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        public async Task<(List<Package> packages, int totalCount)> GetPackagesWithFilterAsync(string searchKey, int pageNumber, int pageSize)
+        {
+            var query = _context.Packages
+                .Include(p => p.RoadTypes)
+                .Include(p => p.DrivingSkills)
+                .Include(p => p.Cars)
+                .Include(p => p.Bookings)
+                .Where(p => !p.IsDeleted);
+
+            // Apply search filter
+            if (!string.IsNullOrWhiteSpace(searchKey))
+            {
+                var searchKeyLower = searchKey.ToLower();
+                query = query.Where(p =>
+                    p.Name.ToLower().Contains(searchKeyLower) ||
+                    p.Description.ToLower().Contains(searchKeyLower));
+            }
+
+            // Get total count
+            var totalCount = await query.CountAsync();
+
+            // Apply pagination
+            var packages = await query
+                .OrderByDescending(p => p.CreatedAt)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .AsNoTracking()
+                .ToListAsync();
+
+            return (packages, totalCount);
+        }
     }
 }

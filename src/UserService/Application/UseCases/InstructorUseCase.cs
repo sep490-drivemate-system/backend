@@ -1,4 +1,4 @@
-﻿using SharedLibrary.SharedKernel.Http.Interfaces;
+using SharedLibrary.SharedKernel.Http.Interfaces;
 using SharedLibrary.SharedKernel.Pagination;
 using SharedLibrary.SharedKernel.ServiceResult;
 using UserService.Application.Commons.DTOs.Instructors;
@@ -39,42 +39,6 @@ namespace UserService.Application.UseCases
                 return Result<InstructorDTO>.Failure(ServiceError.NotFoundError($"{id}"), Messages.Common.NotFoundError);
             }
 
-            /*
-            // Using HttpClient to get Instructor feedbacks statistic.
-            HttpClient booking_client = _httpClientFactory.CreateClient("BookingServiceClient");
-
-            booking_client.GetAsync("");
-
-            // Using HttpClient to get Instructor packages.
-
-            // Get feedback statistics for this instructor using httpClient
-            //var feedbackResponse = await _feedback.GetStatiticFeedback(new List<Guid> { id });
-            //var instructorFeedback = feedbackResponse?.InstructorStatistics?.FirstOrDefault(f => f.InstructorId == id);
-
-            // Get packages overview for this instructor
-            //var overViewPackages = await _package.GetOverViewPackages(id);
-
-            InstructorDetailDTO parsed_instructor_info = new InstructorDetailDTO
-            {
-                Id = id,
-                FullName = instructor_info.User.Username,
-                ExperienceYear = instructor_info.Experience,
-                Avatar = instructor_info.User.Avatar,
-                Bio = instructor_info.Bio,
-                Gender = instructor_info.User.Gender, // Requires changing domain model!
-                Birthdate = instructor_info.User.DateOfBirth,
-                //Feedbacks = new List<InstructorFeedbackDTO>(), // Requires calling to booking service!
-                //Packages = overViewPackages.Select(p => new InstructorPackageDTO
-                //{
-                //    Name = p.Name,
-                //    Description = p.Description,
-                //    Price = p.MinPrice == p.MaxPrice ? p.MinPrice : p.MinPrice 
-                //}).ToList(),
-                BookingCount = instructorFeedback?.BookingCount ?? 0,
-                AverageRating = instructorFeedback?.AverageRating ?? 0,
-            };
-            */
-
             return Result<InstructorDTO>.Success(new InstructorDTO
             {
                 Id = instructor_info.Id,
@@ -93,24 +57,21 @@ namespace UserService.Application.UseCases
 
             string included_properties = "User";
 
-            var instructors = await _unitOfWork.InstructorRepository.GetAllAsync(filter: filter_expression, orderBy: null, include_properties: included_properties);
+            var allInstructors = await _unitOfWork.InstructorRepository.GetAllAsync(filter: filter_expression, orderBy: null, include_properties: included_properties);
 
-                var instructorDTOs = new List<InstructorDTO>();
-            foreach (var instructor in instructors)
-            {
-                var overviewFeedback = await _intructor.GetInstructorOverviewFeedback(instructor.Id);
+            var paginatedInstructors = PaginatedList<Instructor>.Create(allInstructors, filter.PageNumber, filter.PageSize);
+            var instructorIds = paginatedInstructors.PageContent.Select(i => i.Id).ToList();
+            var feedbackStats = await _intructor.GetBatchInstructorOverviewFeedback(instructorIds);
 
-                var instructorDTO = _mapper.Map<InstructorDTO>(instructor);
-                instructorDTO.AverageRating = overviewFeedback.AverageRating;
-                instructorDTO.BookingCount = overviewFeedback.BookingCount;
-                instructorDTO.PackageCount = overviewFeedback.PackageCount;
+            var instructorDTOs = paginatedInstructors.PageContent.MapWithStatistics(_mapper, feedbackStats);
+            var paginatedResult = PaginatedList<InstructorDTO>.CreateFromPagedData(
+                instructorDTOs,
+                paginatedInstructors.CurrentPage,
+                paginatedInstructors.PageSize,
+                paginatedInstructors.TotalCount
+            );
 
-                instructorDTOs.Add(instructorDTO);
-            }
-
-            return Result<PaginatedList<InstructorDTO>>.Success(
-     PaginatedList<InstructorDTO>.Create(instructorDTOs, filter.PageNumber, filter.PageSize)
- );
+            return Result<PaginatedList<InstructorDTO>>.Success(paginatedResult);
         }
 
         public async Task<Result<List<InstructorScheduleDTO>>> GetInstructorSchedule(Guid instructor_id)
@@ -123,12 +84,14 @@ namespace UserService.Application.UseCases
                     .Failure(ServiceError.NotFoundError(Commons.Constants.Messages.Common.NotFoundError));
             }
 
-            var schedule = await _unitOfWork.ScheduleRepository.GetAllAsync();
+            var schedule = await _unitOfWork.ScheduleRepository.GetAllAsync(
+                filter: x => x.InstructorId == instructor_id && !x.IsDeleted,
+                orderBy: x => x.OrderBy(s => s.StartTime)
+            );
 
             return Result<List<InstructorScheduleDTO>>
                 .Success(schedule.Select(x => new InstructorScheduleDTO
                 {
-                    Id = x.Id,
                     StartTime = x.StartTime,
                     EndTime = x.EndTime,
                 }).ToList());

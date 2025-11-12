@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using SharedLibrary.SharedKernel.Http.DTOs.Payment;
 using SharedLibrary.SharedKernel.Http.Interfaces;
 using System;
@@ -20,12 +20,14 @@ namespace SharedLibrary.SharedKernel.Http.Implementation
             _config = configuration;
         }
 
-        public async Task<PaymentResponse> CheckWalletBooking(Guid userId, decimal amount)
+        public async Task<PaymentResponse> CheckWalletBooking(Guid userId, decimal amount, Guid bookingId, Guid? drivingSessionId = null)
         {
             var paymentRequest = new PaymentRequest
             {
                 UserId = userId,
-                Amount = amount
+                Amount = amount,
+                BookingId = bookingId,
+                DrivingSessionId = drivingSessionId
             };
             string userServiceUrl = _config["PAYMENTSERVICE:URL"];
             string url = $"{userServiceUrl}/api/wallet/check-payment";

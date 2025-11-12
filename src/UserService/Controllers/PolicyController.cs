@@ -15,9 +15,9 @@ namespace UserService.Controllers
         private readonly IPolicyUseCase _policyUseCase = usecases;
 
         [HttpGet]
-        public async Task<IActionResult> GetAllPolicies()
+        public async Task<IActionResult> GetAllPolicies(PolicyType policyType)
         {
-            var result = await _policyUseCase.GetAllPolicy();
+            var result = await _policyUseCase.GetAllPolicy(policyType);
             return result.ToActionResult();
         }
 

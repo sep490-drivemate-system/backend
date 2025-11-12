@@ -1,4 +1,4 @@
-﻿using SharedLibrary.SharedKernel.Pagination;
+using SharedLibrary.SharedKernel.Pagination;
 using SharedLibrary.SharedKernel.ServiceResult;
 using UserService.Application.Commons.DTOs.Instructors;
 using UserService.Application.Commons.DTOs.Instructors.Registration;

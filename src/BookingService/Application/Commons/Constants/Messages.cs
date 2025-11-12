@@ -1,10 +1,12 @@
-﻿namespace BookingService.Application.Commons.Constants
+namespace BookingService.Application.Commons.Constants
 {
     public static class Messages
     {
         public static class Booking
         {
             public const string INSUFFICENTCREDIT = "Bạn không đủ tiền trong ví. Vui lòng nạp thêm tiền";
+            public const string PAYMENTSUCCESS = "Thanh toán thành công";
+            public const string NOTFOUND = "Không tìm thấy booking";
         }
 
         public static class Commons

@@ -9,6 +9,7 @@ namespace UserService.Domain.Entities
         // Properties
         public string Name { get; set; }
         public string Description { get; set; }
+        public PolicyType Type { get; set; }
 
         // System properties
         public DateTime LastModifiedAt { get; set; }

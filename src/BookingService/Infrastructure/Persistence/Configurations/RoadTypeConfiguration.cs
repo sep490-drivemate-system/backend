@@ -22,11 +22,6 @@ namespace BookingService.Infrastructure.Persistence.Configurations
                 .HasMaxLength(100)
                 .IsRequired();
 
-            builder.Property(x => x.Description)
-                .HasColumnName("description")
-                .HasMaxLength(256)
-                .IsRequired(false);
-
             builder.Property(x => x.CreatedAt)
                .HasColumnName("created_at")
                .HasColumnType("timestamp")

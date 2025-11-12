@@ -1,4 +1,4 @@
-﻿using BookingService.Application.Commons.DTOs.DrivingSessions;
+using BookingService.Application.Commons.DTOs.DrivingSessions;
 using BookingService.Domain.Entities;
 using BookingService.Domain.Enum;
 using SharedLibrary.SharedKernel.ServiceResult;
@@ -19,6 +19,13 @@ namespace BookingService.Application.Interfaces
         Task<Result<bool>> CancelSession(Guid session_id, SessionCancelRequestDTO cancelationDTO);
 
         Task<Result<bool>> RescheduleSession(Guid session_id, SessionRescheduleRequestDTO rescheduleDTO);
+
+        Task<Result<List<DrivingSessionListDTO>>> GetDrivingSessionsByBooking(Guid bookingId, SessionStatus? status);
+
+        Task<Result<List<SessionRouteDTO>>> CreateSessionRoutes(Guid sessionId, List<SessionRouteCreateDTO> routes);
+
+        Task<Result<bool>> UpdateSessionStatus(Guid sessionId, UpdateSessionStatusDTO updateStatusDTO);
+        Task<Result<SessionRouteResponseDTO>> GetSessionRoutesBySessionId(Guid sessionId);
+        Task<Result<SessionLogDTO>> CreateSessionLog(Guid sessionId, SessionLogCreateDTO log);
     }
 }
-

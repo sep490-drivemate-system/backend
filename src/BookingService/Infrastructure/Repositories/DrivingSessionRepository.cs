@@ -20,5 +20,25 @@ namespace BookingService.Infrastructure.Repositories
                 .OrderByDescending(ds => ds.CreatedAt)
                 .ToListAsync();
         }
+
+        public async Task<IEnumerable<DrivingSession>> GetSessionsByInstructorIdAsync(Guid instructorId, SessionStatus? status = null)
+        {
+            var query = _context.DrivingSessions
+                .Include(ds => ds.Booking)
+                    .ThenInclude(b => b.Package)
+                .Include(ds => ds.Booking)
+                    .ThenInclude(b => b.Car)
+                .Include(ds => ds.SessionRoutes)
+                .Where(ds => ds.Booking.InstructorId == instructorId && !ds.IsDeleted && !ds.Booking.IsDeleted);
+
+            if (status.HasValue && status.Value != 0)
+            {
+                query = query.Where(ds => ds.Status == status.Value);
+            }
+
+            return await query
+                .OrderByDescending(ds => ds.CreatedAt)
+                .ToListAsync();
+        }
     }
 }

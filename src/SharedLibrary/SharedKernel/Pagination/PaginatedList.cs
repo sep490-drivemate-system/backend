@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,15 +14,6 @@ namespace SharedLibrary.SharedKernel.Pagination
         public int TotalCount { get; set; }
         public IReadOnlyCollection<T> PageContent { get; set; } = new List<T>();
 
-        public int PageCount => PageSize != 0 ? (int)Math.Ceiling((float)TotalCount / PageSize) : 0;
-        public bool HasNextPage => CurrentPage < PageCount;
-        public bool HasPreviousPage => CurrentPage > 1;
-
-        public int FirstItemIndex => (CurrentPage - 1) * PageSize + 1;
-        public int LastItemIndex => Math.Min(FirstItemIndex + PageContent.Count - 1, TotalCount);
-
-        public bool IsEmpty => !PageContent.Any();
-        public bool IsFull => PageContent.Count == PageSize;
 
         public static PaginatedList<T> Create<T>(List<T> source, int page, int pageSize)
         {
@@ -47,7 +38,6 @@ namespace SharedLibrary.SharedKernel.Pagination
             return Create(list, page, pageSize);
         }
 
-        // Từ IQueryable<T> (bất đồng bộ – EF Core)
         public static async Task<PaginatedList<T>> CreateAsync<T>(
             IQueryable<T> source,
             int page,
@@ -66,6 +56,22 @@ namespace SharedLibrary.SharedKernel.Pagination
                 PageSize = pageSize,
                 TotalCount = count,
                 PageContent = items
+            };
+        }
+
+        // Create from already paginated data with known total count
+        public static PaginatedList<T> CreateFromPagedData<T>(
+            List<T> pagedItems,
+            int currentPage,
+            int pageSize,
+            int totalCount)
+        {
+            return new PaginatedList<T>
+            {
+                CurrentPage = currentPage,
+                PageSize = pageSize,
+                TotalCount = totalCount,
+                PageContent = pagedItems
             };
         }
     }

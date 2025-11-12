@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PaymentService.Infrastructure.Data;
@@ -11,9 +12,11 @@ using PaymentService.Infrastructure.Data;
 namespace PaymentService.Migrations
 {
     [DbContext(typeof(PaymentDbContext))]
-    partial class PaymentDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251111130115_Init_Case")]
+    partial class Init_Case
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,8 +37,14 @@ namespace PaymentService.Migrations
                         .HasColumnName("booking_id");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp")
-                        .HasColumnName("created_at");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<Guid?>("DrivingSessionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("driving_session_id");
 
                     b.Property<Guid>("FromWalletId")
                         .HasColumnType("uuid")
@@ -47,12 +56,11 @@ namespace PaymentService.Migrations
                         .HasDefaultValue(false)
                         .HasColumnName("is_delete");
 
-                    b.Property<int>("PaymentMethod")
+                    b.Property<int?>("PaymentMethod")
                         .HasColumnType("integer")
                         .HasColumnName("payment_method");
 
                     b.Property<string>("ReferenceCode")
-                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("reference_code");
@@ -71,8 +79,10 @@ namespace PaymentService.Migrations
                         .HasColumnName("transaction_value");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp")
-                        .HasColumnName("updated_at");
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("updated_at")
+                        .HasDefaultValueSql("now()");
 
                     b.HasKey("Id");
 
@@ -96,8 +106,10 @@ namespace PaymentService.Migrations
                         .HasColumnName("balance");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp")
-                        .HasColumnName("created_at");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("now()");
 
                     b.Property<bool>("IsDelete")
                         .ValueGeneratedOnAdd()
@@ -106,12 +118,13 @@ namespace PaymentService.Migrations
                         .HasColumnName("is_delete");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp")
-                        .HasColumnName("updated_at");
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("updated_at")
+                        .HasDefaultValueSql("now()");
 
                     b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("timestamp")
-                        .HasColumnName("updated_date");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid")

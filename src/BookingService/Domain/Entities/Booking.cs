@@ -14,7 +14,7 @@ namespace BookingService.Domain.Entities
         public BookingStatus Status { get; set; }
 
         // Keys for relationships
-        public Guid CarId {  get; set; }
+        public Guid? CarId {  get; set; }
         public Guid PackageId { get; set; }
         public Guid InstructorId { get; set; } // Call User microservice to get data.
         public Guid DriverId { get; set; } // Call User microservice to get data.

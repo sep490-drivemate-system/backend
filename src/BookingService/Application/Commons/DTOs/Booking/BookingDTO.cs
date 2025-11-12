@@ -1,9 +1,12 @@
 using BookingService.Domain.Enum;
+using System.Text.Json.Serialization;
 
 namespace BookingService.Application.Commons.DTOs.Booking
 {
     public class BookingDTO
     {
+        [JsonIgnore]
+        public Guid Id = Guid.NewGuid();
         public Guid PackageId { get; set; }
         public string PickUpPoint { get; set; } = string.Empty;
         public double DurationWhenBought { get; set; } // The total hours available when the driver bought the package.
