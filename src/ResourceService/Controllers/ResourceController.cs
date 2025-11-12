@@ -1,5 +1,13 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using ResourceService.Services.DTOs;
 using ResourceService.Services.Interfaces;
+using SharedLibrary.Jwt;
+using SharedLibrary.SharedKernel.Enum;
+using SharedLibrary.SharedKernel.ServiceResult;
+using System.Threading.Tasks;
+using Twilio.Jwt.AccessToken;
 
 namespace ResourceService.Controllers
 {
@@ -7,21 +15,28 @@ namespace ResourceService.Controllers
     [Route("api/[controller]")]
     public class ResourceController : ControllerBase
     {
-        private readonly ILogger<ResourceController> _logger;
         private readonly IResourcesService _resourcesService;
+        private readonly IJwtService _jwtService;
 
-        public ResourceController(ILogger<ResourceController> logger, IResourcesService resourcesService)
+        public ResourceController(IResourcesService resourcesService, IJwtService jwtService)
         {
-            _logger = logger;
             _resourcesService = resourcesService;
+            _jwtService = jwtService;
+        }
+
+        [HttpPost("blog-image")]
+        public async Task<IActionResult> UploadBlogImage(IFormFile file)
+        {
+            var result = await _resourcesService.UploadImageForBlog(file);
+            return result.ToActionResult();
         }
 
         [HttpGet("blogs")]
+         //   [Authorize(Roles = nameof(UserRole.NoviceDriver))]
         public async Task<IActionResult> GetBlogs()
         {
-            _logger.LogInformation("Getting blogs list");
-            var resources = await _resourcesService.GetBlogsAsync();
-            return Ok(new { success = true, data = resources });
+            var result = await _resourcesService.GetBlogsAsync();
+            return  result.ToActionResult();
         }
 
         [HttpGet("blogs/paged")]
@@ -30,7 +45,6 @@ namespace ResourceService.Controllers
             [FromQuery] int pageSize
             )
         {
-            _logger.LogInformation("Getting blogs list with pagination - Page: {Page}, PageSize: {PageSize}", page, pageSize);
             
             // Validate pagination parameters
             if (page < 1) page = 1;
@@ -38,59 +52,53 @@ namespace ResourceService.Controllers
             if (pageSize > 100) pageSize = 100; // Limit max page size
 
             var result = await _resourcesService.GetBlogsPagedAsync(page, pageSize);
-            return Ok(new { success = true, data = result });
+            return result.ToActionResult();
         }
 
         [HttpGet("blogs/{id}")]
         public async Task<IActionResult> GetBlogDetail([FromRoute] Guid id)
         {
-            _logger.LogInformation("Getting blog detail for {Id}", id);
             var result = await _resourcesService.GetBlogDetailAsync(id);
-            if (result == null) return NotFound(new { success = false, message = "Blog not found" });
-            return Ok(new { success = true, data = result });
+             return result.ToActionResult();
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetResource(int id)
+
+
+
+        [HttpGet("my-blogs")]
+        [Authorize(Roles = nameof(UserRole.Instructor))]
+        public async Task<IActionResult> GetMyBlogs()
         {
-            _logger.LogInformation("Getting resource with ID: {ResourceId}", id);
-            
-            // TODO: Implement actual resource retrieval logic
-            var resource = new { Id = id, Name = $"Resource {id}", Type = "Document" };
-
-            return Ok(new { success = true, data = resource });
+            var instructorId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
+            var result = await _resourcesService.GetMyBlogsAsync(instructorId);
+            return  result.ToActionResult();
         }
 
-        [HttpPost]
-        public async Task<IActionResult> CreateResource([FromBody] object resourceData)
+        [HttpGet("my-blogs/{id}")]
+        [Authorize(Roles = nameof(UserRole.Instructor))]
+        public async Task<IActionResult> GetMyBlogDetail([FromRoute] Guid id)
         {
-            _logger.LogInformation("Creating new resource");
-            
-            // TODO: Implement actual resource creation logic
-            var newResource = new { Id = 3, Name = "New Resource", Type = "Document" };
-
-            return CreatedAtAction(nameof(GetResource), new { id = 3 }, new { success = true, data = newResource });
+            var instructorId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
+            var result = await _resourcesService.GetMyBlogDetailAsync(id, instructorId);
+             return result.ToActionResult();
         }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateResource(int id, [FromBody] object resourceData)
-        {
-            _logger.LogInformation("Updating resource with ID: {ResourceId}", id);
-            
-            // TODO: Implement actual resource update logic
-            var updatedResource = new { Id = id, Name = $"Updated Resource {id}", Type = "Document" };
-
-            return Ok(new { success = true, data = updatedResource });
-        }
-
         
-        [HttpDelete("blogs/{id}")]
+        [HttpDelete("my-blogs/{id}")]
+        [Authorize(Roles = nameof(UserRole.Instructor))]
         public async Task<IActionResult> DeleteBlog([FromRoute] Guid id)
         {
-            _logger.LogInformation("Deleting blog {Id}", id);
-            var ok = await _resourcesService.DeleteBlogAsync(id);
-            if (!ok) return NotFound(new { success = false, message = "Blog not found" });
-            return Ok(new { success = true, message = "Blog deleted (soft)" });
+            var instructorId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
+            var result = await _resourcesService.DeleteBlogAsync(id, instructorId);
+            return result.ToActionResult();
+        }
+
+        [HttpPost("my-blogs")]
+        [Authorize(Roles = nameof(UserRole.Instructor))]
+        public async Task<IActionResult> CreateBlog([FromBody] BlogCreateDto createBlogDto)
+        {
+            var instructorId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
+            var result = await _resourcesService.CreateBlogAsync(createBlogDto, instructorId);
+            return result.ToActionResult();
         }
     }
 }

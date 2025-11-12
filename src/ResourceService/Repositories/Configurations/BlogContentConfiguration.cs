@@ -31,6 +31,11 @@ namespace ResourceService.Repositories.Configurations
                    .IsRequired()
                    .HasMaxLength(500);
 
+            builder.Property(u => u.ImageUrl)
+                   .HasColumnName("image_url")
+                   .IsRequired()
+                   .HasMaxLength(500);
+
 
             builder.Property(u => u.CreatedAt)
                   .HasColumnName("create_at")
@@ -45,10 +50,6 @@ namespace ResourceService.Repositories.Configurations
                    .HasDefaultValue(false);
 
 
-            // Relationships 1-n
-            builder.HasMany(u => u.Images)
-                   .WithOne(a => a.BlogContent)
-                   .HasForeignKey(a => a.ContentId);
         }
     }
 }

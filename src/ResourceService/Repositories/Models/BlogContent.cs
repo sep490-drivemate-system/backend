@@ -12,12 +12,12 @@ namespace ResourceService.Repositories.Models
         public Guid BlogId { get; set; }
         public string Content { get; set; }
         public int No { get; set; }
+        public string ImageUrl { get; set; }
         public DateTime UpdateAt { get; set; }
         public bool IsDelete { get; set; }
 
-        // Quan hệ
-        public Blog Blog { get; set; }
 
-        public ICollection<BlogImage> Images { get; set; }
+        public Blog Blog { get; set; }
+        
     }
 }

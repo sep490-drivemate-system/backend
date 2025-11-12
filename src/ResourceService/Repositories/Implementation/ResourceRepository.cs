@@ -20,6 +20,14 @@ namespace ResourceService.Repositories.Implementation
                 .Include(b => b.Category)
                 .ToListAsync();
         }
+        public async Task<List<Blog>> GetMyBlogsAsync(Guid instructorId)
+        {
+            return await _context.Blogs
+                .AsNoTracking()
+                .Include(b => b.Category)
+                .Where(b => b.InstructorId == instructorId)
+                .ToListAsync();
+        }
 
         public async Task<(List<Blog> blogs, int totalCount)> GetBlogsPagedAsync(int page, int pageSize)
         {
@@ -43,8 +51,16 @@ namespace ResourceService.Repositories.Implementation
                 .AsNoTracking()
                 .Include(b => b.Category)
                 .Include(b => b.Contents)
-                    .ThenInclude(c => c.Images)
                 .FirstOrDefaultAsync(b => b.Id == blogId);
+        }
+
+        public async Task<Blog?> GetMyBlogDetailAsync(Guid id, Guid instructorId)
+        {
+            return await _context.Blogs
+                .AsNoTracking()
+                .Include(b => b.Category)
+                .Include(b => b.Contents)
+                .FirstOrDefaultAsync(b => b.Id == id && b.InstructorId == instructorId);
         }
 
         public async Task<bool> SoftDeleteBlogAsync(Guid blogId)
@@ -53,7 +69,6 @@ namespace ResourceService.Repositories.Implementation
                 .IgnoreQueryFilters() 
                 .Include(b => b.Category)
                 .Include(b => b.Contents)
-                    .ThenInclude(c => c.Images)
                 .FirstOrDefaultAsync(b => b.Id == blogId);
 
             if (blog == null) return false;
@@ -67,18 +82,16 @@ namespace ResourceService.Repositories.Implementation
                 {
                     content.IsDelete = true;
                     content.UpdateAt = DateTime.Now;
-                    if (content.Images != null)
-                    {
-                        foreach (var img in content.Images)
-                        {
-                            img.IsDelete = true;
-                            img.UpdateAt = DateTime.Now;
-                        }
-                    }
                 }
             }
 
             return true;
         }
+        public async Task<bool> CreateBlog(Blog blog)
+        {
+            await _context.Blogs.AddAsync(blog);
+            return true;
+        }
     }
+    
 }
