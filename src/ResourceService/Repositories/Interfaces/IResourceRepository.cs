@@ -6,7 +6,7 @@ namespace ResourceService.Repositories.Interfaces
     {
         Task<List<Blog>> GetBlogsAsync();
         Task<List<Blog>> GetMyBlogsAsync(Guid instructorId);
-        Task<(List<Blog> blogs, int totalCount)> GetBlogsPagedAsync(int page, int pageSize);
+        Task<List<Blog>> GetAllBlogsAsync(System.Linq.Expressions.Expression<Func<Blog, bool>>? filter = null, string includeProperties = "");
         Task<Blog?> GetBlogDetailAsync(Guid blogId);
         Task<Blog?> GetMyBlogDetailAsync(Guid id, Guid instructorId);
         Task<Blog?> GetMyBlogDetailTrackedAsync(Guid id, Guid instructorId);

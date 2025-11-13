@@ -1,12 +1,12 @@
 ﻿using ResourceService.Services.DTOs;
+using SharedLibrary.SharedKernel.Pagination;
 using SharedLibrary.SharedKernel.ServiceResult;
 
 namespace ResourceService.Services.Interfaces
 {
     public interface IResourcesService
     {
-        Task<Result<ICollection<ResourceDto>>> GetBlogsAsync();
-        Task<Result<PagedResult<ResourceDto>>> GetBlogsPagedAsync(int page, int pageSize);
+        Task<Result<PaginatedList<ResourceDto>>> GetBlogsPagedAsync(BlogListFilterDTO filter);
         Task<Result<BlogDetailDto>> GetBlogDetailAsync(Guid id);
         Task<Result<ICollection<ResourceDto>>> GetMyBlogsAsync(Guid instructorId);
         Task<Result<BlogDetailDto>> GetMyBlogDetailAsync( Guid id, Guid instructorId);

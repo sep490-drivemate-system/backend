@@ -33,27 +33,11 @@ namespace ResourceService.Controllers
             return result.ToActionResult();
         }
 
-        [HttpGet("blogs")]
-         //   [Authorize(Roles = nameof(UserRole.NoviceDriver))]
-        public async Task<IActionResult> GetBlogs()
-        {
-            var result = await _resourcesService.GetBlogsAsync();
-            return  result.ToActionResult();
-        }
 
         [HttpGet("blogs/paged")]
-        public async Task<IActionResult> GetBlogsPaged(
-            [FromQuery] int page, 
-            [FromQuery] int pageSize
-            )
+        public async Task<IActionResult> GetBlogsPaged([FromQuery] BlogListFilterDTO filter)
         {
-            
-            // Validate pagination parameters
-            if (page < 1) page = 1;
-            if (pageSize < 1) pageSize = 10;
-            if (pageSize > 100) pageSize = 100; // Limit max page size
-
-            var result = await _resourcesService.GetBlogsPagedAsync(page, pageSize);
+            var result = await _resourcesService.GetBlogsPagedAsync(filter);
             return result.ToActionResult();
         }
 

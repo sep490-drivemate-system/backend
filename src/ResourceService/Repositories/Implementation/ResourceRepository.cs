@@ -1,15 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ResourceService.Repositories.Basic;
 using ResourceService.Repositories.Interfaces;
 using ResourceService.Repositories.Models;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace ResourceService.Repositories.Implementation
 {
-    public class ResourceRepository: IResourceRepository
+    public class ResourceRepository : GenericRepository<Blog>, IResourceRepository
     {
         private ResourceDbContext _context;
 
-        public ResourceRepository(ResourceDbContext context)
+        public ResourceRepository(ResourceDbContext context) : base(context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
@@ -30,20 +32,11 @@ namespace ResourceService.Repositories.Implementation
                 .ToListAsync();
         }
 
-        public async Task<(List<Blog> blogs, int totalCount)> GetBlogsPagedAsync(int page, int pageSize)
+        public async Task<List<Blog>> GetAllBlogsAsync(Expression<Func<Blog, bool>>? filter = null, string includeProperties = "")
         {
-            var query = _context.Blogs
-                .AsNoTracking()
-                .Include(b => b.Category);
-
-            var totalCount = await query.CountAsync();
-
-            var blogs = await query
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
-            return (blogs, totalCount);
+            // Đơn giản: chỉ gọi GetAllAsync từ GenericRepository
+            // Filter đã được combine sẵn ở service layer (giống GetInstructors)
+            return await GetAllAsync(filter, null, includeProperties, true);
         }
 
         public async Task<Blog?> GetBlogDetailAsync(Guid blogId)

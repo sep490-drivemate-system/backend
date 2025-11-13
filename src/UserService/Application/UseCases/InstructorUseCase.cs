@@ -55,7 +55,7 @@ namespace UserService.Application.UseCases
             Expression<Func<Instructor, bool>> filter_expression = x =>
           (string.IsNullOrEmpty(filter.SearchKey) || x.User.Fullname.Contains(filter.SearchKey)) && !x.IsDeleted;
 
-            string included_properties = "User";
+            string included_properties = "User";    
 
             var allInstructors = await _unitOfWork.InstructorRepository.GetAllAsync(filter: filter_expression, orderBy: null, include_properties: included_properties);
 

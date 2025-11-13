@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using System.Linq;
+using System.Linq.Expressions;
 using ResourceService.Repositories;
 using ResourceService.Repositories.Enum;
 using ResourceService.Repositories.Interfaces;
@@ -8,6 +9,7 @@ using ResourceService.Services.Commons.Constants;
 using ResourceService.Services.DTOs;
 using ResourceService.Services.Interfaces;
 using SharedLibrary.CloudinaryStorage;
+using SharedLibrary.SharedKernel.Pagination;
 using SharedLibrary.SharedKernel.ServiceResult;
 
 namespace ResourceService.Services.Implementation
@@ -25,29 +27,7 @@ namespace ResourceService.Services.Implementation
             _cloudinary = cloudinary;
         }
 
-        public async Task<Result<ICollection<ResourceDto>>> GetBlogsAsync()
-        {
-            try
-            {
-                var blogs = await _unitOfWork.ResourceRepository.GetBlogsAsync();
-
-                if (blogs == null)
-                {
-                    return Result<ICollection<ResourceDto>>.Failure(
-                        ServiceError.NotFoundError(Messages.Blog.NOTFOUND),
-                        Messages.Blog.NOTFOUND);
-                }
-
-                var resourcesService = _mapper.Map<ICollection<ResourceDto>>(blogs);
-                return Result<ICollection<ResourceDto>>.Success(resourcesService, Messages.Commons.SUCCESS);
-            }
-            catch (Exception ex)
-            {
-                return Result<ICollection<ResourceDto>>.Failure(
-                    ServiceError.UnhandledException(Messages.Blog.RETRIEVE_ERROR), 
-                    Messages.Commons.UNHANDLED);
-            }
-        }
+        
 
         public async Task<Result<ICollection<CategoryDto>>> GetCategoriesAsync()
         {
@@ -87,34 +67,38 @@ namespace ResourceService.Services.Implementation
             }
         }
 
-        public async Task<Result<PagedResult<ResourceDto>>> GetBlogsPagedAsync(int page, int pageSize)
+        public async Task<Result<PaginatedList<ResourceDto>>> GetBlogsPagedAsync(BlogListFilterDTO filter)
         {
             try
             {
-                var (blogs, totalCount) = await _unitOfWork.ResourceRepository.GetBlogsPagedAsync(page, pageSize);
+                Expression<Func<Blog, bool>> filterExpression = x =>
+                    (string.IsNullOrEmpty(filter.SearchKey) || x.Title.Contains(filter.SearchKey)) &&
+                    (!filter.CategoryId.HasValue || x.CategoryId == filter.CategoryId.Value) &&
+                    !x.IsDelete;
 
-                if (blogs == null || blogs.Count == 0)
-                {
-                    return Result<PagedResult<ResourceDto>>.Failure(
-                        ServiceError.NotFoundError(Messages.Blog.NOTFOUND),
-                        Messages.Blog.NOTFOUND);
-                }
+                string includedProperties = "Category";
 
-                var blogDtos = _mapper.Map<IEnumerable<ResourceDto>>(blogs);
+                var allBlogs = await _unitOfWork.ResourceRepository.GetAllBlogsAsync(
+                    filter: filterExpression,
+                    includeProperties: includedProperties
+                );
 
-                var pagedResult = new PagedResult<ResourceDto>
-                {
-                    Data = blogDtos,
-                    TotalCount = totalCount,
-                    Page = page,
-                    PageSize = pageSize
-                };
+                var paginatedBlogs = PaginatedList<Blog>.Create(allBlogs, filter.PageNumber, filter.PageSize);
 
-                return Result<PagedResult<ResourceDto>>.Success(pagedResult, Messages.Commons.SUCCESS);
+                var blogDtos = _mapper.Map<List<ResourceDto>>(paginatedBlogs.PageContent.ToList());
+
+                var paginatedResult = PaginatedList<ResourceDto>.CreateFromPagedData(
+                    blogDtos,
+                    paginatedBlogs.CurrentPage,
+                    paginatedBlogs.PageSize,
+                    paginatedBlogs.TotalCount
+                );
+
+                return Result<PaginatedList<ResourceDto>>.Success(paginatedResult, Messages.Commons.SUCCESS);
             }
             catch (Exception ex)
             {
-                return Result<PagedResult<ResourceDto>>.Failure(
+                return Result<PaginatedList<ResourceDto>>.Failure(
                     ServiceError.UnhandledException($"{Messages.Blog.RETRIEVE_ERROR}: {ex.Message}"),
                     Messages.Commons.UNHANDLED);
             }
