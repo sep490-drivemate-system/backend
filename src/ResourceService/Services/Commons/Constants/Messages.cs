@@ -13,6 +13,12 @@ namespace ResourceService.Services.Commons.Constants
             public const string UPDATE_FAILED = "Cập nhật blog không thành công";
             public const string UPDATE_SUCCESS = "Cập nhật blog thành công";
             public const string CATEGORY_NOT_FOUND = "Không tìm thấy danh mục";
+            public const string APPROVE_SUCCESS = "Duyệt blog thành công";
+            public const string APPROVE_FAILED = "Duyệt blog không thành công";
+            public const string REJECT_SUCCESS = "Từ chối blog thành công";
+            public const string REJECT_FAILED = "Từ chối blog không thành công";
+            public const string BAN_SUCCESS = "Cấm blog thành công";
+            public const string BAN_FAILED = "Cấm blog không thành công";
         }
 
         public static class Commons

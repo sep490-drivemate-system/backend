@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ResourceService.Repositories.Basic;
+using ResourceService.Repositories.Enum;
 using ResourceService.Repositories.Interfaces;
 using ResourceService.Repositories.Models;
 using System.Linq;
@@ -122,6 +123,18 @@ namespace ResourceService.Repositories.Implementation
                 _context.Blogs.Attach(blog);
             }
             return Task.FromResult(true);
+        }
+
+        public async Task<bool> UpdateBlogStatus(Guid blogId, BlogStatus status)
+        {
+            var blog = await _context.Blogs
+                .FirstOrDefaultAsync(b => b.Id == blogId);
+
+            if (blog == null) return false;
+
+            blog.Status = status;
+            blog.UpdateAt = DateTime.Now;
+            return true;
         }
     }
     

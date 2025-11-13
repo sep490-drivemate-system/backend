@@ -2,10 +2,10 @@ using SharedLibrary.SharedKernel.Pagination;
 
 namespace ResourceService.Services.DTOs
 {
-    public class BlogListFilterDTO : PaginationFilter
+    // DTO cho các API cần filter theo Status từ FE 
+    public class BlogListFilterDTO : BlogListFilterBaseDTO
     {
-        public string? SearchKey { get; set; }
-        public Guid? CategoryId { get; set; }
+        public int? Status { get; set; }
     }
 }
 

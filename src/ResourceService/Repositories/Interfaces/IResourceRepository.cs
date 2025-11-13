@@ -1,4 +1,5 @@
-﻿using ResourceService.Repositories.Models;
+﻿using ResourceService.Repositories.Enum;
+using ResourceService.Repositories.Models;
 
 namespace ResourceService.Repositories.Interfaces
 {
@@ -16,6 +17,7 @@ namespace ResourceService.Repositories.Interfaces
 
         Task<bool> CreateBlog(Blog blog);
         Task<bool> UpdateBlog(Blog blog);
+        Task<bool> UpdateBlogStatus(Guid blogId, BlogStatus status);
         void AddBlogContent(BlogContent content);
     }
 }
