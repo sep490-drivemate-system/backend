@@ -31,6 +31,17 @@ namespace ResourceService.Services.Mapping
                 .ForMember(dest => dest.UpdateAt, opt => opt.Ignore())
                 .ForMember(dest => dest.IsDelete, opt => opt.Ignore());
 
+            // BlogContentUpdateDto -> BlogContent (for creating new content)
+            CreateMap<BlogContentUpdateDto, BlogContent>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.BlogId, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdateAt, opt => opt.Ignore())
+                .ForMember(dest => dest.IsDelete, opt => opt.Ignore())
+                .ForMember(dest => dest.Content, opt => opt.MapFrom(src => src.Content != null ? src.Content.Trim() : string.Empty))
+                .ForMember(dest => dest.No, opt => opt.MapFrom(src => src.No ?? 0))
+                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.ImageUrl ?? string.Empty));
+
             CreateMap<BlogCreateDto, Blog>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.UpdateAt, opt => opt.Ignore())

@@ -351,16 +351,11 @@ namespace ResourceService.Services.Implementation
                     }
                     else if (!contentDto.Id.HasValue && contentDto.IsDeleted != true)
                     {
-                        var newContent = new BlogContent
-                        {
-                            BlogId = blog.Id,
-                            Content = contentDto.Content?.Trim() ?? string.Empty,
-                            No = contentDto.No ?? 0,
-                            ImageUrl = contentDto.ImageUrl ?? string.Empty,
-                            CreatedAt = now,
-                            UpdateAt = now,
-                            IsDelete = false
-                        };
+                        var newContent = _mapper.Map<BlogContent>(contentDto);
+                        newContent.BlogId = blog.Id;
+                        newContent.CreatedAt = now;
+                        newContent.UpdateAt = now;
+                        newContent.IsDelete = false;
 
                         _unitOfWork.ResourceRepository.AddBlogContent(newContent);
                         blog.Contents.Add(newContent);
@@ -561,5 +556,6 @@ namespace ResourceService.Services.Implementation
                     Messages.Commons.UNHANDLED);
             }
         }
+
     }
 }
