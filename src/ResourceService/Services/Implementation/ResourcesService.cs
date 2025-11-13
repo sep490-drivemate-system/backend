@@ -387,15 +387,22 @@ namespace ResourceService.Services.Implementation
         }
 
         // Inspector APIs
-        public async Task<Result<PaginatedList<ResourceDto>>> GetPendingBlogsAsync(BlogListFilterBaseDTO filter)
+        public async Task<Result<PaginatedList<ResourceDto>>> GetPendingBlogsAsync(BlogListFilterDTO filter)
         {
             try
             {
+                // Convert Status (int?) từ query string sang BlogStatus enum
+                BlogStatus? statusEnum = null;
+                if (filter.Status.HasValue && Enum.IsDefined(typeof(BlogStatus), filter.Status.Value))
+                {
+                    statusEnum = (BlogStatus)filter.Status.Value;
+                }
+
                 Expression<Func<Blog, bool>> filterExpression = x =>
                     (string.IsNullOrEmpty(filter.SearchKey) || x.Title.Contains(filter.SearchKey)) &&
                     (!filter.CategoryId.HasValue || x.CategoryId == filter.CategoryId.Value) &&
-                    !x.IsDelete &&
-                    x.Status == BlogStatus.Pending;
+                    (!statusEnum.HasValue || x.Status == statusEnum.Value) &&
+                    !x.IsDelete;
 
                 string includedProperties = "Category";
 
@@ -437,6 +444,14 @@ namespace ResourceService.Services.Implementation
                         Messages.Blog.NOTFOUND);
                 }
 
+                // Chỉ approve được nếu blog đang ở trạng thái Pending hoặc ReApply
+                if (blog.Status != BlogStatus.Pending && blog.Status != BlogStatus.ReApply)
+                {
+                    return Result<bool>.Failure(
+                        ServiceError.BadRequestError(Messages.Blog.APPROVE_INVALID_STATUS),
+                        Messages.Blog.APPROVE_INVALID_STATUS);
+                }
+
                 var updateResult = await _unitOfWork.ResourceRepository.UpdateBlogStatus(blogId, BlogStatus.Active);
                 if (!updateResult)
                 {
@@ -473,6 +488,14 @@ namespace ResourceService.Services.Implementation
                     return Result<bool>.Failure(
                         ServiceError.NotFoundError(Messages.Blog.NOTFOUND),
                         Messages.Blog.NOTFOUND);
+                }
+
+                // Chỉ reject được nếu blog đang ở trạng thái Pending hoặc ReApply
+                if (blog.Status != BlogStatus.Pending && blog.Status != BlogStatus.ReApply)
+                {
+                    return Result<bool>.Failure(
+                        ServiceError.BadRequestError(Messages.Blog.REJECT_INVALID_STATUS),
+                        Messages.Blog.REJECT_INVALID_STATUS);
                 }
 
                 var updateResult = await _unitOfWork.ResourceRepository.UpdateBlogStatus(blogId, BlogStatus.Inactive);
