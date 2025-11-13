@@ -16,7 +16,7 @@ namespace ResourceService.Services.Interfaces
         Task<Result<ICollection<CategoryDto>>> GetCategoriesAsync();
         
         // Inspector APIs
-        Task<Result<PaginatedList<ResourceDto>>> GetPendingBlogsAsync(BlogListFilterBaseDTO filter);
+        Task<Result<PaginatedList<ResourceDto>>> GetPendingBlogsAsync(BlogListFilterDTO filter);
         Task<Result<bool>> ApproveBlogAsync(Guid blogId);
         Task<Result<bool>> RejectBlogAsync(Guid blogId);
         Task<Result<bool>> BanBlogAsync(Guid blogId);
