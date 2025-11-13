@@ -1,4 +1,5 @@
-﻿using ResourceService.Repositories.Models;
+﻿using ResourceService.Repositories.Enum;
+using ResourceService.Repositories.Models;
 
 namespace ResourceService.Repositories.Interfaces
 {
@@ -6,7 +7,7 @@ namespace ResourceService.Repositories.Interfaces
     {
         Task<List<Blog>> GetBlogsAsync();
         Task<List<Blog>> GetMyBlogsAsync(Guid instructorId);
-        Task<(List<Blog> blogs, int totalCount)> GetBlogsPagedAsync(int page, int pageSize);
+        Task<List<Blog>> GetAllBlogsAsync(System.Linq.Expressions.Expression<Func<Blog, bool>>? filter = null, string includeProperties = "");
         Task<Blog?> GetBlogDetailAsync(Guid blogId);
         Task<Blog?> GetMyBlogDetailAsync(Guid id, Guid instructorId);
         Task<Blog?> GetMyBlogDetailTrackedAsync(Guid id, Guid instructorId);
@@ -16,6 +17,7 @@ namespace ResourceService.Repositories.Interfaces
 
         Task<bool> CreateBlog(Blog blog);
         Task<bool> UpdateBlog(Blog blog);
+        Task<bool> UpdateBlogStatus(Guid blogId, BlogStatus status);
         void AddBlogContent(BlogContent content);
     }
 }
