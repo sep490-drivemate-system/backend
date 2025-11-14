@@ -1,7 +1,10 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using PaymentService.Application.Features.Wallet.Commands.UpdateWalletBalance;
 using PaymentService.Application.Features.Wallet.Queries.IsEnoughPayment;
 using SharedLibrary.SharedKernel.Http.DTOs.Payment;
+using SharedLibrary.SharedKernel.Http.DTOs.Wallet;
+using SharedLibrary.SharedKernel.ServiceResult;
 
 
 namespace PaymentService.Controllers
@@ -33,6 +36,16 @@ namespace PaymentService.Controllers
             return Ok(result);
         }
 
-      
+        [HttpPost("balance")]
+        public async Task<IActionResult> AddBalanceToWallet([FromBody] WalletBalanceDTO wallet_balance)
+        {
+            var result = await _mediator.Send(new UpdateWalletBalanceCommand
+            {
+                UserId= wallet_balance.UserId,
+                BalanceAmount = wallet_balance.Balance
+            });
+
+            return result.ToActionResult();
+        }
     }
 }
