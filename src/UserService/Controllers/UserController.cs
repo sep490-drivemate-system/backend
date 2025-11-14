@@ -14,6 +14,14 @@ namespace UserService.Controllers
     {
         private readonly IUserUseCase _userUseCase= userUseCase;
 
+
+        [HttpGet("statistic")]
+        public async Task<IActionResult> GetUserStatistic(UserStatisticFilterDTO filter)
+        {
+            var result = await _userUseCase.GetUsersStatistic(filter);
+            return result.ToActionResult();
+        }
+
         [HttpPost("ids")]
         public async Task<IActionResult> GetWithUserId([FromBody] IEnumerable<Guid> ids)
         {

@@ -213,5 +213,64 @@ namespace UserService.Application.UseCases
                 }
             );
         }
+
+        public async Task<Result<UserStatisticDTO>> GetUsersStatistic(UserStatisticFilterDTO filter)
+        {
+            Func<User, bool> queryFilter;
+            IEnumerable<User> users;
+
+            switch (filter.Type)
+            {
+                case StatisticTimeType.Yearly:
+                    queryFilter = x => x.CreatedAt.Year == filter.Year;
+                    break;
+                case StatisticTimeType.Monthly:
+                    queryFilter = x => x.CreatedAt.Year == filter.Year && x.CreatedAt.Month == filter.Month;
+                    break;
+                case StatisticTimeType.Weekly:
+                    queryFilter = x => x.CreatedAt.Year == filter.Year && x.CreatedAt.Month == filter.Month && ((x.CreatedAt.Day - 1) / 7) + 1 == filter.Week;
+                    break;
+                default:
+                    return Result<UserStatisticDTO>.Failure(ServiceError.BadRequestError($"{filter.Type}"), Messages.Common.ActionNotSupported);
+            }
+
+            // This is a really expensive query!!! (Does not need this if we follow the old plan)
+            users = await _unitOfWork.UserRepository.GetAllAsync(include_properties: "NoviceDriver,Instructor");
+
+            // Filtered for statistic
+            IEnumerable<User> filteredUsers = users.Where(queryFilter);
+
+            UserStatisticDTO summarizedStatistic = new UserStatisticDTO
+            {
+                Type = filter.Type,
+                Year = filter.Year,
+                Month = filter.Month,
+                Week = filter.Week,
+                TotalDriverCount = users.Where(x => !x.IsDeleted).Count(),
+                TotalInstructorCount = users.Where(x => !x.IsDeleted).Count(),
+                TotalUserCount = users.Where(x => !x.IsDeleted).Count(),
+                NewDriverCount = filteredUsers.Where(x => !x.IsDeleted).Count(),
+                NewInstructorCount = filteredUsers.Where(x => !x.IsDeleted).Count(),
+                NewUserCount = filteredUsers.Where(x => !x.IsDeleted).Count(),
+                DeletedDriverCount = filteredUsers.Where(x => x.IsDeleted && x.Role == UserRole.NoviceDriver).Count(),
+                DeletedInstructorCount = filteredUsers.Where(x => x.IsDeleted && x.Role != UserRole.Instructor).Count(),
+                DeletedUserCount = filteredUsers.Where(x => x.IsDeleted).Count()
+            };
+
+            summarizedStatistic.NewDriverPercentage = summarizedStatistic.TotalDriverCount > 0 ? (double) summarizedStatistic.NewDriverCount / summarizedStatistic.TotalDriverCount : 0;
+            summarizedStatistic.NewInstructorPercentage = summarizedStatistic.TotalInstructorCount > 0 ? (double) summarizedStatistic.NewInstructorCount / summarizedStatistic.TotalInstructorCount : 0;
+            summarizedStatistic.NewUserPercentage = summarizedStatistic.TotalUserCount > 0 ? (double) summarizedStatistic.NewUserCount / summarizedStatistic.TotalUserCount : 0;
+
+            summarizedStatistic.NoviceDriverStatistic = users.Where(x => x.Role == UserRole.NoviceDriver).GroupBy(u => u.MaxLicenseLevel.ToString()).ToDictionary(u => u.Key, u => (double)u.Count() / summarizedStatistic.TotalDriverCount);
+            summarizedStatistic.InstructorsStatistic = users.Where(x => x.Role == UserRole.Instructor).GroupBy(u => u.MaxLicenseLevel.ToString()).ToDictionary(u => u.Key, u => (double)u.Count() / summarizedStatistic.TotalInstructorCount);
+
+            summarizedStatistic.UserRoleCount = users.Where(x => !x.IsDeleted).GroupBy(u => u.Role.ToString()).ToDictionary(u => u.Key, u => u.Count());
+            summarizedStatistic.UserRolePercentage = users.Where(x => !x.IsDeleted).GroupBy(u => u.Role.ToString()).ToDictionary(u => u.Key, u => (double) u.Count() / summarizedStatistic.TotalUserCount);
+
+            summarizedStatistic.UserStatusCount = users.Where(x => !x.IsDeleted).GroupBy(u => u.AccountStatus.ToString()).ToDictionary(u => u.Key, u => u.Count());
+            summarizedStatistic.UserStatusPercentage = users.Where(x => !x.IsDeleted).GroupBy(u => u.AccountStatus.ToString()).ToDictionary(u => u.Key, u => (double) u.Count() / summarizedStatistic.TotalUserCount);
+
+            return Result<UserStatisticDTO>.Success(summarizedStatistic);
+        }
     }
 }

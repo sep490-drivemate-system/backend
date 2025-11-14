@@ -12,5 +12,6 @@ namespace UserService.Application.Interfaces
         Task<Result<IEnumerable<UserDetailDTO>>> GetUserWithInstructorId(IEnumerable<Guid> instructor_ids);
         Task<Dictionary<Guid, InstructorBasicInfoDTO>> GetBatchInstructorBasicInfo(List<Guid> instructorIds);
         Task<Dictionary<Guid, NoviceDriverBasicInfoDTO>> GetBatchNoviceDriverBasicInfo(List<Guid> noviceDriverIds);
+        Task<Result<UserStatisticDTO>> GetUsersStatistic(UserStatisticFilterDTO filter);
     }
 }
