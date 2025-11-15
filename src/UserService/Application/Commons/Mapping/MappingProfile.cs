@@ -13,8 +13,16 @@ namespace UserService.Application.Commons.Mapping
         {
 
             CreateMap<User, SignUpDTO>()
-            .ForMember(dest => dest.UserRole, opt => opt.MapFrom(src => src.Role))
-            .ReverseMap();
+            .ForMember(dest => dest.UserRole, opt => opt.MapFrom(src => src.Role));
+            //.ReverseMap();
+
+            CreateMap<SignUpDTO, User>()
+                .ForMember(dest => dest.Role, act => act.MapFrom(src => src.UserRole))
+                .ForMember(dest => dest.Fullname, act => act.MapFrom(src => src.UserName));
+
+            CreateMap<string, SignUpRespondDTO>()
+                .ForMember(dest => dest.Token, act => act.MapFrom(src => src));
+
             CreateMap<User, UserClaimTokenDTO>().ReverseMap();
 
             CreateMap<(string AccessToken, string RefreshToken), SignInRespondDTO>()
