@@ -30,10 +30,10 @@ namespace UserService.Controllers
             var result = await _usecase.VerifyPhone(phoneNumber);
             return result.ToActionResult();
         }
-        [HttpPost("verify-email")]
-        public async Task<IActionResult> VerifyEmail([FromBody] EmailDTO emailDTO)
+        [HttpPost("verify")]
+        public async Task<IActionResult> Verify([FromBody] VerifyDTO verifyDTO)
         {
-            var result = await _usecase.VerifyEmail(emailDTO.Email);
+            var result = await _usecase.Verify(verifyDTO);
             return result.ToActionResult();
         }
         [HttpPost("signup")]

@@ -5,7 +5,7 @@ namespace UserService.Application.Interfaces
 {
     public interface IAuthUseCase
     {
-        Task<Result<string>> VerifyEmail(string email);
+        Task<Result<string>> Verify(VerifyDTO verifyDTO);
         Task<Result<string>> VerifyPhone(string phone);
         Task<Result<SignUpRespondDTO>> SignUp(SignUpDTO signUpDTO);
         Task<Result<SignInRespondDTO>> SignIn(SignInDTO signInDTO);

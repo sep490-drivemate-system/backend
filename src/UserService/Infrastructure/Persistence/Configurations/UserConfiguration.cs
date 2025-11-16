@@ -19,7 +19,7 @@ namespace UserService.Infrastructure.Persistence.Configurations
             // properties
             builder.Property(x => x.Username)
                 .HasColumnName("user_name")
-                .IsRequired()
+                .IsRequired(false)
                 .HasMaxLength(30);
 
             builder.Property(x => x.Fullname)

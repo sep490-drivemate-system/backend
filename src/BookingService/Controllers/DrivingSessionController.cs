@@ -24,7 +24,6 @@ namespace BookingService.Controllers
             return result.ToActionResult();
         }
 
-
         [HttpPost]
         public async Task<IActionResult> CreateDrivingSession(DrivingSessionCreationDTO sessionStatus)
         {
@@ -95,7 +94,7 @@ namespace BookingService.Controllers
         [HttpPatch("{sessionId}/status")]
         public async Task<IActionResult> UpdateSessionStatus(
             [FromRoute] Guid sessionId,
-            [FromBody] UpdateSessionStatusDTO updateStatusDTO)
+            [FromBody] SessionStatus updateStatusDTO)
         {
             var result = await _drivingSessionUseCase.UpdateSessionStatus(sessionId, updateStatusDTO);
             return result.ToActionResult();

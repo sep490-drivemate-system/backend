@@ -125,7 +125,7 @@ namespace SharedLibrary.Jwt
             {
                 var jwtToken = handler.ReadJwtToken(token);
 
-                var roleClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "Role");
+                var roleClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "role");
 
                 if (roleClaim != null && Enum.TryParse<UserRole>(roleClaim.Value, out var userRole))
                 {

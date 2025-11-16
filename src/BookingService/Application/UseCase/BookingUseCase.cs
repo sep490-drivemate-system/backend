@@ -62,14 +62,9 @@ namespace BookingService.Application.UseCase
 
         public async Task<Result<List<BookingsDTO>>> GetBookings(BookingStatus status, Guid driverId)
         {
-            Expression<Func<Booking, bool>> filter = status == 0
-                ? b => b.DriverId == driverId && !b.IsDeleted
-                : b => b.DriverId == driverId && b.Status == status && !b.IsDeleted;
-
-            var bookings = await _unitOfWork.BookingRepository.GetAllAsync(
-                filter: filter,
-                orderBy: null,
-                include_properties: "Package,DrivingSessions,Car"
+            var bookings = await _unitOfWork.BookingRepository.GetBookingsByDriverIdAsync(
+                driverId: driverId,
+                status: status == 0 ? null : status
             );
 
             if (!bookings.Any())
@@ -77,10 +72,7 @@ namespace BookingService.Application.UseCase
                 return Result<List<BookingsDTO>>.Success(new List<BookingsDTO>());
             }
 
-            var instructorIds = bookings.Select(b => b.InstructorId).Distinct().ToList();
-            var instructorInfos = await _user.GetBatchInstructorInfo(instructorIds);
-
-            var bookingDTOs = bookings.MapToBookingsDTOWithStats(instructorInfos);
+            var bookingDTOs = _mapper.Map<List<BookingsDTO>>(bookings);
 
             return Result<List<BookingsDTO>>.Success(bookingDTOs);
         }
