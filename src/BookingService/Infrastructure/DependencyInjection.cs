@@ -38,6 +38,19 @@ namespace BookingService.Infrastructure
                 client.DefaultRequestHeaders.Add("User-Agent", "DriveMate_BookingService");
             });
 
+            services.AddHttpClient("PaymentServiceClient", client =>
+            {
+                var base_address = configuration.GetConnectionString("Paymentservice_connection");
+
+                if (string.IsNullOrEmpty(base_address))
+                {
+                    throw new ApplicationException("Can not find base address for payment service");
+                }
+
+                client.BaseAddress = new Uri(base_address);
+                client.DefaultRequestHeaders.Add("User-Agent", "DriveMate_BookingService");
+            });
+
             // Đăng ký dịch vụ bên thứ ba
             services.AddScoped<ICloudinaryServiceProvider, CloudinaryServiceProvider>();
 

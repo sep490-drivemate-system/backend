@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using SharedLibrary.Jwt;
 using SharedLibrary.SharedKernel.Enum;
 using SharedLibrary.SharedKernel.ServiceResult;
+using System.Threading.Tasks;
 using Twilio.Jwt.AccessToken;
 
 namespace BookingService.Controllers
@@ -40,6 +41,15 @@ namespace BookingService.Controllers
         {
             var driverId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
             var result = await _bookingUseCase.GetBookings(bookingStatus, driverId);
+            return result.ToActionResult();
+        }
+
+        [HttpPost("{id}/cancel")]
+        [Authorize(Roles = nameof(UserRole.NoviceDriver))]
+        public async Task<IActionResult> CancelBooking([FromRoute] Guid id)
+        {
+            var userId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
+            var result = await _bookingUseCase.CancelBooking(id, userId);
             return result.ToActionResult();
         }
 

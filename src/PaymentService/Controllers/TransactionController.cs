@@ -1,9 +1,12 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using PaymentService.Application.Common.DTOs;
 using PaymentService.Application.Features.Transactions.Commands.CreateTransaction;
 using PaymentService.Application.Features.Transactions.Commands.UpdateTransactionStatus;
+using PaymentService.Application.Features.Transactions.Queries.GetDashboardStatistic;
 using PaymentService.Application.Features.Transactions.Queries.GetTransactionById;
 using PaymentService.Application.Features.Transactions.Queries.GetTransactionsByBookingId;
+using SharedLibrary.SharedKernel.ServiceResult;
 
 namespace PaymentService.Controllers
 {
@@ -16,6 +19,13 @@ namespace PaymentService.Controllers
         public TransactionController(IMediator mediator)
         {
             _mediator = mediator;
+        }
+
+        [HttpGet("statistic")]
+        public async Task<IActionResult> GetPaymentStatistics(PaymentStatisticFilterDTO filter)
+        {
+            var result = await _mediator.Send(new GetDashboardStatisticQuery { Type = filter.Type, Year = filter.Year, Month = filter.Month, Week = filter.Week});
+            return result.ToActionResult();
         }
 
         [HttpGet("{id}")]

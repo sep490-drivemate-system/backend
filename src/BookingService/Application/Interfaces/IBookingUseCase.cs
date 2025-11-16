@@ -10,6 +10,7 @@ namespace BookingService.Application.Interfaces
     public interface IBookingUseCase
     {
         Task<Result<Booking>> CreateBooking(BookingDTO bookingDTO, Guid driverId);
+        Task<Result<bool>> CancelBooking(Guid booking_id, Guid user_id);
         Task<Result<List<BookingsDTO>>> GetBookings(BookingStatus status, Guid driverId);
         Task<Result<List<DrivingSessionScheduleDTO>>> GetUpcomingDrivingSessions(Guid instructorId);
         Task<Result<List<DrivingSessionDetailDTO>>> GetDrivingSessions(SessionStatus status,Guid instructorId);
