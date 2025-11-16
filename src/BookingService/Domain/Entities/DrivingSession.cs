@@ -13,9 +13,10 @@ namespace BookingService.Domain.Entities
         public DateTime ActualEnd { get; set; }
         public decimal TotalDistance { get; set; }
         public decimal AverageSpeed { get; set; }
-        public string DisplayName { get; set; }
+        public string DisplayStartLocationName { get; set; }
         public decimal StartingLatitude { get; set; }
         public decimal StartingLongtitude { get; set; }
+        public string DisplayEndLocationName { get; set; }
         public decimal EndingLatitude { get; set; }
         public decimal EndingLongtitude { get; set; }
         public string? NoviceDriverNote { get; set; }

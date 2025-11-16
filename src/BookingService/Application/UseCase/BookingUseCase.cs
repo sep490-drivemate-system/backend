@@ -10,6 +10,7 @@ using BookingService.Domain.Entities;
 using BookingService.Domain.Enum;
 using BookingService.Infrastructure.Messaging.Interface;
 using BookingService.Infrastructure.Persistence.Context;
+using Microsoft.AspNetCore.Http.HttpResults;
 using SharedLibrary.SharedKernel.Http;
 using SharedLibrary.SharedKernel.Http.DTOs.ApiResponse;
 using SharedLibrary.SharedKernel.Http.DTOs.User;
@@ -116,61 +117,35 @@ namespace BookingService.Application.UseCase
 
                 if (!sessionsList.Any())
                 {
-                    return Result<List<DrivingSessionDetailDTO>>.Success(new List<DrivingSessionDetailDTO>());
+                    return Result<List<DrivingSessionDetailDTO>>.Success(null);
                 }
-
-                // Get unique novice driver IDs from all sessions
-                var noviceDriverIds = sessions.Select(s => s.Booking.DriverId).Distinct().ToList();
-
-                // Get novice driver info from UserService
-                var noviceDriverInfos = await _user.GetBatchNoviceDriverInfo(noviceDriverIds);
 
                 var sessionDTOs = sessions.Select(session =>
                 {
                     var duration = (session.EndTime - session.StartTime).TotalHours;
-                    var hasRoute = session.SessionRoutes?.Any(sr => !sr.IsDeleted) ?? false;
-                    var noviceDriverInfo = noviceDriverInfos.GetValueOrDefault(session.Booking.DriverId);
-
                     return new DrivingSessionDetailDTO
                     {
                         Id = session.Id,
-                        PackageId = session.Booking.PackageId,
-                        PackageName = session.Booking.Package?.Name ?? "Unknown Package",
-                        NoviceDriverName = noviceDriverInfo?.Fullname ?? "Unknown Driver",
-                        NoviceAvatar = noviceDriverInfo?.AvatarUrl,
+                        PackageName = session.Booking.Package?.Name,
                         Date = session.StartTime.ToString("yyyy-MM-dd"),
                         StartTime = session.StartTime.ToString("HH:mm"),
                         EndTime = session.EndTime.ToString("HH:mm"),
                         Duration = Math.Round(duration, 2),
-                        Location = session.DisplayName,
+                        DisplayStartLocationName = session.DisplayStartLocationName,
                         StartingLatitude = session.StartingLatitude,
                         StartingLongtitude = session.StartingLongtitude,
-                        VehicleId = session.Booking.CarId,
-                        VehicleName = session.Booking.Car?.Name,
+                        CarName = session.Booking.Car?.Name,
                         Status = session.Status,
-                        StatusDisplayString = GetStatusDisplayString(session.Status),
-                        CreatedAt = session.CreatedAt,
-                        HasRoute = hasRoute,
-                        PriceForCar = session.PriceForCar
+                        DisplayEndLocationName = session.DisplayEndLocationName,
+                        EndingLongtitude = session.EndingLongtitude,
+                        EndingLatitude = session.EndingLatitude,
+                        CreatedAt = session.CreatedAt,                        
                     };
                 }).ToList();
 
          return   Result<List<DrivingSessionDetailDTO>>.Success(sessionDTOs);
         }
 
-        private string GetStatusDisplayString(SessionStatus status)
-        {
-            return status switch
-            {
-                SessionStatus.Planning => "planning",
-                SessionStatus.Upcoming => "upcoming",
-                SessionStatus.InProgress => "in-progress",
-                SessionStatus.Completed => "completed",
-                SessionStatus.Cancelled => "cancelled",
-                SessionStatus.Reschedule => "reschedule",
-                _ => status.ToString().ToLower()
-            };
-        }
 
         public async Task<Result<bool>> CancelBooking(Guid booking_id, Guid user_id)
         {
