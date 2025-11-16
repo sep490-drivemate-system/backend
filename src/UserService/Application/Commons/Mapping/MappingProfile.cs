@@ -18,7 +18,7 @@ namespace UserService.Application.Commons.Mapping
 
             CreateMap<SignUpDTO, User>()
                 .ForMember(dest => dest.Role, act => act.MapFrom(src => src.UserRole))
-                .ForMember(dest => dest.Fullname, act => act.MapFrom(src => src.UserName));
+                .ForMember(dest => dest.Fullname, act => act.MapFrom(src => src.FullName));
 
             CreateMap<string, SignUpRespondDTO>()
                 .ForMember(dest => dest.Token, act => act.MapFrom(src => src));
