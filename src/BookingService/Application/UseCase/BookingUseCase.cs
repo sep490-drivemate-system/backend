@@ -11,6 +11,7 @@ using BookingService.Domain.Enum;
 using BookingService.Infrastructure.Messaging.Interface;
 using BookingService.Infrastructure.Persistence.Context;
 using Microsoft.AspNetCore.Http.HttpResults;
+using SharedLibrary.SharedKernel.Enum;
 using SharedLibrary.SharedKernel.Http;
 using SharedLibrary.SharedKernel.Http.DTOs.ApiResponse;
 using SharedLibrary.SharedKernel.Http.DTOs.User;
@@ -226,6 +227,103 @@ namespace BookingService.Application.UseCase
             await _unitOfWork.CommitChangesAsync();
 
             return Result<bool>.Success(true, Messages.Commons.SUCCESS);
+        }
+
+        public async Task<Result<BookingStatisticDTO>> GetBookingStatistic(BookingStatisticFilterDTO filter)
+        {
+            Func<Booking, bool> bookingQueryFilter;
+            Func<Car, bool> carQueryFilter;
+            Func<Package, bool> packageQueryFilter;
+            Func<DrivingSession, bool> sessionQueryFilter;
+
+            switch (filter.Type)
+            {
+                case StatisticTimeType.Yearly:
+                    bookingQueryFilter = x => x.CreatedAt.Year == filter.Year;
+                    carQueryFilter = x => x.CreatedAt.Year == filter.Year;
+                    packageQueryFilter = x => x.CreatedAt.Year == filter.Year;
+                    sessionQueryFilter = x => x.CreatedAt.Year == filter.Year;
+                    break;
+                case StatisticTimeType.Monthly:
+                    bookingQueryFilter = x => x.CreatedAt.Year == filter.Year && x.CreatedAt.Month == filter.Month;
+                    carQueryFilter = x => x.CreatedAt.Year == filter.Year && x.CreatedAt.Month == filter.Month;
+                    packageQueryFilter = x => x.CreatedAt.Year == filter.Year && x.CreatedAt.Month == filter.Month;
+                    sessionQueryFilter = x => x.CreatedAt.Year == filter.Year && x.CreatedAt.Month == filter.Month;
+                    break;
+                case StatisticTimeType.Weekly:
+                    bookingQueryFilter = x => x.CreatedAt.Year == filter.Year && x.CreatedAt.Month == filter.Month && ((x.CreatedAt.Day - 1) / 7) + 1 == filter.Week;
+                    carQueryFilter = x => x.CreatedAt.Year == filter.Year && x.CreatedAt.Month == filter.Month && ((x.CreatedAt.Day - 1) / 7) + 1 == filter.Week;
+                    packageQueryFilter = x => x.CreatedAt.Year == filter.Year && x.CreatedAt.Month == filter.Month && ((x.CreatedAt.Day - 1) / 7) + 1 == filter.Week;
+                    sessionQueryFilter = x => x.CreatedAt.Year == filter.Year && x.CreatedAt.Month == filter.Month && ((x.CreatedAt.Day - 1) / 7) + 1 == filter.Week;
+                    break;
+                default:
+                    return Result<BookingStatisticDTO>.Failure(ServiceError.BadRequestError($"{filter.Type}"), Messages.Commons.UNHANDLED);
+            }
+
+            string bookings_includes = "DrivingSessions,Feedback";
+
+            var packages = await _unitOfWork.PackageRepository.GetAllAsync(filter: x => !x.IsDeleted);
+            var cars = await _unitOfWork.CarRepository.GetAllAsync(filter: x=> !x.IsDeleted);
+            var bookings = await _unitOfWork.BookingRepository.GetAllAsync(filter: x => !x.IsDeleted, include_properties: bookings_includes);
+            var sessions = bookings.SelectMany(x => x.DrivingSessions); // This gonna help reducing the database call
+
+            // filtered bomb which cause more bombing
+            var filtered_package = packages.Where(packageQueryFilter);
+            var filtered_car = cars.Where(carQueryFilter);
+            var filtered_session = sessions.Where(sessionQueryFilter);
+            var filtered_booking = bookings.Where(bookingQueryFilter);
+
+            BookingStatisticDTO statistics = new BookingStatisticDTO
+            {
+                Type = filter.Type,
+                Year = filter.Year,
+                Month = filter.Month,
+                Week = filter.Week,
+                TotalBookingCount = bookings.Count,
+                TotalCarCount = cars.Count,
+                TotalPackageCount = packages.Count,
+                TotalSessionCount = bookings.Sum(x => x.DrivingSessions.Count),
+                TotalCancelationCount = bookings.Sum(x => x.DrivingSessions.Count(x => !x.IsDeleted && x.Status == SessionStatus.Cancelled)),
+                BookingByStatusCount = filtered_booking.GroupBy(x => x.Status.ToString()).ToDictionary(x => x.Key, x => x.Count()),
+                BookingStatusPercentage = filtered_booking.GroupBy(x => x.Status.ToString()).ToDictionary(x => x.Key, x => (double)x.Count() / bookings.Count),
+                SessionByStatusCount = sessions.GroupBy(x => x.Status.ToString()).ToDictionary(x => x.Key, x => x.Count()),
+                SessionStatusPercentage = filtered_session.GroupBy(x => x.Status.ToString()).ToDictionary(x => x.Key, x => (double)x.Count() / sessions.Count()),
+                SessionCancelationCount = filtered_session.Where(x => x.Status == SessionStatus.Cancelled).GroupBy(x => x.RescheduleRequests.OrderBy(x => x.CreatedAt).Last(x => x.IsDeleted).Side.ToString()).ToDictionary(x => x.Key, x => x.Count()), // For the time being, 
+                SessionCancelationPercentage = filtered_session.Where(x => x.Status == SessionStatus.Cancelled).GroupBy(x => x.RescheduleRequests.OrderBy(x => x.CreatedAt).Last(x => x.IsDeleted).Side.ToString()).ToDictionary(x => x.Key, x => (double)x.Count() / sessions.Count(x => x.Status == SessionStatus.Cancelled)),
+            };
+
+            statistics.TopCars = bookings.Where(x => x.Feedback != null && x.CarId != null).GroupBy(x => x.CarId).Select(x => new TopCar
+            {
+                CarName = cars.FirstOrDefault(u => u.Id == x.Key)?.Name ?? "",
+                CarBookCount = x.Count(),
+                AverageRating = x.Average(u => u.Feedback?.CarRating ?? 0)
+            });
+            statistics.TopPackages = bookings.Where(x => x.Feedback != null).GroupBy(x => x.PackageId).Select(x => new TopPackage
+            {
+                PackageName = packages.FirstOrDefault(u => u.Id == x.Key)?.Name ?? "",
+                PackageBookCount = x.Count(),
+                AverageRating = 0
+            });
+
+            switch (filter.Type)
+            {
+                case StatisticTimeType.Yearly:
+                    statistics.BookingByStatusCount = filtered_session.GroupBy(x => x.CreatedAt.Month.ToString()).ToDictionary(x => x.Key, x => x.Count());
+                    statistics.SessionTimeByDay = filtered_session.GroupBy(x => x.CreatedAt.Month.ToString()).ToDictionary(x => x.Key, x => x.Sum(u => (u.ActualEnd - u.ActualStart).TotalHours));
+                    break;
+                case StatisticTimeType.Monthly:
+                    statistics.BookingByStatusCount = filtered_session.GroupBy(x => x.CreatedAt.Day.ToString()).ToDictionary(x => x.Key.ToString(), x => x.Count());
+                    statistics.SessionTimeByDay = filtered_session.GroupBy(x => x.CreatedAt.Day.ToString()).ToDictionary(x => x.Key.ToString(), x => x.Sum(u => (u.ActualEnd - u.ActualStart).TotalHours));
+                    break;
+                case StatisticTimeType.Weekly:
+                    statistics.BookingByStatusCount = filtered_session.GroupBy(x => x.CreatedAt.DayOfWeek.ToString()).ToDictionary(x => x.Key.ToString(), x => x.Count());
+                    statistics.SessionTimeByDay = filtered_session.GroupBy(x => x.CreatedAt.DayOfWeek.ToString()).ToDictionary(x => x.Key.ToString(), x => x.Sum(u => (u.ActualEnd - u.ActualStart).TotalHours));
+                    break;
+                default:
+                    return Result<BookingStatisticDTO>.Failure(ServiceError.BadRequestError($"{filter.Type}"), Messages.Commons.UNHANDLED);
+            }
+
+            return Result<BookingStatisticDTO>.Success(statistics, Messages.Commons.SUCCESS);
         }
     }
 }

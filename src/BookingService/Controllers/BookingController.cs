@@ -68,6 +68,12 @@ namespace BookingService.Controllers
             return result.ToActionResult();
         }
 
+        [HttpGet("statistic")]
+        public async Task<IActionResult> GetBookingStatistic(BookingStatisticFilterDTO filter)
+        {
+            var result = await _bookingUseCase.GetBookingStatistic(filter);
+            return result.ToActionResult();
+        }
     }
     
 }
