@@ -8,9 +8,8 @@
 
 	<ItemGroup>
 		<Folder Include="AI\" />
-		<Folder Include="Payment\PayOs\" />
-		<Folder Include="Payment\ZaloPay\" />
-		<Folder Include="Payment\VnPay\" />
+		<Folder Include="Payment\VnPay\DTOs\" />
+		<Folder Include="Payment\ZaloPay\DTOs\" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -24,6 +23,7 @@
 		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.0" />
 		<PackageReference Include="MailKit" Version="4.13.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.3.0" />
+		<PackageReference Include="PayOS" Version="1.0.9" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
