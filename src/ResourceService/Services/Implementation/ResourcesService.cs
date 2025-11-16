@@ -132,8 +132,8 @@ namespace ResourceService.Services.Implementation
         public async Task<Result<BlogDetailDto>> GetBlogDetailAsync(Guid id)
         {
             try
-            {
-                var blog = await _unitOfWork.ResourceRepository.GetBlogDetailAsync(id);
+        {
+            var blog = await _unitOfWork.ResourceRepository.GetBlogDetailAsync(id);
                 if (blog == null)
                 {
                     return Result<BlogDetailDto>.Failure(
@@ -191,7 +191,7 @@ namespace ResourceService.Services.Implementation
                         ServiceError.NotFoundError(Messages.Blog.NOTFOUND),
                         Messages.Blog.NOTFOUND);
                 }
-                var marked = await _unitOfWork.ResourceRepository.SoftDeleteBlogAsync(id);
+            var marked = await _unitOfWork.ResourceRepository.SoftDeleteBlogAsync(id);
                 if (!marked)
                 {
                     return Result<bool>.Failure(
@@ -228,7 +228,7 @@ namespace ResourceService.Services.Implementation
                 blog.IsDelete = false;
 
                 await _unitOfWork.ResourceRepository.CreateBlog(blog);
-                var result = await _unitOfWork.SaveChangesWithTransactionAsync();
+            var result = await _unitOfWork.SaveChangesWithTransactionAsync();
                 if (result <= 0)
                 {
                     return Result<bool>.Failure(
