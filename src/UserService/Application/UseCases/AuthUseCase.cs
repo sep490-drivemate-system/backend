@@ -36,20 +36,29 @@ namespace UserService.Application.UseCases
         }
 
         // implement usecase verfyEmail
-        public async Task<Result<string>> VerifyEmail(string email)
+        public async Task<Result<string>> Verify(VerifyDTO verifyDTO)
         {
             // 1. check exist email
-            var isEmailExist = await _unitOfWork.UserRepository.IsEsxitEmail(email);
+            var isEmailExist = await _unitOfWork.UserRepository.IsEsxitEmail(verifyDTO.Email);
             if (isEmailExist)
             {
                 return Result<string>.Failure(
                 new ServiceError(ServiceError.Existed, Messages.Auth.EmailAlreadyExists)
             );
             }
+            var isPhoneExist = await _unitOfWork.UserRepository.IsEsxitPhone(verifyDTO.PhoneNumber);
+            if (isPhoneExist)
+            {
+                return Result<string>.Failure(
+                new ServiceError(ServiceError.Existed, Messages.Auth.PhoneAlreadyExists)
+            );
+            }
+
+
             // 2. Generate code
             var codeGenerate = await _passwordHasherService.GenerateSecureVerificationCode();
             // 3. send email           
-            var result = await _emailService.SendVerificationCodeAsync(email, codeGenerate);
+            var result = await _emailService.SendVerificationCodeAsync(verifyDTO.Email, codeGenerate);
             if (result)
             {
                 return Result<string>.Success(codeGenerate, Messages.Auth.EmailSentSuccess);
@@ -84,20 +93,9 @@ namespace UserService.Application.UseCases
         // implememt usecase signup 
         public async Task<Result<SignUpRespondDTO>> SignUp(SignUpDTO signUpDTO)
         {
-            // 1.Check User Name input data
-            var isUserNameExist = await _unitOfWork.UserRepository.IsEsxitUserName(signUpDTO.UserName);
-            if (isUserNameExist)
-            {
-                return Result<SignUpRespondDTO>.Failure(
-                new ServiceError(ServiceError.Existed, Messages.Auth.UserNameAlreadyExists));
-            }
 
-            var isPhoneExist = await _unitOfWork.UserRepository.IsEsxitPhone(signUpDTO.PhoneNumber);
-            if (isUserNameExist)
-            {
-                return Result<SignUpRespondDTO>.Failure(
-                new ServiceError(ServiceError.Existed, Messages.Auth.PhoneAlreadyExists));
-            }
+
+            //1.  get avatar form diary
 
 
             // 2. Generate hash password and save data

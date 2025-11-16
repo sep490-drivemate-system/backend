@@ -56,14 +56,9 @@ namespace BookingService.Application.UseCase
 
         public async Task<Result<List<BookingsDTO>>> GetBookings(BookingStatus status, Guid driverId)
         {
-            Expression<Func<Booking, bool>> filter = status == 0
-                ? b => b.DriverId == driverId && !b.IsDeleted
-                : b => b.DriverId == driverId && b.Status == status && !b.IsDeleted;
-
-            var bookings = await _unitOfWork.BookingRepository.GetAllAsync(
-                filter: filter,
-                orderBy: null,
-                include_properties: "Package,DrivingSessions,Car"
+            var bookings = await _unitOfWork.BookingRepository.GetBookingsByDriverIdAsync(
+                driverId: driverId,
+                status: status == 0 ? null : status
             );
 
             if (!bookings.Any())

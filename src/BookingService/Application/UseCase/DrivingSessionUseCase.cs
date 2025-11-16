@@ -54,9 +54,13 @@ namespace BookingService.Application.UseCase
             //        ServiceError.InvalidStateError($"Booking status: {booking.Status}"),
             //        "Booking must be confirmed or planned to create driving session");
             //}
+            DateTime startTimeUtc = drivingSessionCreationDTO.StartTime.Kind == DateTimeKind.Utc
+        ? drivingSessionCreationDTO.StartTime
+        : drivingSessionCreationDTO.StartTime.ToUniversalTime();
 
+
+            DateTime endTimeUtc = startTimeUtc.AddHours(drivingSessionCreationDTO.Duration);
             // Calculate end time based on duration
-            DateTime endTime = drivingSessionCreationDTO.StartTime.AddMinutes(drivingSessionCreationDTO.Duration);
 
             // Create new driving session entity with temporary ID
             var sessionId = Guid.NewGuid();
@@ -64,8 +68,8 @@ namespace BookingService.Application.UseCase
             {
                 Id = sessionId,
                 BookingId = drivingSessionCreationDTO.BookingId,
-                StartTime = drivingSessionCreationDTO.StartTime,
-                EndTime = endTime,
+                StartTime = startTimeUtc,
+                EndTime = endTimeUtc,
                 PriceForCar = drivingSessionCreationDTO.PriceForCar,
                 StartingLatitude = drivingSessionCreationDTO.StartingLatitude,
                 StartingLongtitude = drivingSessionCreationDTO.StartingLongtitude,
@@ -521,54 +525,26 @@ namespace BookingService.Application.UseCase
             }
         }
 
-        public async Task<Result<bool>> UpdateSessionStatus(Guid sessionId, UpdateSessionStatusDTO updateStatusDTO)
+        public async Task<Result<bool>> UpdateSessionStatus(Guid sessionId, SessionStatus updateStatusDTO)
         {
-            try
-            {
-                // Get the session with related data
+
                 var session = await _unitOfWork.DrivingSessionRepository.GetByIdAsync(sessionId);
-                if (session == null)
-                {
-                    return Result<bool>.Failure(
-                        ServiceError.NotFoundError($"DrivingSession {sessionId}"),
-                        "Không tìm thấy buổi học");
-                }
-
-                // Validate status transition (add your validation logic here)
-                if (session.Status == updateStatusDTO.Status)
-                {
-                    return Result<bool>.Failure(
-                        ServiceError.BadRequestError("Invalid status transition"),
-                        "Trạng thái mới phải khác trạng thái hiện tại");
-                }
-
-                // Update session status
-                session.Status = updateStatusDTO.Status;
-                session.LastModifiedAt = DateTime.UtcNow;
-
-                // Additional logic based on status
-                switch (updateStatusDTO.Status)
+                session.Status = updateStatusDTO;
+                switch (updateStatusDTO)
                 {
                     case SessionStatus.InProgress:
                         session.ActualStart = DateTime.UtcNow;
                         break;
                     case SessionStatus.Completed:
                         session.ActualEnd = DateTime.UtcNow;
-                        // You might want to calculate actual duration, distance, etc. here
                         break;
                 }
 
                 _unitOfWork.DrivingSessionRepository.Update(session);
                 await _unitOfWork.CommitChangesAsync();
 
-                return Result<bool>.Success(true, "Cập nhật trạng thái thành công");
-            }
-            catch (Exception ex)
-            {
-                return Result<bool>.Failure(
-                    ServiceError.UnhandledException(ex.Message),
-                    "Đã xảy ra lỗi khi cập nhật trạng thái");
-            }
+                return Result<bool>.Success(true);
+           
         }
 
         public async Task<Result<SessionRouteResponseDTO>> GetSessionRoutesBySessionId(Guid sessionId)

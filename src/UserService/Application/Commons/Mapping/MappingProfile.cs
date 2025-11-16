@@ -20,6 +20,9 @@ namespace UserService.Application.Commons.Mapping
             CreateMap<(string AccessToken, string RefreshToken), SignInRespondDTO>()
             .ForMember(dest => dest.Token, opt => opt.MapFrom(src => src.AccessToken));
 
+            CreateMap<(string AccessToken, string RefreshToken), SignUpRespondDTO>()
+            .ForMember(dest => dest.Token, opt => opt.MapFrom(src => src.AccessToken));
+
             CreateMap<Instructor, InstructorDTO>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.Avatar, opt => opt.MapFrom(src => src.User.Avatar))
