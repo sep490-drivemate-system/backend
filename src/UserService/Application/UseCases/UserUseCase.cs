@@ -100,6 +100,8 @@ namespace UserService.Application.UseCases
                 Fullname = x.Fullname,
                 AvatarUrl = x.Avatar,
                 BirthDate = x.DateOfBirth,
+                Email = x.Email,
+                Phone = x.PhoneNumber,
                 Role = x.Role,
                 Instructor = x.Role == SharedLibrary.SharedKernel.Enum.UserRole.Instructor ? new InstructorDetailDTO
                 {
@@ -123,6 +125,8 @@ namespace UserService.Application.UseCases
                 Fullname = x.Fullname,
                 AvatarUrl = x.Avatar,
                 BirthDate = x.DateOfBirth,
+                Email = x.Email,
+                Phone = x.PhoneNumber,
                 Role = x.Role,
                 Instructor = null,
                 NoviceDriver = x.Role == SharedLibrary.SharedKernel.Enum.UserRole.NoviceDriver ? new NoviceDriverDetailDTO
@@ -144,6 +148,8 @@ namespace UserService.Application.UseCases
                 Fullname = x.Fullname,
                 AvatarUrl = x.Avatar,
                 BirthDate = x.DateOfBirth,
+                Email = x.Email,
+                Phone = x.PhoneNumber,
                 Role = x.Role,
                 Instructor = x.Role == SharedLibrary.SharedKernel.Enum.UserRole.Instructor ? new InstructorDetailDTO 
                 { 
