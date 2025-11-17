@@ -376,7 +376,7 @@ namespace BookingService.Application.UseCase
             };
 
             // Session by day and by type
-            statistic.TotalSessionByday = instructorSessions.Where(x => filter.From < DateOnly.FromDateTime(x.StartTime) && DateOnly.FromDateTime(x.EndTime) < filter.To)
+            statistic.TotalSessionByday = instructorSessions.Where(x => filter.From <= DateOnly.FromDateTime(x.StartTime) && DateOnly.FromDateTime(x.EndTime) <= filter.To)
                 .GroupBy(x => $"{x.StartTime.Day}/{x.StartTime.Month}/{x.StartTime.Year}")
                 .ToDictionary(x => x.Key, x => x.GroupBy(u => u.Status.ToString()).ToDictionary(u => u.Key, u => u.Count()));
 
