@@ -1,4 +1,5 @@
 using Resend;
+using SharedLibrary.AI.VnptEkyc;
 using SharedLibrary.Email;
 using SharedLibrary.Jwt;
 using SharedLibrary.SharedKernel.Http;
@@ -37,6 +38,7 @@ namespace UserService.Application
             services.AddScoped<PasswordHasherService>();
             services.AddScoped<HttpService>();
             services.AddScoped<IIntructor, Intructor>();
+            services.AddVnptEkyc(configuration);
 
 
             services.AddScoped<IFeedback,Feedback>();
