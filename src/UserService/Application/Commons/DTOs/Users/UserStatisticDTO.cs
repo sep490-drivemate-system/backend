@@ -41,6 +41,8 @@ namespace UserService.Application.Commons.DTOs.Users
         [JsonPropertyName("total_instructor_count")]
         public int TotalInstructorCount { get; set; }
 
+        public int TotalInspectorCount { get; set; }
+
         [JsonPropertyName("total_user_count")]
         public int TotalUserCount { get; set; }
 
