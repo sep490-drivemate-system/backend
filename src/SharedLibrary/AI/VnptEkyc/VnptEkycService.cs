@@ -1,8 +1,10 @@
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using System;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading;
@@ -13,117 +15,64 @@ namespace SharedLibrary.AI.VnptEkyc
     internal sealed class VnptEkycService : IVnptEkycService
     {
         private readonly HttpClient _httpClient;
-        private readonly IOptionsMonitor<VnptEkycOptions> _optionsMonitor;
+        private readonly IConfiguration _configuration;
 
-        public VnptEkycService(HttpClient httpClient, IOptionsMonitor<VnptEkycOptions> optionsMonitor)
+        public VnptEkycService(HttpClient httpClient, IConfiguration configuration)
         {
-            _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-            _optionsMonitor = optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
+            _httpClient = httpClient ;
+            _configuration = configuration;
         }
 
-        private VnptEkycOptions Options => _optionsMonitor.CurrentValue;
-
-        public Task<VnptEkycResponse> AnalyzeDocumentAsync(
-            VnptDocumentType documentType,
+      
+        public Task<VnptEkycResponse> VerifyCitizenIdentity(
             Stream frontImage,
-            string frontFileName,
-            Stream? backImage = null,
-            string? backFileName = null,
-            CancellationToken cancellationToken = default)
+            Stream backImage)
         {
             ArgumentNullException.ThrowIfNull(frontImage);
+            ArgumentNullException.ThrowIfNull(backImage);
 
-            if (string.IsNullOrWhiteSpace(frontFileName))
-            {
-                throw new ArgumentException("Front image file name is required.", nameof(frontFileName));
-            }
 
-            var options = Options;
-            EnsureEndpointConfigured(options.DocumentEndpoint, "document");
 
-            var documentTypeValue = ResolveDocumentType(options, documentType);
-            var form = new MultipartFormDataContent();
 
-            form.Add(CreateFileContent(frontImage, frontFileName), options.DocumentFrontFieldName, frontFileName);
-
-            if (backImage != null && !string.IsNullOrWhiteSpace(backFileName))
-            {
-                form.Add(CreateFileContent(backImage, backFileName), options.DocumentBackFieldName, backFileName);
-            }
-
-            if (!string.IsNullOrWhiteSpace(documentTypeValue))
-            {
-                form.Add(new StringContent(documentTypeValue), options.DocumentTypeFieldName);
-            }
-
-            return SendMultipartAsync(options.DocumentEndpoint, form, cancellationToken);
+            return VerifyCitizenIdentityInternal(frontImage, backImage);
         }
 
-        public Task<VnptEkycResponse> MatchFacesAsync(
-            Stream documentPortraitImage,
-            string documentPortraitFileName,
-            Stream selfieImage,
-            string selfieFileName,
-            CancellationToken cancellationToken = default)
+       
+
+        private async Task<VnptEkycResponse> VerifyCitizenIdentityInternal(
+            Stream frontImage,
+            Stream backImage)
         {
-            ArgumentNullException.ThrowIfNull(documentPortraitImage);
-            ArgumentNullException.ThrowIfNull(selfieImage);
+            var frontPayload = await ConvertStreamToBase64Async(frontImage).ConfigureAwait(false);
+            var backPayload = await ConvertStreamToBase64Async(backImage).ConfigureAwait(false);
 
-            if (string.IsNullOrWhiteSpace(documentPortraitFileName))
+            var body = new
             {
-                throw new ArgumentException("Document portrait file name is required.", nameof(documentPortraitFileName));
-            }
-
-            if (string.IsNullOrWhiteSpace(selfieFileName))
-            {
-                throw new ArgumentException("Selfie file name is required.", nameof(selfieFileName));
-            }
-
-            var options = Options;
-            EnsureEndpointConfigured(options.FaceMatchEndpoint, "face match");
-
-            var form = new MultipartFormDataContent();
-            form.Add(CreateFileContent(documentPortraitImage, documentPortraitFileName), options.FaceDocumentFieldName, documentPortraitFileName);
-            form.Add(CreateFileContent(selfieImage, selfieFileName), options.FaceSelfieFieldName, selfieFileName);
-
-            return SendMultipartAsync(options.FaceMatchEndpoint, form, cancellationToken);
-        }
-
-        public Task<VnptEkycResponse> VerifyLivenessAsync(
-            Stream videoStream,
-            string videoFileName,
-            CancellationToken cancellationToken = default)
-        {
-            ArgumentNullException.ThrowIfNull(videoStream);
-
-            if (string.IsNullOrWhiteSpace(videoFileName))
-            {
-                throw new ArgumentException("Video file name is required.", nameof(videoFileName));
-            }
-
-            var options = Options;
-            EnsureEndpointConfigured(options.LivenessEndpoint, "liveness");
-
-            var form = new MultipartFormDataContent();
-            form.Add(CreateFileContent(videoStream, videoFileName), options.LivenessFieldName, videoFileName);
-
-            return SendMultipartAsync(options.LivenessEndpoint, form, cancellationToken);
-        }
-
-        private async Task<VnptEkycResponse> SendMultipartAsync(
-            string endpoint,
-            MultipartFormDataContent content,
-            CancellationToken cancellationToken)
-        {
-            using var request = new HttpRequestMessage(HttpMethod.Post, endpoint)
-            {
-                Content = content
+                img_front = frontPayload,
+                img_back = backPayload,
+                client_session = _configuration["VNPT:CLIENT_SESSION"],
+                type = _configuration["VNPT:TYPE"],
+                crop_param = _configuration["VNPT:CROP_PARAM"],
+                validate_postcode = _configuration["VNPT:VALIDATE_POSTCODE"],
+                token = _configuration["VNPT:TOKEN"],
             };
 
-            ApplyCredentials(request.Headers);
+            return await SendJsonAsync(body).ConfigureAwait(false);
+        }
 
-            using var response = await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
-            var raw = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+        private async Task<VnptEkycResponse> SendJsonAsync<TPayload>(
+            TPayload payload)
+        {
+            var json = JsonSerializer.Serialize(payload, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+            using var request = new HttpRequestMessage(HttpMethod.Post, _configuration["VNPT:CIENDPOINT"])
+            {
+                Content = new StringContent(json, Encoding.UTF8, "application/json")
+            };
+
+            ApplyCitizenHeaders(request.Headers);
+
+            using var response = await _httpClient.SendAsync(request).ConfigureAwait(false);
+            var raw = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -133,22 +82,21 @@ namespace SharedLibrary.AI.VnptEkyc
             return ParseResponse(raw);
         }
 
-        private void ApplyCredentials(HttpRequestHeaders headers)
+       
+
+        private void ApplyCitizenHeaders(HttpRequestHeaders headers)
         {
-            var options = Options;
 
-            if (string.IsNullOrWhiteSpace(options.ApiKey) || string.IsNullOrWhiteSpace(options.ApiSecret))
-            {
-                throw new InvalidOperationException("VNPT eKYC credentials are not configured.");
-            }
+            headers.Authorization = new AuthenticationHeaderValue("Bearer", _configuration["VNPT:ACCESS_TOKEN"]);
 
-            var keyHeader = string.IsNullOrWhiteSpace(options.ApiKeyHeaderName) ? "x-api-key" : options.ApiKeyHeaderName;
-            var secretHeader = string.IsNullOrWhiteSpace(options.ApiSecretHeaderName) ? "x-api-secret" : options.ApiSecretHeaderName;
+            headers.Remove("Token-id");
+            headers.TryAddWithoutValidation("Token-id", _configuration["VNPT:TOKEN_ID"]);
 
-            headers.Remove(keyHeader);
-            headers.Remove(secretHeader);
-            headers.TryAddWithoutValidation(keyHeader, options.ApiKey);
-            headers.TryAddWithoutValidation(secretHeader, options.ApiSecret);
+            headers.Remove("Token-key");
+            headers.TryAddWithoutValidation("Token-key", _configuration["VNPT:TOKEN_KEY"]);
+
+            headers.Remove("mac-address");
+            headers.TryAddWithoutValidation("mac-address", _configuration["VNPT:MAC_ADDRESS"]);
         }
 
         private static VnptEkycResponse ParseResponse(string responseContent)
@@ -236,37 +184,18 @@ namespace SharedLibrary.AI.VnptEkyc
             element = default;
             return false;
         }
+       
 
-        private static StreamContent CreateFileContent(Stream stream, string fileName, string? contentType = null)
+        private static async Task<string> ConvertStreamToBase64Async(Stream stream)
         {
             if (stream.CanSeek)
             {
                 stream.Position = 0;
             }
 
-            var content = new StreamContent(stream);
-            var resolvedContentType = contentType ?? ResolveContentType(fileName);
-            content.Headers.ContentType = new MediaTypeHeaderValue(resolvedContentType);
-            return content;
-        }
-
-        private static string ResolveDocumentType(VnptEkycOptions options, VnptDocumentType documentType)
-        {
-            var key = documentType.ToString();
-            if (options.DocumentTypeMapping.TryGetValue(key, out var value) && !string.IsNullOrWhiteSpace(value))
-            {
-                return value;
-            }
-
-            return key.ToLowerInvariant();
-        }
-
-        private static void EnsureEndpointConfigured(string? endpoint, string actionName)
-        {
-            if (string.IsNullOrWhiteSpace(endpoint))
-            {
-                throw new InvalidOperationException($"VNPT eKYC {actionName} endpoint is not configured.");
-            }
+            using var memoryStream = new MemoryStream();
+            await stream.CopyToAsync(memoryStream).ConfigureAwait(false);
+            return Convert.ToBase64String(memoryStream.ToArray());
         }
 
         private static string ResolveContentType(string fileName)
@@ -283,6 +212,7 @@ namespace SharedLibrary.AI.VnptEkyc
                 _ => "application/octet-stream"
             };
         }
+
     }
 }
 

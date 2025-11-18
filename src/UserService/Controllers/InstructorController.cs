@@ -15,10 +15,9 @@ namespace UserService.Controllers
 {
     [Route("api/instructors")]
     [ApiController]
-    public class InstructorController(IInstructorUseCase usecase, IVnptEkycService ekycService) : ControllerBase
+    public class InstructorController(IInstructorUseCase usecase) : ControllerBase
     {
         private readonly IInstructorUseCase _usecase = usecase;
-        private readonly IVnptEkycService _ekycService = ekycService;
 
         [HttpGet]
         public async Task<IActionResult> GetInstructors([FromQuery] InstructorListFilterDTO filter)
@@ -83,45 +82,6 @@ namespace UserService.Controllers
             return result.ToActionResult();
         }
 
-        [HttpPost("cccd/verify")]
-        public async Task<IActionResult> VerifyCitizenIdentification(
-            [FromForm] IFormFile frontImage,
-            [FromForm] IFormFile? backImage,
-            CancellationToken cancellationToken = default)
-        {
-            if (frontImage is null || frontImage.Length == 0)
-            {
-                var error = ServiceError.BadRequestError("Ảnh mặt trước CCCD là bắt buộc.");
-                return Result<FptAiEkycResponse>.Failure(error).ToActionResult();
-            }
-
-            var token = cancellationToken == default ? HttpContext.RequestAborted : cancellationToken;
-
-            await using var frontStream = frontImage.OpenReadStream();
-            await using var backStream = backImage is null ? null : backImage.OpenReadStream();
-
-            try
-            {
-                var response = await _ekycService.AnalyzeDocumentAsync(
-                    VnptDocumentType.CitizenIdentification,
-                    frontStream,
-                    frontImage.FileName,
-                    backStream,
-                    backImage?.FileName,
-                    token);
-
-                return Result<VnptEkycResponse>.Success(response, "VNPT đang xử lý yêu cầu xác thực.").ToActionResult();
-            }
-            catch (InvalidOperationException ex)
-            {
-                var error = ServiceError.InvalidStateError(ex.Message);
-                return Result<VnptEkycResponse>.Failure(error, ex.Message).ToActionResult();
-            }
-            catch (HttpRequestException ex)
-            {
-                var error = ServiceError.ExternalServiceError(ex.Message);
-                return Result<VnptEkycResponse>.Failure(error, "Không thể kết nối tới VNPT eKYC.").ToActionResult();
-            }
-        }
+        
     }
 }

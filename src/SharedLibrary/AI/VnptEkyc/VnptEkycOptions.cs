@@ -16,6 +16,7 @@ namespace SharedLibrary.AI.VnptEkyc
         public string DocumentEndpoint { get; set; } = "/ekyc/v1/ocr";
         public string FaceMatchEndpoint { get; set; } = "/ekyc/v1/face/match";
         public string LivenessEndpoint { get; set; } = "/ekyc/v1/face/liveness";
+        public string CitizenIdentityEndpoint { get; set; } = "/ai/v1/ocr/id";
 
         public string DocumentFrontFieldName { get; set; } = "front_image";
         public string DocumentBackFieldName { get; set; } = "back_image";
@@ -27,6 +28,16 @@ namespace SharedLibrary.AI.VnptEkyc
         public string LivenessFieldName { get; set; } = "video";
 
         public int HttpTimeoutSeconds { get; set; } = 60;
+
+        // Citizen identity specific headers & payload defaults
+        public string AccessToken { get; set; } = string.Empty;
+        public string TokenKey { get; set; } = string.Empty;
+        public string Token { get; set; } = string.Empty;
+        public string MacAddress { get; set; } = string.Empty;
+        public string ClientSession { get; set; } = string.Empty;
+        public string CropParam { get; set; } = "0.14,0.3";
+        public bool ValidatePostcode { get; set; } = false;
+        public int CitizenIdentityDocumentType { get; set; } = -1;
 
         public Dictionary<string, string> DocumentTypeMapping { get; set; } = new(StringComparer.OrdinalIgnoreCase)
         {
