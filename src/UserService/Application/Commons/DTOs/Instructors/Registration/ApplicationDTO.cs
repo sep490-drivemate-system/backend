@@ -21,9 +21,7 @@ namespace UserService.Application.Commons.DTOs.Instructors.Registration
         public DateTime SumbitDate { get; set; }
         public string Avatar {  get; set; }
         public string DrivingLicenseFront {  get; set; }
-        public string DrivingLicenseBack { get; set; }
         public string TeachingLicenseFront { get; set; }
-        public string TeachingLicenseBack { get; set; }
         public string HealthCheckup { get; set; }
         public string PersonalProfile { get; set; }
         public IEnumerable<ApplicationTrackingDTO>? TrackingHistories { get; set; }

@@ -35,29 +35,6 @@ namespace UserService.Infrastructure.Persistence.Configurations
                 .HasMaxLength(11)
                 .IsRequired();
 
-            builder.Property(x => x.NationalId)
-                .HasColumnName("national_id_number")
-                .HasMaxLength(64)
-                .IsRequired();
-
-            builder.Property(x => x.PermanentAddress)
-                .HasColumnName("permanent_address")
-                .HasMaxLength(256)
-                .IsRequired();
-
-            builder.Property(x => x.NationalIdIssuedLocation)
-                .HasColumnName("id_issued_location")
-                .HasMaxLength(256)
-                .IsRequired();
-
-            builder.Property(x => x.NationalIdIssuedDate)
-                .HasColumnName("id_issued_date")
-                .IsRequired();
-
-            builder.Property(x => x.NationalIdExpiryDatee)
-                .HasColumnName("id_expiry_date")
-                .IsRequired();
-
             builder.Property(x => x.DateOfBirth)
                 .HasColumnName("date_of_birth")
                 .IsRequired();
@@ -87,30 +64,12 @@ namespace UserService.Infrastructure.Persistence.Configurations
                 .HasMaxLength(500)
                 .IsRequired();
 
-            builder.Property(x => x.DrivingLicenseNumber)
-                .HasColumnName("driving_license_number")
-                .HasMaxLength(64)
-                .IsRequired();
-
-            builder.Property(x => x.DrivingLicenseIssuesDate)
-                .HasColumnName("driving_license_issued_date")
-                .IsRequired();
-
-            builder.Property(x => x.DrivingLicenseExpiryDate)
-                .HasColumnName("driving_license_expiry_date")
-                .IsRequired();
-
             builder.Property(x => x.DrivingLicenseTier)
                 .HasColumnName("driving_license_tier")
                 .IsRequired();
 
             builder.Property(x => x.TeachingLicenseFront)
                 .HasColumnName("teaching_license_front")
-                .HasMaxLength(500)
-                .IsRequired();
-
-            builder.Property(x => x.TeachingLicenseBack)
-                .HasColumnName("teaching_license_back")
                 .HasMaxLength(500)
                 .IsRequired();
 
