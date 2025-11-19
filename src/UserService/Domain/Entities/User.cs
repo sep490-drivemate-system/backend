@@ -26,5 +26,7 @@ namespace UserService.Domain.Entities
         // Relationship navigation
         public virtual NoviceDriver? NoviceDriver { get; set; }
         public virtual Instructor? Instructor { get; set; } 
+        public virtual ICollection<EmergencyContact> EmergencyContacts { get; set; }
+        public virtual ICollection<SavedLocation> SavedLocations { get; set; }
     }
 }

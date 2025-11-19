@@ -17,7 +17,5 @@ namespace UserService.Domain.Entities
 
         // Relationship navigation
         public virtual User? User {get; set; }
-        public virtual ICollection<SavedLocation>? SavedLocations { get; set; }
-
     }
 }

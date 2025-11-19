@@ -10,8 +10,9 @@ namespace UserService.Infrastructure.Persistence.Context
         }
 
         public DbSet<User> Users { get; set; }
-        public DbSet<NoviceDriver> NoviceDrivers { get; set; }
+        public DbSet<EmergencyContact> EmergencyContacts { get; set; }
         public DbSet<SavedLocation> SavedLocations { get; set; }
+        public DbSet<NoviceDriver> NoviceDrivers { get; set; }
         public DbSet<Instructor> Instructors { get; set; }
         public DbSet<PersonalSchedule> PersonalSchedules { get; set; }
         public DbSet<ApplicationTracking> InstructorApplications { get; set; }

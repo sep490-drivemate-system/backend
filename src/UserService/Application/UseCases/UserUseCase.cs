@@ -1,3 +1,4 @@
+using Resend;
 using SharedLibrary.SharedKernel.Enum;
 using SharedLibrary.SharedKernel.Http.DTOs.User;
 using SharedLibrary.SharedKernel.Password;
@@ -278,6 +279,98 @@ namespace UserService.Application.UseCases
             summarizedStatistic.UserStatusPercentage = users.Where(x => !x.IsDeleted).GroupBy(u => u.AccountStatus.ToString()).ToDictionary(u => u.Key, u => (double) u.Count() / summarizedStatistic.TotalUserCount);
 
             return Result<UserStatisticDTO>.Success(summarizedStatistic);
+        }
+
+        public async Task<Result<IEnumerable<UserAddressDTO>>> GetUserSavedAddress(Guid user_id)
+        {
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(user_id, include_properties: "SavedLocations");
+
+            if (user == null)
+            {
+                return Result<IEnumerable<UserAddressDTO>>.Failure(ServiceError.NotFoundError($"{user_id}"), Messages.Common.NotFoundError);
+            }
+
+            return Result<IEnumerable<UserAddressDTO>>.Success(user.SavedLocations.Select(x => new UserAddressDTO
+            {
+                Id = x.Id,
+                AddressString = x.DisplayName,
+                Latitude = x.LocationLatitude,
+                Longitude = x.LocationLongtitude
+            }));
+        }
+
+        public async Task<Result<IEnumerable<EmergencyContactDTO>>> GetUserEmergencyContacts(Guid user_id)
+        {
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(user_id, include_properties: "SavedLocations");
+
+            if (user == null)
+            {
+                return Result<IEnumerable<EmergencyContactDTO>>.Failure(ServiceError.NotFoundError($"{user_id}"), Messages.Common.NotFoundError);
+            }
+
+            return Result<IEnumerable<EmergencyContactDTO>>.Success(user.EmergencyContacts.Select(x => new EmergencyContactDTO
+            {
+                Id = x.Id,
+                Name = x.SavedName,
+                Phone = x.ContactNumber
+            }));
+        }
+
+        public async Task<Result<bool>> AddUserSavedAddress(Guid user_id, UserAddressDTO address)
+        {
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(user_id, include_properties: "SavedLocations");
+
+            if (user == null)
+            {
+                return Result<bool>.Failure(ServiceError.UnhandledException($"{user_id}"), Messages.Common.NotFoundError);
+            }
+
+            user.SavedLocations.Add(new SavedLocation
+            {
+                DisplayName = address.AddressString,
+                LocationLatitude = address.Latitude,
+                LocationLongtitude = address.Longitude,
+            });
+
+            try
+            {
+                _unitOfWork.UserRepository.Update(user);
+                await _unitOfWork.CommitChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                return Result<bool>.Failure(ServiceError.UnhandledException($"{ex.Message}"), Messages.Common.UnknownError);
+            }
+
+            return Result<bool>.Success(true);
+        }
+
+        public async Task<Result<bool>> AddUserEmergencyContacts(Guid user_id, EmergencyContactDTO contact)
+        {
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(user_id, include_properties: "EmergencyContacts");
+
+            if (user == null)
+            {
+                return Result<bool>.Failure(ServiceError.UnhandledException($"{user_id}"), Messages.Common.NotFoundError);
+            }
+
+            user.EmergencyContacts.Add(new EmergencyContact
+            {
+                SavedName = contact.Name,
+                ContactNumber = contact.Phone,
+            });
+
+            try
+            {
+                _unitOfWork.UserRepository.Update(user);
+                await _unitOfWork.CommitChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                return Result<bool>.Failure(ServiceError.UnhandledException($"{ex.Message}"), Messages.Common.UnknownError);
+            }
+
+            return Result<bool>.Success(true);
         }
     }
 }

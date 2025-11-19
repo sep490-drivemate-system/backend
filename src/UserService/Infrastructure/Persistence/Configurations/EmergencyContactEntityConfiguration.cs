@@ -4,12 +4,12 @@ using UserService.Domain.Entities;
 
 namespace UserService.Infrastructure.Persistence.Configurations
 {
-    public class SavedLocationConfiguration : IEntityTypeConfiguration<SavedLocation>
+    public class EmergencyContactEntityConfiguration : IEntityTypeConfiguration<EmergencyContact>
     {
-        public void Configure(EntityTypeBuilder<SavedLocation> builder)
+        public void Configure(EntityTypeBuilder<EmergencyContact> builder)
         {
             // table name
-            builder.ToTable("SavedLocation");
+            builder.ToTable("EmergencyContact");
 
             // primary key
             builder.HasKey(x => x.Id);
@@ -18,17 +18,13 @@ namespace UserService.Infrastructure.Persistence.Configurations
                 .IsRequired();
 
             // properties
-            builder.Property(x => x.DisplayName)
-                .HasColumnName("location_string")
+            builder.Property(x => x.SavedName)
+                .HasColumnName("contact_name")
                 .HasMaxLength(256)
                 .IsRequired();
 
-            builder.Property(x => x.LocationLatitude)
-                .HasColumnName("latitude")
-                .IsRequired();
-
-            builder.Property(x => x.LocationLongtitude)
-                .HasColumnName("longtitude")
+            builder.Property(x => x.ContactNumber)
+                .HasColumnName("contact_number")
                 .IsRequired();
 
             builder.Property(x => x.UserId)
@@ -55,7 +51,7 @@ namespace UserService.Infrastructure.Persistence.Configurations
                 .IsRequired();
 
             builder.HasOne(x => x.User)
-                .WithMany(x => x.SavedLocations)
+                .WithMany(x => x.EmergencyContacts)
                 .HasForeignKey(x => x.UserId);
         }
     }

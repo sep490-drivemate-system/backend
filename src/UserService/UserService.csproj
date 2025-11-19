@@ -31,4 +31,8 @@
     <ProjectReference Include="..\SharedLibrary\SharedLibrary.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Application\Commons\DTOs\NoviceDriver\" />
+  </ItemGroup>
+
 </Project>

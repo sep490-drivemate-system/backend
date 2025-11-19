@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using UserService.Infrastructure.Persistence.Context;
@@ -11,9 +12,11 @@ using UserService.Infrastructure.Persistence.Context;
 namespace UserService.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(UserServiceDbContext))]
-    partial class UserServiceDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251119122438_AddedEmergencyContact")]
+    partial class AddedEmergencyContact
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -112,7 +115,7 @@ namespace UserService.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("EmergencyContact", (string)null);
+                    b.ToTable("Address", (string)null);
                 });
 
             modelBuilder.Entity("UserService.Domain.Entities.Instructor", b =>
@@ -438,11 +441,16 @@ namespace UserService.Infrastructure.Persistence.Migrations
                         .HasColumnType("real")
                         .HasColumnName("longtitude");
 
+                    b.Property<Guid?>("NoviceDriverId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid")
                         .HasColumnName("user_id");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("NoviceDriverId");
 
                     b.HasIndex("UserId");
 
@@ -603,6 +611,10 @@ namespace UserService.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("UserService.Domain.Entities.SavedLocation", b =>
                 {
+                    b.HasOne("UserService.Domain.Entities.NoviceDriver", null)
+                        .WithMany("SavedLocations")
+                        .HasForeignKey("NoviceDriverId");
+
                     b.HasOne("UserService.Domain.Entities.User", "User")
                         .WithMany("SavedLocations")
                         .HasForeignKey("UserId")
@@ -622,6 +634,11 @@ namespace UserService.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("UserService.Domain.Entities.InstructorApplication", b =>
                 {
                     b.Navigation("ApplicationTrackings");
+                });
+
+            modelBuilder.Entity("UserService.Domain.Entities.NoviceDriver", b =>
+                {
+                    b.Navigation("SavedLocations");
                 });
 
             modelBuilder.Entity("UserService.Domain.Entities.User", b =>
