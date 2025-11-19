@@ -50,8 +50,11 @@ namespace BookingService.Infrastructure.Persistence.Configurations
             builder.Property(x => x.AverageSpeed)
                 .HasColumnName("speed");
 
-            builder.Property(x => x.DisplayName)
-               .HasColumnName("display_name");
+            builder.Property(x => x.DisplayStartLocationName)
+               .HasColumnName("display_start_location_name");
+
+            builder.Property(x => x.DisplayEndLocationName)
+               .HasColumnName("display_end_location_name");
 
             builder.Property(x => x.StartingLatitude)
                 .HasColumnName("starting_lat");

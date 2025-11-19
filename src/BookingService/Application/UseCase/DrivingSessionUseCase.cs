@@ -77,9 +77,8 @@ namespace BookingService.Application.UseCase
                 Status = SessionStatus.Planning,
                 CreatedAt = DateTime.UtcNow,
                 LastModifiedAt = DateTime.UtcNow,
-                DisplayName = drivingSessionCreationDTO.DisplayName,
+                DisplayStartLocationName = drivingSessionCreationDTO.DisplayName,
                 IsDeleted = false,
-                // Initialize default values for fields that will be updated later
                 ActualStart = DateTime.MinValue,
                 ActualEnd = DateTime.MinValue,
                 TotalDistance = 0,
@@ -460,137 +459,102 @@ namespace BookingService.Application.UseCase
             return Result<List<DrivingSessionListDTO>>.Success(sessionDTOs);
         }
 
-        public async Task<Result<List<SessionRouteDTO>>> CreateSessionRoutes(Guid sessionId, List<SessionRouteCreateDTO> routes)
+        public async Task<Result<bool>> CreateSessionRoutes(Guid sessionId, List<SessionRouteCreateDTO> routes)
         {
-            try
+            var session = await _unitOfWork.DrivingSessionRepository.GetByIdAsync(sessionId);
+            if (session == null)
             {
-                // Validate session exists
-                var session = await _unitOfWork.DrivingSessionRepository.GetByIdAsync(sessionId);
-                if (session == null)
-                {
-                    return Result<List<SessionRouteDTO>>.Failure(
-                        ServiceError.NotFoundError($"DrivingSession {sessionId}"),
-                        Messages.Commons.NOTFOUND);
-                }
-
-                // Validate routes list is not empty
-                if (routes == null || !routes.Any())
-                {
-                    return Result<List<SessionRouteDTO>>.Failure(
-                        ServiceError.BadRequestError("Routes list cannot be empty"),
-                        "Danh sách tuyến đường không được để trống");
-                }
-
-                // Create SessionRoute entities
-                var sessionRoutes = routes.Select(r => new SessionRoute
-                {
-                    Id = Guid.NewGuid(),
-                    SessionId = sessionId,
-                    TextInstruction = r.TextInstruction,
-                    StreetName = r.StreetName,
-                    LatitudeStart = r.LatitudeStart,
-                    LongitudeStart = r.LongitudeStart,
-                }).ToList();
-
-                // Update session status to Upcoming after routes are created
-                if (session.Status == SessionStatus.Planning)
-                {
-                    session.Status = SessionStatus.Planning;
-                    session.LastModifiedAt = DateTime.UtcNow;
-                    _unitOfWork.DrivingSessionRepository.Update(session);
-                }
-
-                // Save to database
-                await _unitOfWork.SessionRouteRepository.CreateMultipleAsync(sessionRoutes);
-                await _unitOfWork.CommitChangesAsync();
-
-                // Map to DTOs for response
-                var routeDTOs = sessionRoutes.Select(sr => new SessionRouteDTO
-                {
-                    Id = sr.Id,
-                    SessionId = sr.SessionId,
-                    TextInstruction = sr.TextInstruction,
-                    StreetName = sr.StreetName,
-                    LatitudeStart = sr.LatitudeStart,
-                    LongitudeStart = sr.LongitudeStart,
-                }).ToList();
-
-                return Result<List<SessionRouteDTO>>.Success(routeDTOs, Messages.Commons.SUCCESS);
+                return Result<bool>.Failure(
+                    ServiceError.NotFoundError($"DrivingSession {sessionId}"),
+                    Messages.Commons.NOTFOUND);
             }
-            catch (Exception ex)
+
+            // Validate routes list is not empty
+            if (routes == null || !routes.Any())
             {
-                return Result<List<SessionRouteDTO>>.Failure(
-                    ServiceError.UnhandledException(ex.Message),
-                    Messages.Commons.UNHANDLED);
+                return Result<bool>.Failure(
+                    ServiceError.BadRequestError("Routes list cannot be empty"),
+                    "Danh sách tuyến đường không được để trống");
             }
+
+            // Create SessionRoute entities
+            var sessionRoutes = routes.Select(r => new SessionRoute
+            {
+                Id = Guid.NewGuid(),
+                SessionId = sessionId,
+                TextInstruction = r.TextInstruction,
+                StreetName = r.StreetName,
+                LatitudeStart = r.LatitudeStart,
+                LongitudeStart = r.LongitudeStart,
+            }).ToList();
+
+            // Update session status to Upcoming after routes are created
+            if (session.Status == SessionStatus.Planning)
+            {
+                session.Status = SessionStatus.Planning;
+                session.LastModifiedAt = DateTime.UtcNow;
+                _unitOfWork.DrivingSessionRepository.Update(session);
+            }
+
+            // Save to database
+            await _unitOfWork.SessionRouteRepository.CreateMultipleAsync(sessionRoutes);
+            await _unitOfWork.CommitChangesAsync();
+
+
+            return Result<bool>.Success(true, Messages.Commons.SUCCESS);
+
         }
 
         public async Task<Result<bool>> UpdateSessionStatus(Guid sessionId, SessionStatus updateStatusDTO)
         {
 
-                var session = await _unitOfWork.DrivingSessionRepository.GetByIdAsync(sessionId);
-                session.Status = updateStatusDTO;
-                switch (updateStatusDTO)
-                {
-                    case SessionStatus.InProgress:
-                        session.ActualStart = DateTime.UtcNow;
-                        break;
-                    case SessionStatus.Completed:
-                        session.ActualEnd = DateTime.UtcNow;
-                        break;
-                }
+            var session = await _unitOfWork.DrivingSessionRepository.GetByIdAsync(sessionId);
+            session.Status = updateStatusDTO;
+            switch (updateStatusDTO)
+            {
+                case SessionStatus.InProgress:
+                    session.ActualStart = DateTime.UtcNow;
+                    break;
+                case SessionStatus.Completed:
+                    session.ActualEnd = DateTime.UtcNow;
+                    break;
+            }
 
-                _unitOfWork.DrivingSessionRepository.Update(session);
-                await _unitOfWork.CommitChangesAsync();
+            _unitOfWork.DrivingSessionRepository.Update(session);
+            await _unitOfWork.CommitChangesAsync();
 
-                return Result<bool>.Success(true);
-           
+            return Result<bool>.Success(true);
+
         }
 
-        public async Task<Result<SessionRouteResponseDTO>> GetSessionRoutesBySessionId(Guid sessionId)
+        public async Task<Result<List<SessionRouteResponseDTO>>> GetSessionRoutesBySessionId(Guid sessionId)
         {
-            try
+            var session = await _unitOfWork.DrivingSessionRepository.GetByIdAsync(sessionId);
+            if (session == null)
             {
-                // Check if session exists
-                var session = await _unitOfWork.DrivingSessionRepository.GetByIdAsync(sessionId);
-                if (session == null)
-                {
-                    return Result<SessionRouteResponseDTO>.Failure(
-                        ServiceError.NotFoundError($"DrivingSession {sessionId}"),
-                        "Không tìm thấy buổi học");
-                }
-
-                // Get routes for the session
-                var routes = await _unitOfWork.SessionRouteRepository
-                    .GetRoutesBySessionIdAsync(sessionId);
-
-                // Map to DTOs
-                var routeDTOs = routes.Select(r => new SessionRouteDTO
-                {
-                    Id = r.Id,
-                    SessionId = r.SessionId,
-                    TextInstruction = r.TextInstruction,
-                    StreetName = r.StreetName,
-                    LatitudeStart = r.LatitudeStart,
-                    LongitudeStart = r.LongitudeStart
-                }).ToList();
-
-                // Create response with session's starting location and routes
-                var response = new SessionRouteResponseDTO
-                {
-                    SessionStartingLat = session.StartingLatitude,
-                    SessionStartingLong = session.StartingLongtitude,
-                    Routes = routeDTOs
-                };
-
-                return Result<SessionRouteResponseDTO>.Success(response, "Lấy danh sách tuyến đường thành công");
+                return Result<List<SessionRouteResponseDTO>>.Failure(
+                    ServiceError.NotFoundError($"DrivingSession {sessionId}"),
+                    "Không tìm thấy buổi học");
             }
-            catch (Exception ex)
+
+            // Get routes for the session
+            var routes = await _unitOfWork.SessionRouteRepository
+                .GetRoutesBySessionIdAsync(sessionId);
+
+            // Map to DTOs
+            var routeDTOs = routes.Select(r => new SessionRouteResponseDTO
             {
-                return Result<SessionRouteResponseDTO>.Failure(
-                    ServiceError.UnhandledException(ex.Message),
-                    "Đã xảy ra lỗi khi lấy danh sách tuyến đường");
-            }
+                Id = r.Id,
+                SessionId = r.SessionId,
+                TextInstruction = r.TextInstruction,
+                StreetName = r.StreetName,
+                LatitudeStart = r.LatitudeStart,
+                LongitudeStart = r.LongitudeStart
+            }).ToList();
+
+
+            return Result<List<SessionRouteResponseDTO>>.Success(routeDTOs, "Lấy danh sách tuyến đường thành công");
+
         }
 
         public async Task<Result<SessionLogDTO>> CreateSessionLog(Guid sessionId, SessionLogCreateDTO log)

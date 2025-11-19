@@ -10,12 +10,15 @@ using BookingService.Domain.Entities;
 using BookingService.Domain.Enum;
 using BookingService.Infrastructure.Messaging.Interface;
 using BookingService.Infrastructure.Persistence.Context;
+using Microsoft.AspNetCore.Http.HttpResults;
+using SharedLibrary.SharedKernel.Enum;
 using SharedLibrary.SharedKernel.Http;
 using SharedLibrary.SharedKernel.Http.DTOs.ApiResponse;
 using SharedLibrary.SharedKernel.Http.DTOs.User;
 using SharedLibrary.SharedKernel.Http.DTOs.Wallet;
 using SharedLibrary.SharedKernel.Http.Interfaces;
 using SharedLibrary.SharedKernel.ServiceResult;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace BookingService.Application.UseCase
@@ -116,61 +119,35 @@ namespace BookingService.Application.UseCase
 
                 if (!sessionsList.Any())
                 {
-                    return Result<List<DrivingSessionDetailDTO>>.Success(new List<DrivingSessionDetailDTO>());
+                    return Result<List<DrivingSessionDetailDTO>>.Success(null);
                 }
-
-                // Get unique novice driver IDs from all sessions
-                var noviceDriverIds = sessions.Select(s => s.Booking.DriverId).Distinct().ToList();
-
-                // Get novice driver info from UserService
-                var noviceDriverInfos = await _user.GetBatchNoviceDriverInfo(noviceDriverIds);
 
                 var sessionDTOs = sessions.Select(session =>
                 {
                     var duration = (session.EndTime - session.StartTime).TotalHours;
-                    var hasRoute = session.SessionRoutes?.Any(sr => !sr.IsDeleted) ?? false;
-                    var noviceDriverInfo = noviceDriverInfos.GetValueOrDefault(session.Booking.DriverId);
-
                     return new DrivingSessionDetailDTO
                     {
                         Id = session.Id,
-                        PackageId = session.Booking.PackageId,
-                        PackageName = session.Booking.Package?.Name ?? "Unknown Package",
-                        NoviceDriverName = noviceDriverInfo?.Fullname ?? "Unknown Driver",
-                        NoviceAvatar = noviceDriverInfo?.AvatarUrl,
+                        PackageName = session.Booking.Package?.Name,
                         Date = session.StartTime.ToString("yyyy-MM-dd"),
                         StartTime = session.StartTime.ToString("HH:mm"),
                         EndTime = session.EndTime.ToString("HH:mm"),
                         Duration = Math.Round(duration, 2),
-                        Location = session.DisplayName,
+                        DisplayStartLocationName = session.DisplayStartLocationName,
                         StartingLatitude = session.StartingLatitude,
                         StartingLongtitude = session.StartingLongtitude,
-                        VehicleId = session.Booking.CarId,
-                        VehicleName = session.Booking.Car?.Name,
+                        CarName = session.Booking.Car?.Name,
                         Status = session.Status,
-                        StatusDisplayString = GetStatusDisplayString(session.Status),
-                        CreatedAt = session.CreatedAt,
-                        HasRoute = hasRoute,
-                        PriceForCar = session.PriceForCar
+                        DisplayEndLocationName = session.DisplayEndLocationName,
+                        EndingLongtitude = session.EndingLongtitude,
+                        EndingLatitude = session.EndingLatitude,
+                        CreatedAt = session.CreatedAt,                        
                     };
                 }).ToList();
 
          return   Result<List<DrivingSessionDetailDTO>>.Success(sessionDTOs);
         }
 
-        private string GetStatusDisplayString(SessionStatus status)
-        {
-            return status switch
-            {
-                SessionStatus.Planning => "planning",
-                SessionStatus.Upcoming => "upcoming",
-                SessionStatus.InProgress => "in-progress",
-                SessionStatus.Completed => "completed",
-                SessionStatus.Cancelled => "cancelled",
-                SessionStatus.Reschedule => "reschedule",
-                _ => status.ToString().ToLower()
-            };
-        }
 
         public async Task<Result<bool>> CancelBooking(Guid booking_id, Guid user_id)
         {
@@ -251,6 +228,199 @@ namespace BookingService.Application.UseCase
             await _unitOfWork.CommitChangesAsync();
 
             return Result<bool>.Success(true, Messages.Commons.SUCCESS);
+        }
+
+        public async Task<Result<BookingStatisticDTO>> GetBookingStatistic(BookingStatisticFilterDTO filter)
+        {
+            Func<Booking, bool> bookingQueryFilter;
+            Func<Car, bool> carQueryFilter;
+            Func<Package, bool> packageQueryFilter;
+            Func<DrivingSession, bool> sessionQueryFilter;
+
+            switch (filter.Type)
+            {
+                case StatisticTimeType.Yearly:
+                    bookingQueryFilter = x => x.CreatedAt.Year == filter.Year;
+                    carQueryFilter = x => x.CreatedAt.Year == filter.Year;
+                    packageQueryFilter = x => x.CreatedAt.Year == filter.Year;
+                    sessionQueryFilter = x => x.CreatedAt.Year == filter.Year;
+                    break;
+                case StatisticTimeType.Monthly:
+                    bookingQueryFilter = x => x.CreatedAt.Year == filter.Year && x.CreatedAt.Month == filter.Month;
+                    carQueryFilter = x => x.CreatedAt.Year == filter.Year && x.CreatedAt.Month == filter.Month;
+                    packageQueryFilter = x => x.CreatedAt.Year == filter.Year && x.CreatedAt.Month == filter.Month;
+                    sessionQueryFilter = x => x.CreatedAt.Year == filter.Year && x.CreatedAt.Month == filter.Month;
+                    break;
+                case StatisticTimeType.Weekly:
+                    bookingQueryFilter = x => x.CreatedAt.Year == filter.Year && x.CreatedAt.Month == filter.Month && ((x.CreatedAt.Day - 1) / 7) + 1 == filter.Week;
+                    carQueryFilter = x => x.CreatedAt.Year == filter.Year && x.CreatedAt.Month == filter.Month && ((x.CreatedAt.Day - 1) / 7) + 1 == filter.Week;
+                    packageQueryFilter = x => x.CreatedAt.Year == filter.Year && x.CreatedAt.Month == filter.Month && ((x.CreatedAt.Day - 1) / 7) + 1 == filter.Week;
+                    sessionQueryFilter = x => x.CreatedAt.Year == filter.Year && x.CreatedAt.Month == filter.Month && ((x.CreatedAt.Day - 1) / 7) + 1 == filter.Week;
+                    break;
+                default:
+                    return Result<BookingStatisticDTO>.Failure(ServiceError.BadRequestError($"{filter.Type}"), Messages.Commons.UNHANDLED);
+            }
+
+            string bookings_includes = "DrivingSessions,Feedback";
+
+            var packages = await _unitOfWork.PackageRepository.GetAllAsync(filter: x => !x.IsDeleted);
+            var cars = await _unitOfWork.CarRepository.GetAllAsync(filter: x=> !x.IsDeleted);
+            var bookings = await _unitOfWork.BookingRepository.GetAllAsync(filter: x => !x.IsDeleted, include_properties: bookings_includes);
+            var sessions = bookings.SelectMany(x => x.DrivingSessions); // This gonna help reducing the database call
+
+            // filtered bomb which cause more bombing
+            var filtered_package = packages.Where(packageQueryFilter);
+            var filtered_car = cars.Where(carQueryFilter);
+            var filtered_session = sessions.Where(sessionQueryFilter);
+            var filtered_booking = bookings.Where(bookingQueryFilter);
+
+            BookingStatisticDTO statistics = new BookingStatisticDTO
+            {
+                Type = filter.Type,
+                Year = filter.Year,
+                Month = filter.Month,
+                Week = filter.Week,
+                TotalBookingCount = bookings.Count,
+                TotalCarCount = cars.Count,
+                TotalPackageCount = packages.Count,
+                TotalSessionCount = bookings.Sum(x => x.DrivingSessions.Count),
+                TotalCancelationCount = bookings.Sum(x => x.DrivingSessions.Count(x => !x.IsDeleted && x.Status == SessionStatus.Cancelled)),
+                BookingByStatusCount = filtered_booking.GroupBy(x => x.Status.ToString()).ToDictionary(x => x.Key, x => x.Count()),
+                BookingStatusPercentage = filtered_booking.GroupBy(x => x.Status.ToString()).ToDictionary(x => x.Key, x => (double)x.Count() / bookings.Count),
+                SessionByStatusCount = sessions.GroupBy(x => x.Status.ToString()).ToDictionary(x => x.Key, x => x.Count()),
+                SessionStatusPercentage = filtered_session.GroupBy(x => x.Status.ToString()).ToDictionary(x => x.Key, x => (double)x.Count() / sessions.Count()),
+                SessionCancelationCount = filtered_session.Where(x => x.Status == SessionStatus.Cancelled).GroupBy(x => x.RescheduleRequests.OrderBy(x => x.CreatedAt).Last(x => x.IsDeleted).Side.ToString()).ToDictionary(x => x.Key, x => x.Count()), // For the time being, 
+                SessionCancelationPercentage = filtered_session.Where(x => x.Status == SessionStatus.Cancelled).GroupBy(x => x.RescheduleRequests.OrderBy(x => x.CreatedAt).Last(x => x.IsDeleted).Side.ToString()).ToDictionary(x => x.Key, x => (double)x.Count() / sessions.Count(x => x.Status == SessionStatus.Cancelled)),
+            };
+
+            statistics.TopCars = bookings.Where(x => x.Feedback != null && x.CarId != null).GroupBy(x => x.CarId).Select(x => new TopCar
+            {
+                CarName = cars.FirstOrDefault(u => u.Id == x.Key)?.Name ?? "",
+                CarBookCount = x.Count(),
+                AverageRating = x.Average(u => u.Feedback?.CarRating ?? 0)
+            });
+            statistics.TopPackages = bookings.Where(x => x.Feedback != null).GroupBy(x => x.PackageId).Select(x => new TopPackage
+            {
+                PackageName = packages.FirstOrDefault(u => u.Id == x.Key)?.Name ?? "",
+                PackageBookCount = x.Count(),
+                AverageRating = 0
+            });
+
+            switch (filter.Type)
+            {
+                case StatisticTimeType.Yearly:
+                    statistics.BookingByStatusCount = filtered_session.GroupBy(x => x.CreatedAt.Month.ToString()).ToDictionary(x => x.Key, x => x.Count());
+                    statistics.SessionTimeByDay = filtered_session.GroupBy(x => x.CreatedAt.Month.ToString()).ToDictionary(x => x.Key, x => x.Sum(u => (u.ActualEnd - u.ActualStart).TotalHours));
+                    break;
+                case StatisticTimeType.Monthly:
+                    statistics.BookingByStatusCount = filtered_session.GroupBy(x => x.CreatedAt.Day.ToString()).ToDictionary(x => x.Key.ToString(), x => x.Count());
+                    statistics.SessionTimeByDay = filtered_session.GroupBy(x => x.CreatedAt.Day.ToString()).ToDictionary(x => x.Key.ToString(), x => x.Sum(u => (u.ActualEnd - u.ActualStart).TotalHours));
+                    break;
+                case StatisticTimeType.Weekly:
+                    statistics.BookingByStatusCount = filtered_session.GroupBy(x => x.CreatedAt.DayOfWeek.ToString()).ToDictionary(x => x.Key.ToString(), x => x.Count());
+                    statistics.SessionTimeByDay = filtered_session.GroupBy(x => x.CreatedAt.DayOfWeek.ToString()).ToDictionary(x => x.Key.ToString(), x => x.Sum(u => (u.ActualEnd - u.ActualStart).TotalHours));
+                    break;
+                default:
+                    return Result<BookingStatisticDTO>.Failure(ServiceError.BadRequestError($"{filter.Type}"), Messages.Commons.UNHANDLED);
+            }
+
+            return Result<BookingStatisticDTO>.Success(statistics, Messages.Commons.SUCCESS);
+        }
+
+        public async Task<Result<InstructorStatisticDTO>> GetInstructorStatistic(Guid user_id, InstructorStatisticFilterDTO filter)
+        {
+            // Check for time filter constraints
+            if (filter.From >= filter.To)
+            {
+                return Result<InstructorStatisticDTO>.Failure(ServiceError.BadRequestError($"{filter.From} must before ${filter.To}"), Messages.Commons.UNHANDLED);
+            }
+
+            // Getting and validating instructor information (1 API calls)
+            var userServiceHttpClient = _httpClientFactory.CreateClient("UserServiceClient");
+            var userServiceResponseMessage = await userServiceHttpClient.PostAsJsonAsync<IEnumerable<Guid>>("api/users/ids", new List<Guid>() { user_id });
+
+            if (!userServiceResponseMessage.IsSuccessStatusCode)
+            {
+                return Result<InstructorStatisticDTO>.Failure(ServiceError.ServiceUnavailableError($"UserService: {userServiceResponseMessage.ReasonPhrase}"), Messages.Commons.UNHANDLED);
+            }
+
+            var users = await userServiceResponseMessage.Content.ReadFromJsonAsync<DefaultApiResponse<IEnumerable<UserDetailDTO>>>();
+
+            if (users.Value.Count() == 0 || users.Value.First().Role != UserRole.Instructor)
+            {
+                return Result<InstructorStatisticDTO>.Failure(ServiceError.BadRequestError($"{user_id}"), Messages.Commons.UNHANDLED);
+            }
+            var instructorDetail = users.Value.First();
+
+            // Query filters
+            Expression<Func<Package, bool>> packageFilter = x => !x.IsDeleted && x.InstructorId == instructorDetail.Instructor.InstructorId;
+            Expression<Func<Car,bool>> carFilter = x => !x.IsDeleted && x.InstructorId == instructorDetail.Instructor.InstructorId;
+
+            // Includes
+            string packageIncludes = "Bookings,Bookings.Feedback,Bookings.DrivingSessions";
+
+            // Expensive query bombs
+            IEnumerable<Package> instructorPackage = await _unitOfWork.PackageRepository.GetAllAsync(packageFilter, include_properties: packageIncludes);
+            IEnumerable<Car> instructorCar = await _unitOfWork.CarRepository.GetAllAsync(carFilter);
+
+            IEnumerable<Booking> instructorBookings = instructorPackage.SelectMany(x => x.Bookings).Where(x => !x.IsDeleted);
+            IEnumerable<DrivingSession> instructorSessions = instructorBookings.SelectMany(x => x.DrivingSessions).Where(x => !x.IsDeleted);
+
+            // Easy to collect information
+            InstructorStatisticDTO statistic = new InstructorStatisticDTO
+            {
+                TotalCarCount = instructorCar.Count(),
+                TotalPackageCount = instructorPackage.Count(),
+                TotalUpcomingSesionCount = instructorSessions.Count(x => x.Status == SessionStatus.Upcoming),
+                TotalSessionByStatusCount = instructorSessions.GroupBy(x => x.Status.ToString()).ToDictionary(x => x.Key, x => x.Count()),
+            };
+
+            // Session by day and by type
+            statistic.TotalSessionByday = instructorSessions.Where(x => filter.From <= DateOnly.FromDateTime(x.StartTime) && DateOnly.FromDateTime(x.EndTime) <= filter.To)
+                .GroupBy(x => $"{x.StartTime.Day}/{x.StartTime.Month}/{x.StartTime.Year}")
+                .ToDictionary(x => x.Key, x => x.GroupBy(u => u.Status.ToString()).ToDictionary(u => u.Key, u => u.Count()));
+
+            // Recent package purchase
+            var recentPurchases = instructorBookings.OrderByDescending(x => x.CreatedAt).Take(5);
+            userServiceResponseMessage = await userServiceHttpClient.PostAsJsonAsync<IEnumerable<Guid>>("api/users/driver-ids", recentPurchases.Select(x => x.DriverId));
+
+            if (!userServiceResponseMessage.IsSuccessStatusCode)
+            {
+                return Result<InstructorStatisticDTO>.Failure(ServiceError.ServiceUnavailableError($"UserService: {userServiceResponseMessage.ReasonPhrase}"), Messages.Commons.UNHANDLED);
+            }
+
+            users = await userServiceResponseMessage.Content.ReadFromJsonAsync<DefaultApiResponse<IEnumerable<UserDetailDTO>>>();
+
+            statistic.RecentPurchases = recentPurchases.Select(x => new RecentPackagePurchasesDTO
+            {
+                BoughtTime = x.CreatedAt,
+                PackageId = x.PackageId,
+                PackageName = instructorPackage.FirstOrDefault(u => u.Id == x.PackageId)?.Name ?? "",
+                NoviceDriverUserId = users.Value.FirstOrDefault(u => u.NoviceDriver.NoviceDriverId == x.DriverId)?.UserId ?? Guid.Empty,
+                AvatarUrl = users.Value.FirstOrDefault(u => u.NoviceDriver.NoviceDriverId == x.DriverId)?.AvatarUrl ?? "",
+                Fullname = users.Value.FirstOrDefault(u => u.NoviceDriver.NoviceDriverId == x.DriverId)?.Fullname ?? "",
+                PhoneNumber = users.Value.FirstOrDefault(u => u.NoviceDriver.NoviceDriverId == x.DriverId)?.Phone ?? "",
+            });
+
+            // Top packages
+            statistic.TopPersonalPackages = instructorBookings.GroupBy(x => x.PackageId).Select(x => new TopPersonalPackage
+            {
+                Id = x.Key,
+                BookCount = x.Count(),
+                Name = instructorPackage.FirstOrDefault(u => u.Id == x.Key)?.Name ?? "",
+                Percentage = x.Count() / instructorBookings.Count()
+            });
+
+            // Top cars
+            statistic.TopPersonalCars = instructorBookings.Where(x => x.CarId != null).GroupBy(x => x.CarId).Select(x => new TopPersonalCar
+            {
+                Id = x.Key ?? Guid.Empty,
+                BookCount = x.Count(),
+                Name = instructorCar.FirstOrDefault(u => u.Id == x.Key)?.Name ?? "",
+                Percentage = x.Count() / instructorBookings.Where(x => x.CarId != null).Count()
+            });
+
+            return Result<InstructorStatisticDTO>.Success(statistic);
         }
     }
 }

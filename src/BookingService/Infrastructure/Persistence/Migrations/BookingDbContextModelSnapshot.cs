@@ -256,10 +256,15 @@ namespace BookingService.Migrations
                         .HasColumnName("created_at")
                         .HasDefaultValueSql("now()");
 
-                    b.Property<string>("DisplayName")
+                    b.Property<string>("DisplayEndLocationName")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("display_name");
+                        .HasColumnName("display_end_location_name");
+
+                    b.Property<string>("DisplayStartLocationName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("display_start_location_name");
 
                     b.Property<DateTime>("EndTime")
                         .HasColumnType("timestamptz")
