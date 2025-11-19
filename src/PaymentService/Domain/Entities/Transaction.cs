@@ -20,7 +20,8 @@ namespace PaymentService.Domain.Entities
         public Guid FromWalletId {  get; set; }
 
         // Navigation relationship
-        public virtual Wallet? Wallet {  get; set; } 
+        public virtual Wallet? SourceWallet {  get; set; }
+        public virtual Wallet? DestinationWallet { get; set; }
 
     }
 
