@@ -9,7 +9,7 @@ namespace UserService.Infrastructure.Persistence.Configurations
         public void Configure(EntityTypeBuilder<SavedLocation> builder)
         {
             // table name
-            builder.ToTable("Address");
+            builder.ToTable("SavedLocation");
 
             // primary key
             builder.HasKey(x => x.Id);
@@ -31,8 +31,8 @@ namespace UserService.Infrastructure.Persistence.Configurations
                 .HasColumnName("longtitude")
                 .IsRequired();
 
-            builder.Property(x => x.NoviceDriverId)
-                .HasColumnName("novice_driver_id")
+            builder.Property(x => x.UserId)
+                .HasColumnName("user_id")
                 .IsRequired();
 
             builder.Property(x => x.CreatedAt)
@@ -53,6 +53,10 @@ namespace UserService.Infrastructure.Persistence.Configurations
                 .HasColumnName("is_deleted")
                 .HasDefaultValue(false)
                 .IsRequired();
+
+            builder.HasOne(x => x.User)
+                .WithMany(x => x.SavedLocations)
+                .HasForeignKey(x => x.UserId);
         }
     }
 }

@@ -1,7 +1,6 @@
 using AutoMapper;
 using UserService.Application.Commons.DTOs.Auth;
 using UserService.Application.Commons.DTOs.Instructors;
-using UserService.Application.Commons.DTOs.NoviceDriver;
 using UserService.Application.Commons.DTOs.Policy;
 using UserService.Domain.Entities;
 

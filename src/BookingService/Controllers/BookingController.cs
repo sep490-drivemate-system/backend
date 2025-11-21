@@ -74,6 +74,14 @@ namespace BookingService.Controllers
             var result = await _bookingUseCase.GetBookingStatistic(filter);
             return result.ToActionResult();
         }
+
+        [HttpGet("instructor-statistic")]
+        public async Task<IActionResult> GetInstructorBookingStatistic([FromQuery] InstructorStatisticFilterDTO filter)
+        {
+            Guid user_id = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
+            var result = await _bookingUseCase.GetInstructorStatistic(user_id, filter);
+            return result.ToActionResult();
+        }
     }
     
 }

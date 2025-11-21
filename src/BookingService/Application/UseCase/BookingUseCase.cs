@@ -18,6 +18,7 @@ using SharedLibrary.SharedKernel.Http.DTOs.User;
 using SharedLibrary.SharedKernel.Http.DTOs.Wallet;
 using SharedLibrary.SharedKernel.Http.Interfaces;
 using SharedLibrary.SharedKernel.ServiceResult;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace BookingService.Application.UseCase
@@ -324,6 +325,102 @@ namespace BookingService.Application.UseCase
             }
 
             return Result<BookingStatisticDTO>.Success(statistics, Messages.Commons.SUCCESS);
+        }
+
+        public async Task<Result<InstructorStatisticDTO>> GetInstructorStatistic(Guid user_id, InstructorStatisticFilterDTO filter)
+        {
+            // Check for time filter constraints
+            if (filter.From >= filter.To)
+            {
+                return Result<InstructorStatisticDTO>.Failure(ServiceError.BadRequestError($"{filter.From} must before ${filter.To}"), Messages.Commons.UNHANDLED);
+            }
+
+            // Getting and validating instructor information (1 API calls)
+            var userServiceHttpClient = _httpClientFactory.CreateClient("UserServiceClient");
+            var userServiceResponseMessage = await userServiceHttpClient.PostAsJsonAsync<IEnumerable<Guid>>("api/users/ids", new List<Guid>() { user_id });
+
+            if (!userServiceResponseMessage.IsSuccessStatusCode)
+            {
+                return Result<InstructorStatisticDTO>.Failure(ServiceError.ServiceUnavailableError($"UserService: {userServiceResponseMessage.ReasonPhrase}"), Messages.Commons.UNHANDLED);
+            }
+
+            var users = await userServiceResponseMessage.Content.ReadFromJsonAsync<DefaultApiResponse<IEnumerable<UserDetailDTO>>>();
+
+            if (users.Value.Count() == 0 || users.Value.First().Role != UserRole.Instructor)
+            {
+                return Result<InstructorStatisticDTO>.Failure(ServiceError.BadRequestError($"{user_id}"), Messages.Commons.UNHANDLED);
+            }
+            var instructorDetail = users.Value.First();
+
+            // Query filters
+            Expression<Func<Package, bool>> packageFilter = x => !x.IsDeleted && x.InstructorId == instructorDetail.Instructor.InstructorId;
+            Expression<Func<Car,bool>> carFilter = x => !x.IsDeleted && x.InstructorId == instructorDetail.Instructor.InstructorId;
+
+            // Includes
+            string packageIncludes = "Bookings,Bookings.Feedback,Bookings.DrivingSessions";
+
+            // Expensive query bombs
+            IEnumerable<Package> instructorPackage = await _unitOfWork.PackageRepository.GetAllAsync(packageFilter, include_properties: packageIncludes);
+            IEnumerable<Car> instructorCar = await _unitOfWork.CarRepository.GetAllAsync(carFilter);
+
+            IEnumerable<Booking> instructorBookings = instructorPackage.SelectMany(x => x.Bookings).Where(x => !x.IsDeleted);
+            IEnumerable<DrivingSession> instructorSessions = instructorBookings.SelectMany(x => x.DrivingSessions).Where(x => !x.IsDeleted);
+
+            // Easy to collect information
+            InstructorStatisticDTO statistic = new InstructorStatisticDTO
+            {
+                TotalCarCount = instructorCar.Count(),
+                TotalPackageCount = instructorPackage.Count(),
+                TotalUpcomingSesionCount = instructorSessions.Count(x => x.Status == SessionStatus.Upcoming),
+                TotalSessionByStatusCount = instructorSessions.GroupBy(x => x.Status.ToString()).ToDictionary(x => x.Key, x => x.Count()),
+            };
+
+            // Session by day and by type
+            statistic.TotalSessionByday = instructorSessions.Where(x => filter.From <= DateOnly.FromDateTime(x.StartTime) && DateOnly.FromDateTime(x.EndTime) <= filter.To)
+                .GroupBy(x => $"{x.StartTime.Day}/{x.StartTime.Month}/{x.StartTime.Year}")
+                .ToDictionary(x => x.Key, x => x.GroupBy(u => u.Status.ToString()).ToDictionary(u => u.Key, u => u.Count()));
+
+            // Recent package purchase
+            var recentPurchases = instructorBookings.OrderByDescending(x => x.CreatedAt).Take(5);
+            userServiceResponseMessage = await userServiceHttpClient.PostAsJsonAsync<IEnumerable<Guid>>("api/users/driver-ids", recentPurchases.Select(x => x.DriverId));
+
+            if (!userServiceResponseMessage.IsSuccessStatusCode)
+            {
+                return Result<InstructorStatisticDTO>.Failure(ServiceError.ServiceUnavailableError($"UserService: {userServiceResponseMessage.ReasonPhrase}"), Messages.Commons.UNHANDLED);
+            }
+
+            users = await userServiceResponseMessage.Content.ReadFromJsonAsync<DefaultApiResponse<IEnumerable<UserDetailDTO>>>();
+
+            statistic.RecentPurchases = recentPurchases.Select(x => new RecentPackagePurchasesDTO
+            {
+                BoughtTime = x.CreatedAt,
+                PackageId = x.PackageId,
+                PackageName = instructorPackage.FirstOrDefault(u => u.Id == x.PackageId)?.Name ?? "",
+                NoviceDriverUserId = users.Value.FirstOrDefault(u => u.NoviceDriver.NoviceDriverId == x.DriverId)?.UserId ?? Guid.Empty,
+                AvatarUrl = users.Value.FirstOrDefault(u => u.NoviceDriver.NoviceDriverId == x.DriverId)?.AvatarUrl ?? "",
+                Fullname = users.Value.FirstOrDefault(u => u.NoviceDriver.NoviceDriverId == x.DriverId)?.Fullname ?? "",
+                PhoneNumber = users.Value.FirstOrDefault(u => u.NoviceDriver.NoviceDriverId == x.DriverId)?.Phone ?? "",
+            });
+
+            // Top packages
+            statistic.TopPersonalPackages = instructorBookings.GroupBy(x => x.PackageId).Select(x => new TopPersonalPackage
+            {
+                Id = x.Key,
+                BookCount = x.Count(),
+                Name = instructorPackage.FirstOrDefault(u => u.Id == x.Key)?.Name ?? "",
+                Percentage = x.Count() / instructorBookings.Count()
+            });
+
+            // Top cars
+            statistic.TopPersonalCars = instructorBookings.Where(x => x.CarId != null).GroupBy(x => x.CarId).Select(x => new TopPersonalCar
+            {
+                Id = x.Key ?? Guid.Empty,
+                BookCount = x.Count(),
+                Name = instructorCar.FirstOrDefault(u => u.Id == x.Key)?.Name ?? "",
+                Percentage = x.Count() / instructorBookings.Where(x => x.CarId != null).Count()
+            });
+
+            return Result<InstructorStatisticDTO>.Success(statistic);
         }
     }
 }

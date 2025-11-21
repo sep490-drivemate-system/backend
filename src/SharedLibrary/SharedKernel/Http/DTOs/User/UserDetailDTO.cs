@@ -25,6 +25,8 @@ namespace SharedLibrary.SharedKernel.Http.DTOs.User
         public Guid UserId { get; set; }
         [JsonPropertyName("avatar_url")]
         public string? AvatarUrl { get; set; }
+        public string? Phone { get; set; }
+        public string? Email { get; set; }
         [JsonPropertyName("fullname")]
         public string Fullname { get; set; }
         [JsonPropertyName("birthdate")]

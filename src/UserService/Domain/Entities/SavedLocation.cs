@@ -14,9 +14,9 @@ namespace UserService.Domain.Entities
         public bool IsDeleted { get; set; }
 
         // Key for relationship
-        public Guid NoviceDriverId { get; set; }
+        public Guid UserId { get; set; }
 
         // Relationship navigation
-        public virtual NoviceDriver? NoviceDriver { get; set; }
+        public virtual User? User { get; set; }
     }
 }

@@ -1,19 +1,39 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SharedLibrary.Jwt;
+using SharedLibrary.SharedKernel.Enum;
 using SharedLibrary.SharedKernel.Http.DTOs.Feedback;
 using SharedLibrary.SharedKernel.ServiceResult;
 using System.Threading.Tasks;
 using UserService.Application.Commons.DTOs.Users;
 using UserService.Application.Interfaces;
+using UserService.Application.UseCases;
 
 namespace UserService.Controllers
 {
     [Route("api/users")]
     [ApiController]
-    public class UserController(IUserUseCase userUseCase): ControllerBase
+    public class UserController(IUserUseCase userUseCase, IJwtService jwtService): ControllerBase
     {
-        private readonly IUserUseCase _userUseCase= userUseCase;
+        private readonly IUserUseCase _userUseCase = userUseCase;
+        private readonly IJwtService _jwtService = jwtService;
 
+        [HttpGet("{id}/address")]
+        [Authorize(Roles = nameof(UserRole.NoviceDriver))]
+        public async Task<IActionResult> GetAllUserSavedAddress([FromRoute]Guid id)
+        {
+            var result = await _userUseCase.GetUserSavedAddress(id);
+            return result.ToActionResult();
+        }
+
+        [HttpGet("{id}/emergency-contact")]
+        [Authorize(Roles = nameof(UserRole.NoviceDriver))]
+        public async Task<IActionResult> GetAllUserSavedContact([FromRoute] Guid id)
+        {
+            var result = await _userUseCase.GetUserEmergencyContacts(id);
+            return result.ToActionResult();
+        }
 
         [HttpGet("statistic")]
         public async Task<IActionResult> GetUserStatistic(UserStatisticFilterDTO filter)

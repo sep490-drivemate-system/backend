@@ -15,5 +15,6 @@ namespace BookingService.Application.Interfaces
         Task<Result<List<DrivingSessionScheduleDTO>>> GetUpcomingDrivingSessions(Guid instructorId);
         Task<Result<List<DrivingSessionDetailDTO>>> GetDrivingSessions(SessionStatus status,Guid instructorId);
         Task<Result<BookingStatisticDTO>> GetBookingStatistic(BookingStatisticFilterDTO filter);
+        Task<Result<InstructorStatisticDTO>> GetInstructorStatistic(Guid user_id, InstructorStatisticFilterDTO filter);
     }
 }

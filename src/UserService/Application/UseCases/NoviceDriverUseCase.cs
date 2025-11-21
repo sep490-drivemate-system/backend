@@ -1,7 +1,6 @@
 using AutoMapper;
 using SharedLibrary.SharedKernel.Http.DTOs.Feedback;
 using SharedLibrary.SharedKernel.ServiceResult;
-using UserService.Application.Commons.DTOs.NoviceDriver;
 using UserService.Application.Interfaces;
 
 namespace UserService.Application.UseCases
@@ -10,26 +9,26 @@ namespace UserService.Application.UseCases
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-        public async Task<Result<List<UserAddressDTO>>> GetNoviceDriverAddres(Guid id)
-        {
-            var driver = await _unitOfWork.NoviceDriverRepository.GetByIdWithSavedLocationsAsync(id);
+        //public async Task<Result<List<UserAddressDTO>>> GetNoviceDriverAddres(Guid id)
+        //{
+        //    var driver = await _unitOfWork.NoviceDriverRepository.GetByIdWithSavedLocationsAsync(id);
 
-            if (driver == null)
-            {
-                return Result<List<UserAddressDTO>>
-                    .Failure(ServiceError.NotFoundError(Commons.Constants.Messages.Common.NotFoundError));
-            }
+        //    if (driver == null)
+        //    {
+        //        return Result<List<UserAddressDTO>>
+        //            .Failure(ServiceError.NotFoundError(Commons.Constants.Messages.Common.NotFoundError));
+        //    }
 
-            var addresses = driver.SavedLocations?.Select(x => new UserAddressDTO
-            {
-                Id = x.Id,
-                AddressString = x.DisplayName,
-                Latitude = x.LocationLatitude,
-                Longitude = x.LocationLongtitude
-            }).ToList() ?? new List<UserAddressDTO>();
+        //    var addresses = driver.SavedLocations?.Select(x => new UserAddressDTO
+        //    {
+        //        Id = x.Id,
+        //        AddressString = x.DisplayName,
+        //        Latitude = x.LocationLatitude,
+        //        Longitude = x.LocationLongtitude
+        //    }).ToList() ?? new List<UserAddressDTO>();
 
-            return Result<List<UserAddressDTO>>.Success(addresses);
-        }
+        //    return Result<List<UserAddressDTO>>.Success(addresses);
+        //}
 
         public async Task<Result<NoviceDriverInfoFeedbackDTO>> GetNoviceDriverInfoForFeedback(Guid noviceDriverId)
         {

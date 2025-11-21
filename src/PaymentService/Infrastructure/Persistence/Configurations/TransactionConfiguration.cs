@@ -65,17 +65,20 @@ namespace PaymentService.Infrastructure.Persistence.Configurations
                    .HasColumnName("from_wallet_id")
                    .IsRequired();
 
-
-
             builder.Property(t => t.IsDelete)
                    .HasColumnName("is_delete")
                    .HasDefaultValue(false);
 
             // Relationships
-            builder.HasOne(t => t.Wallet)
+            builder.HasOne(t => t.SourceWallet)
                    .WithMany(w => w.Transactions)
                    .HasForeignKey(t => t.FromWalletId)
                    .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(t => t.DestinationWallet)
+                .WithMany(w => w.Transactions)
+                .HasForeignKey(t => t.ToWalletId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

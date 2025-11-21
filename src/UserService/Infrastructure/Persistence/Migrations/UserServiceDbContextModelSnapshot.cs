@@ -68,6 +68,53 @@ namespace UserService.Infrastructure.Persistence.Migrations
                     b.ToTable("ApplicationTracking", (string)null);
                 });
 
+            modelBuilder.Entity("UserService.Domain.Entities.EmergencyContact", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ContactNumber")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("contact_number");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
+                    b.Property<DateTime>("LastModifiedAt")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("timestamp")
+                        .HasColumnName("updated_at")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("SavedName")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("contact_name");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("EmergencyContact", (string)null);
+                });
+
             modelBuilder.Entity("UserService.Domain.Entities.Instructor", b =>
                 {
                     b.Property<Guid>("Id")
@@ -143,25 +190,11 @@ namespace UserService.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(500)")
                         .HasColumnName("driving_license_back");
 
-                    b.Property<DateOnly>("DrivingLicenseExpiryDate")
-                        .HasColumnType("date")
-                        .HasColumnName("driving_license_expiry_date");
-
                     b.Property<string>("DrivingLicenseFront")
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)")
                         .HasColumnName("driving_license_front");
-
-                    b.Property<DateOnly>("DrivingLicenseIssuesDate")
-                        .HasColumnType("date")
-                        .HasColumnName("driving_license_issued_date");
-
-                    b.Property<string>("DrivingLicenseNumber")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
-                        .HasColumnName("driving_license_number");
 
                     b.Property<int>("DrivingLicenseTier")
                         .HasColumnType("integer")
@@ -203,32 +236,6 @@ namespace UserService.Infrastructure.Persistence.Migrations
                         .HasColumnName("updated_at")
                         .HasDefaultValueSql("now()");
 
-                    b.Property<string>("NationalId")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
-                        .HasColumnName("national_id_number");
-
-                    b.Property<DateOnly>("NationalIdExpiryDatee")
-                        .HasColumnType("date")
-                        .HasColumnName("id_expiry_date");
-
-                    b.Property<DateOnly>("NationalIdIssuedDate")
-                        .HasColumnType("date")
-                        .HasColumnName("id_issued_date");
-
-                    b.Property<string>("NationalIdIssuedLocation")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
-                        .HasColumnName("id_issued_location");
-
-                    b.Property<string>("PermanentAddress")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
-                        .HasColumnName("permanent_address");
-
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasMaxLength(11)
@@ -242,12 +249,6 @@ namespace UserService.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("SubmitAt")
                         .HasColumnType("timestamp")
                         .HasColumnName("submit_at");
-
-                    b.Property<string>("TeachingLicenseBack")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("teaching_license_back");
 
                     b.Property<string>("TeachingLicenseFront")
                         .IsRequired()
@@ -437,15 +438,15 @@ namespace UserService.Infrastructure.Persistence.Migrations
                         .HasColumnType("real")
                         .HasColumnName("longtitude");
 
-                    b.Property<Guid>("NoviceDriverId")
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uuid")
-                        .HasColumnName("novice_driver_id");
+                        .HasColumnName("user_id");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("NoviceDriverId");
+                    b.HasIndex("UserId");
 
-                    b.ToTable("Address", (string)null);
+                    b.ToTable("SavedLocation", (string)null);
                 });
 
             modelBuilder.Entity("UserService.Domain.Entities.User", b =>
@@ -545,6 +546,17 @@ namespace UserService.Infrastructure.Persistence.Migrations
                     b.Navigation("InstructorApplication");
                 });
 
+            modelBuilder.Entity("UserService.Domain.Entities.EmergencyContact", b =>
+                {
+                    b.HasOne("UserService.Domain.Entities.User", "User")
+                        .WithMany("EmergencyContacts")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("UserService.Domain.Entities.Instructor", b =>
                 {
                     b.HasOne("UserService.Domain.Entities.User", "User")
@@ -591,13 +603,13 @@ namespace UserService.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("UserService.Domain.Entities.SavedLocation", b =>
                 {
-                    b.HasOne("UserService.Domain.Entities.NoviceDriver", "NoviceDriver")
+                    b.HasOne("UserService.Domain.Entities.User", "User")
                         .WithMany("SavedLocations")
-                        .HasForeignKey("NoviceDriverId")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("NoviceDriver");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("UserService.Domain.Entities.Instructor", b =>
@@ -612,16 +624,15 @@ namespace UserService.Infrastructure.Persistence.Migrations
                     b.Navigation("ApplicationTrackings");
                 });
 
-            modelBuilder.Entity("UserService.Domain.Entities.NoviceDriver", b =>
-                {
-                    b.Navigation("SavedLocations");
-                });
-
             modelBuilder.Entity("UserService.Domain.Entities.User", b =>
                 {
+                    b.Navigation("EmergencyContacts");
+
                     b.Navigation("Instructor");
 
                     b.Navigation("NoviceDriver");
+
+                    b.Navigation("SavedLocations");
                 });
 #pragma warning restore 612, 618
         }

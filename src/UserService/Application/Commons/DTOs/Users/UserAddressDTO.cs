@@ -1,15 +1,12 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace UserService.Application.Commons.DTOs.NoviceDriver
+namespace UserService.Application.Commons.DTOs.Users
 {
     public class UserAddressDTO
     {
-        public Guid Id { get; set; }
-
+        public Guid? Id { get; set; }
         public string AddressString { get; set; }
-
         public float Latitude { get; set; }
-
         public float Longitude { get; set; }
     }
 }

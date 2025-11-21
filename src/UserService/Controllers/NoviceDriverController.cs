@@ -16,13 +16,13 @@ namespace UserService.Controllers
         private readonly INoviceDriverUseCase _usecases = usecases;
         private readonly IJwtService _jwtService = jwtService;
 
-        [HttpGet("address")]
-        [Authorize(Roles = nameof(UserRole.NoviceDriver))]
-        public async Task<IActionResult> GetAlDrvierAddress()
-        {
-            var driverId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
-            var result = await _usecases.GetNoviceDriverAddres(driverId);
-            return result.ToActionResult();
-        }
+        //[HttpGet("address")]
+        //[Authorize(Roles = nameof(UserRole.NoviceDriver))]
+        //public async Task<IActionResult> GetAlDrvierAddress()
+        //{
+        //    var driverId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
+        //    var result = await _usecases.GetNoviceDriverAddres(driverId);
+        //    return result.ToActionResult();
+        //}
     }
 }

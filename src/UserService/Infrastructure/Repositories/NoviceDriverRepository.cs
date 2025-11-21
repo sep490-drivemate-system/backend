@@ -14,11 +14,11 @@ namespace UserService.Infrastructure.Repositories
                 .FirstOrDefaultAsync(nd => nd.Id == id && !nd.IsDeleted);
         }
 
-        public async Task<NoviceDriver?> GetByIdWithSavedLocationsAsync(Guid id)
-        {
-            return await _context.NoviceDrivers
-                .Include(nd => nd.SavedLocations)
-                .FirstOrDefaultAsync(nd => nd.Id == id && !nd.IsDeleted);
-        }
+        //public async Task<NoviceDriver?> GetByIdWithSavedLocationsAsync(Guid id)
+        //{
+        //    return await _context.NoviceDrivers
+        //        .Include(nd => nd.SavedLocations)
+        //        .FirstOrDefaultAsync(nd => nd.Id == id && !nd.IsDeleted);
+        //}
     }
 }
