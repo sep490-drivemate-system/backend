@@ -1,8 +1,10 @@
+using AutoMapper;
 using Resend;
 using SharedLibrary.SharedKernel.Enum;
 using SharedLibrary.SharedKernel.Http.DTOs.User;
 using SharedLibrary.SharedKernel.Password;
 using SharedLibrary.SharedKernel.ServiceResult;
+using System.Linq;
 using System.Linq.Expressions;
 using UserService.Application.Commons.Constants;
 using UserService.Application.Commons.DTOs.Auth;
@@ -13,10 +15,11 @@ using UserService.Domain.Enum;
 
 namespace UserService.Application.UseCases
 {
-    public class UserUseCase(IUnitOfWork unitOfWork, IPasswordHasherService passwordHasher): IUserUseCase
+    public class UserUseCase(IUnitOfWork unitOfWork, IPasswordHasherService passwordHasher, IMapper mapper): IUserUseCase
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IPasswordHasherService _passwordHasherService = passwordHasher;
+        private readonly IMapper _mapper = mapper;
 
         public async Task<Result<bool>> CreateDefaultUserAccount(UserCreationDTO user_information)
         {
@@ -98,7 +101,7 @@ namespace UserService.Application.UseCases
             return Result<IEnumerable<UserDetailDTO>>.Success(query_result.Select(x => new UserDetailDTO
             {
                 UserId = x.Id,
-                Fullname = x.Fullname,
+                FullName = x.Fullname,
                 AvatarUrl = x.Avatar,
                 BirthDate = x.DateOfBirth,
                 Email = x.Email,
@@ -123,7 +126,7 @@ namespace UserService.Application.UseCases
             return Result<IEnumerable<UserDetailDTO>>.Success(query_result.Select(x => new UserDetailDTO
             {
                 UserId = x.Id,
-                Fullname = x.Fullname,
+                FullName = x.Fullname,
                 AvatarUrl = x.Avatar,
                 BirthDate = x.DateOfBirth,
                 Email = x.Email,
@@ -143,26 +146,23 @@ namespace UserService.Application.UseCases
             string included_properties = "Instructor,NoviceDriver";
             var query_result = await _unitOfWork.UserRepository.GetAllAsync(filter: filter_expression, include_properties: included_properties);
 
-            return Result<IEnumerable<UserDetailDTO>>.Success(query_result.Select(x => new UserDetailDTO
+            var mappedUsers = _mapper.Map<IEnumerable<UserDetailDTO>>(query_result);
+
+            return Result<IEnumerable<UserDetailDTO>>.Success(mappedUsers);
+        }
+
+        public async Task<Result<UserDetailDTO>> GetUser(Guid userId)
+        {
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(userId, include_properties: "Instructor,NoviceDriver");
+
+            if (user == null)
             {
-                UserId = x.Id,
-                Fullname = x.Fullname,
-                AvatarUrl = x.Avatar,
-                BirthDate = x.DateOfBirth,
-                Email = x.Email,
-                Phone = x.PhoneNumber,
-                Role = x.Role,
-                Instructor = x.Role == SharedLibrary.SharedKernel.Enum.UserRole.Instructor ? new InstructorDetailDTO 
-                { 
-                    InstructorId = x.Instructor.Id,
-                    Bio = x.Instructor.Bio,
-                    ExperienceYear = x.Instructor.Experience
-                } : null,
-                NoviceDriver = x.Role == SharedLibrary.SharedKernel.Enum.UserRole.NoviceDriver ? new NoviceDriverDetailDTO
-                {
-                    NoviceDriverId = x.NoviceDriver.Id
-                } : null,
-            }));
+                return Result<UserDetailDTO>.Failure(ServiceError.NotFoundError($"{userId}"), Messages.Common.NotFoundError);
+            }
+
+            var mappedUser = _mapper.Map<UserDetailDTO>(user);
+
+            return Result<UserDetailDTO>.Success(mappedUser);
         }
 
         public async Task<Dictionary<Guid, InstructorBasicInfoDTO>> GetBatchInstructorBasicInfo(List<Guid> instructorIds)
@@ -290,13 +290,9 @@ namespace UserService.Application.UseCases
                 return Result<IEnumerable<UserAddressDTO>>.Failure(ServiceError.NotFoundError($"{user_id}"), Messages.Common.NotFoundError);
             }
 
-            return Result<IEnumerable<UserAddressDTO>>.Success(user.SavedLocations.Select(x => new UserAddressDTO
-            {
-                Id = x.Id,
-                AddressString = x.DisplayName,
-                Latitude = x.LocationLatitude,
-                Longitude = x.LocationLongtitude
-            }));
+            var addresses = _mapper.Map<IEnumerable<UserAddressDTO>>(user.SavedLocations);
+
+            return Result<IEnumerable<UserAddressDTO>>.Success(addresses);
         }
 
         public async Task<Result<IEnumerable<EmergencyContactDTO>>> GetUserEmergencyContacts(Guid user_id)

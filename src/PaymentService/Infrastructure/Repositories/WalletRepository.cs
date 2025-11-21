@@ -21,7 +21,7 @@ namespace PaymentService.Infrastructure.Repositories
         public async Task<Wallet?> GetByUserIdAsync(Guid userId)
         {
             return await _context.Wallets
-                .FirstOrDefaultAsync(w => w.UserId == userId && !w.IsDelete);
+                .FirstOrDefaultAsync(w => w.Id == userId && !w.IsDelete);
         }
 
         public async Task<bool> UpdateBalanceAsync(Guid walletId, decimal newBalance)
@@ -59,7 +59,6 @@ namespace PaymentService.Infrastructure.Repositories
                 wallet = new Wallet
                 {
                     Id = userId,
-                    UserId = userId,
                     Balance = 0,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow,

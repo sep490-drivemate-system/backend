@@ -1,33 +1,31 @@
 using AutoMapper;
 using SharedLibrary.SharedKernel.Http.DTOs.Feedback;
 using SharedLibrary.SharedKernel.ServiceResult;
+using System.Linq;
+using UserService.Application.Commons.Constants;
+using UserService.Application.Commons.DTOs.Users;
 using UserService.Application.Interfaces;
+using UserService.Domain.Entities;
 
 namespace UserService.Application.UseCases
 {
     public class NoviceDriverUseCase(IUnitOfWork unitOfWork,IMapper mapper): INoviceDriverUseCase
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IMapper _mapper = mapper;
 
-        //public async Task<Result<List<UserAddressDTO>>> GetNoviceDriverAddres(Guid id)
+        //public async Task<Result<IEnumerable<UserAddressDTO>>> GetNoviceDriverAddres(Guid id)
         //{
-        //    var driver = await _unitOfWork.NoviceDriverRepository.GetByIdWithSavedLocationsAsync(id);
+        //    var noviceDriver = await _unitOfWork.NoviceDriverRepository.GetByIdWithSavedLocationsAsync(id);
 
-        //    if (driver == null)
+        //    if (noviceDriver == null)
         //    {
-        //        return Result<List<UserAddressDTO>>
-        //            .Failure(ServiceError.NotFoundError(Commons.Constants.Messages.Common.NotFoundError));
+        //        return Result<IEnumerable<UserAddressDTO>>.Failure(ServiceError.NotFoundError($"{id}"), Messages.Common.NotFoundError);
         //    }
 
-        //    var addresses = driver.SavedLocations?.Select(x => new UserAddressDTO
-        //    {
-        //        Id = x.Id,
-        //        AddressString = x.DisplayName,
-        //        Latitude = x.LocationLatitude,
-        //        Longitude = x.LocationLongtitude
-        //    }).ToList() ?? new List<UserAddressDTO>();
+        //    var addresses = _mapper.Map<IEnumerable<UserAddressDTO>>(noviceDriver.);
 
-        //    return Result<List<UserAddressDTO>>.Success(addresses);
+        //    return Result<IEnumerable<UserAddressDTO>>.Success(addresses);
         //}
 
         public async Task<Result<NoviceDriverInfoFeedbackDTO>> GetNoviceDriverInfoForFeedback(Guid noviceDriverId)

@@ -74,17 +74,18 @@ namespace BookingService.Application.UseCase
                 StartingLatitude = drivingSessionCreationDTO.StartingLatitude,
                 StartingLongtitude = drivingSessionCreationDTO.StartingLongtitude,
                 NoviceDriverNote = drivingSessionCreationDTO.SessionNote,
+                DisplayEndLocationName = drivingSessionCreationDTO.DisplayEndLocationName,
+                EndingLongtitude = drivingSessionCreationDTO.EndingLongtitude,
+                EndingLatitude = drivingSessionCreationDTO.EndingLatitude,
                 Status = SessionStatus.Planning,
                 CreatedAt = DateTime.UtcNow,
                 LastModifiedAt = DateTime.UtcNow,
-                DisplayStartLocationName = drivingSessionCreationDTO.DisplayName,
+                DisplayStartLocationName = drivingSessionCreationDTO.DisplayStartLocationName,
                 IsDeleted = false,
                 ActualStart = DateTime.MinValue,
                 ActualEnd = DateTime.MinValue,
                 TotalDistance = 0,
                 AverageSpeed = 0,
-                EndingLatitude = 0,
-                EndingLongtitude = 0
             };
 
             try
@@ -412,40 +413,21 @@ namespace BookingService.Application.UseCase
             var instructorIds = bookings.Select(b => b.InstructorId).Distinct().ToList();
 
             // Call UserService to get instructor info via SharedLibrary
-            var instructorInfos = new Dictionary<Guid, string>();
-            try
-            {
-                var instructorData = await _userService.GetBatchInstructorInfo(instructorIds);
-                instructorInfos = instructorData.ToDictionary(
-                    kvp => kvp.Key,
-                    kvp => kvp.Value.Fullname
-                );
-            }
-            catch (Exception ex)
-            {
-                // Log error but continue with empty instructor info
-                Console.WriteLine($"Error fetching instructor info: {ex.Message}");
-            }
-
-            // Map sessions to DTOs using booking dictionary
             var sessionDTOs = sessions
                 .Where(session => bookingDict.ContainsKey(session.BookingId))
                 .Select(session =>
                 {
                     var booking = bookingDict[session.BookingId];
                     var duration = (session.EndTime - session.StartTime).TotalHours;
-                    var instructorName = instructorInfos.TryGetValue(booking.InstructorId, out var name)
-                        ? name
-                        : "Unknown";
 
                     return new DrivingSessionListDTO
                     {
                         Id = session.Id,
                         PackageId = booking.PackageId,
-                        InstructorId = booking.InstructorId,
-                        InstructorName = instructorName,
                         Date = session.StartTime.ToString("yyyy-MM-dd"),
                         StartTime = session.StartTime.ToString("HH:mm"),
+                        DisplayEndLocationName = session.DisplayEndLocationName,
+                        DisplayStartLocationName = session.DisplayStartLocationName,
                         EndTime = session.EndTime.ToString("HH:mm"),
                         Duration = Math.Round(duration, 2),
                         Location = $"{session.StartingLatitude},{session.StartingLongtitude}",

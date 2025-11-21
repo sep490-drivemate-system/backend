@@ -18,6 +18,7 @@ namespace PaymentService
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddHttpClient();
             builder.Services.AddApplication();
             builder.Services.AddInfrastructure(builder.Configuration);
             

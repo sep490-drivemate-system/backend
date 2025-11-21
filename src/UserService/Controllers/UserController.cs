@@ -19,11 +19,12 @@ namespace UserService.Controllers
         private readonly IUserUseCase _userUseCase = userUseCase;
         private readonly IJwtService _jwtService = jwtService;
 
-        [HttpGet("{id}/address")]
+        [HttpGet("address")]
         [Authorize(Roles = nameof(UserRole.NoviceDriver))]
-        public async Task<IActionResult> GetAllUserSavedAddress([FromRoute]Guid id)
+        public async Task<IActionResult> GetAllUserSavedAddress()
         {
-            var result = await _userUseCase.GetUserSavedAddress(id);
+            var userId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
+            var result = await _userUseCase.GetUserSavedAddress(userId);
             return result.ToActionResult();
         }
 
@@ -39,6 +40,12 @@ namespace UserService.Controllers
         public async Task<IActionResult> GetUserStatistic(UserStatisticFilterDTO filter)
         {
             var result = await _userUseCase.GetUsersStatistic(filter);
+            return result.ToActionResult();
+        }
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetUser(Guid id)
+        {
+            var result = await _userUseCase.GetUser(id);
             return result.ToActionResult();
         }
 

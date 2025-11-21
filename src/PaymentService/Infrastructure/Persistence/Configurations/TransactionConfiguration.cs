@@ -70,15 +70,11 @@ namespace PaymentService.Infrastructure.Persistence.Configurations
                    .HasDefaultValue(false);
 
             // Relationships
-            builder.HasOne(t => t.SourceWallet)
+            builder.HasOne(t => t.Wallet)
                    .WithMany(w => w.Transactions)
                    .HasForeignKey(t => t.FromWalletId)
                    .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasOne(t => t.DestinationWallet)
-                .WithMany(w => w.Transactions)
-                .HasForeignKey(t => t.ToWalletId)
-                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

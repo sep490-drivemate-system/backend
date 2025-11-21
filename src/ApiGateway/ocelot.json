@@ -19,7 +19,7 @@
       "SwaggerKey": "userService"
     },
     {
-      "DownstreamPathTemplate": "/api/user/{everything}",
+      "DownstreamPathTemplate": "/api/users/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -27,12 +27,51 @@
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/user/{everything}",
+      "UpstreamPathTemplate": "/users/{everything}",
       "UpstreamHttpMethod": [
         "GET",
         "POST",
         "PUT",
-        "DELETE"
+        "DELETE",
+        "PATCH"
+      ],
+      "SwaggerKey": "userService"
+    },
+    {
+      "DownstreamPathTemplate": "/api/instructors/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "userservice",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/instructors/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "PATCH"
+      ],
+      "SwaggerKey": "userService"
+    },
+    {
+      "DownstreamPathTemplate": "/api/document/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "userservice",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/document/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "PATCH"
       ],
       "SwaggerKey": "userService"
     },

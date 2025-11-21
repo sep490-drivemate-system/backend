@@ -47,6 +47,7 @@ namespace BookingService.Controllers
         }
 
         [HttpPost("buy-package")]
+        [Authorize(Roles = nameof(UserRole.NoviceDriver))]
         public async Task<IActionResult> BuyPackage([FromBody] PackageBuyingDTO packageBuyingDTO)
         {
             var driverId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());

@@ -9,7 +9,6 @@ namespace BookingService.Application.Commons.DTOs.Package
         public Guid? CarId { get; set; }
         public Guid PackageId { get; set; }
         public Guid InstructorId { get; set; } 
-        public Guid DriverId { get; set; } 
        
     }
 }

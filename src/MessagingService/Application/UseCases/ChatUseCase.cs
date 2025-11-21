@@ -110,7 +110,7 @@ namespace MessagingService.Application.UseCases
                     Id = message.Id,
                     Content = message.Content,
                     SenderId = message.SenderId,
-                    SenderName = senderInfo?.Fullname,
+                  //  SenderName = senderInfo?.Fullname,
                     SenderAvatar = senderInfo?.AvatarUrl,
                     CreatedAt = message.CreatedAt
                 };
@@ -165,7 +165,7 @@ namespace MessagingService.Application.UseCases
                 Id = message.Id,
                 Content = message.Content,
                 SenderId = message.SenderId,
-                SenderName = senderInfo?.Fullname,
+            //    SenderName = senderInfo?.Fullname,
                 SenderAvatar = senderInfo?.AvatarUrl,
                 CreatedAt = message.CreatedAt
             };
@@ -234,7 +234,7 @@ namespace MessagingService.Application.UseCases
                     new ParticipantDTO
                     {
                         UserId = otherUser.UserId,
-                        UserName = otherUser.Fullname,
+                      //  UserName = otherUser.Fullname,
                         Avatar = otherUser.AvatarUrl
                     }
                 };

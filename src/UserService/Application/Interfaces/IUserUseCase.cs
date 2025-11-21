@@ -8,6 +8,7 @@ namespace UserService.Application.Interfaces
     {
         Task<Result<bool>> CreateDefaultUserAccount(UserCreationDTO user_information);
         Task<Result<IEnumerable<UserDetailDTO>>> GetUserWithUserId(IEnumerable<Guid> user_ids);
+        Task<Result<UserDetailDTO>> GetUser(Guid userId);
         Task<Result<IEnumerable<UserDetailDTO>>> GetUserWithNoviceDriverId(IEnumerable<Guid> driver_ids);
         Task<Result<IEnumerable<UserDetailDTO>>> GetUserWithInstructorId(IEnumerable<Guid> instructor_ids);
         Task<Result<IEnumerable<UserAddressDTO>>> GetUserSavedAddress(Guid user_id);

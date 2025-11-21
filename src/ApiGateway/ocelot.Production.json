@@ -19,7 +19,7 @@
       "SwaggerKey": "userService"
     },
     {
-      "DownstreamPathTemplate": "/api/user/{everything}",
+      "DownstreamPathTemplate": "/api/users/{everything}",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
@@ -27,12 +27,13 @@
           "Port": 443
         }
       ],
-      "UpstreamPathTemplate": "/user/{everything}",
+      "UpstreamPathTemplate": "/users/{everything}",
       "UpstreamHttpMethod": [
         "GET",
         "POST",
         "PUT",
-        "DELETE"
+        "DELETE",
+        "PATCH"
       ],
       "SwaggerKey": "userService"
     },
@@ -260,7 +261,8 @@
         "GET",
         "POST",
         "PUT",
-        "DELETE"
+        "DELETE",
+        "PATCH"
       ],
       "SwaggerKey": "userService"
     },
@@ -314,7 +316,8 @@
         "GET",
         "POST",
         "PUT",
-        "DELETE"
+        "DELETE",
+        "PATCH"
       ],
       "SwaggerKey": "userService"
     },

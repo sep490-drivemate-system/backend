@@ -5,7 +5,7 @@ namespace BookingService.Application.Commons.DTOs.Booking
     public class BookingsDTO
     {
         public Guid Id {get; set;}
-        public string NamePackake {get; set;}
+        public string NamePackage {get; set;}
         public BookingStatus BookingStatus {get; set;}
         public DateTime BuyDate { get; set;}
         public int Duration { get; set;}
@@ -13,6 +13,14 @@ namespace BookingService.Application.Commons.DTOs.Booking
         public int PrecentInUse { get; set;}
         public int RemainingTime { get; set;}
 
+        public Guid InstructorId { get; set; }
+
+        public List<string> RoadTypes { get; set; }
+        public List<string> DrivingSkills { get; set; }
+
 
     }
+
+
+
 }

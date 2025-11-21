@@ -5,10 +5,13 @@ namespace BookingService.Application.Commons.DTOs.DrivingSessions
     public class DrivingSessionCreationDTO
     {
         public Guid BookingId { get; set; }
-        public string DisplayName { get; set; }
         public DateTime StartTime { get; set; }
+        public string DisplayStartLocationName { get; set; }
+        public string DisplayEndLocationName { get; set; }
         public decimal StartingLatitude { get; set; }
         public decimal StartingLongtitude { get; set; }
+        public decimal EndingLatitude { get; set; }
+        public decimal EndingLongtitude { get; set; }
         public decimal? PriceForCar { get; set; }
 
         public int Duration { get; set; } // Duration will be calculated in minutes

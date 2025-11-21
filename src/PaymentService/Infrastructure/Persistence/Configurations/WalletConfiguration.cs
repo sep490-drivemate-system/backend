@@ -16,9 +16,6 @@ namespace PaymentService.Infrastructure.Persistence.Configurations
             builder.Property(x => x.Id).HasColumnName("id");
 
             // properties
-            builder.Property(w => w.UserId)
-                   .HasColumnName("user_id")
-                   .IsRequired();
 
             builder.Property(w => w.Balance)
                    .HasColumnName("balance")
@@ -46,7 +43,7 @@ namespace PaymentService.Infrastructure.Persistence.Configurations
 
             // Relationships
             builder.HasMany(w => w.Transactions)
-                   .WithOne(t => t.SourceWallet)
+                   .WithOne(t => t.Wallet)
                    .HasForeignKey(t => t.FromWalletId)
                    .OnDelete(DeleteBehavior.Restrict);
         }

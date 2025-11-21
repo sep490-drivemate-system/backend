@@ -398,7 +398,7 @@ namespace BookingService.Application.UseCase
                 PackageName = instructorPackage.FirstOrDefault(u => u.Id == x.PackageId)?.Name ?? "",
                 NoviceDriverUserId = users.Value.FirstOrDefault(u => u.NoviceDriver.NoviceDriverId == x.DriverId)?.UserId ?? Guid.Empty,
                 AvatarUrl = users.Value.FirstOrDefault(u => u.NoviceDriver.NoviceDriverId == x.DriverId)?.AvatarUrl ?? "",
-                Fullname = users.Value.FirstOrDefault(u => u.NoviceDriver.NoviceDriverId == x.DriverId)?.Fullname ?? "",
+                Fullname = users.Value.FirstOrDefault(u => u.NoviceDriver.NoviceDriverId == x.DriverId)?.FullName ?? "",
                 PhoneNumber = users.Value.FirstOrDefault(u => u.NoviceDriver.NoviceDriverId == x.DriverId)?.Phone ?? "",
             });
 

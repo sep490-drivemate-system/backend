@@ -14,6 +14,9 @@ namespace BookingService.Infrastructure.Repositories
         {
             IQueryable<Booking> query = _context.Set<Booking>()
                 .Include(b => b.Package)
+                    .ThenInclude(p => p.RoadTypes)
+                .Include(b => b.Package)
+                    .ThenInclude(p => p.DrivingSkills)
                 .Include(b => b.DrivingSessions)
                 .Include(b => b.Car);
 

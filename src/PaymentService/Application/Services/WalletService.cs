@@ -26,8 +26,7 @@ namespace PaymentService.Application.Services
 
             var wallet = new Wallet
             {
-                Id = Guid.NewGuid(),
-                UserId = userId,
+                Id = userId,
                 Balance = 0,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,

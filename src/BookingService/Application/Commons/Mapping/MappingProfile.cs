@@ -65,7 +65,7 @@ namespace BookingService.Application.Commons.Mapping
             CreateMap<DrivingSession, InstructorScheduleDTO>();
 
             CreateMap<Booking, BookingsDTO>()
-                           .ForMember(dest => dest.NamePackake,
+                           .ForMember(dest => dest.NamePackage,
                                opt => opt.MapFrom(src => src.Package != null ? src.Package.Name : ""))
                            .ForMember(dest => dest.BookingStatus,
                                opt => opt.MapFrom(src => src.Status))
@@ -78,7 +78,17 @@ namespace BookingService.Application.Commons.Mapping
                            .ForMember(dest => dest.RemainingTime,
                                opt => opt.MapFrom(src => src.CalculateRemainingTime()))
                            .ForMember(dest => dest.PrecentInUse,
-                               opt => opt.MapFrom(src => src.CalculatePercentInUse()));
+                               opt => opt.MapFrom(src => src.CalculatePercentInUse()))
+                           .ForMember(dest => dest.InstructorId,
+                               opt => opt.MapFrom(src => src.InstructorId))
+                           .ForMember(dest => dest.RoadTypes,
+                               opt => opt.MapFrom(src => src.Package != null && src.Package.RoadTypes != null 
+                                   ? src.Package.RoadTypes.Select(rt => rt.Name).ToList()
+                                   : new List<string>()))
+                           .ForMember(dest => dest.DrivingSkills,
+                               opt => opt.MapFrom(src => src.Package != null && src.Package.DrivingSkills != null 
+                                   ? src.Package.DrivingSkills.Select(ds => ds.Name).ToList()
+                                   : new List<string>()));
         }
     }
 }
