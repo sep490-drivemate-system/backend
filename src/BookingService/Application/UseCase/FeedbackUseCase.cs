@@ -1,4 +1,5 @@
 using AutoMapper;
+using BookingService.Application.Commons.Constants;
 using BookingService.Application.Commons.DTOs.Feedbacks;
 using BookingService.Application.Interfaces;
 using BookingService.Domain.Entities;
@@ -14,9 +15,10 @@ namespace BookingService.Application.UseCase
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        public FeedbackUseCase(IUnitOfWork unitOfWork,IMapper _mapper)
+        public FeedbackUseCase(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
         //public async Task<InstructorFeedbackDTO> GetInstructorFeedback(Guid id)
@@ -39,6 +41,24 @@ namespace BookingService.Application.UseCase
         public async Task<Dictionary<Guid, InstructorOverviewFeedbackResponse>> GetBatchStatistics(List<Guid> instructorIds)
         {
             return await _unitOfWork.FeedbackRepository.GetBatchStatistics(instructorIds);
+        }
+
+        public async Task<Result<bool>> SaveFeedback(FeedbackCreationDTO feedbackCreationDTO, Guid driverId)
+        {
+            var feedback = _mapper.Map<Feedback>(feedbackCreationDTO);
+            feedback.NoviceDriverId = driverId;
+            try
+            {
+                await _unitOfWork.FeedbackRepository.CreateAsync(feedback);
+                await _unitOfWork.CommitChangesAsync();
+                return Result<bool>.Success(true, Messages.Commons.SUCCESS);
+            }
+            catch (Exception ex)
+            {
+                return Result<bool>.Failure(
+                    ServiceError.UnhandledException(ex.Message),
+                    Messages.Commons.UNHANDLED);
+            }
         }
     }
 }

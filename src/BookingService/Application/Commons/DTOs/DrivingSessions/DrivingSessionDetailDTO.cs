@@ -20,4 +20,16 @@ namespace BookingService.Application.Commons.DTOs.DrivingSessions
         public SessionStatus Status { get; set; }
         public DateTime CreatedAt { get; set; }
     }
+
+    public class DrivingSessionlDTO
+    {
+        public string DisplayStartLocationName { get; set; }
+        public decimal StartingLatitude { get; set; }
+        public decimal StartingLongtitude { get; set; }
+        public string DisplayEndLocationName { get; set; }
+        public decimal EndingLatitude { get; set; }
+        public decimal EndingLongtitude { get; set; }
+        public SessionStatus Status { get; set; }
+    }
+
 }

@@ -3,6 +3,7 @@ using BookingService.Application.Commons.DTOs.Booking;
 using BookingService.Application.Commons.DTOs.Cars.Get;
 using BookingService.Application.Commons.DTOs.DrivingSkills;
 using BookingService.Application.Commons.DTOs.DrivingSessions;
+using BookingService.Application.Commons.DTOs.Feedbacks;
 using BookingService.Application.Commons.DTOs.Package;
 using BookingService.Application.Commons.DTOs.RoadTypes;
 using BookingService.Domain.Entities;
@@ -64,6 +65,21 @@ namespace BookingService.Application.Commons.Mapping
             // Mapping for Instructor Schedule DTOs
             CreateMap<DrivingSession, InstructorScheduleDTO>();
 
+            CreateMap<DrivingSession, DrivingSessionlDTO>().ReverseMap();
+
+                // Mapping for DrivingSessionDTO
+            CreateMap<DrivingSession, DrivingSessionDTO>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.BookingId, opt => opt.MapFrom(src => src.BookingId))
+                .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.StartTime))
+                .ForMember(dest => dest.EndTime, opt => opt.MapFrom(src => src.EndTime))
+                .ForMember(dest => dest.PackageName, opt => opt.MapFrom(src => src.Booking != null && src.Booking.Package != null ? src.Booking.Package.Name : ""))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+                .ForMember(dest => dest.StatusDisplayString, opt => opt.MapFrom(src => src.Status.ToString()))
+                .ForMember(dest => dest.PickupLocation, opt => opt.MapFrom(src => src.DisplayStartLocationName ?? ""))
+                .ForMember(dest => dest.Latitude, opt => opt.MapFrom(src => src.StartingLatitude))
+                .ForMember(dest => dest.Longtitude, opt => opt.MapFrom(src => src.StartingLongtitude));
+
             CreateMap<Booking, BookingsDTO>()
                            .ForMember(dest => dest.NamePackage,
                                opt => opt.MapFrom(src => src.Package != null ? src.Package.Name : ""))
@@ -89,6 +105,14 @@ namespace BookingService.Application.Commons.Mapping
                                opt => opt.MapFrom(src => src.Package != null && src.Package.DrivingSkills != null 
                                    ? src.Package.DrivingSkills.Select(ds => ds.Name).ToList()
                                    : new List<string>()));
+
+            // Mapping for Feedback
+            CreateMap<FeedbackCreationDTO, Feedback>()
+                .ForMember(dest => dest.CarRating, opt => opt.MapFrom(src => src.CarRating ?? 0))
+                .ForMember(dest => dest.CarFeedback, opt => opt.MapFrom(src => src.CarFeedback ?? ""))
+                .ForMember(dest => dest.CarId, opt => opt.MapFrom(src => src.CarId ?? Guid.Empty))
+                .ForMember(dest => dest.Booking, opt => opt.Ignore())
+                .ForMember(dest => dest.Car, opt => opt.Ignore());
         }
     }
 }

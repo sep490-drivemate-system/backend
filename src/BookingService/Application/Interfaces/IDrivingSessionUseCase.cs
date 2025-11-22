@@ -14,7 +14,7 @@ namespace BookingService.Application.Interfaces
 
         Task<Result<IEnumerable<DrivingSessionDTO>>> GetUserSessionsWithChangeRequest(Guid user_id);
 
-        Task<Result<DrivingSessionDTO>> GetSessionDetail(Guid session_id);
+        Task<Result<DrivingSessionlDTO>> GetSessionDetail(Guid session_id);
 
         Task<Result<bool>> CancelSession(Guid session_id, SessionCancelRequestDTO cancelationDTO);
 

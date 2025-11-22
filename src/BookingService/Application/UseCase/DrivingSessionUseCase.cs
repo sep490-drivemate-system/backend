@@ -192,9 +192,21 @@ namespace BookingService.Application.UseCase
         {
             throw new NotImplementedException();
         }
-        public Task<Result<DrivingSessionDTO>> GetSessionDetail(Guid session_id)
+        public async Task<Result<DrivingSessionlDTO>> GetSessionDetail(Guid session_id)
         {
-            throw new NotImplementedException();
+            string included_properties = "Booking,Booking.Package";
+            var session = await _unitOfWork.DrivingSessionRepository.GetByIdAsync(session_id, include_properties: included_properties);
+
+            if (session == null || session.IsDeleted)
+            {
+                return Result<DrivingSessionlDTO>.Failure(
+                    ServiceError.NotFoundError($"Driving session {session_id}"),
+                    Messages.Commons.NOTFOUND);
+            }
+
+            var sessionDTO = _mapper.Map<DrivingSessionlDTO>(session);
+
+            return Result<DrivingSessionlDTO>.Success(sessionDTO, Messages.Commons.SUCCESS);
         }
         public async Task<Result<bool>> RescheduleSession(Guid session_id, SessionRescheduleRequestDTO rescheduleDTO)
         {

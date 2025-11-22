@@ -17,9 +17,8 @@ namespace BookingService.Domain.Entities
         // Keys for relationships
         public Guid CarId { get; set; }
         public Guid BookingId { get; set; }
-        public Guid InstructorId { get; set; } // Call User microservice to get data.
-        public Guid NoviceDriverId { get; set; } // Call User microservice to get data.
-
+        public Guid InstructorId { get; set; } 
+        public Guid NoviceDriverId { get; set; } 
         // Navigational properties
         public virtual Booking? Booking { get; set; }
         public virtual Car? Car { get; set; }

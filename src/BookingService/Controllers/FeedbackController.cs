@@ -1,12 +1,15 @@
+using BookingService.Application.Commons.DTOs.Feedbacks;
+using BookingService.Application.Interfaces;
+using BookingService.Infrastructure.Persistence.Context;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using SharedLibrary.SharedKernel.Http.DTOs.Feedback;
-using BookingService.Infrastructure.Persistence.Context;
-using BookingService.Application.Interfaces;
-using SharedLibrary.SharedKernel.ServiceResult;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.JSInterop.Implementation;
+using SharedLibrary.Jwt;
+using SharedLibrary.SharedKernel.Http.DTOs.Feedback;
 using SharedLibrary.SharedKernel.Http.DTOs.Instructor;
+using SharedLibrary.SharedKernel.ServiceResult;
 
 namespace BookingService.Controllers
 {
@@ -15,10 +18,12 @@ namespace BookingService.Controllers
     public class FeedbackController : ControllerBase
     {
         private readonly IFeedbackUseCase _useCase;
+        private readonly JwtService _jwtService;
 
-        public FeedbackController(IFeedbackUseCase useCase)
+        public FeedbackController(IFeedbackUseCase useCase,JwtService jwtService )
         {
             _useCase = useCase;
+            _jwtService = jwtService;
         }
 
         [HttpPost("list-overview-instructor")]
@@ -34,6 +39,14 @@ namespace BookingService.Controllers
 
             var result = await _useCase.GetBatchStatistics(instructorIds);
             return Ok(result);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateFeeback(FeedbackCreationDTO feedbackCreationDTO)
+        {
+            var driverId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
+            var result = await _useCase.SaveFeedback(feedbackCreationDTO,driverId);
+            return result.ToActionResult();
         }
 
         //[HttpGet("instructor/{id}")]

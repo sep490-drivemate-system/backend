@@ -5,10 +5,7 @@ namespace BookingService.Application.Commons.DTOs.DrivingSessions
 {
     public class DrivingSessionDTO
     {
-        [JsonPropertyName("id")] // DO NOT REMOVE THIS ATTRIBUTE IF YOU DONT UNDERSTAND WHAT IT DO!
         public Guid Id { get; set; }
-
-        [JsonPropertyName("booking_id")]
         public Guid BookingId { get; set; } // Used to get the bought package information.
 
         [JsonPropertyName("start_time")]
