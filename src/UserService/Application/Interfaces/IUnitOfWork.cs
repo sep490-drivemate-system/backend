@@ -40,5 +40,6 @@ namespace UserService.Application.Interfaces
         IPolicyRepository PoliciesRepository { get; }
         IScheduleRepository ScheduleRepository { get; }
         IApplicationRepository ApplicationRepository { get; }
+        ISystemConfigurationRepository SystemConfigurationRepository { get; }
     }
 }

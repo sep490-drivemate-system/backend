@@ -9,6 +9,7 @@ namespace UserService.Infrastructure.Persistence.Context
         {
         }
 
+        public DbSet<SystemConfiguration> SystemConfigurations { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<EmergencyContact> EmergencyContacts { get; set; }
         public DbSet<SavedLocation> SavedLocations { get; set; }

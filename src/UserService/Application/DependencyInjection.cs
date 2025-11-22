@@ -26,6 +26,7 @@ namespace UserService.Application
             services.AddScoped<IInstructorUseCase, InstructorUseCase>();
             services.AddScoped<IPolicyUseCase, PolicyUseCase>();
             services.AddScoped<IJwtService, JwtService>();
+            services.AddScoped<ISystemConfigurationUseCase, SystemConfigurationUseCase>();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             // Register library external

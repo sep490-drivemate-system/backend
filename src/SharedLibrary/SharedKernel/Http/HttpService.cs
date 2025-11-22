@@ -10,7 +10,7 @@ namespace SharedLibrary.SharedKernel.Http
 {
     public class HttpService
     {
-        private  readonly HttpClient _httpClient = new HttpClient();
+        public readonly HttpClient _httpClient = new HttpClient();
 
         public  async Task<T?> GetAsync<T>(string url)
         {
