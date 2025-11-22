@@ -29,8 +29,8 @@ namespace MessagingService.Infrastructure.Persistence.Configurations
                 .HasDefaultValue(MessageStatus.Sent);
 
 
-            builder.Property(m => m.ConversationId)
-                .HasColumnName("conversation_id")
+            builder.Property(m => m.ChatSessionId)
+                .HasColumnName("chat_session_id")
                 .IsRequired();
 
             builder.Property(m => m.SenderId)
@@ -51,7 +51,7 @@ namespace MessagingService.Infrastructure.Persistence.Configurations
                 .HasDefaultValue(false);
 
             // Indexes
-            builder.HasIndex(m => m.ConversationId);
+            builder.HasIndex(m => m.ChatSessionId);
             builder.HasIndex(m => m.SenderId);
             builder.HasIndex(m => m.CreatedAt);
         }

@@ -42,16 +42,11 @@ namespace MessagingService.Infrastructure.Persistence.Configurations
                 .HasColumnName("action_url")
                 .HasMaxLength(1000);
 
-            builder.Property(n => n.ImageUrl)
-                .HasColumnName("image_url")
-                .HasMaxLength(1000);
 
             builder.Property(n => n.UserId)
                 .HasColumnName("user_id")
                 .IsRequired();
 
-            builder.Property(n => n.RelatedEntityId)
-                .HasColumnName("related_entity_id");
 
             builder.Property(n => n.CreatedAt)
                 .HasColumnName("created_at")

@@ -11,9 +11,7 @@ namespace BookingService.Application.Commons.Mapping
         {
             var durationInUse = booking.DrivingSessions?
                 .Where(ds => !ds.IsDeleted
-                    && ds.Status == SessionStatus.Completed
-                    && ds.ActualStart != default
-                    && ds.ActualEnd != default)
+                    && ds.Status == SessionStatus.Completed)
                 .Sum(ds => (ds.ActualEnd - ds.ActualStart).TotalHours) ?? 0;
 
             return (int)Math.Round(durationInUse);

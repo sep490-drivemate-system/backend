@@ -1,26 +1,22 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
-using SharedLibrary.Jwt;
 
 namespace MessagingService.Infrastructure.Hubs
 {
+    [AllowAnonymous]
     public class ChatHub : Hub
     {
-        private readonly IJwtService _jwtService;
-
-        public ChatHub(IJwtService jwtService)
-        {
-            _jwtService = jwtService;
-        }
 
         public override async Task OnConnectedAsync()
         {
-            // Extract user ID from token (if using JWT in query string)
-            var userId = await GetUserIdFromContext();
+            // Get user ID from query string if provided (optional)
+            var httpContext = Context.GetHttpContext();
+            var userIdParam = httpContext?.Request.Query["userId"].ToString();
             
-            if (userId.HasValue)
+            if (!string.IsNullOrEmpty(userIdParam) && Guid.TryParse(userIdParam, out var userId))
             {
                 // Add user to group based on their user ID
-                await Groups.AddToGroupAsync(Context.ConnectionId, $"user_{userId.Value}");
+                await Groups.AddToGroupAsync(Context.ConnectionId, $"user_{userId}");
             }
 
             await base.OnConnectedAsync();
@@ -28,11 +24,13 @@ namespace MessagingService.Infrastructure.Hubs
 
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
-            var userId = await GetUserIdFromContext();
+            // Get user ID from query string if provided (optional)
+            var httpContext = Context.GetHttpContext();
+            var userIdParam = httpContext?.Request.Query["userId"].ToString();
             
-            if (userId.HasValue)
+            if (!string.IsNullOrEmpty(userIdParam) && Guid.TryParse(userIdParam, out var userId))
             {
-                await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"user_{userId.Value}");
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"user_{userId}");
             }
 
             await base.OnDisconnectedAsync(exception);
@@ -41,41 +39,13 @@ namespace MessagingService.Infrastructure.Hubs
         // Join a conversation room
         public async Task JoinConversation(string conversationId)
         {
-            var userId = await GetUserIdFromContext();
-            
-            if (userId.HasValue)
-            {
-                await Groups.AddToGroupAsync(Context.ConnectionId, $"conversation_{conversationId}");
-            }
+            await Groups.AddToGroupAsync(Context.ConnectionId, $"conversation_{conversationId}");
         }
 
         // Leave a conversation room
         public async Task LeaveConversation(string conversationId)
         {
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"conversation_{conversationId}");
-        }
-
-        private async Task<Guid?> GetUserIdFromContext()
-        {
-            try
-            {
-                // Try to get token from query string or headers
-                var httpContext = Context.GetHttpContext();
-                var token = httpContext?.Request.Query["access_token"].ToString() 
-                         ?? httpContext?.Request.Headers["Authorization"].ToString()?.Replace("Bearer ", "");
-
-                if (string.IsNullOrEmpty(token))
-                {
-                    return null;
-                }
-
-                var userId = await _jwtService.ExtractUserIdFromToken($"Bearer {token}");
-                return userId;
-            }
-            catch
-            {
-                return null;
-            }
         }
     }
 }

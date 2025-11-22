@@ -11,11 +11,9 @@ namespace MessagingService.Domain.Entities
         public NotificationType Type { get; set; }
         public NotificationStatus Status { get; set; } = NotificationStatus.Unread;
         public string? ActionUrl { get; set; } 
-        public string? ImageUrl { get; set; }
 
         // Keys for relationships
-        public Guid UserId { get; set; } // Reference to UserService
-        public Guid? RelatedEntityId { get; set; }
+        public Guid UserId { get; set; } 
 
         // System properties
         public DateTime LastModifiedAt { get; set; }

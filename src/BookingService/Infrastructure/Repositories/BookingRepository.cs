@@ -20,10 +20,7 @@ namespace BookingService.Infrastructure.Repositories
                 .Include(b => b.DrivingSessions)
                 .Include(b => b.Car);
 
-            // Filter by driver ID and not deleted
             query = query.Where(b => b.DriverId == driverId && !b.IsDeleted);
-
-            // Filter by status if provided (status = 0 or null means get all statuses)
             if (status.HasValue && status.Value != 0)
             {
                 query = query.Where(b => b.Status == status.Value);

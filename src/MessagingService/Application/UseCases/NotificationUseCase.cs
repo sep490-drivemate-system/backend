@@ -29,8 +29,6 @@ namespace MessagingService.Application.UseCases
                 Type = dto.Type,
                 Status = NotificationStatus.Unread,
                 ActionUrl = dto.ActionUrl,
-                ImageUrl = dto.ImageUrl,
-                RelatedEntityId = dto.RelatedEntityId,
                 LastModifiedAt = DateTime.UtcNow
             };
 

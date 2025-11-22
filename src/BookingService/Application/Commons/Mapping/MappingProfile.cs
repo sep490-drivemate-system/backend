@@ -87,6 +87,8 @@ namespace BookingService.Application.Commons.Mapping
                                opt => opt.MapFrom(src => src.Status))
                            .ForMember(dest => dest.BuyDate,
                                opt => opt.MapFrom(src => src.CreatedAt))
+                            .ForMember(dest => dest.Price,
+                               opt => opt.MapFrom(src => src.PriceAtBuyingTime))
                            .ForMember(dest => dest.Duration,
                                opt => opt.MapFrom(src => (int)src.DurationWhenBought))
                            .ForMember(dest => dest.DurationInUse,

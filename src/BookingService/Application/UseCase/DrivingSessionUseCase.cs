@@ -40,13 +40,14 @@ namespace BookingService.Application.UseCase
         {
             // Validate booking exists
             var booking = await _unitOfWork.BookingRepository.GetByIdAsync(drivingSessionCreationDTO.BookingId);
+
             if (booking == null)
             {
                 return Result<bool>.Failure(
                     ServiceError.NotFoundError($"Booking {drivingSessionCreationDTO.BookingId}"),
                     Messages.Commons.NOTFOUND);
             }
-
+            booking.Status = BookingStatus.InUse;
             // Validate booking status
             //if (booking.Status != BookingStatus.Planned && booking.Status != BookingStatus.Planned)
             //{

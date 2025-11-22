@@ -10,7 +10,7 @@ namespace MessagingService.Domain.Entities
         public MessageStatus Status { get; set; } = MessageStatus.Sent;
 
         // Keys for relationships
-        public Guid ConversationId { get; set; }
+        public Guid ChatSessionId { get; set; }
         public Guid SenderId { get; set; } 
 
         // System properties

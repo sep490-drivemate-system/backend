@@ -50,22 +50,7 @@ namespace MessagingService
                         ClockSkew = TimeSpan.Zero
                     };
 
-                    // Configure SignalR JWT authentication
-                    options.Events = new JwtBearerEvents
-                    {
-                        OnMessageReceived = context =>
-                        {
-                            var accessToken = context.Request.Query["access_token"];
-                            var path = context.HttpContext.Request.Path;
-                            
-                            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chat"))
-                            {
-                                context.Token = accessToken;
-                            }
-                            
-                            return Task.CompletedTask;
-                        }
-                    };
+                    // SignalR JWT authentication removed - ChatHub allows anonymous access
                 });
 
             // JWT Service
@@ -137,7 +122,7 @@ namespace MessagingService
 
             app.MapControllers();
             
-            // Map SignalR Hub
+            // Map SignalR Hub (without authentication requirement - uses [AllowAnonymous] attribute)
             app.MapHub<ChatHub>("/chat");
 
             app.Run();

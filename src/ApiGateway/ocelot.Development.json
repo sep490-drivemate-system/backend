@@ -339,6 +339,44 @@
         "DELETE"
       ],
       "SwaggerKey": "resourceService"
+    },
+    {
+      "DownstreamPathTemplate": "/api/chat/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5500
+        }
+      ],
+      "UpstreamPathTemplate": "/chat/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "PATCH"
+      ],
+      "SwaggerKey": "messagingService"
+    },
+    {
+      "DownstreamPathTemplate": "/api/notifications/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5500
+        }
+      ],
+      "UpstreamPathTemplate": "/notifications/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "PATCH"
+      ],
+      "SwaggerKey": "messagingService"
     }
   ],
   "SwaggerEndPoints": [
@@ -379,6 +417,16 @@
                   "Name": "Resource Service API",
                   "Version": "v1",
                   "Url": "http://localhost:5400/swagger/v1/swagger.json"
+              }
+          ]
+      },
+      {
+          "Key": "messagingService",
+          "Config": [
+              {
+                  "Name": "Messaging Service API",
+                  "Version": "v1",
+                  "Url": "http://localhost:5500/swagger/v1/swagger.json"
               }
           ]
       }

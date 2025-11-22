@@ -37,7 +37,7 @@ namespace BookingService.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetBooking(BookingStatus bookingStatus)
+        public async Task<IActionResult> GetBookings(BookingStatus bookingStatus)
         {
             var driverId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
             var result = await _bookingUseCase.GetBookings(bookingStatus, driverId);

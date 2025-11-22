@@ -8,7 +8,7 @@ namespace MessagingService.Infrastructure.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<ChatSession> builder)
         {
-            builder.ToTable("conversations");
+            builder.ToTable("ChatSession");
 
             builder.HasKey(c => c.Id);
 
@@ -40,7 +40,7 @@ namespace MessagingService.Infrastructure.Persistence.Configurations
             // Relationships
             builder.HasMany(c => c.Messages)
                 .WithOne(m => m.Conversation)
-                .HasForeignKey(m => m.ConversationId)
+                .HasForeignKey(m => m.ChatSessionId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

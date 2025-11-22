@@ -10,7 +10,7 @@ namespace MessagingService.Infrastructure.Persistence.Context
         }
 
         // DbSets
-        public DbSet<ChatSession> Conversations { get; set; }
+        public DbSet<ChatSession> ChatSessions { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<Notification> Notifications { get; set; }
 

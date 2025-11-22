@@ -7,6 +7,7 @@ namespace BookingService.Application.Commons.DTOs.Booking
         public Guid Id {get; set;}
         public string NamePackage {get; set;}
         public BookingStatus BookingStatus {get; set;}
+        public decimal Price { get; set; }
         public DateTime BuyDate { get; set;}
         public int Duration { get; set;}
         public int DurationInUse { get; set;}

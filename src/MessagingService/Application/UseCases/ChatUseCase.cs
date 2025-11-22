@@ -135,7 +135,7 @@ namespace MessagingService.Application.UseCases
 
             var message = new Message
             {
-                ConversationId = dto.ConversationId,
+                ChatSessionId = dto.ConversationId,
                 SenderId = senderId,
                 Content = dto.Content,
                 Status = MessageStatus.Sent,
