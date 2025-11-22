@@ -2,6 +2,7 @@
 {
     public enum PolicyType
     {
-        Booking = 1
+        Booking = 1,
+        RegisterInstructor = 2
     }
 }

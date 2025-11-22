@@ -12,7 +12,7 @@ using Twilio.TwiML.Messaging;
 
 namespace SharedLibrary.SharedKernel.Http.Implementation
 {
-    internal class SystemConfigurationHttpService(HttpService httpService, IConfiguration configuration): ISystemConfigurationHttpService
+    public class SystemConfigurationHttpService(HttpService httpService, IConfiguration configuration): ISystemConfigurationHttpService
     {
         private readonly HttpService _httpService = httpService;
         private readonly IConfiguration _configuration = configuration;
