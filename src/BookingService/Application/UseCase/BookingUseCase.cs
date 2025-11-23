@@ -217,7 +217,7 @@ namespace BookingService.Application.UseCase
                 booking.Status = BookingStatus.CancellationWithoutRefund;
             }
 
-            // Cancel all sessions in the bought package.
+
             foreach (var session in booking.DrivingSessions)
             {
                 if (session.Status != SessionStatus.Completed || session.Status != SessionStatus.Cancelled)

@@ -29,6 +29,7 @@ namespace MessagingService.Infrastructure.Repositories
         public async Task<IEnumerable<ChatSession>> GetUserConversationsAsync(Guid userId)
         {
             return await _dbSet
+                .Include(c => c.Messages)
                 .Where(c => !c.IsDeleted)
                 .Where(c => c.InstructorId == userId || c.NoviceDriverId == userId)
                 .OrderByDescending(c => c.LastModifiedAt)

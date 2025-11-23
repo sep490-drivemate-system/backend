@@ -9,7 +9,7 @@ namespace MessagingService.Infrastructure.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<Notification> builder)
         {
-            builder.ToTable("notifications");
+            builder.ToTable("Notifications");
 
             builder.HasKey(n => n.Id);
 
