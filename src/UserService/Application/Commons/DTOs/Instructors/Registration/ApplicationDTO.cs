@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using UserService.Domain.Enum;
 
 namespace UserService.Application.Commons.DTOs.Instructors.Registration
 {
@@ -24,6 +25,7 @@ namespace UserService.Application.Commons.DTOs.Instructors.Registration
         public string TeachingLicenseFront { get; set; }
         public string HealthCheckup { get; set; }
         public string PersonalProfile { get; set; }
+        public ApplicationStatus ApplicationStatus { get; set; }
         public IEnumerable<ApplicationTrackingDTO>? TrackingHistories { get; set; }
     }
 }

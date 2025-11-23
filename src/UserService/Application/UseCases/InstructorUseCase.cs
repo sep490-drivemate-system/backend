@@ -122,6 +122,7 @@ namespace UserService.Application.UseCases
                 TeachingLicenseFront = x.TeachingLicenseFront,
                 HealthCheckup = x.HealthCheckup,
                 PersonalProfile = x.BackgroundProfile,
+                ApplicationStatus = x.Status,
                 TrackingHistories = x.ApplicationTrackings?.Select(x => new ApplicationTrackingDTO
                 {
                     Id = x.Id,
