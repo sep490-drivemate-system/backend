@@ -17,7 +17,7 @@ namespace ResourceService.Repositories
             // Đăng ký Repository & UnitOfWork
             services.AddScoped<IResourceRepository, ResourceRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-            
+
 
             // Đăng ký service khác (cache, email, storage…)
             // services.AddScoped<IEmailService, EmailService>();

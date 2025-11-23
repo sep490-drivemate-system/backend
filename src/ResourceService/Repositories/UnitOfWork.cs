@@ -1,5 +1,6 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
+using ResourceService.Repositories.Basic;
 using ResourceService.Repositories.Implementation;
 using ResourceService.Repositories.Interfaces;
 using ResourceService.Repositories.Models;
@@ -14,9 +15,8 @@ namespace ResourceService.Repositories
     public interface IUnitOfWork : IDisposable
     {
         IResourceRepository ResourceRepository { get; }
-
+        IGenericRepository<IEntity> Repository<IEntity>() where IEntity : class;
         int SaveChangesWithTransaction();
-
         Task<int> SaveChangesWithTransactionAsync();
 
     }
@@ -26,6 +26,7 @@ namespace ResourceService.Repositories
         
         private readonly ResourceDbContext _context;
         private IResourceRepository _resourceRepository;
+        private readonly Dictionary<Type, object> _repositories = new();
 
         public UnitOfWork(ResourceDbContext context)
         {
@@ -33,7 +34,6 @@ namespace ResourceService.Repositories
         }
 
         public UnitOfWork() => _context ??= new ResourceDbContext();
-
 
         public void Dispose() => _context.Dispose();
 
@@ -45,10 +45,19 @@ namespace ResourceService.Repositories
             }
         }
 
+        public IGenericRepository<IEntity> Repository<IEntity>() where IEntity : class
+        {
+            var type = typeof(IEntity);
 
+            if (!_repositories.ContainsKey(type))
+            {
+                var repoInstance = new GenericRepository<IEntity>(_context);
+                _repositories[type] = repoInstance;
+            }
 
+            return (IGenericRepository<IEntity>)_repositories[type];
 
-        
+        }
 
         public int SaveChangesWithTransaction()
         {
@@ -97,7 +106,5 @@ namespace ResourceService.Repositories
 
             return result;
         }
-
-
     }
 }
