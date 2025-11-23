@@ -4,7 +4,6 @@ using BookingService.Application.Commons.DTOs.DrivingSessions;
 using BookingService.Application.Interfaces;
 using BookingService.Domain.Entities;
 using BookingService.Domain.Enum;
-using Newtonsoft.Json;
 using SharedLibrary.Jwt;
 using SharedLibrary.SharedKernel.Enum;
 using SharedLibrary.SharedKernel.Http.DTOs.ApiResponse;
@@ -12,11 +11,10 @@ using SharedLibrary.SharedKernel.Http.DTOs.User;
 using SharedLibrary.SharedKernel.Http.Interfaces;
 using SharedLibrary.SharedKernel.ServiceResult;
 using System.Linq.Expressions;
-using System.Net.Http;
 
 namespace BookingService.Application.UseCase
 {
-    public class DrivingSessionUseCase(IUnitOfWork unitOfWok, IJwtService jwtService, IUser userService, IMapper mapper, IHttpClientFactory httpClientFactory, IPayment paymentService) : IDrivingSessionUseCase
+    public class DrivingSessionUseCase(IUnitOfWork unitOfWok, IJwtService jwtService, IUser userService, IMapper mapper, IHttpClientFactory httpClientFactory, IPayment paymentService, ISystemConfigurationHttpService systemConfigurationService) : IDrivingSessionUseCase
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWok;
         private readonly IJwtService _jwtService = jwtService;
@@ -24,6 +22,7 @@ namespace BookingService.Application.UseCase
         private readonly IMapper _mapper = mapper;
         private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
         private readonly IPayment _paymentService = paymentService;
+        private readonly ISystemConfigurationHttpService _systemConfigurationService = systemConfigurationService;
 
         public async Task<Result<ICollection<DrivingSession>>> GetAllDrivingSession(SessionStatus sessionStatus)
         {
@@ -231,7 +230,16 @@ namespace BookingService.Application.UseCase
             }
 
             // Checking for time constraints (currently as least 24 hours before the session start)
-            if ((target_session.StartTime - DateTime.Now).TotalHours < 24)
+            var systemConfigurations = await _systemConfigurationService.GetAllSystemConfiguration();
+            var time_constraint =  systemConfigurations.First(x => x.Name == "RescheduleTimeConstraint");
+            double time_constraint_value = (double)_systemConfigurationService.ConvertValueToObjectType(time_constraint);
+
+            if (time_constraint == null)
+            {
+                return Result<bool>.Failure(ServiceError.InvalidStateError($"Time Constraint not exist"), Messages.Commons.UNHANDLED); 
+            }
+
+            if ((target_session.StartTime - DateTime.Now).TotalHours < time_constraint_value)
             {
                 return Result<bool>.Failure(ServiceError.InvalidStateError($"Starting time: {target_session.StartTime.ToString()}"), Messages.Commons.UNHANDLED);
             }
@@ -309,11 +317,14 @@ namespace BookingService.Application.UseCase
             }
 
             var user_role = await _jwtService.ExtractUserRoleFromToken(cancelationDTO.JwtToken);
+
+            var systemConfigurations = await _systemConfigurationService.GetAllSystemConfiguration();
+
             switch (user_role)
             {
                 case UserRole.NoviceDriver:
-                    // Checking for time constraints (currently as least 12 hours before the session start) to refund extra time.
-                    if ((target_session.StartTime - DateTime.Now).TotalHours < 12)
+                    // Checking for time constraints to refund extra time.
+                    if ((target_session.StartTime - DateTime.Now).TotalHours < (double)_systemConfigurationService.ConvertValueToObjectType(systemConfigurations.First(x => x.Name == "CancelTimeConstraint")))
                     {
                         // Remove the time from the package according to business rule.
                         target_session.Booking.DurationWhenBought -= (target_session.StartTime - target_session.EndTime).TotalHours;
@@ -325,7 +336,7 @@ namespace BookingService.Application.UseCase
                     await _unitOfWork.CommitChangesAsync();
                     break;
                 case UserRole.Instructor:
-                    if ((target_session.StartTime - DateTime.Now).TotalHours < 12)
+                    if ((target_session.StartTime - DateTime.Now).TotalHours < (double)_systemConfigurationService.ConvertValueToObjectType(systemConfigurations.First(x => x.Name == "CancelTimeConstraint")))
                     {
                         // Add more time as compensation when instructor cancel near start time according to business rule.
                         target_session.Booking.DurationWhenBought += (target_session.StartTime - target_session.EndTime).TotalHours * 0.5;

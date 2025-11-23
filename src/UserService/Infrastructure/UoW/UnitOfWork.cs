@@ -19,6 +19,7 @@ namespace UserService.Infrastructure.UoW
         private INoviceDriverRepository _noviceDriverRepository;
         private IApplicationRepository _applicationRepository;
         private IPolicyRepository _policiesRepository;
+        private ISystemConfigurationRepository _systemConfigurationRepository;
 
         public IGenericRepository<IEntity> Repository<IEntity>() where IEntity : class
         {
@@ -146,6 +147,14 @@ namespace UserService.Infrastructure.UoW
             {
                 _applicationRepository ??= new ApplicationRepository(_context);
                 return _applicationRepository;
+            }
+        }
+
+        public ISystemConfigurationRepository SystemConfigurationRepository
+        {
+            get
+            {
+                return _systemConfigurationRepository ??= new SystemConfigurationRepository(_context);
             }
         }
     }

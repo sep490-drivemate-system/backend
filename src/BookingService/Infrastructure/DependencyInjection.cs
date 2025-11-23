@@ -4,6 +4,8 @@ using BookingService.Application.Interfaces;
 using BookingService.Infrastructure.UoW;
 using SharedLibrary.CloudinaryStorage;
 using SharedLibrary.Jwt;
+using SharedLibrary.SharedKernel.Http.Interfaces;
+using SharedLibrary.SharedKernel.Http.Implementation;
 
 
 namespace BookingService.Infrastructure
@@ -53,6 +55,7 @@ namespace BookingService.Infrastructure
 
             // Đăng ký dịch vụ bên thứ ba
             services.AddScoped<ICloudinaryServiceProvider, CloudinaryServiceProvider>();
+            services.AddScoped<ISystemConfigurationHttpService, SystemConfigurationHttpService>();
 
             // Register RabbitMQ service (with fallback to mock if connection fails)            
             //services.AddSingleton<IRabbitMQService, RabbitMQService>();

@@ -50,6 +50,7 @@ namespace UserService.Controllers
         [HttpGet("applicants")]
         public async Task<IActionResult> GetInstructorApplicantsWithStatus([FromQuery] ApplicationStatus status)
         {
+            Console.WriteLine(status);
             var result = await _usecase.GetAllInstructorApplicationsByStatus(status);
             return result.ToActionResult();
         }
