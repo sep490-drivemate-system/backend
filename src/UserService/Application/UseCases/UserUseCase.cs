@@ -372,5 +372,46 @@ namespace UserService.Application.UseCases
 
             return Result<bool>.Success(true);
         }
+
+        public async Task<Result<bool>> CreateUserEmergencyContacts(Guid user_id, EmergencyContactDTO emergency_contact)
+        {
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(user_id, include_properties: "EmergencyContacts");
+
+            if (user == null )
+            {
+                return Result<bool>.Failure(ServiceError.NotFoundError($"{user_id}"), Messages.User.UserNotFound);
+            }
+
+            await _unitOfWork.Repository<EmergencyContact>().CreateAsync(new EmergencyContact
+            {
+                UserId = user_id,
+                SavedName = emergency_contact.Name,
+                ContactNumber = emergency_contact.Phone,
+            });
+            await _unitOfWork.CommitChangesAsync();
+
+            return Result<bool>.Success(true);
+        }
+
+        public async Task<Result<bool>> CreateUserSavedAddress(Guid user_id, UserAddressDTO user_address)
+        {
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(user_id, include_properties: "SavedLocations");
+
+            if (user == null)
+            {
+                return Result<bool>.Failure(ServiceError.NotFoundError($"{user_id}"), Messages.User.UserNotFound);
+            }
+            
+            await _unitOfWork.Repository<SavedLocation>().CreateAsync(new SavedLocation
+            {
+                UserId = user_id,
+                DisplayName = user_address.AddressString,
+                LocationLatitude = user_address.Latitude,
+                LocationLongtitude = user_address.Longitude
+            });
+            await _unitOfWork.CommitChangesAsync();
+
+            return Result<bool>.Success(true);
+        }
     }
 }
