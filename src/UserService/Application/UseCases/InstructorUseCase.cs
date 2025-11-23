@@ -101,7 +101,7 @@ namespace UserService.Application.UseCases
         #region Instructor Applications
         public async Task<Result<List<ApplicationDTO>>> GetAllInstructorApplicationsByStatus(ApplicationStatus status)
         {
-            Expression<Func<InstructorApplication, bool>> filter_expression = x => x.Status == status;
+            Expression<Func<InstructorApplication, bool>> filter_expression = x => (status == 0 || x.Status == status);
             Func<IQueryable<InstructorApplication>, IOrderedQueryable<InstructorApplication>> order_expression = x => x.OrderBy(u => u.SubmitAt);
             string included_properties = "Instructors,Instructors.User,ApplicationTrackings";
 
