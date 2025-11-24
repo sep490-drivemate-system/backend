@@ -13,6 +13,8 @@ namespace UserService.Application.Interfaces
         Task<Result<IEnumerable<UserDetailDTO>>> GetUserWithInstructorId(IEnumerable<Guid> instructor_ids);
         Task<Result<IEnumerable<UserAddressDTO>>> GetUserSavedAddress(Guid user_id);
         Task<Result<IEnumerable<EmergencyContactDTO>>> GetUserEmergencyContacts(Guid user_id);
+        Task<Result<bool>> CreateUserEmergencyContacts(Guid user_id, EmergencyContactDTO emergency_contact);
+        Task<Result<bool>> CreateUserSavedAddress(Guid user_id, UserAddressDTO user_address);
         Task<Result<bool>> AddUserSavedAddress(Guid user_id, UserAddressDTO address);
         Task<Result<bool>> AddUserEmergencyContacts(Guid user_id, EmergencyContactDTO contact);
         Task<Dictionary<Guid, InstructorBasicInfoDTO>> GetBatchInstructorBasicInfo(List<Guid> instructorIds);

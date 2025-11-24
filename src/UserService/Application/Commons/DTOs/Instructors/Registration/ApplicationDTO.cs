@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using SharedLibrary.SharedKernel.Enum;
+using System.Text.Json.Serialization;
 using UserService.Domain.Enum;
 
 namespace UserService.Application.Commons.DTOs.Instructors.Registration
@@ -19,10 +20,13 @@ namespace UserService.Application.Commons.DTOs.Instructors.Registration
         public string Phone { get; set; }
         public string Gender { get; set; }
         public DateOnly BirthDate { get; set; }
-        public DateTime SumbitDate { get; set; }
+        public DateTime SubmitDate { get; set; }
         public string Avatar {  get; set; }
         public string DrivingLicenseFront {  get; set; }
+        public string DrivingLicenseBack { get; set; }
         public string TeachingLicenseFront { get; set; }
+        public DrivingLicenseTier TeachingLicenseTier { get; set; }
+        public DrivingLicenseTier DrivingLicenseTier { get; set; }
         public string HealthCheckup { get; set; }
         public string PersonalProfile { get; set; }
         public ApplicationStatus ApplicationStatus { get; set; }

@@ -19,6 +19,8 @@ namespace UserService.Controllers
         private readonly IUserUseCase _userUseCase = userUseCase;
         private readonly IJwtService _jwtService = jwtService;
 
+        [HttpGet("{id}/address")]
+        public async Task<IActionResult> GetAllUserSavedAddress([FromRoute]Guid id)
         [HttpGet("address")]
         [Authorize(Roles = nameof(UserRole.NoviceDriver))]
         public async Task<IActionResult> GetAllUserSavedAddress()
@@ -29,10 +31,26 @@ namespace UserService.Controllers
         }
 
         [HttpGet("{id}/emergency-contact")]
-        [Authorize(Roles = nameof(UserRole.NoviceDriver))]
         public async Task<IActionResult> GetAllUserSavedContact([FromRoute] Guid id)
         {
             var result = await _userUseCase.GetUserEmergencyContacts(id);
+            return result.ToActionResult();
+        }
+
+
+        [HttpPost("{id}/emergency-contact")]
+        public async Task<IActionResult> CreateNewSavedContact([FromRoute] Guid id, [FromBody] EmergencyContactDTO emergency_contact)
+        {
+            //var user_id = await _jwtService.ExtractUserIdFromToken(Request.Headers.Authorization[0]);
+            var result = await _userUseCase.CreateUserEmergencyContacts(id, emergency_contact);
+            return result.ToActionResult();
+        }
+
+        [HttpPost("{id}/saved-location")]
+        public async Task<IActionResult> CreateNewSavedLocation([FromRoute] Guid id, [FromBody] UserAddressDTO address)
+        {
+            //var user_id = await _jwtService.ExtractUserIdFromToken(Request.Headers.Authorization[0]);
+            var result = await _userUseCase.CreateUserSavedAddress(id, address);
             return result.ToActionResult();
         }
 
