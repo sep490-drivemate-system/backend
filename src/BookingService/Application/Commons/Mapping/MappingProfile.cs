@@ -8,6 +8,7 @@ using BookingService.Application.Commons.DTOs.Package;
 using BookingService.Application.Commons.DTOs.RoadTypes;
 using BookingService.Domain.Entities;
 using SharedLibrary.SharedKernel.Http.DTOs.Package;
+using BookingService.Application.Commons.DTOs.DrivingSession;
 
 namespace BookingService.Application.Commons.Mapping
 {
@@ -115,6 +116,11 @@ namespace BookingService.Application.Commons.Mapping
                 .ForMember(dest => dest.CarId, opt => opt.MapFrom(src => src.CarId ?? Guid.Empty))
                 .ForMember(dest => dest.Booking, opt => opt.Ignore())
                 .ForMember(dest => dest.Car, opt => opt.Ignore());
+
+            // Mapping for DrivingSessionScheduleDTO
+            CreateMap<DrivingSession, DrivingSessionScheduleDTO>()
+                .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.StartTime))
+                .ForMember(dest => dest.EndTime, opt => opt.MapFrom(src => src.EndTime));
         }
     }
 }

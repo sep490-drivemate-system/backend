@@ -1,4 +1,4 @@
-using MessagingService.Application.DTOs.Chat;
+﻿using MessagingService.Application.DTOs.Chat;
 using MessagingService.Domain.Interfaces;
 using MessagingService.Infrastructure.UoW;
 using Microsoft.AspNetCore.Authorization;
@@ -28,6 +28,7 @@ namespace MessagingService.Infrastructure.Hubs
         {
             var httpContext = Context.GetHttpContext();
             var userIdParam = httpContext?.Request.Query["userId"].ToString();
+            Console.WriteLine("OK ĐC RỒI ");
 
             if (!string.IsNullOrEmpty(userIdParam) && Guid.TryParse(userIdParam, out var userId))
             {
@@ -114,7 +115,13 @@ namespace MessagingService.Infrastructure.Hubs
                 return new List<ChatSessionsDTO>();
             }
         }
-
+        public async Task<string> test(Guid userId,UserRole userRole)
+        {
+            Console.WriteLine("ok vaof ddc nayd");
+            Console.WriteLine($"UserId: {userId}");        
+            Console.WriteLine($"UserRole: {userRole}");
+            return "ok ròi ";
+        }
         private async Task<List<UserDetailDTO>?> GetUsersByIdsAsync(IEnumerable<Guid> userIds)
         {
             try

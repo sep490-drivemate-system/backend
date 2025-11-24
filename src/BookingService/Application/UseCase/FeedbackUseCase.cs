@@ -38,10 +38,8 @@ namespace BookingService.Application.UseCase
             return await _unitOfWork.FeedbackRepository.GetStatisticListInstructor(id);
         }
 
-        public async Task<Dictionary<Guid, InstructorOverviewFeedbackResponse>> GetBatchStatistics(List<Guid> instructorIds)
-        {
-            return await _unitOfWork.FeedbackRepository.GetBatchStatistics(instructorIds);
-        }
+        public async Task<Dictionary<Guid, InstructorOverviewFeedbackResponse>> GetBatchStatistics(List<Guid> instructorIds)=> await _unitOfWork.FeedbackRepository.GetBatchStatistics(instructorIds);
+        
 
         public async Task<Result<bool>> SaveFeedback(FeedbackCreationDTO feedbackCreationDTO, Guid driverId)
         {

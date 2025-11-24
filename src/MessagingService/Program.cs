@@ -122,8 +122,9 @@ namespace MessagingService
 
             app.MapControllers();
             
-            // Map SignalR Hub (without authentication requirement - uses [AllowAnonymous] attribute)
-            app.MapHub<ChatHub>("/chat");
+            // Map SignalR Hubs (without authentication requirement - both hubs use [AllowAnonymous])
+            app.MapHub<ChatHub>("/chatHub");
+            app.MapHub<NotificationHub>("/notificationHub");
 
             app.Run();
         }

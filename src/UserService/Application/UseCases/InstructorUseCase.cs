@@ -55,9 +55,7 @@ namespace UserService.Application.UseCases
             Expression<Func<Instructor, bool>> filter_expression = x =>
           (string.IsNullOrEmpty(filter.SearchKey) || x.User.Fullname.Contains(filter.SearchKey)) && !x.IsDeleted;
 
-            string included_properties = "User";    
-
-            var allInstructors = await _unitOfWork.InstructorRepository.GetAllAsync(filter: filter_expression, orderBy: null, include_properties: included_properties);
+            var allInstructors = await _unitOfWork.InstructorRepository.GetAllAsync(filter: filter_expression, orderBy: null, include_properties: "User");
 
             var paginatedInstructors = PaginatedList<Instructor>.Create(allInstructors, filter.PageNumber, filter.PageSize);
             var instructorIds = paginatedInstructors.PageContent.Select(i => i.Id).ToList();
@@ -76,25 +74,14 @@ namespace UserService.Application.UseCases
 
         public async Task<Result<List<InstructorScheduleDTO>>> GetInstructorSchedule(Guid instructor_id)
         {
-            var target_instructor = await _unitOfWork.InstructorRepository.GetByIdAsync(instructor_id);
-
-            if (target_instructor == null)
-            {
-                return Result<List<InstructorScheduleDTO>>
-                    .Failure(ServiceError.NotFoundError(Commons.Constants.Messages.Common.NotFoundError));
-            }
-
             var schedule = await _unitOfWork.ScheduleRepository.GetAllAsync(
                 filter: x => x.InstructorId == instructor_id && !x.IsDeleted,
                 orderBy: x => x.OrderBy(s => s.StartTime)
             );
 
-            return Result<List<InstructorScheduleDTO>>
-                .Success(schedule.Select(x => new InstructorScheduleDTO
-                {
-                    StartTime = x.StartTime,
-                    EndTime = x.EndTime,
-                }).ToList());
+            var scheduleDTOs = _mapper.Map<List<InstructorScheduleDTO>>(schedule);
+
+            return Result<List<InstructorScheduleDTO>>.Success(scheduleDTOs);
         }
         #endregion
 

@@ -18,9 +18,9 @@ namespace BookingService.Controllers
     public class FeedbackController : ControllerBase
     {
         private readonly IFeedbackUseCase _useCase;
-        private readonly JwtService _jwtService;
+        private readonly IJwtService _jwtService;
 
-        public FeedbackController(IFeedbackUseCase useCase,JwtService jwtService )
+        public FeedbackController(IFeedbackUseCase useCase, IJwtService jwtService)
         {
             _useCase = useCase;
             _jwtService = jwtService;
@@ -36,7 +36,6 @@ namespace BookingService.Controllers
         [HttpPost("batch-statistics")]
         public async Task<ActionResult<Dictionary<Guid, InstructorOverviewFeedbackResponse>>> GetBatchStatistics([FromBody] List<Guid> instructorIds)
         {
-
             var result = await _useCase.GetBatchStatistics(instructorIds);
             return Ok(result);
         }

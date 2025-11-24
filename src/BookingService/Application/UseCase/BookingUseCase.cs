@@ -103,11 +103,7 @@ namespace BookingService.Application.UseCase
                 orderBy: q => q.OrderBy(ds => ds.StartTime)
             );
 
-            var sessionDTOs = upcomingSessions.Select(s => new DrivingSessionScheduleDTO
-            {
-                StartTime = s.StartTime,
-                EndTime = s.EndTime,
-            }).ToList();
+            var sessionDTOs = _mapper.Map<List<DrivingSessionScheduleDTO>>(upcomingSessions);
 
             return Result<List<DrivingSessionScheduleDTO>>.Success(sessionDTOs);
         }

@@ -73,6 +73,10 @@ namespace UserService.Application.Commons.Mapping
                 .ForMember(dest => dest.AddressString, opt => opt.MapFrom(src => src.DisplayName))
                 .ForMember(dest => dest.Latitude, opt => opt.MapFrom(src => src.LocationLatitude))
                 .ForMember(dest => dest.Longitude, opt => opt.MapFrom(src => src.LocationLongtitude));
+
+            CreateMap<PersonalSchedule, InstructorScheduleDTO>()
+                .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.StartTime))
+                .ForMember(dest => dest.EndTime, opt => opt.MapFrom(src => src.EndTime));
         }
     }
 }
