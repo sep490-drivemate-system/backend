@@ -58,7 +58,7 @@ namespace ResourceService.Services.Implementation
         public async Task<Result<IEnumerable<QuizViewDTO>>> GetAllQuiz(string? tag = null, int duration = 0)
         {
             IEnumerable<string>? tags = tag?.Split(",") ?? null;
-            Expression<Func<Quiz, bool>> filter_expression = x => (tags == null || tags.Contains(x.Tag)) && duration <= x.QuizDuration;
+            Expression<Func<Quiz, bool>> filter_expression = x => !x.IsDeleted && (tags == null || tags.Contains(x.Tag)) && duration <= x.QuizDuration;
             string include_property = "Questions";
 
             var quiz_data = await _unitOfWork.Repository<Quiz>().GetAllAsync(filter: filter_expression, include_properties: include_property);
@@ -79,7 +79,7 @@ namespace ResourceService.Services.Implementation
             string include_property = "Questions,Questions.Choices";
             var question_detail = await _unitOfWork.Repository<Quiz>().GetByIdAsync(id, include_properties: include_property);
 
-            if (question_detail == null)
+            if (question_detail == null || question_detail.IsDeleted)
             {
                 return Result<QuizDetailDTO>.Failure(ServiceError.NotFoundError($"{id}"), Messages.Commons.NOTFOUND);
             }
@@ -110,7 +110,7 @@ namespace ResourceService.Services.Implementation
         {
             var target_quiz = await _unitOfWork.Repository<Quiz>().GetByIdAsync(id);
 
-            if (target_quiz == null)
+            if (target_quiz == null || target_quiz.IsDeleted)
             {
                 return Result<bool>.Failure(ServiceError.NotFoundError($"{id}"), Messages.Commons.NOTFOUND);
             }
@@ -136,6 +136,24 @@ namespace ResourceService.Services.Implementation
                     IsCorrect = u.IsCorrect,
                 }).ToList()
             }).ToList();
+
+            _unitOfWork.Repository<Quiz>().Update(target_quiz);
+            await _unitOfWork.SaveChangesWithTransactionAsync();
+
+            return Result<bool>.Success(true);
+        }
+
+        public async Task<Result<bool>> DeleteQuiz(Guid id)
+        {
+            var target_quiz = await _unitOfWork.Repository<Quiz>().GetByIdAsync(id);
+
+            if (target_quiz == null || target_quiz.IsDeleted)
+            {
+                return Result<bool>.Failure(ServiceError.NotFoundError($"{id}"), Messages.Commons.NOTFOUND);
+            }
+
+            target_quiz.IsDeleted = true;
+            target_quiz.UpdatedAt = DateTime.Now;
 
             _unitOfWork.Repository<Quiz>().Update(target_quiz);
             await _unitOfWork.SaveChangesWithTransactionAsync();

@@ -40,5 +40,12 @@ namespace ResourceService.Controllers
             var result = await _services.QuizService.UpdateQuiz(id, quiz);
             return result.ToActionResult();
         }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteQuiz([FromRoute] Guid id)
+        {
+            var result = await _services.QuizService.DeleteQuiz(id);
+            return result.ToActionResult();
+        }
     }
 }
