@@ -123,6 +123,7 @@ namespace UserService.Application.UseCases
                 TeachingLicenseFront = x.TeachingLicenseFront,
                 DrivingLicenseTier = x.DrivingLicenseTier,
                 TeachingLicenseTier = x.TeachingLicenseTier,
+                DateUntilAutoRejection = x.DatebeforeExpiry,
                 HealthCheckup = x.HealthCheckup,
                 PersonalProfile = x.BackgroundProfile,
                 ApplicationStatus = x.Status,
@@ -157,6 +158,7 @@ namespace UserService.Application.UseCases
                 BirthDate = application_detail.DateOfBirth,
                 Gender = application_detail.Gender.ToString(),
                 SubmitDate = application_detail.SubmitAt,
+                DateUntilAutoRejection = application_detail.DatebeforeExpiry,
                 DrivingLicenseFront = application_detail.DrivingLicenseFront,
                 TeachingLicenseFront = application_detail.TeachingLicenseFront,
                 HealthCheckup = application_detail.HealthCheckup,
@@ -198,6 +200,7 @@ namespace UserService.Application.UseCases
                 DrivingLicenseFront = application_detail.DrivingLicenseFront,
                 TeachingLicenseFront = application_detail.TeachingLicenseFront,
                 HealthCheckup = application_detail.HealthCheckup,
+                DateUntilAutoRejection = application_detail.DatebeforeExpiry,
                 PersonalProfile = application_detail.BackgroundProfile,
                 TrackingHistories = application_detail.ApplicationTrackings?.Select(x => new ApplicationTrackingDTO
                 {
@@ -361,6 +364,10 @@ namespace UserService.Application.UseCases
             string health_checkup_url = _cloudinary.UploadImageFormFileResourceToCloudinary(instructor_registration.HealthCheckup, $"{instructor_registration.Email}-health-checkup");
             string personal_porfolio_url = _cloudinary.UploadImageFormFileResourceToCloudinary(instructor_registration.PersonalProfile, $"{instructor_registration.Email}-porfolio");
 
+            // Getting configurations
+            var expiry_days_config = await _unitOfWork.SystemConfigurationRepository.GetAllAsync(x => x.Name == "DaysBeforeExpiry");
+            DateOnly expiry_date = DateOnly.FromDateTime(DateTime.Now).AddDays(int.Parse(expiry_days_config.FirstOrDefault()?.Value ?? "7")); // Default to 7 days if no config found
+
             Instructor instructor = new Instructor
             {
                 Bio = "",
@@ -388,6 +395,7 @@ namespace UserService.Application.UseCases
                     Gender = instructor_gender,
                     DateOfBirth = (DateOnly)instructor_registration.BirthDate,
                     SubmitAt = DateTime.Now,
+                    DatebeforeExpiry = expiry_date,
                     Status = ApplicationStatus.Pending,
                     DrivingLicenseFront = driving_license_front_url,
                     DrivingLicenseBack = driving_license_back_url,
@@ -503,6 +511,11 @@ namespace UserService.Application.UseCases
 
             instructor_application.SubmitAt = DateTime.Now;
             instructor_application.Status = ApplicationStatus.ReApplying;
+
+            // Update Expiry date
+            var expiry_days_config = await _unitOfWork.SystemConfigurationRepository.GetAllAsync(x => x.Name == "DaysBeforeExpiry");
+            DateOnly expiry_date = DateOnly.FromDateTime(DateTime.Now).AddDays(int.Parse(expiry_days_config.FirstOrDefault()?.Value ?? "7")); // Default to 7 days if no config found
+            instructor_application.DatebeforeExpiry = expiry_date;
 
             try
             {

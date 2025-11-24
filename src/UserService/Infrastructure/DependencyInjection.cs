@@ -1,4 +1,9 @@
+using Dapper;
+using Hangfire;
+using Hangfire.PostgreSql;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using SharedLibrary.CloudinaryStorage;
 using SharedLibrary.Email;
 using SharedLibrary.SharedKernel.Password;
@@ -10,8 +15,7 @@ namespace UserService.Infrastructure
 {
     public static class DependencyInjection
     {
-        public static IServiceCollection AddInfrastructure(
-           this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
             // Đăng ký DbContext
             services.AddDbContext<UserServiceDbContext>(options =>
@@ -19,6 +23,16 @@ namespace UserService.Infrastructure
                 var connectionString = configuration.GetConnectionString("USERSERVICECONNECTION");
                 options.UseNpgsql(connectionString);
             });
+
+            // Đăng ký Hangfire
+            CreateHangFireDatabase(configuration); // Create hangfire db if not exist.
+
+            services.AddHangfire( (sp, config) =>
+            {
+                config.UsePostgreSqlStorage( options => options.UseNpgsqlConnection(configuration.GetConnectionString("USERSERVICEHANGFIRE")));
+            });
+
+            services.AddHangfireServer();
             
             // Đăng ký service khác (cache, email, storage…)
             services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -43,6 +57,50 @@ namespace UserService.Infrastructure
             services.AddScoped<ICloudinaryServiceProvider, CloudinaryServiceProvider>();
 
             return services;
+        }
+
+        private static void CreateHangFireDatabase(IConfiguration configuration)
+        {
+            string? hangfireDbConnectionString = configuration.GetConnectionString("USERSERVICEHANGFIRE");
+
+            if (hangfireDbConnectionString == null)
+            {
+                throw new InvalidOperationException("Can not instantiate Hangfire database because no connection string found");
+            }
+
+            var dictionary = hangfireDbConnectionString.Split(';', StringSplitOptions.RemoveEmptyEntries)
+                .Select(part => part.Split('='))
+                .ToDictionary(split => split[0], split => split[1]);
+
+            // Master Db
+            string masterDbConnectionString = String.Join(';', dictionary.Select(kv => kv.Key == "Database" ? $"{kv.Key}=postgres" : $"{kv.Key}={kv.Value}"));
+
+            using (var connection = new NpgsqlConnection(masterDbConnectionString))
+            {
+                connection.Open();
+
+                bool exists = false;
+                string checkSql = "SELECT 1 FROM pg_database WHERE datname = @dbName";
+
+                using (var cmd = new NpgsqlCommand(checkSql, connection))
+                {
+                    cmd.Parameters.AddWithValue("dbName", dictionary["Database"]);
+                    exists = cmd.ExecuteScalar() != null;
+                }
+
+                if (!exists)
+                {
+                    string createSql = $"CREATE DATABASE \"{dictionary["Database"]}\"";
+
+                    using (var cmd = new NpgsqlCommand(createSql, connection))
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    Console.WriteLine($"Database '{dictionary["Database"]}' created successfully.");
+                }
+                connection.Close();
+            }
         }
     }
 }

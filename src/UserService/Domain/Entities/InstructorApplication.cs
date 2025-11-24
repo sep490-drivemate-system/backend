@@ -34,6 +34,7 @@ namespace UserService.Domain.Entities
 
         // Application properties
         public DateTime SubmitAt { get; set; }
+        public DateOnly DatebeforeExpiry { get; set; }
         public ApplicationStatus Status { get; set; }
 
         // System properties

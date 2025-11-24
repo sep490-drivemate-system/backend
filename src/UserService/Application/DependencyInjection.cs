@@ -1,3 +1,4 @@
+using Hangfire;
 using Resend;
 using SharedLibrary.Email;
 using SharedLibrary.Jwt;
@@ -7,6 +8,7 @@ using SharedLibrary.SharedKernel.Http.Interfaces;
 using SharedLibrary.SharedKernel.Password;
 using SharedLibrary.Sms;
 using UserService.Application.Interfaces;
+using UserService.Application.Jobs.ReccurringJobs;
 using UserService.Application.UseCases;
 using UserService.Domain.Entities;
 using static Org.BouncyCastle.Math.EC.ECCurve;
@@ -29,7 +31,7 @@ namespace UserService.Application
             services.AddScoped<ISystemConfigurationUseCase, SystemConfigurationUseCase>();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-            // Register library external
+            // Register external library
             services.Configure<SpeedSmsSettings>(configuration.GetSection("SpeedSMS"));
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IPasswordHasherService, PasswordHasherService>();
@@ -38,11 +40,8 @@ namespace UserService.Application
             services.AddScoped<PasswordHasherService>();
             services.AddScoped<HttpService>();
             services.AddScoped<IIntructor, Intructor>();
-
-
             services.AddScoped<IFeedback,Feedback>();
             services.AddScoped<IPackage, SharedLibrary.SharedKernel.Http.Implementation.Package>();
-
             services.AddHttpClient<ResendClient>();
             services.AddTransient<IResend, ResendClient>();
             services.Configure<ResendClientOptions>(o =>
@@ -50,9 +49,8 @@ namespace UserService.Application
                 o.ApiToken = Environment.GetEnvironmentVariable("RESEND_APITOKEN")!;
             });
 
-            // Đăng ký service khác (cache, email, storage…)
+            // Register other services (cache, email, storage…)
             // services.AddScoped<IEmailService, EmailService>();
-
             return services;
         }
     }
