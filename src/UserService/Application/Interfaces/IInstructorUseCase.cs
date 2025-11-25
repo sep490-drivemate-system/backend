@@ -14,7 +14,7 @@ namespace UserService.Application.Interfaces
 
         Task<Result<List<InstructorScheduleDTO>>> GetInstructorSchedule(Guid instructor_id);
 
-        Task<Result<bool>> RegisterInstructor(RegistrationDTO instructor_registration);
+        Task<Result<Guid>> RegisterInstructor(RegistrationDTO instructor_registration);
 
         Task<Result<ApplicationDTO>> GetInstructorApplication(Guid instructor_id);
 
