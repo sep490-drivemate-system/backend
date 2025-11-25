@@ -1,56 +1,86 @@
+﻿using MessagingService.Application.Commons.DTOs.Notification;
+using MessagingService.Application.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
+using SharedLibrary.SharedKernel.Enum;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MessagingService.Application.DTOs.Notification;
-using MessagingService.Application.Interfaces;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.SignalR;
+using System.Security.Claims;
 
 namespace MessagingService.Infrastructure.Hubs
 {
-    [AllowAnonymous]
-    public class NotificationHub : Hub
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    public class NotificationHub(INotificationUseCase notificationUseCase) : Hub
     {
-        private readonly INotificationUseCase _notificationUseCase;
-
-        public NotificationHub(INotificationUseCase notificationUseCase)
-        {
-            _notificationUseCase = notificationUseCase;
-        }
+        private readonly INotificationUseCase _notificationUseCase = notificationUseCase;
 
         public override async Task OnConnectedAsync()
         {
-            var userIdParam = Context.GetHttpContext()?.Request.Query["userId"].ToString();
-
-            if (Guid.TryParse(userIdParam, out var userId))
+            var userId = GetAuthenticatedUserId();
+            var userRole = GetUserRole();
+            if (userId == null)
             {
-                await Groups.AddToGroupAsync(Context.ConnectionId, BuildGroupName(userId));
+                Context.Abort();
+                return;
             }
+
+            await Groups.AddToGroupAsync(Context.ConnectionId, BuildGroupName(userId.Value));
+            Console.WriteLine("lây id " + userId);
+            Console.WriteLine("lấy role " + userRole);
 
             await base.OnConnectedAsync();
         }
 
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
-            var userIdParam = Context.GetHttpContext()?.Request.Query["userId"].ToString();
+            var userId = GetAuthenticatedUserId();
 
-            if (Guid.TryParse(userIdParam, out var userId))
+            if (userId != null)
             {
-                await Groups.RemoveFromGroupAsync(Context.ConnectionId, BuildGroupName(userId));
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, BuildGroupName(userId.Value));
             }
 
             await base.OnDisconnectedAsync(exception);
         }
 
-        public async Task<IEnumerable<NotificationResponseDTO>> GetLatestNotifications(Guid userId, int take = 20)
+        public async Task<IEnumerable<NotificationResponseDTO>> GetLatestNotifications(int take = 20)
         {
-            var result = await _notificationUseCase.GetUserNotificationsAsync(userId, 1, take);
+            var userId = GetAuthenticatedUserId();
+
+            if (userId == null)
+            {
+                throw new HubException("Unauthorized access to notifications.");
+            }
+
+            var result = await _notificationUseCase.GetUserNotificationsAsync(userId.Value, 1, take);
             return result.IsSuccess && result.Data != null
                 ? result.Data
                 : Enumerable.Empty<NotificationResponseDTO>();
         }
 
         public static string BuildGroupName(Guid userId) => $"user_{userId}";
+
+        private Guid? GetAuthenticatedUserId()
+        {
+            var idClaim = Context.User?.Claims.FirstOrDefault(c => c.Type == "id");
+            return idClaim != null && Guid.TryParse(idClaim.Value, out var userId)
+                ? userId
+                : null;
+        }
+        private UserRole? GetUserRole()
+        {
+            var roleClaim = Context.User?.Claims
+                .FirstOrDefault(c => c.Type == ClaimTypes.Role || c.Type == "role");
+
+            if (roleClaim != null && Enum.TryParse<UserRole>(roleClaim.Value, out var role))
+                return role;
+
+            return null;
+        }
+
+
     }
 }
 

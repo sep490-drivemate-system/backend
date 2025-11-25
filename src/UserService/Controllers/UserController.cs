@@ -19,8 +19,8 @@ namespace UserService.Controllers
         private readonly IUserUseCase _userUseCase = userUseCase;
         private readonly IJwtService _jwtService = jwtService;
 
-        [HttpGet("{id}/address")]
-        public async Task<IActionResult> GetAllUserSavedAddress([FromRoute]Guid id)
+ 
+
         [HttpGet("address")]
         [Authorize(Roles = nameof(UserRole.NoviceDriver))]
         public async Task<IActionResult> GetAllUserSavedAddress()

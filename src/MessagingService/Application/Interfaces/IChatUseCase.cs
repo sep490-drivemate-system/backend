@@ -1,4 +1,4 @@
-using MessagingService.Application.DTOs.Chat;
+using MessagingService.Application.Commons.DTOs.Chat;
 using SharedLibrary.SharedKernel.ServiceResult;
 
 namespace MessagingService.Application.Interfaces

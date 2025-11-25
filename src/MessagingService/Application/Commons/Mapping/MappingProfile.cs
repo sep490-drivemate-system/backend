@@ -1,8 +1,8 @@
 using AutoMapper;
-using MessagingService.Application.DTOs.Notification;
+using MessagingService.Application.Commons.DTOs.Notification;
 using MessagingService.Domain.Entities;
 
-namespace MessagingService.Application.Mapping
+namespace MessagingService.Application.Commons.Mapping
 {
     public class MappingProfile : Profile
     {

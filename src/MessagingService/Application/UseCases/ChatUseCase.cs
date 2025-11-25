@@ -1,5 +1,4 @@
 using AutoMapper;
-using MessagingService.Application.DTOs.Chat;
 using MessagingService.Application.Interfaces;
 using MessagingService.Domain.Entities;
 using MessagingService.Domain.Enum;
@@ -8,6 +7,7 @@ using SharedLibrary.SharedKernel.ServiceResult;
 using SharedLibrary.SharedKernel.Http;
 using SharedLibrary.SharedKernel.Http.DTOs.User;
 using Microsoft.Extensions.Configuration;
+using MessagingService.Application.Commons.DTOs.Chat;
 
 namespace MessagingService.Application.UseCases
 {

@@ -17,21 +17,16 @@ namespace MessagingService
             var config = builder.Configuration;
             builder.Configuration.AddEnvironmentVariables();
 
-            // Add services to the container
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            // Add SignalR
             builder.Services.AddSignalR();
 
-            // Add Infrastructure (DbContext, Repositories, UnitOfWork)
             builder.Services.AddInfrastructure(config);
 
-            // Add Application (UseCases, DTOs, Mapping)
             builder.Services.AddApplication(config);
 
-            // JWT Authentication
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
@@ -50,10 +45,24 @@ namespace MessagingService
                         ClockSkew = TimeSpan.Zero
                     };
 
-                    // SignalR JWT authentication removed - ChatHub allows anonymous access
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            var accessToken = context.Request.Query["access_token"];
+                            var path = context.HttpContext.Request.Path;
+
+                            if (!string.IsNullOrWhiteSpace(accessToken) &&
+                                (path.StartsWithSegments("/chatHub") || path.StartsWithSegments("/notificationHub")))
+                            {
+                                context.Token = accessToken;
+                            }
+
+                            return Task.CompletedTask;
+                        }
+                    };
                 });
 
-            // JWT Service
             builder.Services.AddScoped<IJwtService, JwtService>();
 
             // Swagger configuration
@@ -122,7 +131,6 @@ namespace MessagingService
 
             app.MapControllers();
             
-            // Map SignalR Hubs (without authentication requirement - both hubs use [AllowAnonymous])
             app.MapHub<ChatHub>("/chatHub");
             app.MapHub<NotificationHub>("/notificationHub");
 

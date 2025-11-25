@@ -1,4 +1,4 @@
-namespace MessagingService.Application.DTOs.Chat
+namespace MessagingService.Application.Commons.DTOs.Chat
 {
     public class SendMessageDTO
     {

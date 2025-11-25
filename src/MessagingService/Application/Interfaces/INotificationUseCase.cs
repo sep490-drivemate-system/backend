@@ -1,4 +1,4 @@
-using MessagingService.Application.DTOs.Notification;
+using MessagingService.Application.Commons.DTOs.Notification;
 using SharedLibrary.SharedKernel.ServiceResult;
 
 namespace MessagingService.Application.Interfaces

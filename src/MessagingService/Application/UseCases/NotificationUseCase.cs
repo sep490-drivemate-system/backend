@@ -1,5 +1,5 @@
 using AutoMapper;
-using MessagingService.Application.DTOs.Notification;
+using MessagingService.Application.Commons.DTOs.Notification;
 using MessagingService.Application.Interfaces;
 using MessagingService.Domain.Entities;
 using MessagingService.Domain.Enum;

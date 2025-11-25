@@ -24,8 +24,6 @@ namespace MessagingService.Infrastructure.Repositories
 
         public async Task<int> GetUnreadMessageCountAsync(Guid conversationId, Guid userId)
         {
-            // Simple implementation: count all messages from other users
-            // You can enhance this later with a read tracking mechanism
             return await _dbSet
                 .CountAsync(m => m.ChatSessionId == conversationId && 
                                m.SenderId != userId && 
