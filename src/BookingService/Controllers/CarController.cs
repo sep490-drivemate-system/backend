@@ -2,16 +2,26 @@
 using BookingService.Application.Commons.DTOs.Cars.Get;
 using BookingService.Application.Commons.DTOs.Cars.Update;
 using BookingService.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SharedLibrary.Jwt;
+using SharedLibrary.SharedKernel.Enum;
 using SharedLibrary.SharedKernel.ServiceResult;
 
 namespace BookingService.Controllers
 {
     [Route("api/car")]
     [ApiController]
-    public class CarController(ICarUseCase usecases) : ControllerBase
+    public class CarController : ControllerBase
     {
-        private readonly ICarUseCase _usecase = usecases;
+        private readonly ICarUseCase _usecase;
+        private readonly IJwtService _jwtService;
+
+        public CarController(ICarUseCase usecases, IJwtService jwtService)
+        {
+            _usecase = usecases;
+            _jwtService = jwtService;
+        }
 
         [HttpGet]
         public async Task<IActionResult> GetCarList([FromQuery] CarListFilterDTO filter)
@@ -34,6 +44,16 @@ namespace BookingService.Controllers
             return result.ToActionResult();
         }
 
+        [HttpGet("instructor/cars")]
+        [Authorize(Roles = nameof(UserRole.Instructor))]
+        public async Task<IActionResult> GetInstructorCars()
+        {
+            var instructorId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
+            var result = await _usecase.GetInstructorCarList(instructorId);
+            return result.ToActionResult();
+        }
+
+        
         [HttpGet("instructor/{id}/cars")]
         public async Task<IActionResult> GetInstructorCars([FromRoute] Guid id)
         {
