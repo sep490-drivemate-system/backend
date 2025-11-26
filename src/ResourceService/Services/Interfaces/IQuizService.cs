@@ -10,5 +10,6 @@ namespace ResourceService.Services.Interfaces
         Task<Result<bool>> CreateQuiz(QuizCreateOrUpdateDTO quiz);
         Task<Result<bool>> UpdateQuiz(Guid id, QuizCreateOrUpdateDTO quiz);
         Task<Result<bool>> DeleteQuiz(Guid id);
+        Task<Result<QuizAttemptResultDTO>> SubmitQuizAttempt(Guid quizId, Guid userId, QuizAttemptRequestDTO attemptRequest);
     }
 }

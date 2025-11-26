@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ResourceService.Services.DTOs.Quizzes;
 using Services;
+using SharedLibrary.Jwt;
+using SharedLibrary.SharedKernel.Enum;
 using SharedLibrary.SharedKernel.ServiceResult;
 using System.Threading.Tasks;
 
@@ -9,9 +11,16 @@ namespace ResourceService.Controllers
 {
     [Route("api/quizs")]
     [ApiController]
-    public class QuizController(IServiceProviders serviceProviders): ControllerBase
+    public class QuizController : ControllerBase
     {
-        private readonly IServiceProviders _services = serviceProviders;
+        private readonly IServiceProviders _services;
+        private readonly IJwtService _jwtService;
+
+        public QuizController(IServiceProviders serviceProviders, IJwtService jwtService)
+        {
+            _services = serviceProviders;
+            _jwtService = jwtService;
+        }
 
         [HttpGet]
         public async Task<IActionResult> GetAllQuiz([FromQuery] QuizFilterDTO filterDTO)
@@ -45,6 +54,15 @@ namespace ResourceService.Controllers
         public async Task<IActionResult> DeleteQuiz([FromRoute] Guid id)
         {
             var result = await _services.QuizService.DeleteQuiz(id);
+            return result.ToActionResult();
+        }
+
+        [HttpPost("{id}/attempts")]
+        [Authorize(Roles = nameof(UserRole.NoviceDriver))]
+        public async Task<IActionResult> SubmitQuizAttempt([FromRoute] Guid id, [FromBody] QuizAttemptRequestDTO attemptRequest)
+        {
+            var userId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
+            var result = await _services.QuizService.SubmitQuizAttempt(id, userId, attemptRequest);
             return result.ToActionResult();
         }
     }

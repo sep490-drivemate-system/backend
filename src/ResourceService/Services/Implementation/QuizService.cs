@@ -4,6 +4,9 @@ using ResourceService.Services.Commons.Constants;
 using ResourceService.Services.DTOs.Quizzes;
 using ResourceService.Services.Interfaces;
 using SharedLibrary.SharedKernel.ServiceResult;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace ResourceService.Services.Implementation
@@ -159,6 +162,93 @@ namespace ResourceService.Services.Implementation
             await _unitOfWork.SaveChangesWithTransactionAsync();
 
             return Result<bool>.Success(true);
+        }
+
+        public async Task<Result<QuizAttemptResultDTO>> SubmitQuizAttempt(Guid quizId, Guid userId, QuizAttemptRequestDTO attemptRequest)
+        {
+            const string includeProperties = "Questions,Questions.Choices";
+            var quiz = await _unitOfWork.Repository<Quiz>().GetByIdAsync(quizId, include_properties: includeProperties);
+
+            if (quiz == null || quiz.IsDeleted)
+            {
+                return Result<QuizAttemptResultDTO>.Failure(ServiceError.NotFoundError($"{quizId}"), Messages.Commons.NOTFOUND);
+            }
+
+            var submittedAnswers = attemptRequest.Answers?.ToList() ?? [];
+            if (submittedAnswers.Count == 0)
+            {
+                return Result<QuizAttemptResultDTO>.Failure(ServiceError.RuleViolationError("Answers must not be empty"), Messages.Commons.UNHANDLED);
+            }
+
+            var activeQuestions = quiz.Questions.Where(q => !q.IsDeleted).ToList();
+            if (submittedAnswers.Count != activeQuestions.Count)
+            {
+                return Result<QuizAttemptResultDTO>.Failure(ServiceError.RuleViolationError("All questions must be answered"), Messages.Commons.UNHANDLED);
+            }
+
+            if (submittedAnswers.Select(x => x.QuestionId).Distinct().Count() != submittedAnswers.Count)
+            {
+                return Result<QuizAttemptResultDTO>.Failure(ServiceError.RuleViolationError("A question can only be answered once"), Messages.Commons.UNHANDLED);
+            }
+
+            var answerEntities = new List<Answer>();
+            var answerSummaries = new List<QuizAttemptAnswerResultDTO>();
+
+            foreach (var submittedAnswer in submittedAnswers)
+            {
+                var question = activeQuestions.FirstOrDefault(q => q.Id == submittedAnswer.QuestionId);
+                if (question == null)
+                {
+                    return Result<QuizAttemptResultDTO>.Failure(ServiceError.RuleViolationError($"Question {submittedAnswer.QuestionId} is invalid"), Messages.Commons.UNHANDLED);
+                }
+
+                var choice = question.Choices.FirstOrDefault(c => c.Id == submittedAnswer.ChoiceId && !c.IsDeleted);
+                if (choice == null)
+                {
+                    return Result<QuizAttemptResultDTO>.Failure(ServiceError.RuleViolationError($"Choice {submittedAnswer.ChoiceId} is invalid"), Messages.Commons.UNHANDLED);
+                }
+
+                var isCorrect = choice.IsCorrect;
+
+                answerEntities.Add(new Answer
+                {
+                    ChoiceId = choice.Id,
+                    IsCorrect = isCorrect
+                });
+
+                answerSummaries.Add(new QuizAttemptAnswerResultDTO
+                {
+                    QuestionId = question.Id,
+                    ChoiceId = choice.Id,
+                    IsCorrect = isCorrect
+                });
+            }
+
+            var attempt = new Attempt
+            {
+                QuizId = quizId,
+                UserId = userId,
+                Answers = answerEntities
+            };
+
+            await _unitOfWork.Repository<Attempt>().CreateAsync(attempt);
+            await _unitOfWork.SaveChangesWithTransactionAsync();
+
+            var totalQuestions = activeQuestions.Count;
+            var correctAnswers = answerSummaries.Count(x => x.IsCorrect);
+            var score = totalQuestions == 0 ? 0 : Math.Round((double)correctAnswers / totalQuestions * 100, 2);
+
+            var result = new QuizAttemptResultDTO
+            {
+                AttemptId = attempt.Id,
+                QuizId = quizId,
+                TotalQuestions = totalQuestions,
+                CorrectAnswers = correctAnswers,
+                Score = score,
+                Answers = answerSummaries
+            };
+
+            return Result<QuizAttemptResultDTO>.Success(result);
         }
     }
 }
