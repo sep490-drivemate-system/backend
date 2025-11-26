@@ -58,7 +58,14 @@ namespace BookingService.Application.UseCase
 
             if (!string.IsNullOrEmpty(car_information.DocumentJsonBlobString))
             {
-                car_documents = JsonSerializer.Deserialize<List<CarDocument>>(car_information.DocumentJsonBlobString) ?? new List<CarDocument>();
+                try
+                {
+                    car_documents = JsonSerializer.Deserialize<List<CarDocument>>(car_information.DocumentJsonBlobString) ?? new List<CarDocument>();
+                }
+                catch (JsonException)
+                {
+                    car_documents = new List<CarDocument>();
+                }
             }
 
             return Result<CarDetailDTO>.Success(new CarDetailDTO
