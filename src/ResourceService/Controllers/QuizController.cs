@@ -58,7 +58,7 @@ namespace ResourceService.Controllers
         }
 
         [HttpPost("{id}/start")]
-        //[Authorize(Roles = nameof(UserRole.NoviceDriver))]
+        [Authorize(Roles = nameof(UserRole.NoviceDriver))]
         public async Task<IActionResult> StartQuizAttempt([FromRoute] Guid id)
         {
             var userId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
@@ -67,7 +67,7 @@ namespace ResourceService.Controllers
         }
 
         [HttpPost("attempts/{attemptId}/submit")]
-        //[Authorize(Roles = nameof(UserRole.NoviceDriver))]
+        [Authorize(Roles = nameof(UserRole.NoviceDriver))]
         public async Task<IActionResult> SubmitQuizAttempt([FromRoute] Guid attemptId, [FromBody] QuizAttemptRequestDTO attemptRequest)
         {
             var userId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
