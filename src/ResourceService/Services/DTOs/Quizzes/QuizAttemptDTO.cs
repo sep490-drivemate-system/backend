@@ -11,7 +11,14 @@ namespace ResourceService.Services.DTOs.Quizzes
     public class QuizAttemptAnswerDTO
     {
         public Guid QuestionId { get; set; }
-        public Guid ChoiceId { get; set; }
+        public Guid? ChoiceId { get; set; }
+    }
+
+    public class QuizAttemptStartResultDTO
+    {
+        public Guid AttemptId { get; set; }
+        public DateTime StartTime { get; set; }
+        public int DurationMinutes { get; set; }
     }
 
     public class QuizAttemptResultDTO
@@ -27,8 +34,8 @@ namespace ResourceService.Services.DTOs.Quizzes
     public class QuizAttemptAnswerResultDTO
     {
         public Guid QuestionId { get; set; }
-        public Guid ChoiceId { get; set; }
-        public bool IsCorrect { get; set; }
+        public Guid? ChoiceId { get; set; }
+        public bool? IsCorrect { get; set; }
     }
 }
 

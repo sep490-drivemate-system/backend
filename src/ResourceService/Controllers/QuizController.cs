@@ -57,12 +57,21 @@ namespace ResourceService.Controllers
             return result.ToActionResult();
         }
 
-        [HttpPost("{id}/attempts")]
-        [Authorize(Roles = nameof(UserRole.NoviceDriver))]
-        public async Task<IActionResult> SubmitQuizAttempt([FromRoute] Guid id, [FromBody] QuizAttemptRequestDTO attemptRequest)
+        [HttpPost("{id}/start")]
+        //[Authorize(Roles = nameof(UserRole.NoviceDriver))]
+        public async Task<IActionResult> StartQuizAttempt([FromRoute] Guid id)
         {
             var userId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
-            var result = await _services.QuizService.SubmitQuizAttempt(id, userId, attemptRequest);
+            var result = await _services.QuizService.StartQuizAttempt(id, userId);
+            return result.ToActionResult();
+        }
+
+        [HttpPost("attempts/{attemptId}/submit")]
+        //[Authorize(Roles = nameof(UserRole.NoviceDriver))]
+        public async Task<IActionResult> SubmitQuizAttempt([FromRoute] Guid attemptId, [FromBody] QuizAttemptRequestDTO attemptRequest)
+        {
+            var userId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
+            var result = await _services.QuizService.SubmitQuizAttempt(attemptId, userId, attemptRequest);
             return result.ToActionResult();
         }
     }

@@ -164,84 +164,116 @@ namespace ResourceService.Services.Implementation
             return Result<bool>.Success(true);
         }
 
-        public async Task<Result<QuizAttemptResultDTO>> SubmitQuizAttempt(Guid quizId, Guid userId, QuizAttemptRequestDTO attemptRequest)
+        public async Task<Result<QuizAttemptStartResultDTO>> StartQuizAttempt(Guid quizId, Guid userId)
         {
-            const string includeProperties = "Questions,Questions.Choices";
-            var quiz = await _unitOfWork.Repository<Quiz>().GetByIdAsync(quizId, include_properties: includeProperties);
+            var quiz = await _unitOfWork.Repository<Quiz>().GetByIdAsync(quizId);
 
             if (quiz == null || quiz.IsDeleted)
             {
-                return Result<QuizAttemptResultDTO>.Failure(ServiceError.NotFoundError($"{quizId}"), Messages.Commons.NOTFOUND);
-            }
-
-            var submittedAnswers = attemptRequest.Answers?.ToList() ?? [];
-            if (submittedAnswers.Count == 0)
-            {
-                return Result<QuizAttemptResultDTO>.Failure(ServiceError.RuleViolationError("Answers must not be empty"), Messages.Commons.UNHANDLED);
-            }
-
-            var activeQuestions = quiz.Questions.Where(q => !q.IsDeleted).ToList();
-            if (submittedAnswers.Count != activeQuestions.Count)
-            {
-                return Result<QuizAttemptResultDTO>.Failure(ServiceError.RuleViolationError("All questions must be answered"), Messages.Commons.UNHANDLED);
-            }
-
-            if (submittedAnswers.Select(x => x.QuestionId).Distinct().Count() != submittedAnswers.Count)
-            {
-                return Result<QuizAttemptResultDTO>.Failure(ServiceError.RuleViolationError("A question can only be answered once"), Messages.Commons.UNHANDLED);
-            }
-
-            var answerEntities = new List<Answer>();
-            var answerSummaries = new List<QuizAttemptAnswerResultDTO>();
-
-            foreach (var submittedAnswer in submittedAnswers)
-            {
-                var question = activeQuestions.FirstOrDefault(q => q.Id == submittedAnswer.QuestionId);
-                if (question == null)
-                {
-                    return Result<QuizAttemptResultDTO>.Failure(ServiceError.RuleViolationError($"Question {submittedAnswer.QuestionId} is invalid"), Messages.Commons.UNHANDLED);
-                }
-
-                var choice = question.Choices.FirstOrDefault(c => c.Id == submittedAnswer.ChoiceId && !c.IsDeleted);
-                if (choice == null)
-                {
-                    return Result<QuizAttemptResultDTO>.Failure(ServiceError.RuleViolationError($"Choice {submittedAnswer.ChoiceId} is invalid"), Messages.Commons.UNHANDLED);
-                }
-
-                var isCorrect = choice.IsCorrect;
-
-                answerEntities.Add(new Answer
-                {
-                    ChoiceId = choice.Id,
-                    IsCorrect = isCorrect
-                });
-
-                answerSummaries.Add(new QuizAttemptAnswerResultDTO
-                {
-                    QuestionId = question.Id,
-                    ChoiceId = choice.Id,
-                    IsCorrect = isCorrect
-                });
+                return Result<QuizAttemptStartResultDTO>.Failure(ServiceError.NotFoundError($"{quizId}"), Messages.Commons.NOTFOUND);
             }
 
             var attempt = new Attempt
             {
                 QuizId = quizId,
-                UserId = userId,
-                Answers = answerEntities
+                UserId = userId
             };
 
             await _unitOfWork.Repository<Attempt>().CreateAsync(attempt);
             await _unitOfWork.SaveChangesWithTransactionAsync();
 
+            var result = new QuizAttemptStartResultDTO
+            {
+                AttemptId = attempt.Id,
+                StartTime = attempt.CreatedAt,
+                DurationMinutes = quiz.QuizDuration
+            };
+
+            return Result<QuizAttemptStartResultDTO>.Success(result);
+        }
+
+        public async Task<Result<QuizAttemptResultDTO>> SubmitQuizAttempt(Guid attemptId, Guid userId, QuizAttemptRequestDTO attemptRequest)
+        {
+            const string includeProperties = "Quiz,Quiz.Questions,Quiz.Questions.Choices";
+            var attempt = await _unitOfWork.Repository<Attempt>().GetByIdAsync(attemptId, include_properties: includeProperties);
+
+            if (attempt == null || attempt.IsDeleted || attempt.UserId != userId)
+            {
+                return Result<QuizAttemptResultDTO>.Failure(ServiceError.NotFoundError($"{attemptId}"), Messages.Commons.NOTFOUND);
+            }
+
+            var quiz = attempt.Quiz;
+            if (quiz == null || quiz.IsDeleted)
+            {
+                return Result<QuizAttemptResultDTO>.Failure(ServiceError.NotFoundError($"Quiz not found"), Messages.Commons.NOTFOUND);
+            }
+
+            var activeQuestions = quiz.Questions.Where(q => !q.IsDeleted).ToList();
+            var submittedAnswers = attemptRequest.Answers?.ToList() ?? [];
+            var submittedAnswerDict = submittedAnswers.ToDictionary(x => x.QuestionId, x => x.ChoiceId);
+
+            var answerEntities = new List<Answer>();
+            var answerSummaries = new List<QuizAttemptAnswerResultDTO>();
+            var now = DateTime.Now;
+            var isTimeExpired = (now - attempt.CreatedAt).TotalMinutes > quiz.QuizDuration;
+
+            foreach (var question in activeQuestions)
+            {
+                if (submittedAnswerDict.TryGetValue(question.Id, out var choiceId) && choiceId.HasValue)
+                {
+                    var choice = question.Choices.FirstOrDefault(c => c.Id == choiceId.Value && !c.IsDeleted);
+                    if (choice != null)
+                    {
+                        var isCorrect = choice.IsCorrect;
+
+                        answerEntities.Add(new Answer
+                        {
+                            ChoiceId = choice.Id,
+                            IsCorrect = isCorrect
+                        });
+
+                        answerSummaries.Add(new QuizAttemptAnswerResultDTO
+                        {
+                            QuestionId = question.Id,
+                            ChoiceId = choice.Id,
+                            IsCorrect = isCorrect
+                        });
+                    }
+                    else
+                    {
+                        answerSummaries.Add(new QuizAttemptAnswerResultDTO
+                        {
+                            QuestionId = question.Id,
+                            ChoiceId = null,
+                            IsCorrect = null
+                        });
+                    }
+                }
+                else
+                {
+                    answerSummaries.Add(new QuizAttemptAnswerResultDTO
+                    {
+                        QuestionId = question.Id,
+                        ChoiceId = null,
+                        IsCorrect = null
+                    });
+                }
+            }
+
+            attempt.Answers = answerEntities;
+            attempt.UpdatedAt = now;
+
+            _unitOfWork.Repository<Attempt>().Update(attempt);
+            await _unitOfWork.SaveChangesWithTransactionAsync();
+
             var totalQuestions = activeQuestions.Count;
-            var correctAnswers = answerSummaries.Count(x => x.IsCorrect);
+            var correctAnswers = answerSummaries.Count(x => x.IsCorrect == true);
             var score = totalQuestions == 0 ? 0 : Math.Round((double)correctAnswers / totalQuestions * 100, 2);
 
             var result = new QuizAttemptResultDTO
             {
                 AttemptId = attempt.Id,
-                QuizId = quizId,
+                QuizId = quiz.Id,
                 TotalQuestions = totalQuestions,
                 CorrectAnswers = correctAnswers,
                 Score = score,
