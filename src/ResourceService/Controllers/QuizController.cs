@@ -76,5 +76,14 @@ namespace ResourceService.Controllers
             var result = await _services.QuizService.SubmitQuizAttempt(attemptId, userId, attemptRequest);
             return result.ToActionResult();
         }
+
+        [HttpGet("attempts/history")]
+        [Authorize(Roles = nameof(UserRole.NoviceDriver))]
+        public async Task<IActionResult> GetQuizAttemptHistory()
+        {
+            var userId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
+            var result = await _services.QuizService.GetQuizAttemptHistory(userId);
+            return result.ToActionResult();
+        }
     }
 }

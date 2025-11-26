@@ -37,5 +37,18 @@ namespace ResourceService.Services.DTOs.Quizzes
         public Guid? ChoiceId { get; set; }
         public bool? IsCorrect { get; set; }
     }
+
+    public class QuizAttemptHistoryDTO
+    {
+        public Guid AttemptId { get; set; }
+        public Guid QuizId { get; set; }
+        public string QuizName { get; set; } = string.Empty;
+        public string QuizTag { get; set; } = string.Empty;
+        public int QuizDuration { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public int TotalQuestions { get; set; }
+        public int CorrectAnswers { get; set; }
+        public double Score { get; set; }
+    }
 }
 

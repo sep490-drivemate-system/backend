@@ -282,5 +282,41 @@ namespace ResourceService.Services.Implementation
 
             return Result<QuizAttemptResultDTO>.Success(result);
         }
+
+        public async Task<Result<IEnumerable<QuizAttemptHistoryDTO>>> GetQuizAttemptHistory(Guid userId)
+        {
+            const string includeProperties = "Quiz,Quiz.Questions,Answers";
+            Expression<Func<Attempt, bool>> filter = x => x.UserId == userId && !x.IsDeleted;
+            
+            var attempts = await _unitOfWork.Repository<Attempt>().GetAllAsync(
+                filter: filter, 
+                include_properties: includeProperties
+            );
+
+            var history = attempts
+                .OrderByDescending(x => x.CreatedAt)
+                .Select(attempt =>
+                {
+                    var quiz = attempt.Quiz;
+                    var totalQuestions = quiz?.Questions?.Count(q => !q.IsDeleted) ?? 0;
+                    var correctAnswers = attempt.Answers?.Count(a => a.IsCorrect) ?? 0;
+                    var score = totalQuestions == 0 ? 0 : Math.Round((double)correctAnswers / totalQuestions * 100, 2);
+
+                    return new QuizAttemptHistoryDTO
+                    {
+                        AttemptId = attempt.Id,
+                        QuizId = quiz?.Id ?? Guid.Empty,
+                        QuizName = quiz?.Name ?? string.Empty,
+                        QuizTag = quiz?.Tag ?? string.Empty,
+                        QuizDuration = quiz?.QuizDuration ?? 0,
+                        CreatedAt = attempt.CreatedAt,
+                        TotalQuestions = totalQuestions,
+                        CorrectAnswers = correctAnswers,
+                        Score = score
+                    };
+                });
+
+            return Result<IEnumerable<QuizAttemptHistoryDTO>>.Success(history);
+        }
     }
 }

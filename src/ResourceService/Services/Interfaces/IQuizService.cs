@@ -12,5 +12,6 @@ namespace ResourceService.Services.Interfaces
         Task<Result<bool>> DeleteQuiz(Guid id);
         Task<Result<QuizAttemptStartResultDTO>> StartQuizAttempt(Guid quizId, Guid userId);
         Task<Result<QuizAttemptResultDTO>> SubmitQuizAttempt(Guid attemptId, Guid userId, QuizAttemptRequestDTO attemptRequest);
+        Task<Result<IEnumerable<QuizAttemptHistoryDTO>>> GetQuizAttemptHistory(Guid userId);
     }
 }
