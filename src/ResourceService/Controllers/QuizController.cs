@@ -37,9 +37,11 @@ namespace ResourceService.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = nameof(UserRole.Inspector))]
         public async Task<IActionResult> CreateQuiz([FromBody] QuizCreateOrUpdateDTO quiz)
         {
-            var result = await _services.QuizService.CreateQuiz(quiz);
+            var userId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
+            var result = await _services.QuizService.CreateQuiz(quiz, userId);
             return result.ToActionResult();
         }
 

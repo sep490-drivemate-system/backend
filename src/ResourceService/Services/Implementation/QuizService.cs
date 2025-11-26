@@ -15,7 +15,7 @@ namespace ResourceService.Services.Implementation
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-        public async Task<Result<bool>> CreateQuiz(QuizCreateOrUpdateDTO quiz)
+        public async Task<Result<bool>> CreateQuiz(QuizCreateOrUpdateDTO quiz, Guid inspectorId)
         {
             // Validating quiz creation
             if (quiz.Duration <= 0)
@@ -40,7 +40,7 @@ namespace ResourceService.Services.Implementation
                 Description = quiz.Description,
                 QuizDuration = quiz.Duration,
                 Tag = quiz.Tag,
-                InspectorId = Guid.Empty, // For simplicity, currently all new quiz will not have the creator id
+                InspectorId = inspectorId,
                 Questions = quiz.Questions.Select(x => new Question
                 {
                     QuestionText = x.QuestionText,
