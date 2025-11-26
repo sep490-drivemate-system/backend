@@ -202,6 +202,10 @@ namespace UserService.Application.UseCases
                 HealthCheckup = application_detail.HealthCheckup,
                 DateUntilAutoRejection = application_detail.DatebeforeExpiry,
                 PersonalProfile = application_detail.BackgroundProfile,
+                ApplicationStatus = application_detail.Status,
+                DrivingLicenseBack = application_detail.DrivingLicenseBack,
+                DrivingLicenseTier = application_detail.DrivingLicenseTier,
+                TeachingLicenseTier = application_detail.TeachingLicenseTier, 
                 TrackingHistories = application_detail.ApplicationTrackings?.Select(x => new ApplicationTrackingDTO
                 {
                     Id = x.Id,
