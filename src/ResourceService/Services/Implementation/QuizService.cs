@@ -1,4 +1,5 @@
-﻿using ResourceService.Repositories;
+﻿using AutoMapper;
+using ResourceService.Repositories;
 using ResourceService.Repositories.Models;
 using ResourceService.Services.Commons.Constants;
 using ResourceService.Services.DTOs.Quizzes;
@@ -11,9 +12,10 @@ using System.Linq.Expressions;
 
 namespace ResourceService.Services.Implementation
 {
-    public class QuizService(IUnitOfWork unitOfWork): IQuizService
+    public class QuizService(IUnitOfWork unitOfWork, IMapper mapper): IQuizService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IMapper _mapper = mapper;
 
         public async Task<Result<bool>> CreateQuiz(QuizCreateOrUpdateDTO quiz, Guid inspectorId)
         {
@@ -270,15 +272,11 @@ namespace ResourceService.Services.Implementation
             var correctAnswers = answerSummaries.Count(x => x.IsCorrect == true);
             var score = totalQuestions == 0 ? 0 : Math.Round((double)correctAnswers / totalQuestions * 100, 2);
 
-            var result = new QuizAttemptResultDTO
-            {
-                AttemptId = attempt.Id,
-                QuizId = quiz.Id,
-                TotalQuestions = totalQuestions,
-                CorrectAnswers = correctAnswers,
-                Score = score,
-                Answers = answerSummaries
-            };
+            var result = _mapper.Map<QuizAttemptResultDTO>(attempt);
+            result.TotalQuestions = totalQuestions;
+            result.CorrectAnswers = correctAnswers;
+            result.Score = score;
+            result.Answers = answerSummaries;
 
             return Result<QuizAttemptResultDTO>.Success(result);
         }
@@ -302,21 +300,64 @@ namespace ResourceService.Services.Implementation
                     var correctAnswers = attempt.Answers?.Count(a => a.IsCorrect) ?? 0;
                     var score = totalQuestions == 0 ? 0 : Math.Round((double)correctAnswers / totalQuestions * 100, 2);
 
-                    return new QuizAttemptHistoryDTO
-                    {
-                        AttemptId = attempt.Id,
-                        QuizId = quiz?.Id ?? Guid.Empty,
-                        QuizName = quiz?.Name ?? string.Empty,
-                        QuizTag = quiz?.Tag ?? string.Empty,
-                        QuizDuration = quiz?.QuizDuration ?? 0,
-                        CreatedAt = attempt.CreatedAt,
-                        TotalQuestions = totalQuestions,
-                        CorrectAnswers = correctAnswers,
-                        Score = score
-                    };
+                    var result = _mapper.Map<QuizAttemptHistoryDTO>(attempt);
+                    result.TotalQuestions = totalQuestions;
+                    result.CorrectAnswers = correctAnswers;
+                    result.Score = score;
+                    return result;
                 });
 
             return Result<IEnumerable<QuizAttemptHistoryDTO>>.Success(history);
+        }
+
+        public async Task<Result<QuizAttemptDetailDTO>> GetQuizAttemptDetail(Guid attemptId, Guid userId)
+        {
+            const string includeProperties = "Quiz,Quiz.Questions,Quiz.Questions.Choices,Answers,Answers.Choice";
+            var attempt = await _unitOfWork.Repository<Attempt>().GetByIdAsync(attemptId, include_properties: includeProperties);
+
+            if (attempt == null || attempt.IsDeleted || attempt.UserId != userId)
+            {
+                return Result<QuizAttemptDetailDTO>.Failure(ServiceError.NotFoundError($"{attemptId}"), Messages.Commons.NOTFOUND);
+            }
+
+            var quiz = attempt.Quiz;
+            if (quiz == null || quiz.IsDeleted)
+            {
+                return Result<QuizAttemptDetailDTO>.Failure(ServiceError.NotFoundError($"Quiz not found"), Messages.Commons.NOTFOUND);
+            }
+
+            var activeQuestions = quiz.Questions.Where(q => !q.IsDeleted).ToList();
+
+            var questionDetails = activeQuestions.Select(question =>
+            {
+                var questionChoiceIds = question.Choices.Where(c => !c.IsDeleted).Select(c => c.Id).ToList();
+                var selectedAnswer = attempt.Answers?.FirstOrDefault(a => questionChoiceIds.Contains(a.ChoiceId));
+
+                var questionDto = _mapper.Map<QuizAttemptQuestionDetailDTO>(question);
+                
+                questionDto.Choices = question.Choices
+                    .Where(c => !c.IsDeleted)
+                    .Select(choice =>
+                    {
+                        var choiceDto = _mapper.Map<QuizAttemptChoiceDetailDTO>(choice);
+                        choiceDto.IsSelected = selectedAnswer != null && selectedAnswer.ChoiceId == choice.Id;
+                        return choiceDto;
+                    });
+
+                return questionDto;
+            });
+
+            var totalQuestions = activeQuestions.Count;
+            var correctAnswers = attempt.Answers?.Count(a => a.IsCorrect) ?? 0;
+            var score = totalQuestions == 0 ? 0 : Math.Round((double)correctAnswers / totalQuestions * 100, 2);
+
+            var result = _mapper.Map<QuizAttemptDetailDTO>(attempt);
+            result.TotalQuestions = totalQuestions;
+            result.CorrectAnswers = correctAnswers;
+            result.Score = score;
+            result.Questions = questionDetails;
+
+            return Result<QuizAttemptDetailDTO>.Success(result);
         }
     }
 }

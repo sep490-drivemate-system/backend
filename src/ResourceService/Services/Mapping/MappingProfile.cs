@@ -1,6 +1,7 @@
 using AutoMapper;
 using ResourceService.Repositories.Models;
 using ResourceService.Services.DTOs;
+using ResourceService.Services.DTOs.Quizzes;
 
 namespace ResourceService.Services.Mapping
 {
@@ -48,6 +49,45 @@ namespace ResourceService.Services.Mapping
                 .ForMember(dest => dest.IsDelete, opt => opt.Ignore())
                 .ForMember(dest => dest.Contents, opt => opt.MapFrom(src => src.Contents))
                 .ForMember(dest => dest.Category, opt => opt.Ignore());
+
+            // Quiz Attempt Mappings
+            CreateMap<Question, QuizAttemptQuestionDetailDTO>()
+                .ForMember(dest => dest.QuestionId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Choices, opt => opt.Ignore());
+
+            CreateMap<Choice, QuizAttemptChoiceDetailDTO>()
+                .ForMember(dest => dest.ChoiceId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.IsSelected, opt => opt.Ignore());
+
+            CreateMap<Attempt, QuizAttemptDetailDTO>()
+                .ForMember(dest => dest.AttemptId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.QuizId, opt => opt.MapFrom(src => src.QuizId))
+                .ForMember(dest => dest.QuizName, opt => opt.MapFrom(src => src.Quiz != null ? src.Quiz.Name : string.Empty))
+                .ForMember(dest => dest.QuizDescription, opt => opt.MapFrom(src => src.Quiz != null ? src.Quiz.Description : string.Empty))
+                .ForMember(dest => dest.QuizTag, opt => opt.MapFrom(src => src.Quiz != null ? src.Quiz.Tag : string.Empty))
+                .ForMember(dest => dest.QuizDuration, opt => opt.MapFrom(src => src.Quiz != null ? src.Quiz.QuizDuration : 0))
+                .ForMember(dest => dest.TotalQuestions, opt => opt.Ignore())
+                .ForMember(dest => dest.CorrectAnswers, opt => opt.Ignore())
+                .ForMember(dest => dest.Score, opt => opt.Ignore())
+                .ForMember(dest => dest.Questions, opt => opt.Ignore());
+
+            CreateMap<Attempt, QuizAttemptResultDTO>()
+                .ForMember(dest => dest.AttemptId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.QuizId, opt => opt.MapFrom(src => src.QuizId))
+                .ForMember(dest => dest.TotalQuestions, opt => opt.Ignore())
+                .ForMember(dest => dest.CorrectAnswers, opt => opt.Ignore())
+                .ForMember(dest => dest.Score, opt => opt.Ignore())
+                .ForMember(dest => dest.Answers, opt => opt.Ignore());
+
+            CreateMap<Attempt, QuizAttemptHistoryDTO>()
+                .ForMember(dest => dest.AttemptId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.QuizId, opt => opt.MapFrom(src => src.Quiz != null ? src.Quiz.Id : Guid.Empty))
+                .ForMember(dest => dest.QuizName, opt => opt.MapFrom(src => src.Quiz != null ? src.Quiz.Name : string.Empty))
+                .ForMember(dest => dest.QuizTag, opt => opt.MapFrom(src => src.Quiz != null ? src.Quiz.Tag : string.Empty))
+                .ForMember(dest => dest.QuizDuration, opt => opt.MapFrom(src => src.Quiz != null ? src.Quiz.QuizDuration : 0))
+                .ForMember(dest => dest.TotalQuestions, opt => opt.Ignore())
+                .ForMember(dest => dest.CorrectAnswers, opt => opt.Ignore())
+                .ForMember(dest => dest.Score, opt => opt.Ignore());
 
         }
     }
