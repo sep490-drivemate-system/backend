@@ -50,7 +50,8 @@
         "GET",
         "POST",
         "PUT",
-        "DELETE"
+        "DELETE",
+        "PATCH"
       ],
       "SwaggerKey": "bookingService"
     },
@@ -212,7 +213,7 @@
       "SwaggerKey": "bookingService"
     },
     {
-      "DownstreamPathTemplate": "/api/roadtype/{everything}",
+      "DownstreamPathTemplate": "/api/roadtypes/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -220,7 +221,7 @@
           "Port": 5200
         }
       ],
-      "UpstreamPathTemplate": "/roadtype/{everything}",
+      "UpstreamPathTemplate": "/roadtypes/{everything}",
       "UpstreamHttpMethod": [
         "GET",
         "POST",
