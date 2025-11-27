@@ -11,6 +11,7 @@ namespace BookingService.Application.Interfaces
         Task<Result<PaginatedList<CarDTO>>> GetCarPaginatedList(CarListFilterDTO filter);
         Task<Result<List<CarDTO>>> GetRecommendedCarList(int max_count = 5);
         Task<Result<List<CarInstructorDetailDTO>>> GetInstructorCarList(Guid id);
+        Task<Result<List<CarInstructorDetailDTO>>> GetInstructorCarWithUserId(Guid userId);
         Task<Result<CarDetailDTO>> GetCarDetail(Guid id);
         Task<Result<Guid>> CreateNewCar(CarCreationDTO information);
         Task<Result<bool>> UpdateCarInformation(Guid id, CarUpdateDTO information);
