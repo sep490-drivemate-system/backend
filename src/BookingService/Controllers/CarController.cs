@@ -49,7 +49,7 @@ namespace BookingService.Controllers
         public async Task<IActionResult> GetInstructorCars()
         {
             var instructorId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
-            var result = await _usecase.GetInstructorCarList(instructorId);
+            var result = await _usecase.GetInstructorCarWithUserId(instructorId);
             return result.ToActionResult();
         }
 

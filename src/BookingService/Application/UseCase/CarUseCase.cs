@@ -5,10 +5,13 @@ using BookingService.Application.Commons.DTOs.Cars.Get;
 using BookingService.Application.Commons.DTOs.Cars.Update;
 using BookingService.Application.Interfaces;
 using BookingService.Domain.Entities;
+using SharedLibrary.SharedKernel.Http.DTOs.ApiResponse;
+using SharedLibrary.SharedKernel.Http.DTOs.User;
 using SharedLibrary.SharedKernel.Pagination;
 using SharedLibrary.SharedKernel.ServiceResult;
 using System.Linq.Expressions;
 using System.Text.Json;
+using static BookingService.Application.Commons.Constants.Messages;
 
 namespace BookingService.Application.UseCase
 {
@@ -160,6 +163,26 @@ namespace BookingService.Application.UseCase
             var carDtos = _mapper.Map<List<CarInstructorDetailDTO>>(instructor_cars);
 
             return Result<List<CarInstructorDetailDTO>>.Success(carDtos, message: Messages.Commons.SUCCESS);
+        }
+
+        public async Task<Result<List<CarInstructorDetailDTO>>> GetInstructorCarWithUserId(Guid userId)
+        {
+            var userServiceClient = _http_client_factory.CreateClient("UserServiceClient");
+
+            var responseMessage = await userServiceClient.PostAsJsonAsync("api/users/ids", new Guid[] {userId});
+
+            if (!responseMessage.IsSuccessStatusCode)
+            {
+                return Result<List<CarInstructorDetailDTO>>.Failure(ServiceError.ServiceUnavailableError($"{userId}"), Messages.Commons.UNHANDLED);
+            }
+
+            var users = await responseMessage.Content.ReadFromJsonAsync<DefaultApiResponse<IEnumerable<UserDetailDTO>>>();
+            if (users.Value.Count() == 0 || users.Value.First().Role != SharedLibrary.SharedKernel.Enum.UserRole.Instructor)
+            {
+                return Result<List<CarInstructorDetailDTO>>.Failure(ServiceError.BadRequestError($"{userId}"), Messages.Booking.NOTFOUND);
+            }
+
+            return await GetInstructorCarList(users.Value.First().Instructor.InstructorId);
         }
 
         public Task<Result<List<CarDTO>>> GetRecommendedCarList(int max_count = 5)
