@@ -16,5 +16,6 @@ namespace BookingService.Application.Interfaces
         Task<Result<Guid>> CreateNewCar(CarCreationDTO information);
         Task<Result<bool>> UpdateCarInformation(Guid id, CarUpdateDTO information);
         Task<Result<bool>> DeleteCar(Guid id);
+        Task<Result<bool>> ModerateInstructorCar(Guid car_id, string action);
     }
 }

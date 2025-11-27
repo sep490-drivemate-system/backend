@@ -2,6 +2,7 @@
 using BookingService.Application.Commons.DTOs.Cars.Get;
 using BookingService.Application.Commons.DTOs.Cars.Update;
 using BookingService.Application.Interfaces;
+using BookingService.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SharedLibrary.Jwt;
@@ -53,6 +54,13 @@ namespace BookingService.Controllers
             return result.ToActionResult();
         }
 
+        [HttpPost("{id}/moderate")]
+        public async Task<IActionResult> ModerateInstructorCar([FromRoute] Guid id, [FromQuery]string action)
+        {
+            var result = await _usecase.ModerateInstructorCar(id, action);
+            return result.ToActionResult();
+        }
+
         
         [HttpGet("instructor/{id}/cars")]
         public async Task<IActionResult> GetInstructorCars([FromRoute] Guid id)
@@ -68,18 +76,27 @@ namespace BookingService.Controllers
             return result.ToActionResult();
         }
 
+        /// <summary>
+        ///     This endpoint requires all information to be filled! Only use this if you got the original car information.
+        ///     Do not fill the images if you don't want to add new image.
+        /// </summary>
+        /// <param name="id">The car id</param>
+        /// <param name="car">The car information</param>
+        /// <returns>the creation result</returns>
         [HttpPut("{id}")]
+        [Consumes("multipart/form-data")]
         public async Task<IActionResult> UpdateCar([FromRoute] Guid id, [FromForm] CarUpdateDTO car)
         {
             var result = await _usecase.UpdateCarInformation(id, car);
             return result.ToActionResult();
         }
 
-        // Support partial update of a car entity. Will be implemented later
+        // Support partial update of a car entity. (For example: only update the car name or only update car brand)
         [HttpPatch("{id}")] 
-        public async Task<IActionResult> PartialUpdateCar([FromRoute] Guid id)
+        public async Task<IActionResult> PartialUpdateCar([FromRoute] Guid id, [FromForm] CarUpdateDTO car)
         {
-            return Ok();
+            var result = await _usecase.UpdateCarInformation(id, car);
+            return result.ToActionResult();
         }
 
         [HttpDelete("{id}")]
