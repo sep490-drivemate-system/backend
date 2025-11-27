@@ -2,6 +2,7 @@ using AutoMapper;
 using ResourceService.Repositories.Models;
 using ResourceService.Services.DTOs;
 using ResourceService.Services.DTOs.Quizzes;
+using ResourceService.Services.DTOs.Vouchers;
 
 namespace ResourceService.Services.Mapping
 {
@@ -88,6 +89,18 @@ namespace ResourceService.Services.Mapping
                 .ForMember(dest => dest.TotalQuestions, opt => opt.Ignore())
                 .ForMember(dest => dest.CorrectAnswers, opt => opt.Ignore())
                 .ForMember(dest => dest.Score, opt => opt.Ignore());
+
+            // Voucher Mappings
+            CreateMap<Voucher, VoucherDTO>();
+            CreateMap<VoucherCreateDTO, Voucher>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.Code, opt => opt.Ignore())
+                .ForMember(dest => dest.UsedCount, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
+                .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
+                .ForMember(dest => dest.VoucherUsages, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
 
         }
     }

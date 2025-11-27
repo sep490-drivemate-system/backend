@@ -26,6 +26,10 @@ namespace ResourceService.Repositories.Models
         public DbSet<Choice> Choices { get; set; }
         public DbSet<Attempt> Attempts { get; set; }
         public DbSet<Answer> Answers { get; set; }
+        
+        // Voucher entities
+        public DbSet<Voucher> Vouchers { get; set; }
+        public DbSet<VoucherUsage> VoucherUsages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

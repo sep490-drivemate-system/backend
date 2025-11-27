@@ -29,6 +29,18 @@ namespace ResourceService.Services.Commons.Constants
             public const string NOTFOUND = "Không thể tìm thấy tài nguyên cần thiết để thực hiện";
             public const string UNHANDLED = "Đã có lỗi xảy ra và hệ thống không thể khắc phục, vui lòng kiểm tra lại thông tin và thử lại sau.";
         }
+
+        public static class Voucher
+        {
+            public const string CODE_ALREADY_EXISTS = "Mã voucher đã tồn tại";
+            public const string INVALID_DISCOUNT_PERCENTAGE = "Phần trăm giảm giá phải từ 1 đến 100";
+            public const string INVALID_DATE_RANGE = "Ngày bắt đầu phải nhỏ hơn ngày kết thúc";
+            public const string INVALID_MIN_ORDER_AMOUNT = "Giá trị đơn hàng tối thiểu không được âm";
+            public const string INVALID_MAX_DISCOUNT_AMOUNT = "Giá trị giảm tối đa không được âm";
+            public const string INVALID_USAGE_LIMIT = "Số lần sử dụng tối đa phải lớn hơn 0";
+            public const string CREATE_FAILED = "Tạo voucher không thành công";
+            public const string CREATE_SUCCESS = "Tạo voucher thành công";
+        }
     }
 }
 

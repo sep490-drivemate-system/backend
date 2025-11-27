@@ -41,6 +41,7 @@ namespace ResourceService
             // Services
             builder.Services.AddScoped<IResourcesService, ResourcesService>();
             builder.Services.AddScoped<IQuizService, QuizService>();
+            builder.Services.AddScoped<IVoucherService, VoucherService>();
             builder.Services.AddScoped<IServiceProviders, ServiceProviders>();
             builder.Services.AddScoped<IJwtService, JwtService>();
             builder.Services.AddScoped<ICloudinaryServiceProvider, CloudinaryServiceProvider>();
