@@ -16,16 +16,18 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Twilio.TwiML.Messaging;
 using AutoMapper;
+using SharedLibrary.Email;
 
 namespace UserService.Application.UseCases
 {
-    public class InstructorUseCase(IUnitOfWork unitOfWork, ICloudinaryServiceProvider cloudinary, IPasswordHasherService passwordHasher, IHttpClientFactory http_client_factory,IIntructor intructor,IMapper mapper) : IInstructorUseCase
+    public class InstructorUseCase(IUnitOfWork unitOfWork, ICloudinaryServiceProvider cloudinary, IPasswordHasherService passwordHasher, IHttpClientFactory http_client_factory,IIntructor intructor,IMapper mapper, IEmailService emailService) : IInstructorUseCase
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IIntructor _intructor = intructor;
         private readonly IMapper _mapper = mapper;
         private readonly ICloudinaryServiceProvider _cloudinary = cloudinary;
         private readonly IPasswordHasherService _passwordHasher = passwordHasher;
+        private readonly IEmailService _emailService = emailService;
 
         #region Instructor Details
         public async Task<Result<InstructorDTO>> GetInstructorDetail(Guid id)
@@ -422,6 +424,13 @@ namespace UserService.Application.UseCases
                 //_cloudinary.DeleteResourceFromCloudinary();
 
                 return Result<Guid>.Failure(ServiceError.UnhandledException($"{ex.Message}"), Messages.Common.UnknownError);
+            }
+
+            // Sending email
+            if (!await _emailService.SendInstructorWelcomingAsync(instructor.User.Email, instructor.InstructorApplication.DatebeforeExpiry))
+            {
+                // Print any error if can't send email
+                Console.WriteLine("Error while sending email");
             }
 
             var new_instructor = _unitOfWork.GetTrackingEntry(instructor);
