@@ -40,6 +40,19 @@ namespace ResourceService.Services.Commons.Constants
             public const string INVALID_USAGE_LIMIT = "Số lần sử dụng tối đa phải lớn hơn 0";
             public const string CREATE_FAILED = "Tạo voucher không thành công";
             public const string CREATE_SUCCESS = "Tạo voucher thành công";
+            public const string UPDATE_SUCCESS = "Cập nhật voucher thành công";
+            public const string UPDATE_FAILED = "Cập nhật voucher không thành công";
+            public const string DELETE_SUCCESS = "Xóa voucher thành công";
+            public const string DELETE_FAILED = "Xóa voucher không thành công";
+            public const string NOT_FOUND = "Không tìm thấy voucher";
+            public const string NOT_ACTIVE = "Voucher đang tạm khóa";
+            public const string NOT_STARTED = "Voucher chưa bắt đầu hiệu lực";
+            public const string EXPIRED = "Voucher đã hết hạn";
+            public const string MIN_ORDER_NOT_REACHED = "Giá trị đơn hàng chưa đạt mức tối thiểu để áp dụng voucher";
+            public const string USAGE_LIMIT_REACHED = "Bạn đã dùng hết số lần cho phép của voucher này";
+            public const string INVALID_ORDER_AMOUNT = "Giá trị đơn hàng phải lớn hơn 0";
+            public const string USE_SUCCESS = "Áp dụng voucher thành công";
+            public const string CHECK_SUCCESS = "Voucher hợp lệ, bạn có thể áp dụng";
         }
     }
 }

@@ -102,6 +102,19 @@ namespace ResourceService.Services.Mapping
                 .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
 
+            CreateMap<Voucher, VoucherUseResultDTO>()
+                .ForMember(dest => dest.VoucherId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.DiscountPercentage, opt => opt.MapFrom(src => src.DiscountPercentage))
+                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.EndDate))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+                .ForMember(dest => dest.UsageId, opt => opt.Ignore())
+                .ForMember(dest => dest.DiscountAmount, opt => opt.Ignore())
+                .ForMember(dest => dest.OrderAmount, opt => opt.Ignore())
+                .ForMember(dest => dest.FinalAmount, opt => opt.Ignore());
+
         }
     }
 }
