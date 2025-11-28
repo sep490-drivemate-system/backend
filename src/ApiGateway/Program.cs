@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using ApiGetwate.Middleware;
 
 namespace ApiGetwate
 {
@@ -23,11 +24,9 @@ namespace ApiGetwate
             builder.Configuration.AddEnvironmentVariables();
             builder.Services.AddControllers();
             
-            // Load appropriate Ocelot configuration based on environment
             var ocelotFile = builder.Environment.IsProduction() ? "ocelot.Production.json" : 
                            builder.Environment.IsDevelopment() ? "ocelot.Development.json" : "ocelot.json";
             
-            // Replace environment variables in Ocelot config for production
             if (builder.Environment.IsProduction())
             {
                 var userServiceHost = Environment.GetEnvironmentVariable("USERSERVICE_HOST") ?? "localhost";
@@ -44,7 +43,6 @@ namespace ApiGetwate
                 ocelotContent = ocelotContent.Replace("${MESSAGINGSERVICE_HOST}", messagingServiceHost);
                 ocelotContent = ocelotContent.Replace("${APIGATEWAY_HOST}", apiGatewayHost);
                 
-                // Write temporary config file
                 var tempOcelotPath = Path.Combine(Directory.GetCurrentDirectory(), "ocelot.temp.json");
                 File.WriteAllText(tempOcelotPath, ocelotContent);
                 
@@ -55,7 +53,6 @@ namespace ApiGetwate
                 builder.Configuration.AddJsonFile(ocelotFile, optional: false, reloadOnChange: true);
             }
 
-            // Configure Ocelot with SSL certificate validation disabled for production
             if (builder.Environment.IsProduction())
             {
                 builder.Services.AddTransient<IgnoreSslDelegatingHandler>();
@@ -105,14 +102,15 @@ namespace ApiGetwate
             });
             var app = builder.Build();
 
-            // CORS must be first
+            app.UseGlobalExceptionHandler();
+
             app.UseCors("AllowAll");
 
-            // Authentication and Authorization
             app.UseAuthentication();
+            
+            app.UseAuthenticationExceptionHandler();
+            
             app.UseAuthorization();
-
-            // Enable Swagger and Ocelot (chained together)
             app.UseSwaggerForOcelotUI(opt =>
             {
                 opt.PathToSwaggerGenerator = "/swagger/docs";
@@ -122,7 +120,6 @@ namespace ApiGetwate
         }
     }
 
-    // DelegatingHandler to ignore SSL certificate validation in production
     public class IgnoreSslDelegatingHandler : DelegatingHandler
     {
         public IgnoreSslDelegatingHandler()

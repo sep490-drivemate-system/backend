@@ -24,12 +24,12 @@ namespace UserService.Controllers
             var result = await _usecase.SignIn(signInDTO);
             return result.ToActionResult();
         }
-        [HttpPost("verify-phone")]
-        public async Task<IActionResult> VerifyPhone([FromBody] string phoneNumber)
-        {
-            var result = await _usecase.VerifyPhone(phoneNumber);
-            return result.ToActionResult();
-        }
+        //[HttpPost("verify-phone")]
+        //public async Task<IActionResult> VerifyPhone([FromBody] string phoneNumber)
+        //{
+        //    var result = await _usecase.VerifyPhone(phoneNumber);
+        //    return result.ToActionResult();
+     //  }
         [HttpPost("verify")]
         public async Task<IActionResult> Verify([FromBody] VerifyDTO verifyDTO)
         {

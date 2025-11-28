@@ -1,13 +1,13 @@
+using Hangfire;
 using Resend;
-using SharedLibrary.AI.VnptEkyc;
 using SharedLibrary.Email;
 using SharedLibrary.Jwt;
 using SharedLibrary.SharedKernel.Http;
 using SharedLibrary.SharedKernel.Http.Implementation;
 using SharedLibrary.SharedKernel.Http.Interfaces;
 using SharedLibrary.SharedKernel.Password;
-using SharedLibrary.Sms;
 using UserService.Application.Interfaces;
+using UserService.Application.Jobs.ReccurringJobs;
 using UserService.Application.UseCases;
 using UserService.Domain.Entities;
 using static Org.BouncyCastle.Math.EC.ECCurve;
@@ -30,21 +30,16 @@ namespace UserService.Application
             services.AddScoped<ISystemConfigurationUseCase, SystemConfigurationUseCase>();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-            // Register library external
-            services.Configure<SpeedSmsSettings>(configuration.GetSection("SpeedSMS"));
+            // Register external library
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IPasswordHasherService, PasswordHasherService>();
-            services.AddHttpClient<SpeedSmsService>();
-            services.AddScoped<ISmsService, SpeedSmsService>();
             services.AddScoped<PasswordHasherService>();
             services.AddScoped<HttpService>();
             services.AddScoped<IIntructor, Intructor>();
-            services.AddVnptEkyc(configuration);
 
 
             services.AddScoped<IFeedback,Feedback>();
             services.AddScoped<IPackage, SharedLibrary.SharedKernel.Http.Implementation.Package>();
-
             services.AddHttpClient<ResendClient>();
             services.AddTransient<IResend, ResendClient>();
             services.Configure<ResendClientOptions>(o =>
@@ -52,9 +47,8 @@ namespace UserService.Application
                 o.ApiToken = Environment.GetEnvironmentVariable("RESEND_APITOKEN")!;
             });
 
-            // Đăng ký service khác (cache, email, storage…)
+            // Register other services (cache, email, storage…)
             // services.AddScoped<IEmailService, EmailService>();
-
             return services;
         }
     }

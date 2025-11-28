@@ -1,0 +1,145 @@
+### PAYMENT SERVICE - AUTHENTICATION & AUTHORIZATION TEST
+### Sử dụng file này với REST Client extension trong VS Code
+
+@baseUrl = http://localhost:5000
+@token = YOUR_JWT_TOKEN_HERE
+@adminToken = YOUR_ADMIN_TOKEN_HERE
+@driverToken = YOUR_DRIVER_TOKEN_HERE
+
+### ============================================
+### 1. PUBLIC ENDPOINT - Không cần token
+### Expected: 200 OK
+### ============================================
+GET {{baseUrl}}/api/test-auth/public
+Content-Type: application/json
+
+### ============================================
+### 2. PROTECTED ENDPOINT - Không có token
+### Expected: 401 Unauthorized
+### Response:
+### {
+###   "isSuccess": false,
+###   "message": "Bạn chưa đăng nhập hoặc token đã hết hạn...",
+###   "errorCode": "UnauthorizedError",
+###   "value": null
+### }
+### ============================================
+GET {{baseUrl}}/api/test-auth/protected
+Content-Type: application/json
+
+### ============================================
+### 3. PROTECTED ENDPOINT - Có token hợp lệ
+### Expected: 200 OK
+### ============================================
+GET {{baseUrl}}/api/test-auth/protected
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### ============================================
+### 4. ADMIN ONLY - Token không phải Admin
+### Expected: 403 Forbidden
+### Response:
+### {
+###   "isSuccess": false,
+###   "message": "Bạn không có quyền truy cập tài nguyên này.",
+###   "errorCode": "ForbiddenError",
+###   "value": null
+### }
+### ============================================
+GET {{baseUrl}}/api/test-auth/admin-only
+Content-Type: application/json
+Authorization: Bearer {{driverToken}}
+
+### ============================================
+### 5. ADMIN ONLY - Token của Admin
+### Expected: 200 OK
+### ============================================
+GET {{baseUrl}}/api/test-auth/admin-only
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+### ============================================
+### 6. INSTRUCTOR OR DRIVER - Token phù hợp
+### Expected: 200 OK
+### ============================================
+GET {{baseUrl}}/api/test-auth/instructor-or-driver
+Content-Type: application/json
+Authorization: Bearer {{driverToken}}
+
+### ============================================
+### 7. MANUAL 401 - Demo trả lỗi 401 thủ công
+### Expected: 401 Unauthorized
+### ============================================
+GET {{baseUrl}}/api/test-auth/manual-401
+Content-Type: application/json
+
+### ============================================
+### 8. MANUAL 403 - Demo trả lỗi 403 thủ công
+### Expected: 403 Forbidden
+### ============================================
+GET {{baseUrl}}/api/test-auth/manual-403
+Content-Type: application/json
+
+### ============================================
+### 9. THROW UNAUTHORIZED - Middleware bắt exception
+### Expected: 401 Unauthorized
+### ============================================
+GET {{baseUrl}}/api/test-auth/throw-unauthorized
+Content-Type: application/json
+
+### ============================================
+### 10. THROW ERROR - Middleware bắt exception chung
+### Expected: 400 Bad Request
+### ============================================
+GET {{baseUrl}}/api/test-auth/throw-error
+Content-Type: application/json
+
+### ============================================
+### ACTUAL ENDPOINTS - GET WALLET
+### ============================================
+
+### 11. Get Wallet - Không có token
+### Expected: 401 Unauthorized
+GET {{baseUrl}}/api/wallet
+Content-Type: application/json
+
+### 12. Get Wallet - Token hợp lệ (NoviceDriver/Admin/Instructor)
+### Expected: 200 OK hoặc tạo wallet mới
+GET {{baseUrl}}/api/wallet
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### 13. Get Wallet - Token không đúng role
+### Expected: 403 Forbidden (nếu role không phải NoviceDriver, Admin, Instructor)
+GET {{baseUrl}}/api/wallet
+Content-Type: application/json
+Authorization: Bearer INVALID_ROLE_TOKEN
+
+### ============================================
+### ADD BALANCE TO WALLET
+### ============================================
+
+### 14. Add Balance - Không cần auth (internal service)
+POST {{baseUrl}}/api/wallet/balance
+Content-Type: application/json
+
+{
+  "userId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "balance": 100000
+}
+
+### ============================================
+### CHECK PAYMENT
+### ============================================
+
+### 15. Check Payment - Internal service call
+POST {{baseUrl}}/api/wallet/check-payment
+Content-Type: application/json
+
+{
+  "userId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "amount": 50000,
+  "bookingId": "3fa85f64-5717-4562-b3fc-2c963f66afa7",
+  "drivingSessionId": "3fa85f64-5717-4562-b3fc-2c963f66afa8"
+}
+

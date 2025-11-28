@@ -449,10 +449,10 @@ namespace BookingService.Application.UseCase
                         Id = session.Id,
                         PackageId = booking.PackageId,
                         Date = session.StartTime.ToString("yyyy-MM-dd"),
-                        StartTime = session.StartTime.ToString("HH:mm"),
+                        StartTime = session.StartTime.AddHours(7).ToString("HH:mm"),
                         DisplayEndLocationName = session.DisplayEndLocationName,
                         DisplayStartLocationName = session.DisplayStartLocationName,
-                        EndTime = session.EndTime.ToString("HH:mm"),
+                        EndTime = session.EndTime.AddHours(7).ToString("HH:mm"),
                         Duration = Math.Round(duration, 2),
                         Location = $"{session.StartingLatitude},{session.StartingLongtitude}",
                         VehicleId = booking.CarId,
@@ -580,6 +580,20 @@ namespace BookingService.Application.UseCase
 
                 // Add to repository
                 await _unitOfWork.SessionLogRepository.CreateAsync(sessionLog);
+
+                // If IsCompleted is true, update session status to Completed
+                if (log.IsCompleted)
+                {
+                    var session = await _unitOfWork.DrivingSessionRepository.GetByIdAsync(sessionId);
+                    if (session != null)
+                    {
+                        session.Status = SessionStatus.Completed;
+                        session.ActualEnd = session.EndTime;
+                        session.ActualStart = session.StartTime;
+                        _unitOfWork.DrivingSessionRepository.Update(session);
+                    }
+                }
+
                 await _unitOfWork.CommitChangesAsync();
 
                 // Map to DTO
@@ -603,6 +617,35 @@ namespace BookingService.Application.UseCase
                 return Result<SessionLogDTO>.Failure(
                     ServiceError.UnhandledException(ex.Message),
                     "Đã xảy ra lỗi khi tạo session log");
+            }
+        }
+
+        public async Task<Result<List<SessionLogDTO>>> GetSessionLogsBySessionId(Guid sessionId)
+        {
+            try
+            {
+                var sessionLogs = await _unitOfWork.SessionLogRepository.GetLogsBySessionIdAsync(sessionId);
+
+                var sessionLogDTOs = sessionLogs.Select(log => new SessionLogDTO
+                {
+                    Id = log.Id,
+                    SessionId = log.SessionId,
+                    StreetName = log.StreetName,
+                    Latitude = log.Latitude,
+                    Longitude = log.Longitude,
+                    Heading = log.Heading,
+                    Speed = log.Speed,
+                    CreatedAt = log.CreatedAt,
+                    LastModifiedAt = log.LastModifiedAt
+                }).ToList();
+
+                return Result<List<SessionLogDTO>>.Success(sessionLogDTOs, "Lấy danh sách session log thành công");
+            }
+            catch (Exception ex)
+            {
+                return Result<List<SessionLogDTO>>.Failure(
+                    ServiceError.UnhandledException(ex.Message),
+                    "Đã xảy ra lỗi khi lấy danh sách session log");
             }
         }
     }

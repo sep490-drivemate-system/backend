@@ -50,33 +50,8 @@ namespace PaymentService.Infrastructure.Repositories
         public async Task<(bool IsSuccess, string Message, decimal CurrentBalance)> CheckAndDeductWallet(
             Guid userId, decimal amount, Guid bookingId, Guid? drivingSessionId = null)
         {
-            // Find wallet by UserId
             var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.Id == userId && !w.IsDelete);
 
-            // If wallet doesn't exist, create new wallet with 0 balance
-            if (wallet == null)
-            {
-                wallet = new Wallet
-                {
-                    Id = userId,
-                    Balance = 0,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow,
-                };
-
-                _context.Wallets.Add(wallet);
-                await _context.SaveChangesAsync();
-
-                return (false, $"Số dư không đủ. Số dư hiện tại: {wallet.Balance:N0} VNĐ, cần: {amount:N0} VNĐ", wallet.Balance);
-            }
-
-            // Check if balance is sufficient
-            if (wallet.Balance < amount)
-            {
-                return (false, $"Số dư không đủ. Số dư hiện tại: {wallet.Balance:N0} VNĐ, cần: {amount:N0} VNĐ", wallet.Balance);
-            }
-
-            // Deduct amount from wallet
             wallet.Balance -= amount;
             wallet.CreatedAt = DateTime.UtcNow;
             wallet.UpdatedAt = DateTime.UtcNow;
@@ -85,7 +60,6 @@ namespace PaymentService.Infrastructure.Repositories
             // Create transaction record
             var transaction = new Transaction
             {
-                Id = Guid.NewGuid(),
                 FromWalletId = wallet.Id,
                 ToWalletId = null, 
                 TransactionValue = amount,

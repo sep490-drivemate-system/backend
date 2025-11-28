@@ -1,8 +1,11 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PaymentService.Application.Features.Wallet.Commands.UpdateWalletBalance;
+using PaymentService.Application.Features.Wallet.Queries.GetWallet;
 using PaymentService.Application.Features.Wallet.Queries.IsEnoughPayment;
 using SharedLibrary.Jwt;
+using SharedLibrary.SharedKernel.Enum;
 using SharedLibrary.SharedKernel.Http.DTOs.Payment;
 using SharedLibrary.SharedKernel.Http.DTOs.Wallet;
 using SharedLibrary.SharedKernel.ServiceResult;
@@ -52,17 +55,18 @@ namespace PaymentService.Controllers
         }
 
 
-        //[HttpGet]
-        //public async Task<IActionResult> GetWallet()
-        //{
-        //    var userId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
-        //    var result = await _mediator.Send(new UpdateWalletBalanceCommand
-        //    {
-        //        UserId = wallet_balance.UserId,
-        //        BalanceAmount = wallet_balance.Balance
-        //    });
+        [HttpGet]
+        [Authorize(Roles = $"{nameof(UserRole.NoviceDriver)},{nameof(UserRole.Admin)},{nameof(UserRole.Instructor)}")]
+        public async Task<IActionResult> GetWallet()
+        {
+            var token = Request.Headers["Authorization"].ToString();
+            var userId = await _jwtService.ExtractUserIdFromToken(token);
+            var result = await _mediator.Send(new GetPaymentQuery
+            {
+                WalletId = userId
+            });
 
-        //    return result.ToActionResult();
-        //}
+            return result.ToActionResult();
+        }
     }
 }

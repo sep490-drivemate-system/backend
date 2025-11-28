@@ -1,8 +1,10 @@
+using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using SharedLibrary.CloudinaryStorage;
 using System.Text;
 using UserService.Application;
+using UserService.Application.Jobs;
 using UserService.Infrastructure;
 using UserService.Infrastructure.Persistence.Context;
 
@@ -94,6 +96,7 @@ namespace UserService
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
+             //   app.UseHangfireDashboard();
             }
             
             // Enable Swagger in production for Railway
@@ -109,7 +112,9 @@ namespace UserService
             app.UseAuthorization();
             app.UseCors("AllowAll");
 
-            app.MapControllers();                     
+            app.MapControllers();
+
+//            RunningJobs.AddRunningJobs();
 
             app.Run();
         }

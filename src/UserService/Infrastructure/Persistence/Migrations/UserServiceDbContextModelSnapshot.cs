@@ -184,6 +184,10 @@ namespace UserService.Infrastructure.Persistence.Migrations
                         .HasColumnType("date")
                         .HasColumnName("date_of_birth");
 
+                    b.Property<DateOnly>("DatebeforeExpiry")
+                        .HasColumnType("date")
+                        .HasColumnName("expiry_at");
+
                     b.Property<string>("DrivingLicenseBack")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -447,6 +451,55 @@ namespace UserService.Infrastructure.Persistence.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("SavedLocation", (string)null);
+                });
+
+            modelBuilder.Entity("UserService.Domain.Entities.SystemConfiguration", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
+                    b.Property<DateTime>("LastModifiedAt")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("timestamp")
+                        .HasColumnName("updated_at")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<int>("UnitOfMeasurement")
+                        .HasColumnType("integer")
+                        .HasColumnName("unit_of_measurement");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("value");
+
+                    b.Property<string>("ValueType")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("value_type");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SystemConfiguration", (string)null);
                 });
 
             modelBuilder.Entity("UserService.Domain.Entities.User", b =>

@@ -4,7 +4,7 @@ namespace MessagingService.Infrastructure.UoW
 {
     public interface IUnitOfWork
     {
-        IConversationRepository ConversationRepository { get; }
+        IChatSessionRepository ChatSessionRepository { get; }
         IMessageRepository MessageRepository { get; }
         INotificationRepository NotificationRepository { get; }
         Task<int> CommitChangesAsync();

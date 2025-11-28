@@ -56,6 +56,7 @@ namespace UserService.Application.Commons.Mapping
                 .ForMember(dest => dest.AvatarUrl, opt => opt.MapFrom(src => src.Avatar))
                 .ForMember(dest => dest.BirthDate, opt => opt.MapFrom(src => src.DateOfBirth))
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
+                .ForMember(dest => dest.LicenseTier, opt => opt.MapFrom(src => src.MaxLicenseLevel))
                 .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.PhoneNumber))
                 .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role))
                 .ForMember(dest => dest.Instructor, opt =>

@@ -30,6 +30,13 @@ namespace PaymentService.Application.Common.Mappings
 
             // Wallet mappings
             CreateMap<Wallet, WalletDto>();
+            CreateMap<CreateWalletDto, Wallet>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.Balance, opt => opt.MapFrom(src => src.InitialBalance))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
+                .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
+                .ForMember(dest => dest.IsDelete, opt => opt.MapFrom(src => false))
+                .ForMember(dest => dest.Transactions, opt => opt.Ignore());
 
         }
     }

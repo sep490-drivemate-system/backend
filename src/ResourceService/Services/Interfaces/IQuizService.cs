@@ -9,5 +9,6 @@ namespace ResourceService.Services.Interfaces
         Task<Result<IEnumerable<QuizViewDTO>>> GetAllQuiz(string? tag = null, int duration = 0);
         Task<Result<bool>> CreateQuiz(QuizCreateOrUpdateDTO quiz);
         Task<Result<bool>> UpdateQuiz(Guid id, QuizCreateOrUpdateDTO quiz);
+        Task<Result<bool>> DeleteQuiz(Guid id);
     }
 }

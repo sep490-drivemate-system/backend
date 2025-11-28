@@ -65,9 +65,8 @@ namespace BookingService.Infrastructure.Repositories
             return await _context.Packages
                 .Include(p => p.RoadTypes)
                 .Include(p => p.DrivingSkills)
-                .Include(p => p.Cars)
                 .Where(p => p.InstructorId == instructorId && !p.IsDeleted)
-                .OrderBy(p => p.Name)
+                .OrderByDescending(p => p.CreatedAt)
                 .AsNoTracking()
                 .ToListAsync();
         }

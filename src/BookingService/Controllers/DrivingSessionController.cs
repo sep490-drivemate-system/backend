@@ -91,12 +91,19 @@ namespace BookingService.Controllers
             var result = await _drivingSessionUseCase.CreateSessionLog(sessionId, log);
             return result.ToActionResult();
         }
-        [HttpPatch("{sessionId}/status")]
+
+        [HttpGet("{sessionId}/session-log")]
+        public async Task<IActionResult> GetSessionLogs([FromRoute] Guid sessionId)
+        {
+            var result = await _drivingSessionUseCase.GetSessionLogsBySessionId(sessionId);
+            return result.ToActionResult();
+        }
+        [HttpPatch("{sessionId}")]
         public async Task<IActionResult> UpdateSessionStatus(
             [FromRoute] Guid sessionId,
-            [FromBody] SessionStatus updateStatusDTO)
+             SessionStatus status)
         {
-            var result = await _drivingSessionUseCase.UpdateSessionStatus(sessionId, updateStatusDTO);
+            var result = await _drivingSessionUseCase.UpdateSessionStatus(sessionId, status);
             return result.ToActionResult();
         }
 

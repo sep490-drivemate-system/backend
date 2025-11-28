@@ -4,6 +4,7 @@ using MessagingService.Infrastructure.Hubs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using SharedLibrary.Jwt;
+using SharedLibrary.SharedKernel.Identity;
 using System.Text;
 
 namespace MessagingService
@@ -64,6 +65,7 @@ namespace MessagingService
                 });
 
             builder.Services.AddScoped<IJwtService, JwtService>();
+            builder.Services.AddSingleton<IUserClaimsAccessor, UserClaimsAccessor>();
 
             // Swagger configuration
             builder.Services.AddSwaggerGen(c =>

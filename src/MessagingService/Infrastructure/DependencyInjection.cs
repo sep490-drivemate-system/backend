@@ -1,6 +1,8 @@
-using Microsoft.EntityFrameworkCore;
+using MessagingService.Domain.Interfaces;
 using MessagingService.Infrastructure.Persistence.Context;
+using MessagingService.Infrastructure.Repositories;
 using MessagingService.Infrastructure.UoW;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -18,7 +20,8 @@ namespace MessagingService.Infrastructure
                 options.UseNpgsql(connectionString);
             });
 
-            // Register UnitOfWork
+            // Register repositories and UnitOfWork
+            services.AddScoped<IMessageRepository, MessageRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             return services;

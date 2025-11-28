@@ -21,6 +21,7 @@ namespace UserService.Application.Commons.DTOs.Instructors.Registration
         public string Gender { get; set; }
         public DateOnly BirthDate { get; set; }
         public DateTime SubmitDate { get; set; }
+        public DateOnly DateUntilAutoRejection { get; set; }
         public string Avatar {  get; set; }
         public string DrivingLicenseFront {  get; set; }
         public string DrivingLicenseBack { get; set; }

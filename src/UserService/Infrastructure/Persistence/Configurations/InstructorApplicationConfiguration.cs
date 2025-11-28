@@ -85,6 +85,10 @@ namespace UserService.Infrastructure.Persistence.Configurations
                 .HasColumnName("submit_at")
                 .HasColumnType("timestamp");
 
+            builder.Property(x => x.DatebeforeExpiry)
+                .HasColumnName("expiry_at")
+                .IsRequired();
+
             builder.Property(x => x.CreatedAt)
                .HasColumnName("created_at")
                .HasColumnType("timestamp")

@@ -49,8 +49,7 @@ namespace BookingService.Application.Commons.Mapping
 
             // Mapping for Package DTOs
             CreateMap<Package, PackageDto>()
-                .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration.ToString()))
-                .ForMember(dest => dest.IsRentalCar, opt => opt.MapFrom(src => src.Cars != null && src.Cars.Any()))
+                .ForMember(dest => dest.IsRentalCar, opt => opt.MapFrom(src => src.AllowNoviceVehicle))
                 .ForMember(dest => dest.RoadTypes, opt => opt.MapFrom(src => 
                     src.RoadTypes != null ? src.RoadTypes.Select(r => r.Name).ToList() : new List<string>()))
                 .ForMember(dest => dest.DrivingSkills, opt => opt.MapFrom(src => 

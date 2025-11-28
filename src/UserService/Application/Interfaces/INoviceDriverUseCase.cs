@@ -7,7 +7,7 @@ namespace UserService.Application.Interfaces
 {
     public interface INoviceDriverUseCase
     {
-       // Task<Result<IEnumerable<UserAddressDTO>>> GetNoviceDriverAddres(Guid id);
+        Task<Result<bool>> HasValidDrivingLicenseAsync(Guid noviceDriverId);
         Task<Result<NoviceDriverInfoFeedbackDTO>> GetNoviceDriverInfoForFeedback(Guid noviceDriverId);
     }
 }

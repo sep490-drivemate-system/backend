@@ -8,7 +8,7 @@ namespace MessagingService.Infrastructure.UoW
     public class UnitOfWork : IUnitOfWork
     {
         private readonly MessagingDbContext _context;
-        private IConversationRepository? _conversationRepository;
+        private IChatSessionRepository? _conversationRepository;
         private IMessageRepository? _messageRepository;
         private INotificationRepository? _notificationRepository;
 
@@ -17,11 +17,11 @@ namespace MessagingService.Infrastructure.UoW
             _context = context;
         }
 
-        public IConversationRepository ConversationRepository
+        public IChatSessionRepository ChatSessionRepository
         {
             get
             {
-                _conversationRepository ??= new ConversationRepository(_context);
+                _conversationRepository ??= new ChatSessionRepository(_context);
                 return _conversationRepository;
             }
         }

@@ -110,6 +110,7 @@ namespace UserService.Application.UseCases
                 TeachingLicenseFront = x.TeachingLicenseFront,
                 DrivingLicenseTier = x.DrivingLicenseTier,
                 TeachingLicenseTier = x.TeachingLicenseTier,
+                DateUntilAutoRejection = x.DatebeforeExpiry,
                 HealthCheckup = x.HealthCheckup,
                 PersonalProfile = x.BackgroundProfile,
                 ApplicationStatus = x.Status,
@@ -144,6 +145,7 @@ namespace UserService.Application.UseCases
                 BirthDate = application_detail.DateOfBirth,
                 Gender = application_detail.Gender.ToString(),
                 SubmitDate = application_detail.SubmitAt,
+                DateUntilAutoRejection = application_detail.DatebeforeExpiry,
                 DrivingLicenseFront = application_detail.DrivingLicenseFront,
                 TeachingLicenseFront = application_detail.TeachingLicenseFront,
                 HealthCheckup = application_detail.HealthCheckup,
@@ -185,6 +187,7 @@ namespace UserService.Application.UseCases
                 DrivingLicenseFront = application_detail.DrivingLicenseFront,
                 TeachingLicenseFront = application_detail.TeachingLicenseFront,
                 HealthCheckup = application_detail.HealthCheckup,
+                DateUntilAutoRejection = application_detail.DatebeforeExpiry,
                 PersonalProfile = application_detail.BackgroundProfile,
                 TrackingHistories = application_detail.ApplicationTrackings?.Select(x => new ApplicationTrackingDTO
                 {
@@ -324,18 +327,18 @@ namespace UserService.Application.UseCases
             }
 
             // Checking for valid license tier.
-            if (!Enum.TryParse(instructor_registration.DrivingLicenseTier, true, out DrivingLicenseTier driving_license_tier))
+            if (!System.Enum.TryParse(instructor_registration.DrivingLicenseTier, true, out DrivingLicenseTier driving_license_tier))
             {
                 return Result<bool>.Failure(ServiceError.BadRequestError($"{instructor_registration.TeachingTier}"), Messages.InstructorApplication.InvalidDrivingLicenseTier);
             }
 
-            if (!Enum.TryParse(instructor_registration.TeachingTier, true, out DrivingLicenseTier instructor_license_tier))
+            if (!System.Enum.TryParse(instructor_registration.TeachingTier, true, out DrivingLicenseTier instructor_license_tier))
             {
                 return Result<bool>.Failure(ServiceError.BadRequestError($"{instructor_registration.TeachingTier}"), Messages.InstructorApplication.InvalidDrivingLicenseTier);
             }
 
             // Checking for valid gender choice.
-            if (!Enum.TryParse(instructor_registration.Gender, true, out GenderType instructor_gender))
+            if (!System.Enum.TryParse(instructor_registration.Gender, true, out GenderType instructor_gender))
             {
                 return Result<bool>.Failure(ServiceError.BadRequestError($"{instructor_registration.Gender}"), Messages.InstructorApplication.InvalidGender);
             }
@@ -347,6 +350,10 @@ namespace UserService.Application.UseCases
             string teaching_license_front_url = _cloudinary.UploadImageFormFileResourceToCloudinary(instructor_registration.TeachingLicenseFront, $"{instructor_registration.Email}-teaching-license-front");
             string health_checkup_url = _cloudinary.UploadImageFormFileResourceToCloudinary(instructor_registration.HealthCheckup, $"{instructor_registration.Email}-health-checkup");
             string personal_porfolio_url = _cloudinary.UploadImageFormFileResourceToCloudinary(instructor_registration.PersonalProfile, $"{instructor_registration.Email}-porfolio");
+
+            // Getting configurations
+            var expiry_days_config = await _unitOfWork.SystemConfigurationRepository.GetAllAsync(x => x.Name == "DaysBeforeExpiry");
+            DateOnly expiry_date = DateOnly.FromDateTime(DateTime.Now).AddDays(int.Parse(expiry_days_config.FirstOrDefault()?.Value ?? "7")); // Default to 7 days if no config found
 
             Instructor instructor = new Instructor
             {
@@ -375,6 +382,7 @@ namespace UserService.Application.UseCases
                     Gender = instructor_gender,
                     DateOfBirth = (DateOnly)instructor_registration.BirthDate,
                     SubmitAt = DateTime.Now,
+                    DatebeforeExpiry = expiry_date,
                     Status = ApplicationStatus.Pending,
                     DrivingLicenseFront = driving_license_front_url,
                     DrivingLicenseBack = driving_license_back_url,
@@ -443,7 +451,7 @@ namespace UserService.Application.UseCases
 
             if (application_patch.Gender != null)
             {
-                if (!Enum.TryParse<GenderType>(application_patch.Gender, true, out var gender))
+                if (!System.Enum.TryParse<GenderType>(application_patch.Gender, true, out var gender))
                 {
                     return Result<bool>.Failure(ServiceError.BadRequestError($"{application_patch.Gender}"), Messages.InstructorApplication.InvalidGender);
                 }
@@ -454,7 +462,7 @@ namespace UserService.Application.UseCases
 
             if (application_patch.TeachingTier != null)
             {
-                if (!Enum.TryParse<DrivingLicenseTier>(application_patch.TeachingTier, true, out var tier))
+                if (!System.Enum.TryParse<DrivingLicenseTier>(application_patch.TeachingTier, true, out var tier))
                 {
                     return Result<bool>.Failure(ServiceError.BadRequestError($"{application_patch.TeachingTier}"), Messages.InstructorApplication.InvalidDrivingLicenseTier);
                 }
@@ -490,6 +498,11 @@ namespace UserService.Application.UseCases
 
             instructor_application.SubmitAt = DateTime.Now;
             instructor_application.Status = ApplicationStatus.ReApplying;
+
+            // Update Expiry date
+            var expiry_days_config = await _unitOfWork.SystemConfigurationRepository.GetAllAsync(x => x.Name == "DaysBeforeExpiry");
+            DateOnly expiry_date = DateOnly.FromDateTime(DateTime.Now).AddDays(int.Parse(expiry_days_config.FirstOrDefault()?.Value ?? "7")); // Default to 7 days if no config found
+            instructor_application.DatebeforeExpiry = expiry_date;
 
             try
             {

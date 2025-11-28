@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using SharedLibrary.AI.VnptEkyc;
 using SharedLibrary.SharedKernel.ServiceResult;
 using System;
 using System.Net.Http;

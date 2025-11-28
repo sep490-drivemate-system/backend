@@ -8,7 +8,7 @@ namespace SharedLibrary.SharedKernel.Http.DTOs.Package
         public Guid Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public string Duration { get; set; }
+        public double Duration { get; set; }
         public decimal Price { get; set; }
         public Guid InstructorId { get; set; }
         public IList<string> DrivingSkills{ get; set; }

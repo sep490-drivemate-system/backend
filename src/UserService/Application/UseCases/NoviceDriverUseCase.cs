@@ -1,6 +1,7 @@
 using AutoMapper;
 using SharedLibrary.SharedKernel.Http.DTOs.Feedback;
 using SharedLibrary.SharedKernel.ServiceResult;
+using System;
 using System.Linq;
 using UserService.Application.Commons.Constants;
 using UserService.Application.Commons.DTOs.Users;
@@ -14,19 +15,16 @@ namespace UserService.Application.UseCases
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IMapper _mapper = mapper;
 
-        //public async Task<Result<IEnumerable<UserAddressDTO>>> GetNoviceDriverAddres(Guid id)
-        //{
-        //    var noviceDriver = await _unitOfWork.NoviceDriverRepository.GetByIdWithSavedLocationsAsync(id);
+        public async Task<Result<bool>> HasValidDrivingLicenseAsync(Guid noviceDriverId)
+        {
+            var noviceDriver = await _unitOfWork.NoviceDriverRepository.GetByIdAsync(noviceDriverId);
 
-        //    if (noviceDriver == null)
-        //    {
-        //        return Result<IEnumerable<UserAddressDTO>>.Failure(ServiceError.NotFoundError($"{id}"), Messages.Common.NotFoundError);
-        //    }
+            var hasLicenseDocument = !string.IsNullOrWhiteSpace(noviceDriver.DrivingLicense);
+            var currentDate = DateOnly.FromDateTime(DateTime.UtcNow);
+            var isLicenseValid = noviceDriver.DrivingLicenseExpirationDate >= currentDate;
 
-        //    var addresses = _mapper.Map<IEnumerable<UserAddressDTO>>(noviceDriver.);
-
-        //    return Result<IEnumerable<UserAddressDTO>>.Success(addresses);
-        //}
+            return Result<bool>.Success(hasLicenseDocument && isLicenseValid);
+        }
 
         public async Task<Result<NoviceDriverInfoFeedbackDTO>> GetNoviceDriverInfoForFeedback(Guid noviceDriverId)
         {

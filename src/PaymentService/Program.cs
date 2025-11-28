@@ -3,6 +3,7 @@ using PaymentService.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using PaymentService.Infrastructure.Data;
+using SharedLibrary.Jwt;
 using System.Text;
 
 namespace PaymentService
@@ -21,6 +22,7 @@ namespace PaymentService
             builder.Services.AddHttpClient();
             builder.Services.AddApplication();
             builder.Services.AddInfrastructure(builder.Configuration);
+            builder.Services.AddScoped<IJwtService, JwtService>();
             
             builder.Services.AddAuthentication("Bearer")
                 .AddJwtBearer("Bearer", options =>
@@ -86,7 +88,6 @@ namespace PaymentService
 
             var app = builder.Build();
 
-
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -103,9 +104,10 @@ namespace PaymentService
 
             // Remove HTTPS redirection for HTTP-only setup
             // app.UseHttpsRedirection();
+            app.UseCors("AllowAll");
+            
             app.UseAuthentication();
             app.UseAuthorization();
-            app.UseCors("AllowAll");
 
             app.MapControllers();
 

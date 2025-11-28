@@ -1,9 +1,0 @@
-{
-  "SpeedSMS": {
-    "AccessToken": "Qa-bueApU0kt3V95enwlrmTdAKzLYqp3",
-    "ApiUrl": "https://api.speedsms.vn/index.php",
-    "SmsType": 4,
-    "Sender": "Verify",
-    "MessageTemplate": "Mã xác thực của bạn là: {0}"
-  }
-}
