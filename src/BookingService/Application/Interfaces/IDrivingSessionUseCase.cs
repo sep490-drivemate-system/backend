@@ -14,7 +14,8 @@ namespace BookingService.Application.Interfaces
 
         Task<Result<IEnumerable<DrivingSessionDTO>>> GetUserSessionsWithChangeRequest(Guid user_id);
 
-        Task<Result<DrivingSessionlDTO>> GetSessionDetail(Guid session_id);
+       // Task<Result<DrivingSessionlDTO>> GetSessionDetail(Guid session_id);
+        Task<Result<SessionDetailDTO>> GetSessionDetail(Guid sessionId);
 
         Task<Result<bool>> CancelSession(Guid session_id, SessionCancelRequestDTO cancelationDTO);
 
@@ -25,8 +26,6 @@ namespace BookingService.Application.Interfaces
         Task<Result<bool>> CreateSessionRoutes(Guid sessionId, List<SessionRouteCreateDTO> routes);
 
         Task<Result<bool>> UpdateSessionStatus(Guid sessionId, SessionStatus updateStatusDTO);
-        Task<Result<List<SessionRouteResponseDTO>>> GetSessionRoutesBySessionId(Guid sessionId);
         Task<Result<SessionLogDTO>> CreateSessionLog(Guid sessionId, SessionLogCreateDTO log);
-        Task<Result<List<SessionLogDTO>>> GetSessionLogsBySessionId(Guid sessionId);
     }
 }

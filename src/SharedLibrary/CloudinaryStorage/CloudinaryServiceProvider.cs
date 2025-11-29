@@ -51,6 +51,11 @@ namespace SharedLibrary.CloudinaryStorage
             return UploadImageStreamResourceToCloudinary(file.OpenReadStream(), $"{file_name}-{file.FileName}");
         }
 
+        public string UploadImageFormFileResourceToCloudinaryWithExactName(IFormFile file, string file_name)
+        {
+            return UploadImageStreamResourceToCloudinary(file.OpenReadStream(), $"{file_name}");
+        }
+
         public bool DeleteResourceFromCloudinary(string public_id)
         {
             DeletionParams delete_oaranm = new DeletionParams(public_id);

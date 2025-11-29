@@ -1,0 +1,73 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chào mừng đến với DriveMate</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f4f6fa; font-family:'Segoe UI', Tahoma, sans-serif;">
+
+    <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="padding: 40px 0; background-color: #f4f6fa;">
+        <tr>
+            <td align="center">
+                <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="max-width:600px; background-color:#ffffff; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.08); overflow:hidden;">
+
+                    <!-- Header -->
+                    <tr>
+                        <td align="center" style="background-color:#374151; padding: 24px;">
+                            <h1 style="margin: 0; font-size: 24px; color: #ffffff;">Chào mừng gia nhập DriveMate!</h1>
+                        </td>
+                    </tr>
+
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 32px 24px; color: #333333;">
+                            <p style="font-size: 16px; line-height: 1.6; margin-top: 0;">
+                                Xin chào <strong>{{username}}</strong>,
+                            </p>
+                            <p style="font-size: 16px; line-height: 1.6;">
+                                Chúc mừng bạn đã khởi tạo tài khoản thành công. Chúng tôi rất vui khi có bạn đồng hành cùng <strong>DriveMate</strong>.
+                            </p>
+                            <p style="font-size: 16px; line-height: 1.6;">
+                                Tài khoản của bạn cần thêm thông tin để chúng tôi có thể hoàn tất việc xét duyệt. Vui lòng đến văn phòng của chúng tôi trước ngày hết hạn dưới đây:
+                            </p>
+
+                            <!-- Expiry Date Section -->
+                            <div style="text-align: center; margin: 40px 0;">
+                                <p style="margin: 0 0 10px 0; font-size: 14px; color: #666666; text-transform: uppercase; letter-spacing: 1px;">Ngày hết hạn</p>
+                                <span style="background-color:#f4f6fa; color:#111111; font-size:24px; letter-spacing:2px; font-weight:bold; padding:16px 32px; border-radius:8px; border:2px dashed #6366f1; display:inline-block;">
+                                    {{expiry_date}}
+                                </span>
+                            </div>
+
+                            <p style="font-size: 16px; line-height: 1.6; text-align: center;">
+                                Bạn có thể thay đổi thông tin đăng kí bất cứ lúc nào trong phần cài đặt tài khoản.
+                            </p>
+
+                            <!-- CTA Button -->
+                            <div style="text-align: center; margin-top: 30px;">
+                                <a href="{{login_url}}" style="background-color: #6366f1; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 6px; font-weight: bold; font-size: 16px; display: inline-block;">
+                                    Truy cập Dashboard
+                                </a>
+                            </div>
+
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color:#f9fafb; text-align:center; padding: 24px; font-size:13px; color:#888888;">
+                            <p style="margin: 0 0 10px 0;">
+                                Bạn nhận được email này vì bạn đã đăng ký tài khoản hướng dẫn viên tại DriveMate.
+                            </p>
+                            &copy; 2025 <strong>DriveMate</strong>. Mọi quyền được bảo lưu.<br />
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>

@@ -9,6 +9,7 @@ namespace SharedLibrary.SharedKernel.Enum
     public enum EmailType
     {
         VerifyOPTCode,
-        ForgotPassword,        
+        ForgotPassword,  
+        InstructorRegistration,
     }
 }

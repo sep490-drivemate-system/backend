@@ -4,6 +4,7 @@ using BookingService.Application.Commons.Constants;
 using BookingService.Application.Commons.DTOs.Booking;
 using BookingService.Application.Commons.DTOs.DrivingSession;
 using BookingService.Application.Commons.DTOs.DrivingSessions;
+using BookingService.Application.Commons.DTOs.Package;
 using BookingService.Application.Commons.Mapping;
 using BookingService.Application.Interfaces;
 using BookingService.Domain.Entities;
@@ -39,29 +40,25 @@ namespace BookingService.Application.UseCase
             _payment = payment;
             _user = user;
         }
-
-        public async Task<Result<Booking>> CreateBooking(BookingDTO bookingDTO, Guid userId)
+        public async Task<Result<Booking>> BuyPackage(PackageBuyingDTO packageBuyingDTO, Guid driverId)
         {
+            Guid id = Guid.NewGuid();
+            var walletCheckResponse = await _payment.CheckWalletBooking(
+               driverId,
+               packageBuyingDTO.PriceAtBuyingTime,
+              id, null);
 
-                var walletCheckResponse = await _payment.CheckWalletBooking(
-                    userId,
-                    bookingDTO.PriceAtBuyingTime,
-                    bookingDTO.Id);
+            var booking = _mapper.Map<Booking>(packageBuyingDTO);
+            booking.Id = id;
+            booking.DriverId = driverId;
+            booking.Status = BookingStatus.Purchased;
+            var createdBooking = await _unitOfWork.BookingRepository.CreateAsync(booking);
+            await _unitOfWork.CommitChangesAsync();
 
+            return Result<Booking>.Success(createdBooking);
 
-                if (!walletCheckResponse.IsPayment)
-                {
-                    return Result<Booking>.Failure(ServiceError.BadRequestError(Messages.Booking.INSUFFICENTCREDIT));
-                }
-
-                var booking = _mapper.Map<Booking>(bookingDTO);
-
-                var createdBooking = await _unitOfWork.BookingRepository.CreateAsync(booking);
-                await _unitOfWork.CommitChangesAsync();
-
-                return Result<Booking>.Success(createdBooking);
-           
         }
+
 
         public async Task<Result<List<BookingsDTO>>> GetBookings(BookingStatus status, Guid driverId)
         {
@@ -152,27 +149,6 @@ namespace BookingService.Application.UseCase
             if (booking == null || booking.IsDeleted) 
             {
                 return Result<bool>.Failure(ServiceError.NotFoundError($"{booking_id}"), Messages.Commons.NOTFOUND);
-            }
-
-            // Validate booking status
-            if (booking.Status == BookingStatus.CancellationWithRefund || booking.Status == BookingStatus.CancellationWithRefund || booking.Status == BookingStatus.Used)
-            {
-                return Result<bool>.Failure(ServiceError.InvalidStateError($"{booking.Status.ToString()}"), Messages.Commons.UNHANDLED);
-            }
-
-            // Validate novice driver
-            var userServiceHttpClient = _httpClientFactory.CreateClient("UserServiceClient");
-            var userServiceResponseMessage = await userServiceHttpClient.PostAsJsonAsync<IEnumerable<Guid>>("api/users/ids", new List<Guid>() { user_id });
-            
-            if (!userServiceResponseMessage.IsSuccessStatusCode)
-            {
-                return Result<bool>.Failure(ServiceError.ServiceUnavailableError($"UserService:"), Messages.Commons.UNHANDLED);
-            }
-
-            var users = await userServiceResponseMessage.Content.ReadFromJsonAsync<DefaultApiResponse<IEnumerable<UserDetailDTO>>>();
-            if (users.Value.Count() == 0 || users.Value.First().NoviceDriver.NoviceDriverId != booking.DriverId)
-            {
-                return Result<bool>.Failure(ServiceError.BadRequestError($"{booking_id}"), Messages.Booking.NOTOWNEDBOOKING);
             }
 
             // Actual refund calculation

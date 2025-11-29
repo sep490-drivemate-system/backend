@@ -29,10 +29,22 @@ namespace PaymentService.Infrastructure
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             // Register RabbitMQ service (with fallback to mock if connection fails)
-   
-           services.AddSingleton<IRabbitMQService, RabbitMQService>();
-           
-            
+            services.AddSingleton<IRabbitMQService, RabbitMQService>();
+
+            // Add UserService httpClient
+            services.AddHttpClient("UserServiceClient", cfg =>
+            {
+                var base_address = configuration.GetConnectionString("Userservice_connection");
+
+                if (string.IsNullOrEmpty(base_address))
+                {
+                    throw new ApplicationException("Can not find base address for user service");
+                }
+
+                cfg.BaseAddress = new Uri(base_address);
+                cfg.DefaultRequestHeaders.Add("User-Agent", "DriveMate_PaymentService");
+            });
+
             // Add Wallet service
             services.AddScoped<IWalletService, WalletService>();
             

@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using MimeKit;
 using SharedLibrary.SharedKernel.Enum;
 using System.Collections.Concurrent;
+using Twilio.TwiML.Messaging;
 
 namespace SharedLibrary.Email
 {
@@ -35,6 +36,35 @@ namespace SharedLibrary.Email
         {
             await Task.Run(() => SendEmail(toEmail, EmailType.ForgotPassword, resetToken));
         }
+        public async Task<bool> SendInstructorWelcomingAsync(string toEmail, DateOnly verificationExpirationDate)
+        {
+            var htmlTemplate = LoadEmailTemplate(GetTemplateFileName(EmailType.InstructorRegistration));
+
+            string mesageBody = htmlTemplate.Replace("{{username}}", toEmail)
+                .Replace("{{expiry_date}}", verificationExpirationDate.ToString("dd/MM/yyyy"))
+                .Replace("{{login_url}}", _configuration["FRONTEND:LOGIN"]);
+
+            var message = new MimeMessage();
+            message.From.Add(new MailboxAddress(_configuration["EMAIL:SENDER_NAME"], _configuration["EMAIL:SENDER_EMAIL"]));
+            message.To.Add(new MailboxAddress(string.Empty, toEmail));
+            message.Subject = GetEmailSubject(EmailType.InstructorRegistration);
+            var bodyBuilder = new BodyBuilder { HtmlBody = mesageBody};
+            message.Body = bodyBuilder.ToMessageBody();
+
+            try
+            {
+                await Task.Run(() => SendEmailViaSmtp(message));
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return false;
+            }
+        }
+
+
+        #region "Behind the scene"
         private void SendEmail(string toEmail, EmailType emailType, string? token = null, string? plainPassword = null)
         {
             var emailBody = GenerateEmailBody(toEmail, emailType, token, plainPassword);
@@ -56,6 +86,7 @@ namespace SharedLibrary.Email
             {
                 EmailType.VerifyOPTCode => "EmailVerificationCode.html",
                 EmailType.ForgotPassword => "ForgotPassword.html",
+                EmailType.InstructorRegistration => "InstructorRegistration.html",
                 _ => "EmailVerificationCode.html" // Default template
             };
         }
@@ -131,6 +162,7 @@ namespace SharedLibrary.Email
             {
                 EmailType.VerifyOPTCode => "Mã xác thực email DriveMate",
                 EmailType.ForgotPassword => "Khôi phục mật khẩu DriveMate",
+                EmailType.InstructorRegistration => "Chào mừng đến với DriveMate",
                 _ => "Thông báo từ DriveMate"
             };
         }
@@ -144,6 +176,6 @@ namespace SharedLibrary.Email
             client.Send(message);
             client.Disconnect(true);
         }
-
+        #endregion
     }
 }

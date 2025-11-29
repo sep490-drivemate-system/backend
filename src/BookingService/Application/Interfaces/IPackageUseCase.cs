@@ -10,7 +10,6 @@ namespace BookingService.Application.Interfaces
     {
         Task<Result<PaginatedList<PackageDTO>>> GetAllPackagesAsync(PackageListFilterDTO filter);
         Task<Result<Package?>> GetPackageByIdAsync(Guid id);
-        Task<Result<Booking>> BuyPackageAsync(PackageBuyingDTO packageBuyingDTO,Guid driverId);
         Task<Result<bool>> CreatePackageAsync(PackageCreationDTO package);
         Task<Result<Package>> UpdatePackageAsync(Package package);
         Task<Result<bool>> DeletePackageAsync(Guid id);

@@ -16,16 +16,18 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Twilio.TwiML.Messaging;
 using AutoMapper;
+using SharedLibrary.Email;
 
 namespace UserService.Application.UseCases
 {
-    public class InstructorUseCase(IUnitOfWork unitOfWork, ICloudinaryServiceProvider cloudinary, IPasswordHasherService passwordHasher, IHttpClientFactory http_client_factory,IIntructor intructor,IMapper mapper) : IInstructorUseCase
+    public class InstructorUseCase(IUnitOfWork unitOfWork, ICloudinaryServiceProvider cloudinary, IPasswordHasherService passwordHasher, IHttpClientFactory http_client_factory,IIntructor intructor,IMapper mapper, IEmailService emailService) : IInstructorUseCase
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IIntructor _intructor = intructor;
         private readonly IMapper _mapper = mapper;
         private readonly ICloudinaryServiceProvider _cloudinary = cloudinary;
         private readonly IPasswordHasherService _passwordHasher = passwordHasher;
+        private readonly IEmailService _emailService = emailService;
 
         #region Instructor Details
         public async Task<Result<InstructorDTO>> GetInstructorDetail(Guid id)
@@ -189,6 +191,10 @@ namespace UserService.Application.UseCases
                 HealthCheckup = application_detail.HealthCheckup,
                 DateUntilAutoRejection = application_detail.DatebeforeExpiry,
                 PersonalProfile = application_detail.BackgroundProfile,
+                ApplicationStatus = application_detail.Status,
+                DrivingLicenseBack = application_detail.DrivingLicenseBack,
+                DrivingLicenseTier = application_detail.DrivingLicenseTier,
+                TeachingLicenseTier = application_detail.TeachingLicenseTier, 
                 TrackingHistories = application_detail.ApplicationTrackings?.Select(x => new ApplicationTrackingDTO
                 {
                     Id = x.Id,
@@ -267,7 +273,7 @@ namespace UserService.Application.UseCases
             return Result<bool>.Success(true);
         }
 
-        public async Task<Result<bool>> RegisterInstructor(RegistrationDTO instructor_registration)
+        public async Task<Result<Guid>> RegisterInstructor(RegistrationDTO instructor_registration)
         {
             PropertyInfo[] registration_fields_info = instructor_registration.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
@@ -283,14 +289,14 @@ namespace UserService.Application.UseCases
 
                 if (value == null)
                 {
-                    return Result<bool>.Failure(ServiceError.BadRequestError($"{field.Name}"), Messages.Common.RequiredField);
+                    return Result<Guid>.Failure(ServiceError.BadRequestError($"{field.Name}"), Messages.Common.RequiredField);
                 }
 
                 if (field.PropertyType == typeof(string))
                 {
                     if (string.IsNullOrEmpty((string)value))
                     {
-                        return Result<bool>.Failure(ServiceError.BadRequestError($"{field.Name}"), Messages.Common.RequiredField);
+                        return Result<Guid>.Failure(ServiceError.BadRequestError($"{field.Name}"), Messages.Common.RequiredField);
                     }
                 }
             }
@@ -301,46 +307,46 @@ namespace UserService.Application.UseCases
 
             if (existing_applicants.Count > 0)
             {
-                return Result<bool>.Failure(ServiceError.BadRequestError($"{instructor_registration.Email}"), Messages.InstructorApplication.EmailUsed);
+                return Result<Guid>.Failure(ServiceError.BadRequestError($"{instructor_registration.Email}"), Messages.InstructorApplication.EmailUsed);
             }
 
             // Checking for valid content types
             // Too lazy to check for other files, might complete this later :3
             if (!instructor_registration.Avatar?.ContentType.StartsWith("image") ?? true)
             {
-                return Result<bool>.Failure(ServiceError.BadRequestError($"Avatar: {instructor_registration.Avatar.ContentType}"), Messages.Common.InvalidDocumentType);
+                return Result<Guid>.Failure(ServiceError.BadRequestError($"Avatar: {instructor_registration.Avatar.ContentType}"), Messages.Common.InvalidDocumentType);
             }
 
             if (!instructor_registration.DrivingLicenseFront?.ContentType.StartsWith("image") ?? true)
             {
-                return Result<bool>.Failure(ServiceError.BadRequestError($"Driving license (front):{instructor_registration.DrivingLicenseFront.ContentType}"), Messages.Common.InvalidDocumentType);
+                return Result<Guid>.Failure(ServiceError.BadRequestError($"Driving license (front):{instructor_registration.DrivingLicenseFront.ContentType}"), Messages.Common.InvalidDocumentType);
             }
 
             if (!instructor_registration.DrivingLicenseBack?.ContentType.StartsWith("image") ?? true)
             {
-                return Result<bool>.Failure(ServiceError.BadRequestError($"Driving license (back):{instructor_registration.DrivingLicenseFront.ContentType}"), Messages.Common.InvalidDocumentType);
+                return Result<Guid>.Failure(ServiceError.BadRequestError($"Driving license (back):{instructor_registration.DrivingLicenseFront.ContentType}"), Messages.Common.InvalidDocumentType);
             }
 
             if (!instructor_registration.TeachingLicenseFront?.ContentType.StartsWith("image") ?? true)
             {
-                return Result<bool>.Failure(ServiceError.BadRequestError($"Teaching license (front):{instructor_registration.DrivingLicenseFront.ContentType}"), Messages.Common.InvalidDocumentType);
+                return Result<Guid>.Failure(ServiceError.BadRequestError($"Teaching license (front):{instructor_registration.DrivingLicenseFront.ContentType}"), Messages.Common.InvalidDocumentType);
             }
 
             // Checking for valid license tier.
             if (!System.Enum.TryParse(instructor_registration.DrivingLicenseTier, true, out DrivingLicenseTier driving_license_tier))
             {
-                return Result<bool>.Failure(ServiceError.BadRequestError($"{instructor_registration.TeachingTier}"), Messages.InstructorApplication.InvalidDrivingLicenseTier);
+                return Result<Guid>.Failure(ServiceError.BadRequestError($"{instructor_registration.TeachingTier}"), Messages.InstructorApplication.InvalidDrivingLicenseTier);
             }
 
             if (!System.Enum.TryParse(instructor_registration.TeachingTier, true, out DrivingLicenseTier instructor_license_tier))
             {
-                return Result<bool>.Failure(ServiceError.BadRequestError($"{instructor_registration.TeachingTier}"), Messages.InstructorApplication.InvalidDrivingLicenseTier);
+                return Result<Guid>.Failure(ServiceError.BadRequestError($"{instructor_registration.TeachingTier}"), Messages.InstructorApplication.InvalidDrivingLicenseTier);
             }
 
             // Checking for valid gender choice.
             if (!System.Enum.TryParse(instructor_registration.Gender, true, out GenderType instructor_gender))
             {
-                return Result<bool>.Failure(ServiceError.BadRequestError($"{instructor_registration.Gender}"), Messages.InstructorApplication.InvalidGender);
+                return Result<Guid>.Failure(ServiceError.BadRequestError($"{instructor_registration.Gender}"), Messages.InstructorApplication.InvalidGender);
             }
 
             // Save all user uploaded resource to Cloudinary through provider wrapper.
@@ -404,10 +410,18 @@ namespace UserService.Application.UseCases
                 // If fails to save instructor application details, remove uploaded resources.
                 //_cloudinary.DeleteResourceFromCloudinary();
 
-                return Result<bool>.Failure(ServiceError.UnhandledException($"{ex.Message}"), Messages.Common.UnknownError);
+                return Result<Guid>.Failure(ServiceError.UnhandledException($"{ex.Message}"), Messages.Common.UnknownError);
             }
 
-            return Result<bool>.Success(true, Messages.Common.Success);
+            // Sending email
+            if (!await _emailService.SendInstructorWelcomingAsync(instructor.User.Email, instructor.InstructorApplication.DatebeforeExpiry))
+            {
+                // Print any error if can't send email
+                Console.WriteLine("Error while sending email");
+            }
+
+            var new_instructor = _unitOfWork.GetTrackingEntry(instructor);
+            return Result<Guid>.Success(((Instructor)new_instructor.Entity).Id, Messages.Common.Success);
         }
 
         public async Task<Result<bool>> UpdateInstructorApplication(Guid instructor_id, RegistrationDTO application_patch)

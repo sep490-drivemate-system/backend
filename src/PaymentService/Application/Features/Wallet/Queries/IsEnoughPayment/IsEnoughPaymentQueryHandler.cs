@@ -5,7 +5,7 @@ using SharedLibrary.SharedKernel.ServiceResult;
 
 namespace PaymentService.Application.Features.Wallet.Queries.IsEnoughPayment
 {
-    public class IsEnoughPaymentQueryHandler : IRequestHandler<IsEnoughPaymentQuery, PaymentResponse>
+    public class IsEnoughPaymentQueryHandler : IRequestHandler<IsEnoughPaymentQuery, bool>
     {
         private readonly IUnitOfWork _unitOfWork;
 
@@ -14,21 +14,14 @@ namespace PaymentService.Application.Features.Wallet.Queries.IsEnoughPayment
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<PaymentResponse> Handle(IsEnoughPaymentQuery request, CancellationToken cancellationToken)
+        public async Task<bool> Handle(IsEnoughPaymentQuery request, CancellationToken cancellationToken)
         {
-            var (isSuccess, message, currentBalance) = await _unitOfWork.WalletRepository.CheckAndDeductWallet(
+            return await _unitOfWork.WalletRepository.CheckAndDeductWallet(
                 request.UserId, 
                 request.Amount, 
                 request.BookingId,
                 request.DrivingSessionId
             );
-
-            return new PaymentResponse
-            {
-                IsPayment = isSuccess,
-                Message = message,
-                CurrentBalance = currentBalance
-            };
         }
     }
 }

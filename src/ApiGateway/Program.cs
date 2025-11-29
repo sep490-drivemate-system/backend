@@ -32,6 +32,7 @@ namespace ApiGetwate
                 var userServiceHost = Environment.GetEnvironmentVariable("USERSERVICE_HOST") ?? "localhost";
                 var bookingServiceHost = Environment.GetEnvironmentVariable("BOOKINGSERVICE_HOST") ?? "localhost";
                 var resourceServiceHost = Environment.GetEnvironmentVariable("RESOURCESERVICE_HOST") ?? "localhost";
+                var paymentServiceHost = Environment.GetEnvironmentVariable("PAYMENTSERVICE_HOST") ?? "localhost";
                 var messagingServiceHost = Environment.GetEnvironmentVariable("MESSAGINGSERVICE_HOST") ?? "localhost";
                 var apiGatewayHost = Environment.GetEnvironmentVariable("APIGATEWAY_HOST") ?? "localhost";
                 
@@ -40,6 +41,7 @@ namespace ApiGetwate
                 ocelotContent = ocelotContent.Replace("${USERSERVICE_HOST}", userServiceHost);
                 ocelotContent = ocelotContent.Replace("${BOOKINGSERVICE_HOST}", bookingServiceHost);
                 ocelotContent = ocelotContent.Replace("${RESOURCESERVICE_HOST}", resourceServiceHost);
+                ocelotContent = ocelotContent.Replace("${PAYMENTSERVICE_HOST}", paymentServiceHost);
                 ocelotContent = ocelotContent.Replace("${MESSAGINGSERVICE_HOST}", messagingServiceHost);
                 ocelotContent = ocelotContent.Replace("${APIGATEWAY_HOST}", apiGatewayHost);
                 

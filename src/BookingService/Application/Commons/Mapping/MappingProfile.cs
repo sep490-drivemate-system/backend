@@ -8,7 +8,6 @@ using BookingService.Application.Commons.DTOs.Package;
 using BookingService.Application.Commons.DTOs.RoadTypes;
 using BookingService.Domain.Entities;
 using SharedLibrary.SharedKernel.Http.DTOs.Package;
-using BookingService.Application.Commons.DTOs.DrivingSession;
 
 namespace BookingService.Application.Commons.Mapping
 {
@@ -47,8 +46,8 @@ namespace BookingService.Application.Commons.Mapping
             CreateMap<Domain.Entities.RoadType, RoadTypeDTO>();
             CreateMap<Booking, PackageBuyingDTO>().ReverseMap();
 
-            // Mapping for Package DTOs
             CreateMap<Package, PackageDto>()
+                .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration.ToString()))
                 .ForMember(dest => dest.IsRentalCar, opt => opt.MapFrom(src => src.AllowNoviceVehicle))
                 .ForMember(dest => dest.RoadTypes, opt => opt.MapFrom(src => 
                     src.RoadTypes != null ? src.RoadTypes.Select(r => r.Name).ToList() : new List<string>()))
@@ -116,10 +115,39 @@ namespace BookingService.Application.Commons.Mapping
                 .ForMember(dest => dest.Booking, opt => opt.Ignore())
                 .ForMember(dest => dest.Car, opt => opt.Ignore());
 
-            // Mapping for DrivingSessionScheduleDTO
-            CreateMap<DrivingSession, DrivingSessionScheduleDTO>()
-                .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.StartTime))
-                .ForMember(dest => dest.EndTime, opt => opt.MapFrom(src => src.EndTime));
+            CreateMap<SessionRoute, RouteDetailDTO>();
+
+            CreateMap<SessionLog, LogDetailDTO>();
+
+            var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time") 
+                ?? TimeZoneInfo.CreateCustomTimeZone("Vietnam Time", TimeSpan.FromHours(7), "Vietnam Time", "Vietnam Time");
+
+            Func<DateTime, DateTime> convertToVietnamTime = dt =>
+            {
+                if (dt.Kind == DateTimeKind.Utc)
+                {
+                    return TimeZoneInfo.ConvertTimeFromUtc(dt, vietnamTimeZone);
+                }
+                else if (dt.Kind == DateTimeKind.Unspecified)
+                {
+                    return TimeZoneInfo.ConvertTimeFromUtc(DateTime.SpecifyKind(dt, DateTimeKind.Utc), vietnamTimeZone);
+                }
+                return dt;
+            };
+
+            CreateMap<DrivingSession, SessionDetailDTO>()
+                .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => convertToVietnamTime(src.StartTime)))
+                .ForMember(dest => dest.EndTime, opt => opt.MapFrom(src => convertToVietnamTime(src.EndTime)))
+                .ForMember(dest => dest.ActualStart, opt => opt.MapFrom(src => convertToVietnamTime(src.ActualStart)))
+                .ForMember(dest => dest.ActualEnd, opt => opt.MapFrom(src => convertToVietnamTime(src.ActualEnd)))
+                .ForMember(dest => dest.RouteDetails, opt => opt.MapFrom(src => 
+                    src.SessionRoutes != null 
+                        ? src.SessionRoutes.Where(r => !r.IsDeleted).ToList() 
+                        : new List<SessionRoute>()))
+                .ForMember(dest => dest.LogDetails, opt => opt.MapFrom(src => 
+                    src.SessionLogs != null 
+                        ? src.SessionLogs.Where(l => !l.IsDeleted).OrderBy(l => l.CreatedAt).ToList() 
+                        : new List<SessionLog>()));
         }
     }
 }

@@ -11,6 +11,7 @@ namespace SharedLibrary.CloudinaryStorage
     {
         string UploadImageStreamResourceToCloudinary(Stream stream, string file_name);
 
+        string UploadImageFormFileResourceToCloudinaryWithExactName(IFormFile file, string file_name);
         string UploadImageFormFileResourceToCloudinary(IFormFile file, string file_name);
 
         bool DeleteResourceFromCloudinary(string public_id);

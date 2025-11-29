@@ -1,5 +1,7 @@
 using BookingService.Application.Commons.DTOs.Booking;
+using BookingService.Application.Commons.DTOs.Package;
 using BookingService.Application.Interfaces;
+using BookingService.Application.UseCase;
 using BookingService.Domain.Entities;
 using BookingService.Domain.Enum;
 using BookingService.Domain.Interfaces;
@@ -26,16 +28,14 @@ namespace BookingService.Controllers
             _jwtService = jwtService;
         }
 
-
-        [HttpPost]
-        //   [Authorize(Roles = nameof(UserRole.NoviceDriver))]
-        public async Task<IActionResult> CreateBooking([FromBody] BookingDTO bookingDTO)
+        [HttpPost("buy-package")]
+        [Authorize(Roles = nameof(UserRole.NoviceDriver))]
+        public async Task<IActionResult> BuyPackage([FromBody] PackageBuyingDTO packageBuyingDTO)
         {
             var driverId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
-            var result = await _bookingUseCase.CreateBooking(bookingDTO, driverId);
+            var result = await _bookingUseCase.BuyPackage(packageBuyingDTO, driverId);
             return result.ToActionResult();
         }
-
         [HttpGet]
         public async Task<IActionResult> GetBookings(BookingStatus bookingStatus)
         {

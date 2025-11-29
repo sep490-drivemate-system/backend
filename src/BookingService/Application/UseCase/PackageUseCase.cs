@@ -173,27 +173,6 @@ namespace BookingService.Application.UseCase
             return Result<List<PackageDto>>.Success(packageDtos);
         }
 
-        public async Task<Result<Booking>> BuyPackageAsync(PackageBuyingDTO packageBuyingDTO,Guid driverId)
-        {
-            Guid id = Guid.NewGuid();
-            var walletCheckResponse = await _payment.CheckWalletBooking(
-               driverId,
-               packageBuyingDTO.PriceAtBuyingTime,
-              id,null);
 
-            if (!walletCheckResponse.IsPayment)
-            {
-                return Result<Booking>.Failure(ServiceError.BadRequestError(Messages.Booking.INSUFFICENTCREDIT));
-            }
-            var booking = _mapper.Map<Booking>(packageBuyingDTO);
-            booking.Id = id;
-            booking.DriverId = driverId;
-            booking.Status = BookingStatus.Purchased;
-            var createdBooking = await _unitOfWork.BookingRepository.CreateAsync(booking);
-            await _unitOfWork.CommitChangesAsync();
-
-            return Result<Booking>.Success(createdBooking);
-            
-        }
     }
 }

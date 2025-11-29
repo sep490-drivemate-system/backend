@@ -42,9 +42,15 @@ namespace ResourceService.Repositories.Basic
                 query = query.Where(filter);
             }
 
-            foreach (var property in include_properties.Split(",", StringSplitOptions.RemoveEmptyEntries))
+            var includeProps = include_properties.Split(",", StringSplitOptions.RemoveEmptyEntries);
+            foreach (var property in includeProps)
             {
                 query = query.Include(property.Trim());
+            }
+
+            if (includeProps.Length > 1)
+            {
+                query = query.AsSplitQuery();
             }
 
             if (orderBy != null)
@@ -173,9 +179,15 @@ namespace ResourceService.Repositories.Basic
         {
             var query = _context.Set<T>().AsQueryable();
 
-            foreach (var property in include_properties.Split(",", StringSplitOptions.RemoveEmptyEntries))
+            var includeProps = include_properties.Split(",", StringSplitOptions.RemoveEmptyEntries);
+            foreach (var property in includeProps)
             {
                 query.Include(property.Trim());
+            }
+
+            if (includeProps.Length > 1)
+            {
+                query = query.AsSplitQuery();
             }
 
             return disable_tracking ? await query.AsNoTracking().ToListAsync() : await query.ToListAsync();
@@ -194,9 +206,15 @@ namespace ResourceService.Repositories.Basic
             // Building the include query
             var query = _context.Set<T>().AsQueryable();
 
-            foreach (var property in include_properties.Split(',', StringSplitOptions.RemoveEmptyEntries))
+            var includeProps = include_properties.Split(',', StringSplitOptions.RemoveEmptyEntries);
+            foreach (var property in includeProps)
             {
                 query = query.Include(property.Trim());
+            }
+
+            if (includeProps.Length > 1)
+            {
+                query = query.AsSplitQuery();
             }
 
             // Return the result using the built expression

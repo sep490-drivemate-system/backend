@@ -47,7 +47,7 @@ namespace PaymentService.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        public async Task<(bool IsSuccess, string Message, decimal CurrentBalance)> CheckAndDeductWallet(
+        public async Task<bool> CheckAndDeductWallet(
             Guid userId, decimal amount, Guid bookingId, Guid? drivingSessionId = null)
         {
             var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.Id == userId && !w.IsDelete);
@@ -56,28 +56,22 @@ namespace PaymentService.Infrastructure.Repositories
             wallet.CreatedAt = DateTime.UtcNow;
             wallet.UpdatedAt = DateTime.UtcNow;
 
-
-            // Create transaction record
             var transaction = new Transaction
             {
                 FromWalletId = wallet.Id,
                 ToWalletId = null, 
                 TransactionValue = amount,
                 PaymentMethod = Domain.Enum.PaymentMethod.Wallet,
-                Status = Domain.Enum.PaymentStatus.Completed,
+                Status = Domain.Enum.PaymentStatus.Processing,
                 BookingId = bookingId,
                 DrivingSessionId = drivingSessionId,
                 CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
-                
-
-
+                UpdatedAt = DateTime.UtcNow,           
             };
-
             await _context.Transactions.AddAsync(transaction);
             await _context.SaveChangesAsync();
 
-            return (true, $"Thanh toán thành công. Số dư còn lại: {wallet.Balance:N0} VNĐ", wallet.Balance);
+            return true;
         }
 
     }

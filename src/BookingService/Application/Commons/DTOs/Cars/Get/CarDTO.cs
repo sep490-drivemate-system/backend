@@ -51,16 +51,9 @@ namespace BookingService.Application.Commons.DTOs.Cars.Get
 
     public class CarDocument
     {
-        [JsonPropertyName("front_image")]
         public string? FrontImageUrl { get; set; }
-        [JsonPropertyName("back_image")]
         public string? BackImageUrl { get; set; }
-        [JsonPropertyName("expiration_date")]
-        public DateOnly? ExpirationDate { get; set; }
-        [JsonPropertyName("document_type")]
         public string? DocumentType { get; set; }
-        [JsonPropertyName("document_details")]
-        public string DocumentDetails { get; set; }
     }
     public class CarInstructorDetailDTO
     {

@@ -1,6 +1,8 @@
 using AutoMapper;
 using ResourceService.Repositories.Models;
 using ResourceService.Services.DTOs;
+using ResourceService.Services.DTOs.Quizzes;
+using ResourceService.Services.DTOs.Vouchers;
 
 namespace ResourceService.Services.Mapping
 {
@@ -48,6 +50,70 @@ namespace ResourceService.Services.Mapping
                 .ForMember(dest => dest.IsDelete, opt => opt.Ignore())
                 .ForMember(dest => dest.Contents, opt => opt.MapFrom(src => src.Contents))
                 .ForMember(dest => dest.Category, opt => opt.Ignore());
+
+            // Quiz Attempt Mappings
+            CreateMap<Question, QuizAttemptQuestionDetailDTO>()
+                .ForMember(dest => dest.QuestionId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Choices, opt => opt.Ignore());
+
+            CreateMap<Choice, QuizAttemptChoiceDetailDTO>()
+                .ForMember(dest => dest.ChoiceId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.IsSelected, opt => opt.Ignore());
+
+            CreateMap<Attempt, QuizAttemptDetailDTO>()
+                .ForMember(dest => dest.AttemptId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.QuizId, opt => opt.MapFrom(src => src.QuizId))
+                .ForMember(dest => dest.QuizName, opt => opt.MapFrom(src => src.Quiz != null ? src.Quiz.Name : string.Empty))
+                .ForMember(dest => dest.QuizDescription, opt => opt.MapFrom(src => src.Quiz != null ? src.Quiz.Description : string.Empty))
+                .ForMember(dest => dest.QuizTag, opt => opt.MapFrom(src => src.Quiz != null ? src.Quiz.Tag : string.Empty))
+                .ForMember(dest => dest.QuizDuration, opt => opt.MapFrom(src => src.Quiz != null ? src.Quiz.QuizDuration : 0))
+                .ForMember(dest => dest.TotalQuestions, opt => opt.Ignore())
+                .ForMember(dest => dest.CorrectAnswers, opt => opt.Ignore())
+                .ForMember(dest => dest.Score, opt => opt.Ignore())
+                .ForMember(dest => dest.Questions, opt => opt.Ignore());
+
+            CreateMap<Attempt, QuizAttemptResultDTO>()
+                .ForMember(dest => dest.AttemptId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.QuizId, opt => opt.MapFrom(src => src.QuizId))
+                .ForMember(dest => dest.TotalQuestions, opt => opt.Ignore())
+                .ForMember(dest => dest.CorrectAnswers, opt => opt.Ignore())
+                .ForMember(dest => dest.Score, opt => opt.Ignore())
+                .ForMember(dest => dest.Answers, opt => opt.Ignore());
+
+            CreateMap<Attempt, QuizAttemptHistoryDTO>()
+                .ForMember(dest => dest.AttemptId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.QuizId, opt => opt.MapFrom(src => src.Quiz != null ? src.Quiz.Id : Guid.Empty))
+                .ForMember(dest => dest.QuizName, opt => opt.MapFrom(src => src.Quiz != null ? src.Quiz.Name : string.Empty))
+                .ForMember(dest => dest.QuizTag, opt => opt.MapFrom(src => src.Quiz != null ? src.Quiz.Tag : string.Empty))
+                .ForMember(dest => dest.QuizDuration, opt => opt.MapFrom(src => src.Quiz != null ? src.Quiz.QuizDuration : 0))
+                .ForMember(dest => dest.TotalQuestions, opt => opt.Ignore())
+                .ForMember(dest => dest.CorrectAnswers, opt => opt.Ignore())
+                .ForMember(dest => dest.Score, opt => opt.Ignore());
+
+            // Voucher Mappings
+            CreateMap<Voucher, VoucherDTO>();
+            CreateMap<VoucherCreateDTO, Voucher>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.Code, opt => opt.Ignore())
+                .ForMember(dest => dest.UsedCount, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
+                .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
+                .ForMember(dest => dest.VoucherUsages, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
+
+            CreateMap<Voucher, VoucherUseResultDTO>()
+                .ForMember(dest => dest.VoucherId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.DiscountPercentage, opt => opt.MapFrom(src => src.DiscountPercentage))
+                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.EndDate))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+                .ForMember(dest => dest.UsageId, opt => opt.Ignore())
+                .ForMember(dest => dest.DiscountAmount, opt => opt.Ignore())
+                .ForMember(dest => dest.OrderAmount, opt => opt.Ignore())
+                .ForMember(dest => dest.FinalAmount, opt => opt.Ignore());
 
         }
     }

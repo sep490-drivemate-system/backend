@@ -46,15 +46,6 @@ namespace BookingService.Controllers
             return result.ToActionResult();
         }
 
-        [HttpPost("buy-package")]
-        [Authorize(Roles = nameof(UserRole.NoviceDriver))]
-        public async Task<IActionResult> BuyPackage([FromBody] PackageBuyingDTO packageBuyingDTO)
-        {
-            var driverId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
-            var result = await _packageUseCase.BuyPackageAsync(packageBuyingDTO, driverId);
-            return result.ToActionResult();
-        }
-
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdatePackage(Guid id, [FromBody] Package package)
         {

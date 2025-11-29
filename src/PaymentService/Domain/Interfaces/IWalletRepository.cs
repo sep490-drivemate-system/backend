@@ -1,4 +1,5 @@
 using PaymentService.Domain.Entities;
+using SharedLibrary.SharedKernel.Http.DTOs.Payment;
 
 namespace PaymentService.Domain.Interfaces
 {
@@ -9,6 +10,6 @@ namespace PaymentService.Domain.Interfaces
         Task<bool> UpdateBalanceAsync(Guid walletId, decimal newBalance);
         Task<List<Wallet>> GetWalletsWithBalanceGreaterThanAsync(decimal amount);
 
-        Task<(bool IsSuccess, string Message, decimal CurrentBalance)> CheckAndDeductWallet(Guid userId, decimal amount, Guid bookingId, Guid? drivingSessionId = null);
+        Task<bool> CheckAndDeductWallet(Guid userId, decimal amount, Guid bookingId, Guid? drivingSessionId = null);
     }
 }
