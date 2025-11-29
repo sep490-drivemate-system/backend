@@ -5,6 +5,7 @@ using BookingService.Application.Commons.DTOs.RoadTypes;
 using BookingService.Application.Interfaces;
 using BookingService.Domain.Entities;
 using SharedLibrary.SharedKernel.ServiceResult;
+using System.Linq.Expressions;
 
 namespace BookingService.Application.UseCase
 {
@@ -17,11 +18,16 @@ namespace BookingService.Application.UseCase
         {
             try
             {
-                await _unitOfWork.RoadTypeRepository.CreateAsync(new RoadType
-                {
-                    Name = road_type.Name,
-                });
+                // Checking for existing road types
+                Expression<Func<RoadType, bool>> filter = x => x.Name.ToLower().Equals(road_type.Name.ToLower()) && !x.IsDeleted;
+                var existingRoads = await _unitOfWork.RoadTypeRepository.GetAllAsync(filter);
 
+                if (existingRoads.Count != 0)
+                {
+                    return Result<bool>.Failure(ServiceError.ExistedError($"{road_type.Name}"), Messages.Commons.UNHANDLED);
+                }
+
+                await _unitOfWork.RoadTypeRepository.CreateAsync(new RoadType{ Name = road_type.Name });
                 await _unitOfWork.CommitChangesAsync();
             }
             catch (Exception ex)
@@ -29,27 +35,27 @@ namespace BookingService.Application.UseCase
                 return Result<bool>.Failure(ServiceError.UnhandledException($"{ex.Message}"), Messages.Commons.UNHANDLED);
             }
 
-            return Result<bool>.Success(true, Messages.Commons.SUCCESS);
+            return Result<bool>.Success(true);
         }
 
         public async Task<Result<bool>> DeleteRoadType(Guid id)
         {
-            var road_type = await _unitOfWork.RoadTypeRepository.GetByIdAsync(id);
+            var road = await _unitOfWork.RoadTypeRepository.GetByIdAsync(id);
 
-            if (road_type == null)
+            if (road == null || road.IsDeleted)
             {
                 return Result<bool>.Failure(ServiceError.NotFoundError($"{id}"), Messages.Commons.NOTFOUND);
             }
 
-            road_type.IsDeleted = true;
-            _unitOfWork.RoadTypeRepository.Update(road_type);
-            _unitOfWork.CommitChangesAsync();
+            road.IsDeleted = true;
+            _unitOfWork.RoadTypeRepository.Update(road);
+            await _unitOfWork.CommitChangesAsync();
             return Result<bool>.Success(true, Messages.Commons.SUCCESS);
         }
 
         public async Task<Result<IEnumerable<RoadTypeDTO>>> GetAllRoadType()
         {
-            var roads = await _unitOfWork.RoadTypeRepository.GetAllAsync();
+            var roads = await _unitOfWork.RoadTypeRepository.GetAllAsync(filter: x => !x.IsDeleted);
             return Result<IEnumerable<RoadTypeDTO>>.Success(roads.Select(x => new RoadTypeDTO { 
                 Id = x.Id, Name = x.Name}),
                 Messages.Commons.SUCCESS);
@@ -58,7 +64,7 @@ namespace BookingService.Application.UseCase
         public async Task<Result<RoadTypeDTO>> GetRoadTypeById(Guid id)
         {
             var road = await _unitOfWork.RoadTypeRepository.GetByIdAsync(id);
-            if (road != null)
+            if (road != null && !road.IsDeleted)
             {
                 return Result<RoadTypeDTO>.Success(new RoadTypeDTO
                 {
@@ -71,18 +77,18 @@ namespace BookingService.Application.UseCase
 
         public async Task<Result<bool>> UpdateRoadType(Guid id, RoadTypeCreationDTO road_type)
         {
-            var road_type_info = await _unitOfWork.RoadTypeRepository.GetByIdAsync(id);
+            var road = await _unitOfWork.RoadTypeRepository.GetByIdAsync(id);
 
-            if (road_type_info == null)
+            if (road == null || road.IsDeleted)
             {
                 return Result<bool>.Failure(ServiceError.NotFoundError($"{id}"), Messages.Commons.NOTFOUND);
             }
 
-            road_type_info.Name = road_type.Name;
+            road.Name = road_type.Name;
 
             try
             {
-                _unitOfWork.RoadTypeRepository.Update(road_type_info);
+                _unitOfWork.RoadTypeRepository.Update(road);
                 await _unitOfWork.CommitChangesAsync();
             }
             catch (Exception ex)

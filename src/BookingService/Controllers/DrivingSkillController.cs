@@ -36,15 +36,17 @@ namespace BookingService.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateDrivingSkill()
+        public async Task<IActionResult> UpdateDrivingSkill([FromRoute] Guid id, [FromBody] DrivingSkillCreationDTO skill)
         {
-            return Ok();
+            var result = await _skillService.UpdateDrivingSkill(id, skill);
+            return result.ToActionResult();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteDrivingSkill(Guid id)
         {
-            return Ok();
+            var result = await _skillService.DeleteDrivingSkills(id);
+            return result.ToActionResult();
         }
 
     }

@@ -17,6 +17,8 @@ namespace SharedLibrary.SharedKernel.Http.Implementation
         private readonly HttpService _httpService = httpService;
         private readonly IConfiguration _configuration = configuration;
 
+        private IEnumerable<SystemConfigurationDTO>? _systemConfigs;
+
         public object? ConvertValueToObjectType(SystemConfigurationDTO config)
         {
             switch (config.ValueType)
@@ -66,10 +68,26 @@ namespace SharedLibrary.SharedKernel.Http.Implementation
             return null;
         }
 
+        // This can be used to load to cache instead!
         public async Task<IEnumerable<SystemConfigurationDTO>?> GetAllSystemConfiguration()
         {
-            string url = $"{_configuration.GetConnectionString("Userservice_connection")}/api/configurations";
-            return await _httpService.GetAsync<IEnumerable<SystemConfigurationDTO>>(url);
+            if (_systemConfigs == null)
+            {
+                string url = $"{_configuration.GetConnectionString("Userservice_connection")}/api/configurations";
+                _systemConfigs = await _httpService.GetAsync<IEnumerable<SystemConfigurationDTO>>(url);
+            }
+            return _systemConfigs;
+        }
+
+        public async Task<SystemConfigurationDTO?> GetSystemConfiguration(string name)
+        {
+            if (_systemConfigs == null)
+            {
+                string url = $"{_configuration.GetConnectionString("Userservice_connection")}/api/configurations";
+                _systemConfigs = await _httpService.GetAsync<IEnumerable<SystemConfigurationDTO>>(url);
+            }
+
+            return _systemConfigs.FirstOrDefault(x => x.Name == name);
         }
     }
 }

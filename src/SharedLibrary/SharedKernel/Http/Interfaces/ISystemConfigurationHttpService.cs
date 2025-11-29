@@ -11,6 +11,8 @@ namespace SharedLibrary.SharedKernel.Http.Interfaces
     {
         Task<IEnumerable<SystemConfigurationDTO>?> GetAllSystemConfiguration();
 
+        Task<SystemConfigurationDTO?> GetSystemConfiguration(string name);
+
         object? ConvertValueToObjectType(SystemConfigurationDTO config);
     }
 }

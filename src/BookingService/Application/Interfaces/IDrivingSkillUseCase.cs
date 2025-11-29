@@ -10,5 +10,11 @@ namespace BookingService.Application.Interfaces
         Task<Result<DrivingSkillDTO>> GetDrivingSkillWithId(Guid id);
 
         Task<Result<bool>> CreateNewDrivingSkill(string name);
+
+        Task<Result<bool>> UpdateDrivingSkill(Guid id, DrivingSkillCreationDTO driving_skill);
+
+        Task<Result<bool>> DeleteDrivingSkills(Guid id);
+
+        
     }
 }
