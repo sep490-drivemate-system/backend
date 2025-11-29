@@ -43,5 +43,6 @@ namespace BookingService.Application.Interfaces
         IFeedbackRepository FeedbackRepository { get; }
         ISessionRouteRepository SessionRouteRepository { get; }
         ISessionLogRepository SessionLogRepository { get; }
+        IManufacturerRepository ManufacturerRepository { get; }
     }
 }

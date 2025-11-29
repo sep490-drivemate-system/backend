@@ -38,6 +38,25 @@
       "SwaggerKey": "userService"
     },
     {
+      "DownstreamPathTemplate": "/api/manufacturers/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5200
+        }
+      ],
+      "UpstreamPathTemplate": "/manufacturers/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "PATCH"
+      ],
+      "SwaggerKey": "bookingService"
+    },
+    {
       "DownstreamPathTemplate": "/api/car/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [

@@ -22,6 +22,7 @@ namespace BookingService.Infrastructure.UoW
         private IFeedbackRepository _feedbackRepo;
         private ISessionRouteRepository _sessionRouteRepo;
         private ISessionLogRepository _sessionLogRepo;
+        private IManufacturerRepository _manufacturerRepo;
 
         public IGenericRepository<IEntity> Repository<IEntity>() where IEntity : class
         {
@@ -158,6 +159,14 @@ namespace BookingService.Infrastructure.UoW
             {
                 _sessionLogRepo ??= new SessionLogRepository(_context);
                 return _sessionLogRepo;
+            }
+        }
+
+        public IManufacturerRepository ManufacturerRepository
+        {
+            get
+            {
+                return _manufacturerRepo ??= new ManufacturerRepository(_context);
             }
         }
     }

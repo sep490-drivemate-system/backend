@@ -29,6 +29,7 @@ namespace BookingService.Application
             services.AddScoped<IFeedbackUseCase, FeedbackUseCase>();
             services.AddScoped<IPackageUseCase, PackageUseCase>();
             services.AddScoped<ICarUseCase, CarUseCase>();
+            services.AddScoped<IBrandUseCase, BrandUseCase>();
 
             services.AddScoped<IPayment, Payment>();
             services.AddScoped<IUser, User>();
