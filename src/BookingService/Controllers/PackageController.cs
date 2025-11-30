@@ -4,7 +4,6 @@ using BookingService.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using SharedLibrary.Jwt;
 using SharedLibrary.SharedKernel.ServiceResult;
-using BookingService.Application.Commons.DTOs.Package;
 using Microsoft.AspNetCore.Authorization;
 using SharedLibrary.SharedKernel.Enum;
 

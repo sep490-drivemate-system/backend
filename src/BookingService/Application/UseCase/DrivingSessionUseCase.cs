@@ -289,11 +289,19 @@ namespace BookingService.Application.UseCase
 
             var systemConfigurations = await _systemConfigurationService.GetAllSystemConfiguration();
 
+            var refund_time = (double) (_systemConfigurationService.ConvertValueToObjectType(systemConfigurations.First(x => x.Name == "CancelTimeConstraint")) ?? 0);
+
+            // In case the system setting is not found, we can't finish => failure
+            if (refund_time == 0)
+            {
+                return Result<bool>.Failure(ServiceError.InvalidStateError("time constraints config not found"), Messages.Commons.UNHANDLED);
+            }
+
             switch (user_role)
             {
                 case UserRole.NoviceDriver:
                     // Checking for time constraints to refund extra time.
-                    if ((target_session.StartTime - DateTime.Now).TotalHours < (double)_systemConfigurationService.ConvertValueToObjectType(systemConfigurations.First(x => x.Name == "CancelTimeConstraint")))
+                    if ((target_session.StartTime - DateTime.Now).TotalHours < refund_time)
                     {
                         // Remove the time from the package according to business rule.
                         target_session.Booking.DurationWhenBought -= (target_session.StartTime - target_session.EndTime).TotalHours;
@@ -305,7 +313,7 @@ namespace BookingService.Application.UseCase
                     await _unitOfWork.CommitChangesAsync();
                     break;
                 case UserRole.Instructor:
-                    if ((target_session.StartTime - DateTime.Now).TotalHours < (double)_systemConfigurationService.ConvertValueToObjectType(systemConfigurations.First(x => x.Name == "CancelTimeConstraint")))
+                    if ((target_session.StartTime - DateTime.Now).TotalHours < refund_time)
                     {
                         // Add more time as compensation when instructor cancel near start time according to business rule.
                         target_session.Booking.DurationWhenBought += (target_session.StartTime - target_session.EndTime).TotalHours * 0.5;

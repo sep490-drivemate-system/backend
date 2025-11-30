@@ -44,6 +44,13 @@ namespace BookingService.Application.UseCase
             //    return Result<Guid>.Failure(ServiceError.BadRequestError($"{instructor_info.Role.ToString()}"), Messages.Commons.UNHANDLED);
             //}
 
+            // Checking for car brand
+            var car_manufacturer = await _unitOfWork.ManufacturerRepository.GetByIdAsync(information.BrandId);
+
+            if (car_manufacturer == null || car_manufacturer.IsDeleted) {
+                return Result<Guid>.Failure(ServiceError.BadRequestError($"{information.BrandId}"), Messages.Commons.UNHANDLED);
+            }
+
             // Uploading image to third party storage
 
             Guid temptGuid = Guid.NewGuid();
@@ -295,6 +302,7 @@ namespace BookingService.Application.UseCase
             && (filter.LicenseTier == null || x.LicenseTier >= filter.LicenseTier)
             && (filter.SeatCounts == null || x.SeatCount == filter.SeatCounts)
             && (filter.CarType == null || x.CarType == filter.CarType)
+            && x.Status == Domain.Enum.CarStatus.Approve
             && !x.IsDeleted; ;
             Func<IQueryable<Car>, IOrderedQueryable<Car>>? order_expression = null;
             string included_properties = "Manufacturer,Packages,CarImages,Bookings,Feedbacks";
@@ -327,7 +335,7 @@ namespace BookingService.Application.UseCase
                 }
             }
 
-            var filtered_results = await _unitOfWork.CarRepository.GetAllAsync(filter: filter_expression, orderBy: order_expression, include_properties: included_properties, disable_tracking: true);
+            var filtered_results = await _unitOfWork.CarRepository.GetAllAsync(filter: filter_expression, orderBy: order_expression, include_properties: included_properties);
 
             IEnumerable<CarDTO> mapped_results = filtered_results.Select(x => new CarDTO
             {
@@ -347,7 +355,7 @@ namespace BookingService.Application.UseCase
             return Result<PaginatedList<CarDTO>>.Success(PaginatedList<CarDTO>.Create(mapped_results, filter.PageIndex, filter.PageSize));
         }
 
-        public async Task<Result<List<CarInstructorDetailDTO>>> GetInstructorCarList(Guid id)
+        public async Task<Result<IEnumerable<CarDetailDTO>>> GetInstructorCarList(Guid id)
         {
             Expression<Func<Car, bool>> filter_expression = x => x.InstructorId == id && !x.IsDeleted;
             Func<IQueryable<Car>, IOrderedQueryable<Car>> order_expression = x => x.OrderBy(u => u.CreatedAt);
@@ -355,32 +363,55 @@ namespace BookingService.Application.UseCase
 
             var instructor_cars = await _unitOfWork.CarRepository.GetAllAsync(filter: filter_expression, orderBy: order_expression, include_properties: included_properties, disable_tracking: true);
 
-            var carDtos = _mapper.Map<List<CarInstructorDetailDTO>>(instructor_cars);
+            //var carDtos = _mapper.Map<List<CarInstructorDetailDTO>>(instructor_cars);
 
-            return Result<List<CarInstructorDetailDTO>>.Success(carDtos, message: Messages.Commons.SUCCESS);
+            return Result<IEnumerable<CarDetailDTO>>.Success(instructor_cars.Select(x => new CarDetailDTO
+            {
+                Id = x.Id,
+                ThumbnailUrl = x.ThumbnailUrl,
+                LicensePlate = x.LicensePlate,
+                ModelName = x.Name,
+                Detail = x.Description,
+                ManufacturerName = x.Manufacturer.Name,
+                ManufacturerId = x.ManufacturerId,
+                VehicleType = x.CarType,
+                FuelType = x.FuelType,
+                OwnerId = x.InstructorId,
+                SeatCounts = x.SeatCount,
+                UnitPrice = x.Price,
+                Status = x.Status.ToString(),
+                StatusEnum = x.Status,
+                Images = x.CarImages.Select(x => x.ImageUrl),
+                DocumentsRawString = x.DocumentJsonBlobString,
+                LicenseTier = x.LicenseTier,
+                Registration = System.Text.Json.JsonSerializer.Deserialize<List<CarDocument>>(x.DocumentJsonBlobString)?.FirstOrDefault(x => x.DocumentType == "registration") ?? null,
+                Insurance = System.Text.Json.JsonSerializer.Deserialize<List<CarDocument>>(x.DocumentJsonBlobString)?.FirstOrDefault(x => x.DocumentType == "insurance") ?? null,
+                AverageRating = x.Feedbacks.Select(x => x.CarRating).DefaultIfEmpty(0).Average(),
+                BookingCount = x.Bookings.Count(),
+            }), message: Messages.Commons.SUCCESS);
         }
 
-        public async Task<Result<List<CarInstructorDetailDTO>>> GetInstructorCarWithUserId(Guid userId)
+        public async Task<Result<IEnumerable<CarDetailDTO>>> GetInstructorCarWithUserId(Guid userId)
         {
-            var userServiceClient = _http_client_factory.CreateClient("UserServiceClient");
+            //var userServiceClient = _http_client_factory.CreateClient("UserServiceClient");
 
-            var responseMessage = await userServiceClient.PostAsJsonAsync("api/users/ids", new Guid[] {userId});
+            //var responseMessage = await userServiceClient.PostAsJsonAsync("api/users/ids", new Guid[] {userId});
 
-            if (!responseMessage.IsSuccessStatusCode)
-            {
-                return Result<List<CarInstructorDetailDTO>>.Failure(ServiceError.ServiceUnavailableError($"{userId}"), Messages.Commons.UNHANDLED);
-            }
+            //if (!responseMessage.IsSuccessStatusCode)
+            //{
+            //    return Result<IEnumerable<CarDetailDTO>>.Failure(ServiceError.ServiceUnavailableError($"{userId}"), Messages.Commons.UNHANDLED);
+            //}
 
-            var users = await responseMessage.Content.ReadFromJsonAsync<DefaultApiResponse<IEnumerable<UserDetailDTO>>>();
-            if (users.Value.Count() == 0 || users.Value.First().Role != SharedLibrary.SharedKernel.Enum.UserRole.Instructor)
-            {
-                return Result<List<CarInstructorDetailDTO>>.Failure(ServiceError.BadRequestError($"{userId}"), Messages.Booking.NOTFOUND);
-            }
+            //var users = await responseMessage.Content.ReadFromJsonAsync<DefaultApiResponse<IEnumerable<UserDetailDTO>>>();
+            //if (users.Value.Count() == 0 || users.Value.First().Role != SharedLibrary.SharedKernel.Enum.UserRole.Instructor)
+            //{
+            //    return Result<IEnumerable<CarDetailDTO>>.Failure(ServiceError.BadRequestError($"{userId}"), Messages.Booking.NOTFOUND);
+            //}
 
-            return await GetInstructorCarList(users.Value.First().Instructor.InstructorId);
+            return await GetInstructorCarList(userId);
         }
 
-        public Task<Result<List<CarDTO>>> GetRecommendedCarList(int max_count = 5)
+        public Task<Result<IEnumerable<CarDTO>>> GetRecommendedCarList(int max_count = 5)
         {
             throw new NotImplementedException();
         }

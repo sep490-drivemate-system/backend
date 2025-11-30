@@ -86,7 +86,7 @@ namespace BookingService.Infrastructure.Repositories
 
             foreach (var property in include_properties.Split(",", StringSplitOptions.RemoveEmptyEntries))
             {
-                query.Include(property.Trim());
+                query = query.Include(property.Trim());
             }
 
             return disable_tracking ? await query.AsNoTracking().ToListAsync() : await query.ToListAsync();
@@ -103,7 +103,7 @@ namespace BookingService.Infrastructure.Repositories
 
             foreach (var property in include_properties.Split(",", StringSplitOptions.RemoveEmptyEntries))
             {
-                return_result.Include(property.Trim());
+                return_result = return_result.Include(property.Trim());
             }
 
             if (orderBy != null)
