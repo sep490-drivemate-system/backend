@@ -21,6 +21,7 @@ namespace UserService.Application.UseCases
                 {
                     Name = policy.Title,
                     Description = policy.Description,
+                    Type = policy.Type,
                 });
             }
 
@@ -36,9 +37,9 @@ namespace UserService.Application.UseCases
             return Result<bool>.Success(true, Messages.Common.Success);
         }
 
-        public async Task<Result<IEnumerable<PolicyDTO>>> GetAllPolicy(PolicyType policyType)
+        public async Task<Result<IEnumerable<PolicyDTO>>> GetAllPolicy(PolicyType? policyType)
         {
-            Expression<Func<Policy, bool>> filter_expression = x => !x.IsDeleted && x.Type == policyType;
+            Expression<Func<Policy, bool>> filter_expression = x => !x.IsDeleted && (x.Type == policyType || policyType == null);
 
             var policies = await _unitOfWork.PoliciesRepository.GetAllAsync(filter: filter_expression);
 
@@ -46,7 +47,8 @@ namespace UserService.Application.UseCases
             {
                 Id = x.Id,
                 Title = x.Name,
-                Detail = x.Description
+                Detail = x.Description,
+                Type = x.Type,
             }));
         }
 
