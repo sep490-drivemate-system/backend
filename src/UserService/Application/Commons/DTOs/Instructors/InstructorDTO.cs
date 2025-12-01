@@ -15,4 +15,11 @@ namespace UserService.Application.Commons.DTOs.Instructors
         public int PackageCount { get; set; }
         public decimal AverageRating { get; set; }
     }
+
+    public class InstructorProfileUpdateDTO
+    {
+        public IFormFile? Avatar { get; set; }
+        public string? Bio { get; set; }
+        public GenderType? Gender { get; set; }
+    }
 }

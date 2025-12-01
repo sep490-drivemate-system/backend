@@ -20,7 +20,7 @@ using SharedLibrary.Email;
 
 namespace UserService.Application.UseCases
 {
-    public class InstructorUseCase(IUnitOfWork unitOfWork, ICloudinaryServiceProvider cloudinary, IPasswordHasherService passwordHasher, IHttpClientFactory http_client_factory,IIntructor intructor,IMapper mapper, IEmailService emailService) : IInstructorUseCase
+    public class InstructorUseCase(IUnitOfWork unitOfWork, ICloudinaryServiceProvider cloudinary, IPasswordHasherService passwordHasher, IHttpClientFactory http_client_factory, IIntructor intructor, IMapper mapper, IEmailService emailService) : IInstructorUseCase
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IIntructor _intructor = intructor;
@@ -29,7 +29,7 @@ namespace UserService.Application.UseCases
         private readonly IPasswordHasherService _passwordHasher = passwordHasher;
         private readonly IEmailService _emailService = emailService;
 
-        #region Instructor Details
+        #region Instructor Information
         public async Task<Result<InstructorDTO>> GetInstructorDetail(Guid id)
         {
             string included_properties = "User";
@@ -45,8 +45,11 @@ namespace UserService.Application.UseCases
             {
                 Id = instructor_info.Id,
                 FullName = instructor_info.User?.Fullname ?? "",
+                Bio = instructor_info.Bio,
+                Gender = instructor_info.User.Gender,
                 ExperienceYear = instructor_info.Experience,
                 Avatar = instructor_info.User?.Avatar ?? "",
+                PackageCount = 0,
                 AverageRating = 0,
                 BookingCount = 0
             }, Messages.Common.Success);
@@ -74,6 +77,29 @@ namespace UserService.Application.UseCases
             return Result<PaginatedList<InstructorDTO>>.Success(paginatedResult);
         }
 
+        public async Task<Result<bool>> UpdateInstructorInformation(Guid id, InstructorProfileUpdateDTO profile)
+        {
+            Expression<Func<Instructor, object>>[] includes = { x => x.User };
+
+            var instructor = await _unitOfWork.InstructorRepository.GetByIdAsync(id, includes: includes);
+
+            if (instructor == null)
+            {
+                return Result<bool>.Failure(ServiceError.NotFoundError($"{id}"), Messages.Common.NotFoundError);
+            }
+
+            if (profile.Gender != null) instructor.User.Gender = profile.Gender ?? instructor.User.Gender; // Fallback to current gender
+            if (profile.Avatar != null) instructor.User.Avatar = _cloudinary.UploadImageFormFileResourceToCloudinaryWithExactName(profile.Avatar, instructor.User.Avatar.Split("/").Last());
+            if (profile.Bio != null) instructor.Bio = profile.Bio;
+
+            _unitOfWork.InstructorRepository.Update(instructor);
+            await _unitOfWork.CommitChangesAsync();
+
+            return Result<bool>.Success(true);
+        }
+        #endregion
+
+        #region Instructor schedules
         public async Task<Result<List<InstructorScheduleDTO>>> GetInstructorSchedule(Guid instructor_id)
         {
             var schedule = await _unitOfWork.ScheduleRepository.GetAllAsync(
@@ -84,6 +110,26 @@ namespace UserService.Application.UseCases
             var scheduleDTOs = _mapper.Map<List<InstructorScheduleDTO>>(schedule);
 
             return Result<List<InstructorScheduleDTO>>.Success(scheduleDTOs);
+        }
+
+        public async Task<Result<bool>> CreateInstructorSchedule(Guid instructor_id, InstructorScheduleDTO schedule)
+        {
+            var instructor = await _unitOfWork.InstructorRepository.GetByIdAsync(instructor_id, include_properties: "InstructorSchedules");
+
+            if (instructor == null || instructor.IsDeleted)
+            {
+                return Result<bool>.Failure(ServiceError.NotFoundError($"{instructor_id}"), Messages.Common.NotFoundError);
+            }
+
+            await _unitOfWork.Repository<PersonalSchedule>().CreateAsync(new PersonalSchedule
+            {
+                InstructorId = instructor_id,
+                StartTime = schedule.StartTime,
+                EndTime = schedule.EndTime,
+            });
+            await _unitOfWork.CommitChangesAsync();
+
+            return Result<bool>.Success(true);
         }
         #endregion
 
@@ -149,7 +195,11 @@ namespace UserService.Application.UseCases
                 SubmitDate = application_detail.SubmitAt,
                 DateUntilAutoRejection = application_detail.DatebeforeExpiry,
                 DrivingLicenseFront = application_detail.DrivingLicenseFront,
+                DrivingLicenseBack = application_detail.DrivingLicenseBack,
                 TeachingLicenseFront = application_detail.TeachingLicenseFront,
+                TeachingLicenseTier = application_detail.TeachingLicenseTier,
+                DrivingLicenseTier = application_detail.DrivingLicenseTier,
+                ApplicationStatus = application_detail.Status,
                 HealthCheckup = application_detail.HealthCheckup,
                 PersonalProfile = application_detail.BackgroundProfile,
                 TrackingHistories = application_detail.ApplicationTrackings?.Select(x => new ApplicationTrackingDTO
@@ -349,13 +399,15 @@ namespace UserService.Application.UseCases
                 return Result<Guid>.Failure(ServiceError.BadRequestError($"{instructor_registration.Gender}"), Messages.InstructorApplication.InvalidGender);
             }
 
+            var tempt_id = Guid.NewGuid();
+
             // Save all user uploaded resource to Cloudinary through provider wrapper.
-            string avatar_url = _cloudinary.UploadImageFormFileResourceToCloudinary(instructor_registration.Avatar, $"{instructor_registration.Email}-avatar");
-            string driving_license_front_url = _cloudinary.UploadImageFormFileResourceToCloudinary(instructor_registration.DrivingLicenseFront, $"{instructor_registration.Email}-driving-license-front");
-            string driving_license_back_url = _cloudinary.UploadImageFormFileResourceToCloudinary(instructor_registration.DrivingLicenseBack, $"{instructor_registration.Email}-driving-license-back");
-            string teaching_license_front_url = _cloudinary.UploadImageFormFileResourceToCloudinary(instructor_registration.TeachingLicenseFront, $"{instructor_registration.Email}-teaching-license-front");
-            string health_checkup_url = _cloudinary.UploadImageFormFileResourceToCloudinary(instructor_registration.HealthCheckup, $"{instructor_registration.Email}-health-checkup");
-            string personal_porfolio_url = _cloudinary.UploadImageFormFileResourceToCloudinary(instructor_registration.PersonalProfile, $"{instructor_registration.Email}-porfolio");
+            string avatar_url = _cloudinary.UploadImageFormFileResourceToCloudinaryWithExactName(instructor_registration.Avatar, $"{tempt_id}-avatar");
+            string driving_license_front_url = _cloudinary.UploadImageFormFileResourceToCloudinaryWithExactName(instructor_registration.DrivingLicenseFront, $"{tempt_id}-driving-license-front");
+            string driving_license_back_url = _cloudinary.UploadImageFormFileResourceToCloudinaryWithExactName(instructor_registration.DrivingLicenseBack, $"{tempt_id}-driving-license-back");
+            string teaching_license_front_url = _cloudinary.UploadImageFormFileResourceToCloudinaryWithExactName(instructor_registration.TeachingLicenseFront, $"{tempt_id}-teaching-license-front");
+            string health_checkup_url = _cloudinary.UploadImageFormFileResourceToCloudinaryWithExactName(instructor_registration.HealthCheckup, $"{tempt_id}-health-checkup");
+            string personal_porfolio_url = _cloudinary.UploadImageFormFileResourceToCloudinaryWithExactName(instructor_registration.PersonalProfile, $"{tempt_id}-porfolio");
 
             // Getting configurations
             var expiry_days_config = await _unitOfWork.SystemConfigurationRepository.GetAllAsync(x => x.Name == "DaysBeforeExpiry");
@@ -487,34 +539,34 @@ namespace UserService.Application.UseCases
 
             if (application_patch.DrivingLicenseFront != null)
             {
-                instructor_application.DrivingLicenseFront = _cloudinary.UploadImageFormFileResourceToCloudinary(application_patch.DrivingLicenseFront, $"{instructor_application.EmailAddress}-driving-license-front");
+                instructor_application.DrivingLicenseFront = _cloudinary.UploadImageFormFileResourceToCloudinaryWithExactName(application_patch.DrivingLicenseFront, instructor_application.DrivingLicenseFront.Split("/").Last());
             }
 
             if (application_patch.DrivingLicenseBack != null)
             {
-                instructor_application.DrivingLicenseBack = _cloudinary.UploadImageFormFileResourceToCloudinary(application_patch.DrivingLicenseBack, $"{instructor_application.EmailAddress}-driving-license-back");
+                instructor_application.DrivingLicenseBack = _cloudinary.UploadImageFormFileResourceToCloudinaryWithExactName(application_patch.DrivingLicenseBack, instructor_application.DrivingLicenseBack.Split("/").Last());
             }
 
             if (application_patch.TeachingLicenseFront != null)
             {
-                instructor_application.HealthCheckup = _cloudinary.UploadImageFormFileResourceToCloudinary(application_patch.DrivingLicenseFront, $"{instructor_application.EmailAddress}-teaching-license-front");
+                instructor_application.HealthCheckup = _cloudinary.UploadImageFormFileResourceToCloudinaryWithExactName(application_patch.TeachingLicenseFront, instructor_application.TeachingLicenseFront.Split("/").Last());
             }
 
             if (application_patch.HealthCheckup != null)
             {
-                instructor_application.HealthCheckup = _cloudinary.UploadImageFormFileResourceToCloudinary(application_patch.HealthCheckup, $"{instructor_application.EmailAddress}-health-checkup");
+                instructor_application.HealthCheckup = _cloudinary.UploadImageFormFileResourceToCloudinaryWithExactName(application_patch.HealthCheckup, instructor_application.HealthCheckup.Split("/").Last());
             }
 
             if (application_patch.PersonalProfile != null)
             {
-                instructor_application.BackgroundProfile = _cloudinary.UploadImageFormFileResourceToCloudinary(application_patch.PersonalProfile, $"{instructor_application.EmailAddress}-portfolio");
+                instructor_application.BackgroundProfile = _cloudinary.UploadImageFormFileResourceToCloudinary(application_patch.PersonalProfile, instructor_application.BackgroundProfile.Split("/").Last());
             }
 
             instructor_application.SubmitAt = DateTime.Now;
             instructor_application.Status = ApplicationStatus.ReApplying;
 
             // Update Expiry date
-            var expiry_days_config = await _unitOfWork.SystemConfigurationRepository.GetAllAsync(x => x.Name == "DaysBeforeExpiry");
+            var expiry_days_config = await _unitOfWork.SystemConfigurationRepository.GetAllAsync(x => x.Name == "ApplicantExpiryDays");
             DateOnly expiry_date = DateOnly.FromDateTime(DateTime.Now).AddDays(int.Parse(expiry_days_config.FirstOrDefault()?.Value ?? "7")); // Default to 7 days if no config found
             instructor_application.DatebeforeExpiry = expiry_date;
 
