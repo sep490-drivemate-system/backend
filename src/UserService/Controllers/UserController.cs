@@ -19,7 +19,12 @@ namespace UserService.Controllers
         private readonly IUserUseCase _userUseCase = userUseCase;
         private readonly IJwtService _jwtService = jwtService;
 
- 
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> UpdatePersonalProfile(Guid id, [FromBody] UserProfileUpdateDTO profile)
+        {
+            var result = await _userUseCase.UpdatePersonalProfile(id, profile);
+            return result.ToActionResult();
+        }
 
         [HttpGet("address")]
         [Authorize(Roles = nameof(UserRole.NoviceDriver))]

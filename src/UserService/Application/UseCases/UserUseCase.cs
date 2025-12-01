@@ -92,6 +92,118 @@ namespace UserService.Application.UseCases
             return Result<bool>.Success(true, Messages.Common.Success);
         }
 
+        public async Task<Result<UserDetailDTO>> GetUser(Guid userId)
+        {
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(userId, include_properties: "Instructor,NoviceDriver");
+
+            if (user == null)
+            {
+                return Result<UserDetailDTO>.Failure(ServiceError.NotFoundError($"{userId}"), Messages.Common.NotFoundError);
+            }
+
+            var mappedUser = _mapper.Map<UserDetailDTO>(user);
+
+            return Result<UserDetailDTO>.Success(mappedUser);
+        }
+
+        public async Task<Result<bool>> UpdatePersonalProfile(Guid id, UserProfileUpdateDTO user_profile)
+        {
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(id);
+        
+            if (user == null)
+            {
+                return Result<bool>.Failure(ServiceError.NotFoundError($"{id}"), Messages.Common.NotFoundError);
+            }
+            if (user_profile.Username != null) user.Username = user_profile.Username;
+            if (user_profile.DateOfBirth != null) user.DateOfBirth = (DateOnly) user_profile.DateOfBirth;
+            if (user_profile.Gender != null) user.Gender = (GenderType) user_profile.Gender;
+            if (user_profile.PhoneNumber != null) user.PhoneNumber = user_profile.PhoneNumber;
+            if (user_profile.Email != null) user.Email = user_profile.Email;
+            
+
+            await _unitOfWork.CommitChangesAsync();
+
+            return Result<bool>.Success(true);
+        }
+
+
+        #region Saved Address
+        public async Task<Result<IEnumerable<EmergencyContactDTO>>> GetUserEmergencyContacts(Guid user_id)
+        {
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(user_id, include_properties: "SavedLocations");
+
+            if (user == null)
+            {
+                return Result<IEnumerable<EmergencyContactDTO>>.Failure(ServiceError.NotFoundError($"{user_id}"), Messages.Common.NotFoundError);
+            }
+
+            return Result<IEnumerable<EmergencyContactDTO>>.Success(user.EmergencyContacts.Select(x => new EmergencyContactDTO
+            {
+                Id = x.Id,
+                Name = x.SavedName,
+                Phone = x.ContactNumber
+            }));
+        }
+
+        public async Task<Result<bool>> CreateUserSavedAddress(Guid user_id, UserAddressDTO user_address)
+        {
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(user_id, include_properties: "SavedLocations");
+
+            if (user == null)
+            {
+                return Result<bool>.Failure(ServiceError.NotFoundError($"{user_id}"), Messages.User.UserNotFound);
+            }
+
+            await _unitOfWork.Repository<SavedLocation>().CreateAsync(new SavedLocation
+            {
+                UserId = user_id,
+                DisplayName = user_address.AddressString,
+                LocationLatitude = user_address.Latitude,
+                LocationLongtitude = user_address.Longitude
+            });
+            await _unitOfWork.CommitChangesAsync();
+
+            return Result<bool>.Success(true);
+        }
+        #endregion
+
+        #region Emergency Contacts
+        public async Task<Result<IEnumerable<UserAddressDTO>>> GetUserSavedAddress(Guid user_id)
+        {
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(user_id, include_properties: "SavedLocations");
+
+            if (user == null)
+            {
+                return Result<IEnumerable<UserAddressDTO>>.Failure(ServiceError.NotFoundError($"{user_id}"), Messages.Common.NotFoundError);
+            }
+
+            var addresses = _mapper.Map<IEnumerable<UserAddressDTO>>(user.SavedLocations);
+
+            return Result<IEnumerable<UserAddressDTO>>.Success(addresses);
+        }
+
+        public async Task<Result<bool>> CreateUserEmergencyContacts(Guid user_id, EmergencyContactDTO emergency_contact)
+        {
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(user_id, include_properties: "EmergencyContacts");
+
+            if (user == null)
+            {
+                return Result<bool>.Failure(ServiceError.NotFoundError($"{user_id}"), Messages.User.UserNotFound);
+            }
+
+            await _unitOfWork.Repository<EmergencyContact>().CreateAsync(new EmergencyContact
+            {
+                UserId = user_id,
+                SavedName = emergency_contact.Name,
+                ContactNumber = emergency_contact.Phone,
+            });
+            await _unitOfWork.CommitChangesAsync();
+
+            return Result<bool>.Success(true);
+        }
+        #endregion
+
+        #region GET methods for other services
         public async Task<Result<IEnumerable<UserDetailDTO>>> GetUserWithInstructorId(IEnumerable<Guid> instructor_ids)
         {
             Expression<Func<User, bool>> filter_expression = x => x.Role == SharedLibrary.SharedKernel.Enum.UserRole.Instructor && instructor_ids.Contains(x.Instructor.Id);
@@ -151,20 +263,6 @@ namespace UserService.Application.UseCases
             return Result<IEnumerable<UserDetailDTO>>.Success(mappedUsers);
         }
 
-        public async Task<Result<UserDetailDTO>> GetUser(Guid userId)
-        {
-            var user = await _unitOfWork.UserRepository.GetByIdAsync(userId, include_properties: "Instructor,NoviceDriver");
-
-            if (user == null)
-            {
-                return Result<UserDetailDTO>.Failure(ServiceError.NotFoundError($"{userId}"), Messages.Common.NotFoundError);
-            }
-
-            var mappedUser = _mapper.Map<UserDetailDTO>(user);
-
-            return Result<UserDetailDTO>.Success(mappedUser);
-        }
-
         public async Task<Dictionary<Guid, InstructorBasicInfoDTO>> GetBatchInstructorBasicInfo(List<Guid> instructorIds)
         {
             if (instructorIds == null || !instructorIds.Any())
@@ -220,7 +318,9 @@ namespace UserService.Application.UseCases
                 }
             );
         }
+        #endregion
 
+        #region Statistic
         public async Task<Result<UserStatisticDTO>> GetUsersStatistic(UserStatisticFilterDTO filter)
         {
             Func<User, bool> queryFilter;
@@ -280,134 +380,6 @@ namespace UserService.Application.UseCases
 
             return Result<UserStatisticDTO>.Success(summarizedStatistic);
         }
-
-        public async Task<Result<IEnumerable<UserAddressDTO>>> GetUserSavedAddress(Guid user_id)
-        {
-            var user = await _unitOfWork.UserRepository.GetByIdAsync(user_id, include_properties: "SavedLocations");
-
-            if (user == null)
-            {
-                return Result<IEnumerable<UserAddressDTO>>.Failure(ServiceError.NotFoundError($"{user_id}"), Messages.Common.NotFoundError);
-            }
-
-            var addresses = _mapper.Map<IEnumerable<UserAddressDTO>>(user.SavedLocations);
-
-            return Result<IEnumerable<UserAddressDTO>>.Success(addresses);
-        }
-
-        public async Task<Result<IEnumerable<EmergencyContactDTO>>> GetUserEmergencyContacts(Guid user_id)
-        {
-            var user = await _unitOfWork.UserRepository.GetByIdAsync(user_id, include_properties: "SavedLocations");
-
-            if (user == null)
-            {
-                return Result<IEnumerable<EmergencyContactDTO>>.Failure(ServiceError.NotFoundError($"{user_id}"), Messages.Common.NotFoundError);
-            }
-
-            return Result<IEnumerable<EmergencyContactDTO>>.Success(user.EmergencyContacts.Select(x => new EmergencyContactDTO
-            {
-                Id = x.Id,
-                Name = x.SavedName,
-                Phone = x.ContactNumber
-            }));
-        }
-
-        public async Task<Result<bool>> AddUserSavedAddress(Guid user_id, UserAddressDTO address)
-        {
-            var user = await _unitOfWork.UserRepository.GetByIdAsync(user_id, include_properties: "SavedLocations");
-
-            if (user == null)
-            {
-                return Result<bool>.Failure(ServiceError.UnhandledException($"{user_id}"), Messages.Common.NotFoundError);
-            }
-
-            user.SavedLocations.Add(new SavedLocation
-            {
-                DisplayName = address.AddressString,
-                LocationLatitude = address.Latitude,
-                LocationLongtitude = address.Longitude,
-            });
-
-            try
-            {
-                _unitOfWork.UserRepository.Update(user);
-                await _unitOfWork.CommitChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                return Result<bool>.Failure(ServiceError.UnhandledException($"{ex.Message}"), Messages.Common.UnknownError);
-            }
-
-            return Result<bool>.Success(true);
-        }
-
-        public async Task<Result<bool>> AddUserEmergencyContacts(Guid user_id, EmergencyContactDTO contact)
-        {
-            var user = await _unitOfWork.UserRepository.GetByIdAsync(user_id, include_properties: "EmergencyContacts");
-
-            if (user == null)
-            {
-                return Result<bool>.Failure(ServiceError.UnhandledException($"{user_id}"), Messages.Common.NotFoundError);
-            }
-
-            user.EmergencyContacts.Add(new EmergencyContact
-            {
-                SavedName = contact.Name,
-                ContactNumber = contact.Phone,
-            });
-
-            try
-            {
-                _unitOfWork.UserRepository.Update(user);
-                await _unitOfWork.CommitChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                return Result<bool>.Failure(ServiceError.UnhandledException($"{ex.Message}"), Messages.Common.UnknownError);
-            }
-
-            return Result<bool>.Success(true);
-        }
-
-        public async Task<Result<bool>> CreateUserEmergencyContacts(Guid user_id, EmergencyContactDTO emergency_contact)
-        {
-            var user = await _unitOfWork.UserRepository.GetByIdAsync(user_id, include_properties: "EmergencyContacts");
-
-            if (user == null )
-            {
-                return Result<bool>.Failure(ServiceError.NotFoundError($"{user_id}"), Messages.User.UserNotFound);
-            }
-
-            await _unitOfWork.Repository<EmergencyContact>().CreateAsync(new EmergencyContact
-            {
-                UserId = user_id,
-                SavedName = emergency_contact.Name,
-                ContactNumber = emergency_contact.Phone,
-            });
-            await _unitOfWork.CommitChangesAsync();
-
-            return Result<bool>.Success(true);
-        }
-
-        public async Task<Result<bool>> CreateUserSavedAddress(Guid user_id, UserAddressDTO user_address)
-        {
-            var user = await _unitOfWork.UserRepository.GetByIdAsync(user_id, include_properties: "SavedLocations");
-
-            if (user == null)
-            {
-                return Result<bool>.Failure(ServiceError.NotFoundError($"{user_id}"), Messages.User.UserNotFound);
-            }
-            
-            await _unitOfWork.Repository<SavedLocation>().CreateAsync(new SavedLocation
-            {
-                UserId = user_id,
-                DisplayName = user_address.AddressString,
-                LocationLatitude = user_address.Latitude,
-                LocationLongtitude = user_address.Longitude
-            });
-            await _unitOfWork.CommitChangesAsync();
-
-            return Result<bool>.Success(true);
-        }
+        #endregion
     }
 }
