@@ -7,9 +7,12 @@ namespace BookingService.Application.Interfaces
 {
     public interface IFeedbackUseCase
     {
-        Task<InstructorOverviewFeedbackResponse> GetStatitic(Guid instructorId );
         Task<Result<bool>> SaveFeedback(FeedbackCreationDTO feedbackCreationDTO,Guid driverId);
+
+        #region Functions for other services
+        Task<InstructorOverviewFeedbackResponse> GetStatitic(Guid instructorId);
         Task<Dictionary<Guid, InstructorOverviewFeedbackResponse>> GetBatchStatistics(List<Guid> instructorIds);
+        #endregion
     }
 }
 

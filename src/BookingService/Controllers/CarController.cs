@@ -38,6 +38,20 @@ namespace BookingService.Controllers
             return result.ToActionResult();
         }
 
+        [HttpGet("/api/packages/{id}/cars")]
+        public async Task<IActionResult> GetCarForPackage([FromRoute] Guid id)
+        {
+            var result = await _usecase.GetAllCarsForPackage(id);
+            return result.ToActionResult();
+        }
+
+        [HttpGet("{id}/feedbacks")]
+        public async Task<IActionResult> GetCarFeedbacks([FromRoute] Guid id)
+        {
+            var result = await _usecase.GetCarFeedback(id);
+            return result.ToActionResult();
+        }
+
         [HttpGet("recommendation")]
         public async Task<IActionResult> GetRecommendedCars([FromQuery] int max_count = 10)
         {
@@ -54,18 +68,17 @@ namespace BookingService.Controllers
             return result.ToActionResult();
         }
 
-        [HttpPost("{id}/moderate")]
-        public async Task<IActionResult> ModerateInstructorCar([FromRoute] Guid id, [FromQuery]string action)
-        {
-            var result = await _usecase.ModerateInstructorCar(id, action);
-            return result.ToActionResult();
-        }
-
-        
         [HttpGet("instructor/{id}/cars")]
         public async Task<IActionResult> GetInstructorCars([FromRoute] Guid id)
         {
             var result = await _usecase.GetInstructorCarList(id);
+            return result.ToActionResult();
+        }
+
+        [HttpPost("{id}/moderate")]
+        public async Task<IActionResult> ModerateInstructorCar([FromRoute] Guid id, [FromQuery]string action)
+        {
+            var result = await _usecase.ModerateInstructorCar(id, action);
             return result.ToActionResult();
         }
 

@@ -1,6 +1,7 @@
 ﻿using BookingService.Application.Commons.DTOs.Cars.Create;
 using BookingService.Application.Commons.DTOs.Cars.Get;
 using BookingService.Application.Commons.DTOs.Cars.Update;
+using BookingService.Application.Commons.DTOs.Feedbacks;
 using SharedLibrary.SharedKernel.Pagination;
 using SharedLibrary.SharedKernel.ServiceResult;
 
@@ -9,6 +10,8 @@ namespace BookingService.Application.Interfaces
     public interface ICarUseCase
     {
         Task<Result<PaginatedList<CarDTO>>> GetCarPaginatedList(CarListFilterDTO filter);
+        Task<Result<IEnumerable<CarDTO>>> GetAllCarsForPackage(Guid package_id);
+        Task<Result<IEnumerable<CarFeedbackDTO>>> GetCarFeedback(Guid car_id);
         Task<Result<IEnumerable<CarDTO>>> GetRecommendedCarList(int max_count = 5);
         Task<Result<IEnumerable<CarDetailDTO>>> GetInstructorCarList(Guid id);
         Task<Result<IEnumerable<CarDetailDTO>>> GetInstructorCarWithUserId(Guid userId);
