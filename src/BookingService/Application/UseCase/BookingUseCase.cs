@@ -340,7 +340,7 @@ namespace BookingService.Application.UseCase
 
             if (users.Value.Count() == 0 || users.Value.First().Role != UserRole.Instructor)
             {
-                return Result<InstructorStatisticDTO>.Failure(ServiceError.BadRequestError($"{user_id}"), Messages.Commons.UNHANDLED);
+                return Result<InstructorStatisticDTO>.Failure(ServiceError.BadRequestError($"{user_id}"), $"so user: {users.Value.Count()} . User id su dung: {user_id}");
             }
             var instructorDetail = users.Value.First();
 

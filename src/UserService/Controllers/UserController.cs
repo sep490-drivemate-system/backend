@@ -60,7 +60,7 @@ namespace UserService.Controllers
         }
 
         [HttpGet("statistic")]
-        public async Task<IActionResult> GetUserStatistic(UserStatisticFilterDTO filter)
+        public async Task<IActionResult> GetUserStatistic([FromQuery]UserStatisticFilterDTO filter)
         {
             var result = await _userUseCase.GetUsersStatistic(filter);
             return result.ToActionResult();
