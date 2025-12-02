@@ -63,7 +63,7 @@ namespace PaymentService.Infrastructure.Persistence.Configurations
 
             builder.Property(t => t.FromWalletId)
                    .HasColumnName("from_wallet_id")
-                   .IsRequired();
+                   .IsRequired(false);
 
             builder.Property(t => t.IsDelete)
                    .HasColumnName("is_delete")
@@ -73,7 +73,8 @@ namespace PaymentService.Infrastructure.Persistence.Configurations
             builder.HasOne(t => t.Wallet)
                    .WithMany(w => w.Transactions)
                    .HasForeignKey(t => t.FromWalletId)
-                   .OnDelete(DeleteBehavior.Restrict);
+                   .OnDelete(DeleteBehavior.Restrict)
+                   .IsRequired(false);
 
         }
     }

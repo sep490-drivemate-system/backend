@@ -1,11 +1,13 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
+using SharedLibrary.SharedKernel.Http.DTOs.ApiResponse;
 using SharedLibrary.SharedKernel.Http.DTOs.Configurations;
 using SharedLibrary.SharedKernel.Http.Interfaces;
 using SharedLibrary.SharedKernel.ServiceResult;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
 using Twilio.TwiML.Messaging;
@@ -35,6 +37,12 @@ namespace SharedLibrary.SharedKernel.Http.Implementation
                     if (!DateOnly.TryParse(config.Value, out var dateValue))
                     {
                         return dateValue;
+                    }
+                    break;
+                case "double":
+                    if (!double.TryParse(config.Value, out var doubleValue))
+                    {
+                        return doubleValue;
                     }
                     break;
                 case "datetime":
@@ -74,7 +82,20 @@ namespace SharedLibrary.SharedKernel.Http.Implementation
             if (_systemConfigs == null)
             {
                 string url = $"{_configuration.GetConnectionString("Userservice_connection")}/api/configurations";
-                _systemConfigs = await _httpService.GetAsync<IEnumerable<SystemConfigurationDTO>>(url);
+                //_systemConfigs = (await _httpService.GetAsync<Result<IEnumerable<SystemConfigurationDTO>>>(url)).Data;
+
+                HttpClient client = new HttpClient();
+
+                var response = await client.GetAsync(url);
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("lmao");
+                }
+
+                var content = await response.Content.ReadFromJsonAsync<DefaultApiResponse<IEnumerable<SystemConfigurationDTO>>>();
+
+                _systemConfigs = content?.Value;
             }
             return _systemConfigs;
         }
@@ -84,7 +105,7 @@ namespace SharedLibrary.SharedKernel.Http.Implementation
             if (_systemConfigs == null)
             {
                 string url = $"{_configuration.GetConnectionString("Userservice_connection")}/api/configurations";
-                _systemConfigs = await _httpService.GetAsync<IEnumerable<SystemConfigurationDTO>>(url);
+                _systemConfigs = (await _httpService.GetAsync<DefaultApiResponse<IEnumerable<SystemConfigurationDTO>>>(url)).Value;
             }
 
             return _systemConfigs.FirstOrDefault(x => x.Name == name);

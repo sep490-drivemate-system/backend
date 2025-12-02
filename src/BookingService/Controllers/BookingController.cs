@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SharedLibrary.Jwt;
 using SharedLibrary.SharedKernel.Enum;
+using SharedLibrary.SharedKernel.Http.Interfaces;
 using SharedLibrary.SharedKernel.ServiceResult;
 using System.Threading.Tasks;
 using Twilio.Jwt.AccessToken;
@@ -21,11 +22,21 @@ namespace BookingService.Controllers
     {
         private readonly IBookingUseCase _bookingUseCase;
         private readonly IJwtService _jwtService;
+        private readonly ISystemConfigurationHttpService testService;
 
-        public BookingController(IBookingUseCase bookingUseCase, IJwtService jwtService)
+
+        public BookingController(IBookingUseCase bookingUseCase, IJwtService jwtService, ISystemConfigurationHttpService service)
         {
             _bookingUseCase = bookingUseCase;
             _jwtService = jwtService;
+            testService = service;
+        }
+
+        [HttpGet("TEST")]
+        public async Task<IActionResult> Test()
+        {
+            var result = await testService.GetAllSystemConfiguration();
+            return Ok(result);
         }
 
         [HttpPost("buy-package")]

@@ -45,6 +45,7 @@ namespace PaymentService.Infrastructure.Persistence.Configurations
             builder.HasMany(w => w.Transactions)
                    .WithOne(t => t.Wallet)
                    .HasForeignKey(t => t.FromWalletId)
+                   .IsRequired(false)
                    .OnDelete(DeleteBehavior.Restrict);
         }
     }

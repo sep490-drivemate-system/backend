@@ -15,9 +15,8 @@ namespace PaymentService.Domain.Entities
         public string? ReferenceCode { get; set; } = string.Empty;
         public DateTime UpdatedAt { get; set; }
         public Guid? ToWalletId { get; set; }
+        public Guid? FromWalletId {  get; set; }
         public bool IsDelete { get; set; }
-        // Key for navigation 
-        public Guid FromWalletId {  get; set; }
 
         // Navigation relationship
         public virtual Wallet? Wallet {  get; set; }

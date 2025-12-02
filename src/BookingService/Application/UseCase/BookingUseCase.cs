@@ -154,7 +154,14 @@ namespace BookingService.Application.UseCase
             }
 
             // Checking for time constraints (
-            double time_constraint_value = (double) _systemConfigService.ConvertValueToObjectType(await _systemConfigService.GetSystemConfiguration("CancelationRefundableConstraint"));
+            var timeConstraints = await _systemConfigService.GetSystemConfiguration("CancelationRefundableConstraint");
+            
+            if (timeConstraints == null)
+            {
+                Console.WriteLine("contrainst not found");
+            }
+
+            double time_constraint_value = double.Parse(timeConstraints.Value);
 
             // Actual refund calculation
             if ((DateTime.Now - booking.CreatedAt).TotalDays < time_constraint_value)
@@ -167,8 +174,10 @@ namespace BookingService.Application.UseCase
                         refundAmount = booking.PriceAtBuyingTime;
                         break;
                     case BookingStatus.InUse:
-                        var totalDurationUsed = (booking.DrivingSessions.Where(x => x.Status == SessionStatus.Completed).Sum(x => (x.StartTime - x.EndTime).TotalHours));
+                        var totalDurationUsed = (booking.DrivingSessions.Where(x => x.Status == SessionStatus.Completed).Sum(x => (x.EndTime - x.StartTime).TotalHours));
                         refundAmount = (booking.PriceAtBuyingTime / (decimal)booking.DurationWhenBought) * (decimal) (booking.DurationWhenBought - totalDurationUsed);
+
+                        Console.WriteLine(refundAmount);
                         break;
                     default:
                         return Result<bool>.Failure(ServiceError.InvalidStateError($"{booking.Status.ToString()}"), Messages.Commons.UNHANDLED);
@@ -177,13 +186,11 @@ namespace BookingService.Application.UseCase
                 // Call payment service to update novice driver wallet.
                 var paymentServiceHttpClient = _httpClientFactory.CreateClient("PaymentServiceClient");
 
-                var paymentServiceResponseMessage = await paymentServiceHttpClient.PostAsJsonAsync("api/Transactions/controller", new {
+                var paymentServiceResponseMessage = await paymentServiceHttpClient.PostAsJsonAsync("api/Transaction", new {
                     BookingId=booking.Id,
-                    Amount=booking.PriceAtBuyingTime,
-                    PaymentMethod=PaymentMethod.Payos,
+                    Amount=refundAmount,
                     ReferenceCode=$"{booking.Id}-Refund",
-                    FromWalletId= Guid.Empty,
-                    ToWalletId=Guid.Empty
+
                 });
 
                 if (!paymentServiceResponseMessage.IsSuccessStatusCode)
@@ -192,7 +199,7 @@ namespace BookingService.Application.UseCase
                 }
 
                 paymentServiceResponseMessage = await paymentServiceHttpClient.PostAsJsonAsync("api/wallet/balance", new WalletBalanceDTO {
-                    UserId=user_id,
+                    UserId = booking.DriverId,
                     Balance = refundAmount,
                 });
 

@@ -6,6 +6,7 @@ using BookingService.Application.Interfaces;
 using BookingService.Application.UseCase;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SharedLibrary.Email;
 using SharedLibrary.Jwt;
 using SharedLibrary.SharedKernel.Http;
 using SharedLibrary.SharedKernel.Http.Implementation;
@@ -35,6 +36,7 @@ namespace BookingService.Application
             services.AddScoped<IUser, User>();
 
             services.AddScoped<IJwtService, JwtService>();
+            services.AddScoped<IEmailService, EmailService>();
             services.AddHttpClient<HttpService>();
             services.AddScoped<HttpService>();
 

@@ -17,13 +17,12 @@ namespace PaymentService.Application.Features.Transactions.Commands.CreateTransa
 
         public async Task<Result<Transaction>> Handle(CreateTransactionCommand request, CancellationToken cancellationToken)
         {
-            // Check if payment already exists for this booking
-            var existingPayment = await _unitOfWork.TransactionRepository
-                .ExistsByBookingIdAndStatusAsync(request.BookingId, PaymentStatus.Pending) ||
-                await _unitOfWork.TransactionRepository
-                .ExistsByBookingIdAndStatusAsync(request.BookingId, PaymentStatus.Completed);
+            //// Check if payment already exists for this booking
+            //var existingPayment = await _unitOfWork.TransactionRepository
+            //    .ExistsByBookingIdAndStatusAsync(request.BookingId, PaymentStatus.Pending) ||
+            //    await _unitOfWork.TransactionRepository
+            //    .ExistsByBookingIdAndStatusAsync(request.BookingId, PaymentStatus.Completed);
 
-           
 
             var transaction = new Transaction
             {
@@ -33,9 +32,11 @@ namespace PaymentService.Application.Features.Transactions.Commands.CreateTransa
                 PaymentMethod = request.PaymentMethod,
                 Status = PaymentStatus.Pending,
                 ReferenceCode = request.ReferenceCode ?? Guid.NewGuid().ToString(),
-                FromWalletId = request.FromWalletId,
-                ToWalletId = request.ToWalletId,
-                IsDelete = false
+                FromWalletId = request.FromWalletId == Guid.Empty ? null : request.FromWalletId,
+                ToWalletId = request.ToWalletId == Guid.Empty ? null : request.ToWalletId,
+                IsDelete = false,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
             };
 
             var createdTransaction = await _unitOfWork.TransactionRepository.CreateAsync(transaction);

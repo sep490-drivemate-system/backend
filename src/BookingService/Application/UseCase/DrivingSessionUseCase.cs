@@ -202,17 +202,19 @@ namespace BookingService.Application.UseCase
             DrivingSession target_session = target_booking.DrivingSessions.FirstOrDefault(x => x.Id == session_id); // Get the target session.
 
             // Check if the session is available for reschedule.
-            if (target_session.Status != SessionStatus.Planning)
+            if (target_session.Status != SessionStatus.Planning && target_session.Status != SessionStatus.Reschedule)
             {
-                return Result<bool>.Failure(ServiceError.InvalidStateError($"{target_session.Status.ToString()}"), Messages.Commons.UNHANDLED);
+                return Result<bool>.Success(false, "Đã quá thời hạn đổi lịch của session này");
             }
 
             // Checking for time constraints (currently as least 24 hours before the session start)
-            double time_constraint_value = (double) _systemConfigurationService.ConvertValueToObjectType(await _systemConfigurationService.GetSystemConfiguration("RescheduleTimeConstraint"));
+            var item = await _systemConfigurationService.GetSystemConfiguration("CancelationRefundableConstraint");
+
+            double time_constraint_value = double.Parse(item.Value);
 
             if ((target_session.StartTime - DateTime.Now).TotalHours < time_constraint_value)
             {
-                return Result<bool>.Failure(ServiceError.InvalidStateError($"Starting time: {target_session.StartTime.ToString()}"), Messages.Commons.UNHANDLED);
+                return Result<bool>.Failure(ServiceError.InvalidStateError($"Starting time: {target_session.StartTime.ToString()}"), "Thời gian đổi không còn nữa");
             }
 
             // getting users with user_ids from the found target session:
@@ -250,44 +252,33 @@ namespace BookingService.Application.UseCase
 
                     if ((rescheduleDTO.NewEndTime - rescheduleDTO.NewStartTime).TotalHours >= remaining_time)
                     {
-                        return Result<bool>.Failure(ServiceError.BadRequestError($"Thời gian còn lại: {remaining_time} giờ"), Messages.Commons.UNHANDLED);
+                        return Result<bool>.Failure(ServiceError.BadRequestError($"Thời gian còn lại: {remaining_time} giờ"), "Không đủ thời gian còn lại");
                     }
 
                     target_session.StartTime = rescheduleDTO.NewStartTime;
                     target_session.EndTime = rescheduleDTO.NewEndTime;
-
-                    // Remove the reschedule request if completed.
-                    var reschedule_request = target_session.RescheduleRequests.FirstOrDefault(x => !x.IsDeleted);
-                    if (reschedule_request != null)
-                    {
-                        reschedule_request.IsDeleted = true;
-                    }
-
                     _unitOfWork.DrivingSessionRepository.Update(target_session);
                     
                     await _unitOfWork.CommitChangesAsync();
-                    await _email.SendingEmail(users.Value.ElementAt(0).Email, InstructorEmailReplaceTerm, "[DriveMate] Thông báo thay đổi lịch hẹn." , EmailType.DriverReschedule);
+                    await _email.SendingEmail(users.Value.ElementAt(0).Email, NoviceDriverReplaceTerm, "[DriveMate] Thông báo thay đổi lịch hẹn." , EmailType.DriverReschedule);
                     await _email.SendingEmail(users.Value.ElementAt(1).Email, NoviceDriverReplaceTerm, "[DriveMate] Thông báo thay đổi lịch hẹn.", EmailType.DriverReschedule);
 
                     break;
                 case UserRole.Instructor:
                     // Instructor can only create a "request", the novice driver will be notified about this request.
-                    if (target_session.RescheduleRequests != null)
-                    {
-                        target_session.RescheduleRequests.Clear();
-                    }
+                    //_unitOfWork.DrivingSessionRepository.Update(target_session);
+                    //await _unitOfWork.Repository<RescheduleRequest>().CreateAsync(new RescheduleRequest
+                    //{
+                    //    SessionId = session_id,
+                    //    StartTime = rescheduleDTO.NewStartTime,
+                    //    EndTime = rescheduleDTO.NewEndTime,
+                    //    Side = RequestSide.Instructor,
+                    //});
 
+                    target_session.Status = SessionStatus.Reschedule;
                     _unitOfWork.DrivingSessionRepository.Update(target_session);
-                    await _unitOfWork.Repository<RescheduleRequest>().CreateAsync(new RescheduleRequest
-                    {
-                        SessionId = session_id,
-                        StartTime = rescheduleDTO.NewStartTime,
-                        EndTime = rescheduleDTO.NewEndTime,
-                        Side = RequestSide.Instructor,
-                    });
-
                     await _unitOfWork.CommitChangesAsync();
-                    await _email.SendingEmail(users.Value.ElementAt(1).Email, NoviceDriverReplaceTerm, "[DriveMate] Thông báo yêu cầu đổi lịch hẹn từ phía người hướng dẫn",  EmailType.InstructorReschedule);
+                    await _email.SendingEmail(users.Value.FirstOrDefault(x => x.Role == UserRole.NoviceDriver).Email, InstructorEmailReplaceTerm, "[DriveMate] Thông báo yêu cầu đổi lịch hẹn từ phía người hướng dẫn",  EmailType.InstructorReschedule);
                     
                     break;
                 default:
@@ -317,7 +308,9 @@ namespace BookingService.Application.UseCase
 
             var systemConfigurations = await _systemConfigurationService.GetAllSystemConfiguration();
 
-            var refund_time = (double) (_systemConfigurationService.ConvertValueToObjectType(systemConfigurations.First(x => x.Name == "CancelTimeConstraint")) ?? 0);
+            var config = await _systemConfigurationService.GetSystemConfiguration("CancelTimeConstraint");
+
+            var refund_time = double.Parse(config.Value);
 
             // In case the system setting is not found, we can't finish => failure
             if (refund_time == 0)
