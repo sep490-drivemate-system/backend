@@ -16,6 +16,6 @@ namespace PaymentService.Application.Common.DTOs
     public class UpdateWalletBalanceDto
     {
         public Guid WalletId { get; set; }
-        public decimal NewBalance { get; set; }
+        public decimal Balance { get; set; }
     }
 }

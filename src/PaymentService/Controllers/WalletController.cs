@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PaymentService.Application.Features.Wallet.Commands.UpdateWalletBalance;
+using PaymentService.Application.Features.Wallet.Queries.GetUserWalletWithId;
 using PaymentService.Application.Features.Wallet.Queries.GetWallet;
 using PaymentService.Application.Features.Wallet.Queries.IsEnoughPayment;
 using SharedLibrary.Jwt;
@@ -66,6 +67,13 @@ namespace PaymentService.Controllers
                 WalletId = userId
             });
 
+            return result.ToActionResult();
+        }
+
+        [HttpGet("user/{id}")]
+        public async Task<IActionResult> GetWalletForUserId([FromRoute] Guid id)
+        {
+            var result = await _mediator.Send(new GetUserWalletWithIdQuery { UserId = id });
             return result.ToActionResult();
         }
     }
