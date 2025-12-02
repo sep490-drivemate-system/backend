@@ -28,14 +28,16 @@ namespace BookingService.Application.UseCase
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly ISystemConfigurationHttpService _systemConfigService;
         private readonly IMapper _mapper;
         private readonly IPayment _payment;
         private readonly IUser _user;
 
-        public BookingUseCase(IUnitOfWork unitOfWork, IHttpClientFactory httpClientFactory, IMapper mapper, IPayment payment, IUser user)
+        public BookingUseCase(IUnitOfWork unitOfWork, IHttpClientFactory httpClientFactory, ISystemConfigurationHttpService systemConfigService, IMapper mapper, IPayment payment, IUser user)
         {
             _unitOfWork = unitOfWork;
             _httpClientFactory = httpClientFactory;
+            _systemConfigService = systemConfigService;
             _mapper = mapper;
             _payment = payment;
             _user = user;
@@ -151,8 +153,11 @@ namespace BookingService.Application.UseCase
                 return Result<bool>.Failure(ServiceError.NotFoundError($"{booking_id}"), Messages.Commons.NOTFOUND);
             }
 
+            // Checking for time constraints (
+            double time_constraint_value = (double) _systemConfigService.ConvertValueToObjectType(await _systemConfigService.GetSystemConfiguration("CancelationRefundableConstraint"));
+
             // Actual refund calculation
-            if ((DateTime.Now - booking.CreatedAt).TotalDays < 30)
+            if ((DateTime.Now - booking.CreatedAt).TotalDays < time_constraint_value)
             {
                 decimal refundAmount;
 
@@ -172,8 +177,22 @@ namespace BookingService.Application.UseCase
                 // Call payment service to update novice driver wallet.
                 var paymentServiceHttpClient = _httpClientFactory.CreateClient("PaymentServiceClient");
 
-                var paymentServiceResponseMessage = await paymentServiceHttpClient.PostAsJsonAsync("api/wallet/balance", new WalletBalanceDTO {
-                    UserId = user_id,
+                var paymentServiceResponseMessage = await paymentServiceHttpClient.PostAsJsonAsync("api/Transactions/controller", new {
+                    BookingId=booking.Id,
+                    Amount=booking.PriceAtBuyingTime,
+                    PaymentMethod=PaymentMethod.Payos,
+                    ReferenceCode=$"{booking.Id}-Refund",
+                    FromWalletId= Guid.Empty,
+                    ToWalletId=Guid.Empty
+                });
+
+                if (!paymentServiceResponseMessage.IsSuccessStatusCode)
+                {
+                    return Result<bool>.Failure(ServiceError.ServiceUnavailableError($"Payment Service: {paymentServiceResponseMessage.StatusCode}"), Messages.Commons.UNHANDLED);
+                }
+
+                paymentServiceResponseMessage = await paymentServiceHttpClient.PostAsJsonAsync("api/wallet/balance", new WalletBalanceDTO {
+                    UserId=user_id,
                     Balance = refundAmount,
                 });
 
