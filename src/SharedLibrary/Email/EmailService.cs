@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using MimeKit;
 using SharedLibrary.SharedKernel.Enum;
 using System.Collections.Concurrent;
+using System.Threading.Tasks;
 using Twilio.TwiML.Messaging;
 
 namespace SharedLibrary.Email
@@ -87,6 +88,8 @@ namespace SharedLibrary.Email
                 EmailType.VerifyOPTCode => "EmailVerificationCode.html",
                 EmailType.ForgotPassword => "ForgotPassword.html",
                 EmailType.InstructorRegistration => "InstructorRegistration.html",
+                EmailType.InstructorReschedule => "SessionRescheduledInstructor.html",
+                EmailType.DriverReschedule => "SessionRescheduledDriver.html",
                 _ => "EmailVerificationCode.html" // Default template
             };
         }
@@ -175,6 +178,34 @@ namespace SharedLibrary.Email
             client.Authenticate(_configuration["EMAIL:SENDER_EMAIL"], _configuration["EMAIL:SENDER_PASSWORD"]);
             client.Send(message);
             client.Disconnect(true);
+        }
+
+        public async Task<bool> SendingEmail(string recipients_address, Dictionary<string, string> replace_terms, string topic, EmailType type)
+        {
+            var htmlTemplate = LoadEmailTemplate(GetTemplateFileName(type));
+
+            foreach (var term in replace_terms)
+            {
+                htmlTemplate = htmlTemplate.Replace($"{{{{{term.Key}}}}}", term.Value);
+            }
+
+            var message = new MimeMessage();
+            message.From.Add(new MailboxAddress(_configuration["EMAIL:SENDER_NAME"], _configuration["EMAIL:SENDER_EMAIL"]));
+            message.To.Add(new MailboxAddress(string.Empty, recipients_address));
+            message.Subject = topic;
+            var bodyBuilder = new BodyBuilder { HtmlBody = htmlTemplate };
+            message.Body = bodyBuilder.ToMessageBody();
+
+            try
+            {
+                await Task.Run(() => SendEmailViaSmtp(message));
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return false;
+            }
         }
         #endregion
     }
