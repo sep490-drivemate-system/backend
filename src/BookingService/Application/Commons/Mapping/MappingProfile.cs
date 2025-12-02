@@ -1,8 +1,9 @@
 using AutoMapper;
 using BookingService.Application.Commons.DTOs.Booking;
 using BookingService.Application.Commons.DTOs.Cars.Get;
-using BookingService.Application.Commons.DTOs.DrivingSkills;
+using BookingService.Application.Commons.DTOs.DrivingSession;
 using BookingService.Application.Commons.DTOs.DrivingSessions;
+using BookingService.Application.Commons.DTOs.DrivingSkills;
 using BookingService.Application.Commons.DTOs.Feedbacks;
 using BookingService.Application.Commons.DTOs.Package;
 using BookingService.Application.Commons.DTOs.RoadTypes;
@@ -57,16 +58,18 @@ namespace BookingService.Application.Commons.Mapping
 
             // Mapping for Car DTOs
             CreateMap<Car, CarInstructorDetailDTO>()
-                .ForMember(dest => dest.ModelName, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.SeatCounts, opt => opt.MapFrom(src => src.SeatCount))
-                .ForMember(dest => dest.UnitPrice, opt => opt.MapFrom(src => src.Price));
+                .ForMember(dest => dest.ModelName, opt => opt.MapFrom(src => src.Name));
 
             // Mapping for Instructor Schedule DTOs
             CreateMap<DrivingSession, InstructorScheduleDTO>();
 
             CreateMap<DrivingSession, DrivingSessionlDTO>().ReverseMap();
 
-                // Mapping for DrivingSessionDTO
+            CreateMap<DrivingSession, DrivingSessionScheduleDTO>();
+
+            CreateMap<SessionRoutesDTO, SessionRoute>().ReverseMap();
+
+            // Mapping for DrivingSessionDTO
             CreateMap<DrivingSession, DrivingSessionDTO>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.BookingId, opt => opt.MapFrom(src => src.BookingId))
@@ -134,6 +137,7 @@ namespace BookingService.Application.Commons.Mapping
                 }
                 return dt;
             };
+
 
             CreateMap<DrivingSession, SessionDetailDTO>()
                 .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => convertToVietnamTime(src.StartTime)))

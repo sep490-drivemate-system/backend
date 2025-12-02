@@ -65,7 +65,7 @@ namespace BookingService.Controllers
         [HttpGet("instructor/{id}/cars")]
         public async Task<IActionResult> GetInstructorCars([FromRoute] Guid id)
         {
-            var result = await _usecase.GetInstructorCarList(id);
+            var result = await _usecase.GetInstructorCarsList(id);
             return result.ToActionResult();
         }
 

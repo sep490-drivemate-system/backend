@@ -23,7 +23,7 @@ namespace BookingService.Application.Interfaces
 
         Task<Result<List<DrivingSessionListDTO>>> GetDrivingSessionsByBooking(Guid bookingId, SessionStatus? status);
 
-        Task<Result<bool>> CreateSessionRoutes(Guid sessionId, List<SessionRouteCreateDTO> routes);
+        Task<Result<bool>> CreateSessionRoutes(Guid sessionId, SessionRouteCreateDTO routes);
 
         Task<Result<bool>> UpdateSessionStatus(Guid sessionId, SessionStatus updateStatusDTO);
         Task<Result<SessionLogDTO>> CreateSessionLog(Guid sessionId, SessionLogCreateDTO log);

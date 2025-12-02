@@ -442,48 +442,19 @@ namespace BookingService.Application.UseCase
             return Result<List<DrivingSessionListDTO>>.Success(sessionDTOs);
         }
 
-        public async Task<Result<bool>> CreateSessionRoutes(Guid sessionId, List<SessionRouteCreateDTO> routes)
+        public async Task<Result<bool>> CreateSessionRoutes(Guid sessionId,SessionRouteCreateDTO routesDetail)
         {
             var session = await _unitOfWork.DrivingSessionRepository.GetByIdAsync(sessionId);
-            if (session == null)
+            session.PolylineSesionRoute = routesDetail.PolylineSesionRoute;
+            var sessionRoutes = _mapper.Map<List<SessionRoute>>(routesDetail.Routes);
+
+            foreach (var route in sessionRoutes)
             {
-                return Result<bool>.Failure(
-                    ServiceError.NotFoundError($"DrivingSession {sessionId}"),
-                    Messages.Commons.NOTFOUND);
+                route.SessionId = sessionId;
             }
 
-            // Validate routes list is not empty
-            if (routes == null || !routes.Any())
-            {
-                return Result<bool>.Failure(
-                    ServiceError.BadRequestError("Routes list cannot be empty"),
-                    "Danh sách tuyến đường không được để trống");
-            }
-
-            // Create SessionRoute entities
-            var sessionRoutes = routes.Select(r => new SessionRoute
-            {
-                Id = Guid.NewGuid(),
-                SessionId = sessionId,
-                TextInstruction = r.TextInstruction,
-                StreetName = r.StreetName,
-                LatitudeStart = r.LatitudeStart,
-                LongitudeStart = r.LongitudeStart,
-            }).ToList();
-
-            // Update session status to Upcoming after routes are created
-            if (session.Status == SessionStatus.Planning)
-            {
-                session.Status = SessionStatus.Planning;
-                session.LastModifiedAt = DateTime.UtcNow;
-                _unitOfWork.DrivingSessionRepository.Update(session);
-            }
-
-            // Save to database
             await _unitOfWork.SessionRouteRepository.CreateMultipleAsync(sessionRoutes);
             await _unitOfWork.CommitChangesAsync();
-
-
             return Result<bool>.Success(true, Messages.Commons.SUCCESS);
 
         }
@@ -514,7 +485,6 @@ namespace BookingService.Application.UseCase
         {
             try
             {
-
                 var sessionLog = new SessionLog
                 {
                     SessionId = sessionId,
@@ -525,25 +495,32 @@ namespace BookingService.Application.UseCase
                     Speed = log.Speed
                 };
 
-                // Add to repository
                 await _unitOfWork.SessionLogRepository.CreateAsync(sessionLog);
 
-                // If IsCompleted is true, update session status to Completed
-                if (log.IsCompleted)
+                if (log.IsCompleted || log.PolylineSesionLog != null)
                 {
                     var session = await _unitOfWork.DrivingSessionRepository.GetByIdAsync(sessionId);
                     if (session != null)
                     {
-                        session.Status = SessionStatus.Completed;
-                        session.ActualEnd = session.EndTime;
-                        session.ActualStart = session.StartTime;
+                        if (log.IsCompleted)
+                        {
+                            session.Status = SessionStatus.Completed;
+                            session.ActualEnd = session.EndTime;
+                            session.ActualStart = session.StartTime;
+                        }
+
+                        if (log.PolylineSesionLog != null)
+                        {
+                            session.PolylineSesionLog = log.PolylineSesionLog;
+                        }
+
                         _unitOfWork.DrivingSessionRepository.Update(session);
                     }
                 }
 
                 await _unitOfWork.CommitChangesAsync();
 
-                // Map to DTO
+                // Map to DTO using object initializer
                 var sessionLogDTO = new SessionLogDTO
                 {
                     Id = sessionLog.Id,
@@ -566,7 +543,6 @@ namespace BookingService.Application.UseCase
                     "Đã xảy ra lỗi khi tạo session log");
             }
         }
-
 
         public async Task<Result<SessionDetailDTO>> GetSessionDetail(Guid sessionId)
         {

@@ -22,6 +22,9 @@ namespace BookingService.Application.Commons.DTOs.DrivingSessions
 
         public SessionStatus Status { get; set; }
 
+        public string PolylineSesionRoute { get; set; }
+        public string PolylineSesionLog { get; set; }
+
         public List<RouteDetailDTO>? RouteDetails { get; set; }
         public List<LogDetailDTO>? LogDetails { get; set; }
     }

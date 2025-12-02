@@ -1,8 +1,10 @@
 using BookingService.Application.Commons.DTOs.DrivingSessions;
 using BookingService.Application.Interfaces;
 using BookingService.Domain.Enum;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SharedLibrary.SharedKernel.Enum;
 using SharedLibrary.SharedKernel.ServiceResult;
 
 namespace BookingService.Controllers
@@ -78,9 +80,10 @@ namespace BookingService.Controllers
         [HttpPost("{sessionId}/routes")]
         public async Task<IActionResult> CreateSessionRoutes(
             [FromRoute] Guid sessionId,
-            [FromBody] List<SessionRouteCreateDTO> routes)
+            [FromBody] SessionRouteCreateDTO routesDetail
+            )
         {
-            var result = await _drivingSessionUseCase.CreateSessionRoutes(sessionId, routes);
+            var result = await _drivingSessionUseCase.CreateSessionRoutes(sessionId, routesDetail);
             return result.ToActionResult();
         }
         [HttpPost("{sessionId}/session-log")]

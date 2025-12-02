@@ -10,6 +10,7 @@ namespace BookingService.Application.Interfaces
     {
         Task<Result<PaginatedList<CarDTO>>> GetCarPaginatedList(CarListFilterDTO filter);
         Task<Result<IEnumerable<CarDTO>>> GetRecommendedCarList(int max_count = 5);
+        Task<Result<IEnumerable<CarInstructorDetailDTO>>> GetInstructorCarsList(Guid id);
         Task<Result<IEnumerable<CarDetailDTO>>> GetInstructorCarList(Guid id);
         Task<Result<IEnumerable<CarDetailDTO>>> GetInstructorCarWithUserId(Guid userId);
         Task<Result<CarDetailDTO>> GetCarDetail(Guid id);

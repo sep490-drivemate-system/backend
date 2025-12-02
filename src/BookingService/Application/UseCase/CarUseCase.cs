@@ -391,6 +391,18 @@ namespace BookingService.Application.UseCase
             }), message: Messages.Commons.SUCCESS);
         }
 
+        public async Task<Result<IEnumerable<CarInstructorDetailDTO>>> GetInstructorCarsList(Guid id)
+        {
+            Expression<Func<Car, bool>> filter_expression = x => x.InstructorId == id && !x.IsDeleted;
+            Func<IQueryable<Car>, IOrderedQueryable<Car>> order_expression = x => x.OrderBy(u => u.CreatedAt);
+            string included_properties = "CarImages";
+
+            var instructor_cars = await _unitOfWork.CarRepository.GetAllAsync(filter: filter_expression, orderBy: order_expression, include_properties: included_properties, disable_tracking: true);
+
+
+            var carDtos = _mapper.Map<List<CarInstructorDetailDTO>>(instructor_cars);
+            return Result<IEnumerable<CarInstructorDetailDTO>>.Success(carDtos, message: Messages.Commons.SUCCESS);
+        }
         public async Task<Result<IEnumerable<CarDetailDTO>>> GetInstructorCarWithUserId(Guid userId)
         {
             //var userServiceClient = _http_client_factory.CreateClient("UserServiceClient");

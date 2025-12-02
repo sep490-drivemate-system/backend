@@ -19,6 +19,9 @@ namespace BookingService.Domain.Entities
         public string DisplayEndLocationName { get; set; }
         public decimal EndingLatitude { get; set; }
         public decimal EndingLongtitude { get; set; }
+        public string PolylineSesionRoute { get; set; }
+        public string PolylineSesionLog { get; set; }
+
         public string? NoviceDriverNote { get; set; }
         public string? InstructorNote { get; set; }
 

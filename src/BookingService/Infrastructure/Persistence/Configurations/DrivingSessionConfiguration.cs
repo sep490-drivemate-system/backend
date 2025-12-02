@@ -53,6 +53,17 @@ namespace BookingService.Infrastructure.Persistence.Configurations
             builder.Property(x => x.DisplayStartLocationName)
                .HasColumnName("display_start_location_name");
 
+            builder.Property(x => x.PolylineSesionRoute)
+                .HasColumnName("polyline_sesion_route")
+                .HasColumnType("text")
+                .IsRequired(false);
+
+            builder.Property(x => x.PolylineSesionLog)
+                .HasColumnName("polyline_sesion_log")
+                .HasColumnType("text")
+                .IsRequired(false);
+
+
             builder.Property(x => x.DisplayEndLocationName)
                .HasColumnName("display_end_location_name");
 
