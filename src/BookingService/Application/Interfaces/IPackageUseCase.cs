@@ -9,6 +9,7 @@ namespace BookingService.Application.Interfaces
     public interface IPackageUseCase
     {
         Task<Result<PaginatedList<PackageDTO>>> GetAllPackagesAsync(PackageListFilterDTO filter);
+        Task<Result<IEnumerable<PackageDTO>>> GetRecommendedPackage(int max = 6);
         Task<Result<Package?>> GetPackageByIdAsync(Guid id);
         Task<Result<bool>> CreatePackageAsync(PackageCreationDTO package);
         Task<Result<Package>> UpdatePackageAsync(Package package);

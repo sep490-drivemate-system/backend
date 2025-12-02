@@ -6,23 +6,27 @@ using BookingService.Application.Interfaces;
 using BookingService.Domain.Entities;
 using BookingService.Domain.Enum;
 using SharedLibrary.SharedKernel.Http.DTOs.Package;
+using SharedLibrary.SharedKernel.Http.DTOs.User;
 using SharedLibrary.SharedKernel.Http.Interfaces;
 using SharedLibrary.SharedKernel.Pagination;
 using SharedLibrary.SharedKernel.ServiceResult;
 using System.Linq.Expressions;
+using System.Net.Http;
 
 namespace BookingService.Application.UseCase
 {
     public class PackageUseCase : IPackageUseCase
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IHttpClientFactory _httpClientFactory;
         private readonly IMapper _mapper;
         private readonly IPayment _payment;
         private readonly IUser _userService;
 
-        public PackageUseCase(IUnitOfWork unitOfWork, IMapper mapper, IPayment payment, IUser userService)
+        public PackageUseCase(IUnitOfWork unitOfWork, IHttpClientFactory httpClientFactory, IMapper mapper, IPayment payment, IUser userService)
         {
             _unitOfWork = unitOfWork;
+            _httpClientFactory = httpClientFactory;
             _mapper = mapper;
             _payment = payment;
             _userService = userService;
@@ -32,57 +36,49 @@ namespace BookingService.Application.UseCase
         {
             try
             {
-                var (packages, totalCount) = await _unitOfWork.PackageRepository.GetPackagesWithFilterAsync(
-                    filter.SearchKey,
-                    filter.PageNumber,
-                    filter.PageSize);
+                Expression<Func<Package, bool>> filterExpression = x => !x.IsDeleted
+                && (filter.SearchKey == null || x.Name.Contains(filter.SearchKey))
+                && (filter.DrivingSkills == null || filter.DrivingSkills.Any(y => x.DrivingSkills.Any(z => z.Id == y)))
+                && (filter.RoadTypes == null || filter.RoadTypes.Any(y => x.RoadTypes.Any(z => z.Id == y)))
+                && (filter.AllowSelfCar == null || x.AllowNoviceVehicle == filter.AllowSelfCar);
 
-                var instructorIds = packages
-                    .Select(p => p.InstructorId)
-                    .Distinct()
-                    .ToList();
+                string includedProperties = "DrivingSkills,RoadTypes,Bookings,Cars";
 
-                // Fetch instructor info from UserService
-                var instructorInfoDict = await _userService.GetBatchInstructorInfo(instructorIds);
+                var filteredPackages = await _unitOfWork.PackageRepository.GetAllAsync(filter: filterExpression, include_properties: includedProperties);
+                
+                // Getting instructor information through User Service API.
+                var instructorIdList = filteredPackages.Select(x => x.InstructorId).Distinct();
 
-                // Map to DTOs
-                var packageDtos = packages.Select(p => new PackageDTO
+                var http_client = _httpClientFactory.CreateClient("UserServiceClient");
+                var http_message = await http_client.PostAsJsonAsync<IEnumerable<Guid>>("api/users/ids", instructorIdList);
+                var response = await http_message.Content.ReadFromJsonAsync<ApiResponse<IEnumerable<UserDetailDTO>>>();
+
+                // Map the final result
+                var mappedList = filteredPackages.Select(x => new PackageDTO
                 {
-                    Id = p.Id.ToString(),
-                    Name = p.Name,
-                    InstructorName = instructorInfoDict.ContainsKey(p.InstructorId) 
-                        ? instructorInfoDict[p.InstructorId].Fullname 
-                        : "Unknown",
-                    InstructorAvatar = instructorInfoDict.ContainsKey(p.InstructorId) 
-                        ? instructorInfoDict[p.InstructorId].AvatarUrl 
-                        : string.Empty,
-                    HasVehicle = p.Cars != null && p.Cars.Any(),
-                    Duration = (int)p.Duration,
-                    RoadTypes = p.RoadTypes != null 
-                        ? p.RoadTypes.Select(r => r.Name).ToList() 
-                        : new List<string>(),
-                    Skills = p.DrivingSkills != null 
-                        ? p.DrivingSkills.Select(s => s.Name).ToList() 
-                        : new List<string>(),
-                    Price = p.Price,
-                    BookingCount = p.Bookings?.Count ?? 0
-                }).ToList();
+                    Id = x.Id,
+                    Name = x.Name,
+                    Duration = x.Duration,
+                    Price = x.Price,
+                    AllowSelfCar = x.AllowNoviceVehicle,
+                    RoadTypes = x.RoadTypes.Select(x => x.Name),
+                    Skills = x.DrivingSkills.Select(x => x.Name),
+                    BookingCount = x.Bookings.Count(),
+                    CarCount = x.Cars.Count(),
+                    InstructorAvatar = response.Value.FirstOrDefault(y => y.UserId == x.InstructorId)?.AvatarUrl ?? "",
+                    InstructorName = response.Value.FirstOrDefault(y => y.UserId == x.InstructorId)?.FullName ?? "Unknown",
+                });
 
-                // Create paginated result
-                var paginatedList = PaginatedList<PackageDTO>.CreateFromPagedData(
-                    packageDtos,
-                    filter.PageNumber,
-                    filter.PageSize,
-                    totalCount);
+                // Pagination
+                var paginatedList = PaginatedList<PackageDTO>.CreateFromPagedData(mappedList.ToList(), filter.PageNumber, filter.PageSize, mappedList.Count());
 
                 return Result<PaginatedList<PackageDTO>>.Success(paginatedList);
             }
-            catch (Exception ex)
+            catch (HttpRequestException ex)
             {
-                return Result<PaginatedList<PackageDTO>>.Failure(
-                    ServiceError.UnhandledException(ex.Message),
-                    "Failed to retrieve packages");
+                return Result<PaginatedList<PackageDTO>>.Failure(ServiceError.ServiceUnavailableError($"UserServiceClient"), Messages.Commons.UNHANDLED);
             }
+            
         }
 
         public async Task<Result<Package?>> GetPackageByIdAsync(Guid id)
@@ -173,6 +169,32 @@ namespace BookingService.Application.UseCase
             return Result<List<PackageDto>>.Success(packageDtos);
         }
 
+        public async Task<Result<IEnumerable<PackageDTO>>> GetRecommendedPackage(int max = 6)
+        {
+            Expression<Func<Package, bool>> filterExpression = x => !x.IsDeleted && x.Bookings.Count > 0;
+            string including = "Bookings,Cars,RoadTypes,DrivingSkills";
+            var packages = await _unitOfWork.PackageRepository.GetAllAsync(filter: filterExpression, include_properties: including);
 
+            var instructorIdList = packages.Select(x => x.InstructorId).Distinct();
+
+            var http_client = _httpClientFactory.CreateClient("UserServiceClient");
+            var http_message = await http_client.PostAsJsonAsync<IEnumerable<Guid>>("api/users/ids", instructorIdList);
+            var response = await http_message.Content.ReadFromJsonAsync<ApiResponse<IEnumerable<UserDetailDTO>>>();
+
+            return Result<IEnumerable<PackageDTO>>.Success(packages.Select(x => new PackageDTO
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Duration = x.Duration,
+                Price = x.Price,
+                AllowSelfCar = x.AllowNoviceVehicle,
+                BookingCount = x.Bookings.Count,
+                CarCount = x.Cars.Count,
+                RoadTypes = x.RoadTypes.Select(y => y.Name),
+                Skills = x.DrivingSkills.Select(y => y.Name),
+                InstructorName = response.Value.FirstOrDefault(y => y.UserId == x.InstructorId)?.FullName ?? "Unknown",
+                InstructorAvatar = response.Value.FirstOrDefault(y => y.UserId == x.InstructorId)?.AvatarUrl ?? "",
+            }));
+        }
     }
 }

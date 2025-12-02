@@ -23,9 +23,16 @@ namespace BookingService.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllPackages(PackageListFilterDTO filter)
+        public async Task<IActionResult> GetAllPackages([FromQuery] PackageListFilterDTO filter)
         {
             var result = await _packageUseCase.GetAllPackagesAsync(filter);
+            return result.ToActionResult();
+        }
+
+        [HttpGet("recommended")]
+        public async Task<IActionResult> GetRecommendedPackage([FromQuery] int max = 6)
+        {
+            var result = await _packageUseCase.GetRecommendedPackage(max);
             return result.ToActionResult();
         }
 

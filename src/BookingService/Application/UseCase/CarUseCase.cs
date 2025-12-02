@@ -3,6 +3,7 @@ using BookingService.Application.Commons.Constants;
 using BookingService.Application.Commons.DTOs.Cars.Create;
 using BookingService.Application.Commons.DTOs.Cars.Get;
 using BookingService.Application.Commons.DTOs.Cars.Update;
+using BookingService.Application.Commons.DTOs.Feedbacks;
 using BookingService.Application.Interfaces;
 using BookingService.Domain.Entities;
 using Newtonsoft.Json;
@@ -423,9 +424,30 @@ namespace BookingService.Application.UseCase
             return await GetInstructorCarList(userId);
         }
 
-        public Task<Result<IEnumerable<CarDTO>>> GetRecommendedCarList(int max_count = 5)
+        public async Task<Result<IEnumerable<CarDTO>>> GetRecommendedCarList(int max_count = 5)
         {
-            throw new NotImplementedException();
+            Expression<Func<Car, bool>> filterExpression = x => !x.IsDeleted && x.Feedbacks.Count() > 0;
+            string includedProperties = "Manufacturer,Feedbacks,Bookings";
+
+            var cars = await _unitOfWork.CarRepository.GetAllAsync(filter: filterExpression, include_properties: includedProperties);
+
+            var topCars = cars.OrderByDescending(y => y.Bookings.Count()).ThenByDescending(y => y.Feedbacks.Select(x => x.CarRating).DefaultIfEmpty(0).Average()).Take(max_count);
+
+            return Result<IEnumerable<CarDTO>>.Success(topCars.Select(x => new CarDTO
+            {
+                Id = x.Id,
+                ModelName = x.Name,
+                ThumbnailUrl = x.ThumbnailUrl,
+                ManufacturerName = x.Manufacturer.Name,
+                SeatCounts = x.SeatCount,
+                UnitPrice = x.Price,
+                VehicleType = x.CarType,
+                FuelType = x.FuelType,
+                LicenseTier = x.LicenseTier,
+                ManufacturerId = x.ManufacturerId,
+                AverageRating = x.Feedbacks.Select(x => x.CarRating).DefaultIfEmpty(0).Average(),
+                BookingCount = x.Bookings.Count()
+            }));
         }
 
         public async Task<Result<bool>> ModerateInstructorCar(Guid car_id, string action)
@@ -456,6 +478,54 @@ namespace BookingService.Application.UseCase
 
             await _unitOfWork.CommitChangesAsync();
             return Result<bool>.Success(true);
+        }
+
+        public async Task<Result<IEnumerable<CarDTO>>> GetAllCarsForPackage(Guid packageId)
+        {
+            Expression<Func<Car, bool>> filterExpression = x => x.Packages.Any(x => x.Id == packageId) && !x.IsDeleted;
+            string includedProperties = "Packages,Manufacturer,Bookings,Feedbacks";
+
+            var packageCars = await _unitOfWork.CarRepository.GetAllAsync(filter: filterExpression, include_properties: includedProperties);
+
+            return Result<IEnumerable<CarDTO>>.Success(packageCars.Select(x => new CarDTO
+            {
+                Id = x.Id,
+                ModelName = x.Name,
+                LicenseTier = x.LicenseTier,
+                SeatCounts = x.SeatCount,
+                ThumbnailUrl = x.ThumbnailUrl,
+                UnitPrice = x.Price,
+                ManufacturerName = x.Manufacturer.Name,
+                VehicleType = x.CarType,
+                FuelType = x.FuelType,
+                AverageRating = x.Feedbacks.Select(x => x.CarRating).DefaultIfEmpty(0).Average(),
+                BookingCount = x.Bookings.Count(),
+                ManufacturerId = x.ManufacturerId,
+            }));
+        }
+
+        public async Task<Result<IEnumerable<CarFeedbackDTO>>> GetCarFeedback(Guid car_id)
+        {
+            var car = await _unitOfWork.CarRepository.GetByIdAsync(car_id, include_properties: "Feedbacks");
+
+            if (car == null || car.IsDeleted)
+            {
+                return Result<IEnumerable<CarFeedbackDTO>>.Failure(ServiceError.NotFoundError($"{car_id}"), Messages.Commons.NOTFOUND);
+            }
+
+            // Fetching users
+            var userServiceClient = _http_client_factory.CreateClient("UserServiceClient");
+            var responseMessage = await userServiceClient.PostAsJsonAsync("api/users/driver-ids", car.Feedbacks.Select(x => x.NoviceDriverId));
+            var users = await responseMessage.Content.ReadFromJsonAsync<DefaultApiResponse<IEnumerable<UserDetailDTO>>>();
+
+            return Result<IEnumerable<CarFeedbackDTO>>.Success(car.Feedbacks.Select(x => new CarFeedbackDTO
+            {
+                AvatarUrl = users.Value.FirstOrDefault(y => y.NoviceDriver.NoviceDriverId == x.NoviceDriverId)?.AvatarUrl ?? "",
+                Username = users.Value.FirstOrDefault(y => y.NoviceDriver.NoviceDriverId == x.NoviceDriverId)?.FullName ?? "Anonymous",
+                Rating = x.CarRating,
+                Comment = x.CarFeedback,
+                FeedbackDate = x.CreatedAt
+            }));
         }
     }
 }

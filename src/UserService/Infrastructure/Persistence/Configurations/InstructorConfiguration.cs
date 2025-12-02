@@ -17,11 +17,6 @@ namespace UserService.Infrastructure.Persistence.Configurations
                 .HasColumnName("id")
                 .IsRequired();
 
-            // foreign keys
-            builder.Property(x => x.UserId)
-                .HasColumnName("user_id")
-                .IsRequired();
-
             // properties
             builder.Property(x => x.Bio)
                 .HasColumnName("bio")

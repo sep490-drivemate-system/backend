@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Hangfire.PostgreSql.Properties;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SharedLibrary.SharedKernel.ServiceResult;
 using System;
@@ -25,6 +26,13 @@ namespace UserService.Controllers
             return result.ToActionResult();
         }
 
+        [HttpGet("recommended")]
+        public async Task<IActionResult> GetRecommenedInstructors([FromQuery] int max = 5)
+        {
+            var result = await _usecase.GetRecommendedInstructor(max);
+            return result.ToActionResult();
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetInstructorDetail([FromRoute] Guid id)
         {
@@ -36,6 +44,13 @@ namespace UserService.Controllers
         public async Task<IActionResult> GetInstructorSchedule([FromRoute] Guid id)
         {
             var result = await _usecase.GetInstructorSchedule(id);
+            return result.ToActionResult();
+        }
+
+        [HttpPost("{id}/schedule")]
+        public async Task<IActionResult> CreateNewSchedule([FromRoute] Guid id, [FromBody] InstructorScheduleDTO schedule)
+        {
+            var result = await _usecase.CreateInstructorSchedule(id, schedule);
             return result.ToActionResult();
         }
 
@@ -82,6 +97,11 @@ namespace UserService.Controllers
             return result.ToActionResult();
         }
 
-        
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> UpdatePartialInstructorProfile([FromRoute] Guid id, [FromForm] InstructorProfileUpdateDTO profile)
+        {
+            var result = await _usecase.UpdateInstructorInformation(id, profile);
+            return result.ToActionResult();
+        }
     }
 }

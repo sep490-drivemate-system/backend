@@ -11,7 +11,7 @@ namespace SharedLibrary.SharedKernel.ServiceResult
         public bool IsSuccess { get; set; }
         public string Message { get; set; } = string.Empty;
         public string? ErrorCode { get; set; }
-        public object? Value { get; set; }
+        public virtual object? Value { get; set; }
 
         public ApiResponse() { }
 
@@ -26,6 +26,8 @@ namespace SharedLibrary.SharedKernel.ServiceResult
 
     public class ApiResponse<T> : ApiResponse
     {
+        public new T? Value { get; set; }
+
         public ApiResponse() { }
 
         public ApiResponse(bool success, string message, T? value = default, string? errorCode = null)
