@@ -1,0 +1,74 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thông báo thay đổi lịch hẹn - DriveMate</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f4f6fa; font-family:'Segoe UI', Tahoma, sans-serif;">
+
+    <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="padding: 40px 0; background-color: #f4f6fa;">
+        <tr>
+            <td align="center">
+                <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="max-width:600px; background-color:#ffffff; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.08); overflow:hidden;">
+
+                    <tr>
+                        <td align="center" style="background-color:#374151; padding: 24px;">
+                            <h1 style="margin: 0; font-size: 24px; color: #ffffff;">Thông báo thay đổi lịch hẹn</h1>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="padding: 32px 24px; color: #333333;">
+                            <p style="font-size: 16px; line-height: 1.6; margin-top: 0;">
+                                Xin chào,
+                            </p>
+                            <p style="font-size: 16px; line-height: 1.6;">
+                                Chúng tôi xin thông báo lịch hẹn của gói <strong>{{Package}}</strong> đã được dời sang thời gian mới.
+                            </p>
+                            <p style="font-size: 16px; line-height: 1.6;">
+                                Vui lòng kiểm tra thông tin chi tiết dưới đây để đảm bảo bạn có thể tham gia đúng giờ:
+                            </p>
+
+                            <div style="text-align: center; margin: 40px 0;">
+                                <p style="margin: 0 0 10px 0; font-size: 14px; color: #666666; text-transform: uppercase; letter-spacing: 1px;">Thời gian mới</p>
+
+                                <div style="background-color:#f4f6fa; color:#111111; padding:20px 32px; border-radius:8px; border:2px dashed #6366f1; display:inline-block; text-align: center;">
+                                    <div style="font-size: 24px; font-weight: bold; color: #6366f1; margin-bottom: 4px;">{{NewTime}}</div>
+                                    <div style="font-size: 18px; font-weight: 600; color: #333333;">{{NewDate}}</div>
+                                </div>
+
+                                <p style="margin: 15px 0 0 0; font-size: 14px; color: #888888; font-style: italic;">
+                                    (Lịch cũ: {{OldTime}})
+                                </p>
+                            </div>
+
+                            <p style="font-size: 16px; line-height: 1.6; text-align: center;">
+                                Nếu thời gian này không phù hợp, bạn có thể yêu cầu dời lịch lại trong phần quản lý lịch hẹn.
+                            </p>
+
+                            <div style="text-align: center; margin-top: 30px;">
+                                <a href="{{SessionURL}}" style="background-color: #6366f1; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 6px; font-weight: bold; font-size: 16px; display: inline-block;">
+                                    Chi tiết lịch hẹn
+                                </a>
+                            </div>
+
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="background-color:#f9fafb; text-align:center; padding: 24px; font-size:13px; color:#888888;">
+                            <p style="margin: 0 0 10px 0;">
+                                Bạn nhận được email này vì có sự thay đổi trong lịch trình của bạn tại DriveMate.
+                            </p>
+                            &copy; 2025 <strong>DriveMate</strong>. Mọi quyền được bảo lưu.<br />
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>

@@ -1,0 +1,92 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Yêu cầu đổi lịch từ Hướng dẫn viên - DriveMate</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f4f6fa; font-family:'Segoe UI', Tahoma, sans-serif;">
+
+    <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="padding: 40px 0; background-color: #f4f6fa;">
+        <tr>
+            <td align="center">
+                <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="max-width:600px; background-color:#ffffff; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.08); overflow:hidden;">
+
+                    <!-- Header -->
+                    <tr>
+                        <td align="center" style="background-color:#374151; padding: 24px;">
+                            <h1 style="margin: 0; font-size: 24px; color: #ffffff;">Yêu cầu thay đổi lịch hẹn</h1>
+                        </td>
+                    </tr>
+
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 32px 24px; color: #333333;">
+                            <p style="font-size: 16px; line-height: 1.6; margin-top: 0;">
+                                Xin chào <strong>{{DriverName}}</strong>,
+                            </p>
+                            <p style="font-size: 16px; line-height: 1.6;">
+                                Hướng dẫn viên <strong>{{InstructorName}}</strong> muốn đề xuất thay đổi thời gian cho buổi tập lái xe sắp tới của bạn.
+                            </p>
+
+                            <!-- Optional Reason Block -->
+                            <div style="background-color: #fff4e5; border-left: 4px solid #ff9800; padding: 12px 16px; margin: 16px 0; border-radius: 4px;">
+                                <p style="margin: 0; font-size: 14px; color: #663c00;">
+                                    <strong>Lý do:</strong> {{Reason}}
+                                </p>
+                            </div>
+
+                            <p style="font-size: 16px; line-height: 1.6;">
+                                Dưới đây là thời gian mới được đề xuất. Vui lòng xem xét và xác nhận nếu thời gian này phù hợp với bạn:
+                            </p>
+
+                            <!-- Proposed Time Box -->
+                            <div style="text-align: center; margin: 30px 0;">
+                                <p style="margin: 0 0 10px 0; font-size: 14px; color: #666666; text-transform: uppercase; letter-spacing: 1px;">Thời gian đề xuất</p>
+
+                                <div style="background-color:#f4f6fa; color:#111111; padding:20px 32px; border-radius:8px; border:2px dashed #6366f1; display:inline-block; text-align: center;">
+                                    <div style="font-size: 24px; font-weight: bold; color: #6366f1; margin-bottom: 4px;">{{NewTime}}</div>
+                                    <div style="font-size: 18px; font-weight: 600; color: #333333;">{{NewDate}}</div>
+                                </div>
+
+                                <p style="margin: 15px 0 0 0; font-size: 14px; color: #888888; font-style: italic;">
+                                    (Lịch cũ: {{OldTime}})
+                                </p>
+                            </div>
+
+                            <p style="font-size: 16px; line-height: 1.6; text-align: center;">
+                                Để xác nhận lịch mới này hoặc đề xuất một thời gian khác, vui lòng nhấn vào nút bên dưới.
+                            </p>
+
+                            <!-- CTA Buttons -->
+                            <div style="text-align: center; margin-top: 30px;">
+                                <a href="{{AcceptURL}}" style="background-color: #6366f1; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 6px; font-weight: bold; font-size: 16px; display: inline-block; margin: 0 8px;">
+                                    Đồng ý đổi lịch
+                                </a>
+                            </div>
+                            <div style="text-align: center; margin-top: 16px;">
+                                <a href="{{RejectURL}}" style="color: #6b7280; text-decoration: underline; font-size: 14px;">
+                                    Tôi bận, chọn giờ khác
+                                </a>
+                            </div>
+
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color:#f9fafb; text-align:center; padding: 24px; font-size:13px; color:#888888;">
+                            <p style="margin: 0 0 10px 0;">
+                                Bạn nhận được email này vì Hướng dẫn viên của bạn đã gửi yêu cầu thay đổi lịch trình.
+                            </p>
+                            &copy; 2025 <strong>DriveMate</strong>. Mọi quyền được bảo lưu.<br />
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>
