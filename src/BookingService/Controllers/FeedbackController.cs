@@ -48,12 +48,19 @@ namespace BookingService.Controllers
             return result.ToActionResult();
         }
 
-        //[HttpGet("instructor/{id}")]
-        //public async Task<IActionResult> GetInstructorFeedback(Guid id)
-        //{
-        //    var result = await _useCase.GetInstructorFeedback(id);
-        //    return Ok(result);
-        //}
+        [HttpGet("instructors/{id}")]
+        public async Task<IActionResult> GetInstructorFeedback(Guid id)
+        {
+            var result = await _useCase.GetInstructorFeedbacks(id);
+            return Ok(result);
+        }
+
+        [HttpGet("cars/{id}")]
+        public async Task<IActionResult> GetCarFeedback(Guid id)
+        {
+            var result = await _useCase.GetCarFeedbacks(id);
+            return Ok(result);
+        }
 
         //[HttpGet("instructor/{id}")]
         //public async Task<IActionResult> GetInstructorFeedback(Guid id)
