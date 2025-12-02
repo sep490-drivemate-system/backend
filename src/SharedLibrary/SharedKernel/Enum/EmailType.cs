@@ -11,5 +11,7 @@ namespace SharedLibrary.SharedKernel.Enum
         VerifyOPTCode,
         ForgotPassword,  
         InstructorRegistration,
+        InstructorReschedule,
+        DriverReschedule
     }
 }

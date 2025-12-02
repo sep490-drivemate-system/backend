@@ -4,6 +4,7 @@ using BookingService.Application.Commons.DTOs.DrivingSessions;
 using BookingService.Application.Interfaces;
 using BookingService.Domain.Entities;
 using BookingService.Domain.Enum;
+using SharedLibrary.Email;
 using SharedLibrary.Jwt;
 using SharedLibrary.SharedKernel.Enum;
 using SharedLibrary.SharedKernel.Http.DTOs.ApiResponse;
@@ -14,11 +15,12 @@ using System.Linq.Expressions;
 
 namespace BookingService.Application.UseCase
 {
-    public class DrivingSessionUseCase(IUnitOfWork unitOfWok, IJwtService jwtService, IUser userService, IMapper mapper, IHttpClientFactory httpClientFactory, IPayment paymentService, ISystemConfigurationHttpService systemConfigurationService) : IDrivingSessionUseCase
+    public class DrivingSessionUseCase(IUnitOfWork unitOfWok, IJwtService jwtService, IEmailService emailService, IUser userService, IMapper mapper, IHttpClientFactory httpClientFactory, IPayment paymentService, ISystemConfigurationHttpService systemConfigurationService) : IDrivingSessionUseCase
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWok;
         private readonly IJwtService _jwtService = jwtService;
         private readonly IMapper _mapper = mapper;
+        private readonly IEmailService _email = emailService;
         private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
         private readonly IPayment _paymentService = paymentService;
         private readonly ISystemConfigurationHttpService _systemConfigurationService = systemConfigurationService;
@@ -161,6 +163,7 @@ namespace BookingService.Application.UseCase
         {
             throw new NotImplementedException();
         }
+
         //public async Task<Result<DrivingSessionlDTO>> GetSessionDetail(Guid session_id)
         //{
         //    string included_properties = "Booking,Booking.Package";
@@ -180,7 +183,7 @@ namespace BookingService.Application.UseCase
         public async Task<Result<bool>> RescheduleSession(Guid session_id, SessionRescheduleRequestDTO rescheduleDTO)
         {
             Expression<Func<Booking, bool>> filter_expression = x => x.DrivingSessions.Any(x => x.Id == session_id);
-            string included_properties = "DrivingSessions,DrivingSessions.RescheduleRequests";
+            string included_properties = "DrivingSessions,DrivingSessions.RescheduleRequests,Package";
 
             var filtered_bookings = await _unitOfWork.BookingRepository.GetAllAsync(filter: filter_expression, include_properties: included_properties);
 
@@ -189,7 +192,13 @@ namespace BookingService.Application.UseCase
                 return Result<bool>.Failure(ServiceError.NotFoundError($"{session_id}"), Messages.Commons.NOTFOUND);
             }
 
-            Booking target_booking = filtered_bookings[0]; // Get the booking that containing the target session.
+            Booking? target_booking = filtered_bookings.FirstOrDefault(); // Get the booking that containing the target session.
+
+            if (target_booking == null)
+            {
+                return Result<bool>.Failure(ServiceError.NotFoundError($"{session_id}"), Messages.Commons.NOTFOUND);
+            }
+
             DrivingSession target_session = target_booking.DrivingSessions.FirstOrDefault(x => x.Id == session_id); // Get the target session.
 
             // Check if the session is available for reschedule.
@@ -199,19 +208,34 @@ namespace BookingService.Application.UseCase
             }
 
             // Checking for time constraints (currently as least 24 hours before the session start)
-            var systemConfigurations = await _systemConfigurationService.GetAllSystemConfiguration();
-            var time_constraint = systemConfigurations.First(x => x.Name == "RescheduleTimeConstraint");
-            double time_constraint_value = (double)_systemConfigurationService.ConvertValueToObjectType(time_constraint);
-
-            if (time_constraint == null)
-            {
-                return Result<bool>.Failure(ServiceError.InvalidStateError($"Time Constraint not exist"), Messages.Commons.UNHANDLED);
-            }
+            double time_constraint_value = (double) _systemConfigurationService.ConvertValueToObjectType(await _systemConfigurationService.GetSystemConfiguration("RescheduleTimeConstraint"));
 
             if ((target_session.StartTime - DateTime.Now).TotalHours < time_constraint_value)
             {
                 return Result<bool>.Failure(ServiceError.InvalidStateError($"Starting time: {target_session.StartTime.ToString()}"), Messages.Commons.UNHANDLED);
             }
+
+            // getting users with user_ids from the found target session:
+            var userServiceClient = _httpClientFactory.CreateClient("UserServiceClient");
+            var responseMessage = await userServiceClient.PostAsJsonAsync("api/users/ids", new Guid[] { target_booking.InstructorId, target_booking.DriverId });
+            var users = await responseMessage.Content.ReadFromJsonAsync<DefaultApiResponse<IEnumerable<UserDetailDTO>>>();
+
+            // Send email to both the instructor and the novice driver about the schedule change request.
+            Dictionary<string, string> InstructorEmailReplaceTerm = new Dictionary<string, string> {
+                { "InstructorName", users.Value.ElementAt(0).FullName },
+                { "DriverName", users.Value.ElementAt(1).FullName },
+                { "Reason", rescheduleDTO.UserNote ?? "Không có lí do" },
+                { "OldTime", target_session.StartTime.ToString("dddd, dd/MM/yyyy")},
+                { "NewDate", rescheduleDTO.NewStartTime.ToString("dd/MM/yyyy") },
+                { "NewTime", rescheduleDTO.NewStartTime.ToString("hh:mm") },
+            };
+
+            Dictionary<string, string> NoviceDriverReplaceTerm = new Dictionary<string, string> {
+                { "Package", target_booking.Package.Name },
+                { "OldTime", target_session.StartTime.ToString("dddd, dd/MM/yyyy")},
+                { "NewTime", rescheduleDTO.NewStartTime.ToString("dd/MM/yyyy") },
+                { "NewDate", rescheduleDTO.NewStartTime.ToString("hh:mm") }
+            };
 
             // Work flow based on the user role
             var user_role = await _jwtService.ExtractUserRoleFromToken(rescheduleDTO.JwtToken);
@@ -240,17 +264,21 @@ namespace BookingService.Application.UseCase
                     }
 
                     _unitOfWork.DrivingSessionRepository.Update(target_session);
+                    
                     await _unitOfWork.CommitChangesAsync();
+                    await _email.SendingEmail(users.Value.ElementAt(0).Email, InstructorEmailReplaceTerm, "[DriveMate] Thông báo thay đổi lịch hẹn." , EmailType.DriverReschedule);
+                    await _email.SendingEmail(users.Value.ElementAt(1).Email, NoviceDriverReplaceTerm, "[DriveMate] Thông báo thay đổi lịch hẹn.", EmailType.DriverReschedule);
 
                     break;
                 case UserRole.Instructor:
                     // Instructor can only create a "request", the novice driver will be notified about this request.
                     if (target_session.RescheduleRequests != null)
                     {
-                        target_session.RescheduleRequests = new List<RescheduleRequest>();
+                        target_session.RescheduleRequests.Clear();
                     }
 
-                    target_session.RescheduleRequests.Add(new RescheduleRequest
+                    _unitOfWork.DrivingSessionRepository.Update(target_session);
+                    await _unitOfWork.Repository<RescheduleRequest>().CreateAsync(new RescheduleRequest
                     {
                         SessionId = session_id,
                         StartTime = rescheduleDTO.NewStartTime,
@@ -258,9 +286,9 @@ namespace BookingService.Application.UseCase
                         Side = RequestSide.Instructor,
                     });
 
-                    _unitOfWork.DrivingSessionRepository.Update(target_session);
                     await _unitOfWork.CommitChangesAsync();
-
+                    await _email.SendingEmail(users.Value.ElementAt(1).Email, NoviceDriverReplaceTerm, "[DriveMate] Thông báo yêu cầu đổi lịch hẹn từ phía người hướng dẫn",  EmailType.InstructorReschedule);
+                    
                     break;
                 default:
                     return Result<bool>.Failure(ServiceError.RuleViolationError($"{user_role.ToString()}"), Messages.Commons.UNHANDLED);
