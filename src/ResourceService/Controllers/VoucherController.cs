@@ -57,8 +57,7 @@ namespace ResourceService.Controllers
         //[Authorize(Roles = nameof(UserRole.NoviceDriver))]
         public async Task<IActionResult> CheckVoucher([FromBody] VoucherUseRequestDTO request)
         {
-            //var userId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
-            var userId = new Guid("b1e28f12-f107-4d2f-9491-f51a7f57fcb4");
+            var userId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
             var result = await _services.VoucherService.CheckVoucher(request, userId);
             return result.ToActionResult();
         }
@@ -67,8 +66,7 @@ namespace ResourceService.Controllers
         //[Authorize(Roles = nameof(UserRole.NoviceDriver))]
         public async Task<IActionResult> UseVoucher([FromBody] VoucherUseRequestDTO request)
         {
-            //var userId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
-            var userId = new Guid("b1e28f12-f107-4d2f-9491-f51a7f57fcb4");
+            var userId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
             var result = await _services.VoucherService.UseVoucher(request, userId);
             return result.ToActionResult();
         }
