@@ -16,11 +16,6 @@ namespace UserService.Infrastructure.Persistence.Configurations
             builder.Property(x => x.Id)
                 .HasColumnName("id");
 
-            // foreign keys
-            builder.Property(x => x.UserId)
-                .HasColumnName("user_id")
-                .IsRequired();
-
             // properties
             builder.Property(x => x.DrivingLicense)
                 .HasColumnName("driving_license_image_url")
@@ -51,7 +46,7 @@ namespace UserService.Infrastructure.Persistence.Configurations
 
             builder.HasOne(x => x.User)
                 .WithOne(x => x.NoviceDriver)
-                .HasForeignKey<NoviceDriver>(x => x.UserId);
+                .HasForeignKey<NoviceDriver>(x => x.Id);
         }
     }
 }

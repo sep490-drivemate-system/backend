@@ -12,9 +12,6 @@ namespace UserService.Domain.Entities
         public DateTime LastModifiedAt { get; set; }
         public bool IsDeleted { get; set; }
 
-        // Keys for relationships
-        public Guid UserId { get; set; }
-
         // Relationship navigation
         public virtual User? User {get; set; }
     }
