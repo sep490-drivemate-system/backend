@@ -412,9 +412,30 @@ namespace BookingService.Application.UseCase
             return await GetInstructorCarList(userId);
         }
 
-        public Task<Result<IEnumerable<CarDTO>>> GetRecommendedCarList(int max_count = 5)
+        public async Task<Result<IEnumerable<CarDTO>>> GetRecommendedCarList(int max_count = 5)
         {
-            throw new NotImplementedException();
+            Expression<Func<Car, bool>> filterExpression = x => !x.IsDeleted && x.Feedbacks.Count() > 0;
+            string includedProperties = "Manufacturer,Feedbacks,Bookings";
+
+            var cars = await _unitOfWork.CarRepository.GetAllAsync(filter: filterExpression, include_properties: includedProperties);
+
+            var topCars = cars.OrderByDescending(y => y.Bookings.Count()).ThenByDescending(y => y.Feedbacks.Select(x => x.CarRating).DefaultIfEmpty(0).Average()).Take(max_count);
+
+            return Result<IEnumerable<CarDTO>>.Success(topCars.Select(x => new CarDTO
+            {
+                Id = x.Id,
+                ModelName = x.Name,
+                ThumbnailUrl = x.ThumbnailUrl,
+                ManufacturerName = x.Manufacturer.Name,
+                SeatCounts = x.SeatCount,
+                UnitPrice = x.Price,
+                VehicleType = x.CarType,
+                FuelType = x.FuelType,
+                LicenseTier = x.LicenseTier,
+                ManufacturerId = x.ManufacturerId,
+                AverageRating = x.Feedbacks.Select(x => x.CarRating).DefaultIfEmpty(0).Average(),
+                BookingCount = x.Bookings.Count()
+            }));
         }
 
         public async Task<Result<bool>> ModerateInstructorCar(Guid car_id, string action)

@@ -26,6 +26,13 @@ namespace UserService.Controllers
             return result.ToActionResult();
         }
 
+        [HttpGet("recommended")]
+        public async Task<IActionResult> GetRecommenedInstructors([FromQuery] int max = 5)
+        {
+            var result = await _usecase.GetRecommendedInstructor(max);
+            return result.ToActionResult();
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetInstructorDetail([FromRoute] Guid id)
         {

@@ -169,6 +169,32 @@ namespace BookingService.Application.UseCase
             return Result<List<PackageDto>>.Success(packageDtos);
         }
 
+        public async Task<Result<IEnumerable<PackageDTO>>> GetRecommendedPackage(int max = 6)
+        {
+            Expression<Func<Package, bool>> filterExpression = x => !x.IsDeleted && x.Bookings.Count > 0;
+            string including = "Bookings,Cars,RoadTypes,DrivingSkills";
+            var packages = await _unitOfWork.PackageRepository.GetAllAsync(filter: filterExpression, include_properties: including);
 
+            var instructorIdList = packages.Select(x => x.InstructorId).Distinct();
+
+            var http_client = _httpClientFactory.CreateClient("UserServiceClient");
+            var http_message = await http_client.PostAsJsonAsync<IEnumerable<Guid>>("api/users/ids", instructorIdList);
+            var response = await http_message.Content.ReadFromJsonAsync<ApiResponse<IEnumerable<UserDetailDTO>>>();
+
+            return Result<IEnumerable<PackageDTO>>.Success(packages.Select(x => new PackageDTO
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Duration = x.Duration,
+                Price = x.Price,
+                AllowSelfCar = x.AllowNoviceVehicle,
+                BookingCount = x.Bookings.Count,
+                CarCount = x.Cars.Count,
+                RoadTypes = x.RoadTypes.Select(y => y.Name),
+                Skills = x.DrivingSkills.Select(y => y.Name),
+                InstructorName = response.Value.FirstOrDefault(y => y.UserId == x.InstructorId)?.FullName ?? "Unknown",
+                InstructorAvatar = response.Value.FirstOrDefault(y => y.UserId == x.InstructorId)?.AvatarUrl ?? "",
+            }));
+        }
     }
 }

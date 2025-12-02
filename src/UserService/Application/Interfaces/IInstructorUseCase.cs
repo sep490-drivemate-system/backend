@@ -11,6 +11,7 @@ namespace UserService.Application.Interfaces
         #region Instructor Information
         Task<Result<PaginatedList<InstructorDTO>>> GetInstructors(InstructorListFilterDTO filter);
         Task<Result<InstructorDTO>> GetInstructorDetail(Guid id);
+        Task<Result<IEnumerable<InstructorDTO>>> GetRecommendedInstructor(int max_count = 5);
         Task<Result<bool>> UpdateInstructorInformation(Guid id, InstructorProfileUpdateDTO profile);
         #endregion
 

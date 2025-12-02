@@ -112,6 +112,29 @@ namespace UserService.Application.UseCases
             return Result<List<InstructorScheduleDTO>>.Success(scheduleDTOs);
         }
 
+        public async Task<Result<IEnumerable<InstructorDTO>>> GetRecommendedInstructor(int max_count = 5)
+        {
+            Expression<Func<Instructor, bool>> filterExpression = x => !x.IsDeleted;
+            var instructors = await _unitOfWork.InstructorRepository.GetAllAsync(filterExpression, include_properties: "User");
+
+            var instructorBookingOverviews = await _intructor.GetBatchInstructorOverviewFeedback(instructors.Select(x => x.Id).ToList());
+
+            var mappedInstructorList = instructors.Select(x => new InstructorDTO
+            {
+                Id = x.Id,
+                Avatar = x.User.Avatar,
+                FullName = x.User.Fullname,
+                Bio = x.Bio,
+                Gender = x.User.Gender,
+                ExperienceYear = x.Experience,
+                BookingCount = instructorBookingOverviews[x.Id]?.BookingCount ?? 0,
+                AverageRating = instructorBookingOverviews[x.Id]?.AverageRating ?? 0,
+                PackageCount = instructorBookingOverviews[x.Id]?.PackageCount ?? 0
+            }).Where(x => x.BookingCount > 0).OrderByDescending(x => x.BookingCount).ThenByDescending(x => x.AverageRating).Take(5);
+
+            return Result<IEnumerable<InstructorDTO>>.Success(mappedInstructorList);
+        }
+
         public async Task<Result<bool>> CreateInstructorSchedule(Guid instructor_id, InstructorScheduleDTO schedule)
         {
             var instructor = await _unitOfWork.InstructorRepository.GetByIdAsync(instructor_id, include_properties: "InstructorSchedules");

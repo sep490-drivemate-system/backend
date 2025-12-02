@@ -29,6 +29,13 @@ namespace BookingService.Controllers
             return result.ToActionResult();
         }
 
+        [HttpGet("recommended")]
+        public async Task<IActionResult> GetRecommendedPackage([FromQuery] int max = 6)
+        {
+            var result = await _packageUseCase.GetRecommendedPackage(max);
+            return result.ToActionResult();
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetPackage(Guid id)
         {
