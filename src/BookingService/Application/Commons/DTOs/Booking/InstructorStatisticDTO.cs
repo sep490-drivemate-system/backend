@@ -1,26 +1,22 @@
-﻿namespace BookingService.Application.Commons.DTOs.Booking
+﻿using Microsoft.AspNetCore.Mvc;
+using SharedLibrary.SharedKernel.Enum;
+
+namespace BookingService.Application.Commons.DTOs.Booking
 {
 
     public class InstructorStatisticFilterDTO
     {
-        public DateOnly From { get; set; }
-        public DateOnly To { get; set; }
+        [FromQuery(Name = "year")]
+        public int Year { get; set; } = 0;
 
-        public InstructorStatisticFilterDTO()
-        {
-            int CurrentDayOffset = (int)DateTime.Today.DayOfWeek - (int) DayOfWeek.Monday;
+        [FromQuery(Name = "month")]
+        public int Month { get; set; } = 0;
 
-            if (CurrentDayOffset < 0)
-            {
-                CurrentDayOffset += 7;
-            }
+        [FromQuery(Name = "week")]
+        public int Week { get; set; } = 0;
 
-            DateTime previousMonday = DateTime.Today.AddDays(-CurrentDayOffset - 7);
-            DateTime nextSunday = DateTime.Today.AddDays((7 - (int)DateTime.Today.DayOfWeek) % 7 + 7);
-            
-            this.From = DateOnly.FromDateTime(previousMonday);
-            this.To = DateOnly.FromDateTime(nextSunday);
-        }
+        [FromQuery(Name = "type")]
+        public StatisticTimeType Type { get; set; } = 0;
     }
 
     public class InstructorStatisticDTO

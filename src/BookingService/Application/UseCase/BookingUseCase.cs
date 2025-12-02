@@ -327,12 +327,6 @@ namespace BookingService.Application.UseCase
 
         public async Task<Result<InstructorStatisticDTO>> GetInstructorStatistic(Guid user_id, InstructorStatisticFilterDTO filter)
         {
-            // Check for time filter constraints
-            if (filter.From >= filter.To)
-            {
-                return Result<InstructorStatisticDTO>.Failure(ServiceError.BadRequestError($"{filter.From} must before ${filter.To}"), Messages.Commons.UNHANDLED);
-            }
-
             // Getting and validating instructor information (1 API calls)
             var userServiceHttpClient = _httpClientFactory.CreateClient("UserServiceClient");
             var userServiceResponseMessage = await userServiceHttpClient.PostAsJsonAsync<IEnumerable<Guid>>("api/users/ids", new List<Guid>() { user_id });
@@ -373,32 +367,42 @@ namespace BookingService.Application.UseCase
                 TotalSessionByStatusCount = instructorSessions.GroupBy(x => x.Status.ToString()).ToDictionary(x => x.Key, x => x.Count()),
             };
 
-            // Session by day and by type
-            statistic.TotalSessionByday = instructorSessions.Where(x => filter.From <= DateOnly.FromDateTime(x.StartTime) && DateOnly.FromDateTime(x.EndTime) <= filter.To)
-                .GroupBy(x => $"{x.StartTime.Day}/{x.StartTime.Month}/{x.StartTime.Year}")
-                .ToDictionary(x => x.Key, x => x.GroupBy(u => u.Status.ToString()).ToDictionary(u => u.Key, u => u.Count()));
-
-            // Recent package purchase
-            var recentPurchases = instructorBookings.OrderByDescending(x => x.CreatedAt).Take(5);
-            userServiceResponseMessage = await userServiceHttpClient.PostAsJsonAsync<IEnumerable<Guid>>("api/users/driver-ids", recentPurchases.Select(x => x.DriverId));
-
-            if (!userServiceResponseMessage.IsSuccessStatusCode)
+            switch (filter.Type)
             {
-                return Result<InstructorStatisticDTO>.Failure(ServiceError.ServiceUnavailableError($"UserService: {userServiceResponseMessage.ReasonPhrase}"), Messages.Commons.UNHANDLED);
+                case StatisticTimeType.Yearly:
+                    statistic.TotalSessionByday = instructorSessions.Where(x => x.StartTime.Year == filter.Year).GroupBy(x => x.StartTime.Month.ToString()).ToDictionary(x => x.Key, x => x.GroupBy(u => u.Status.ToString()).ToDictionary(u => u.Key, u => u.Count()));
+                    break;
+                case StatisticTimeType.Monthly:
+                    statistic.TotalSessionByday = instructorSessions.Where(x => x.StartTime.Year == filter.Year && x.StartTime.Month == filter.Month).GroupBy(x => x.StartTime.Day.ToString()).ToDictionary(x => x.Key, x => x.GroupBy(u => u.Status.ToString()).ToDictionary(u => u.Key, u => u.Count()));
+                    break;
+                case StatisticTimeType.Weekly:
+                    statistic.TotalSessionByday = instructorSessions.Where(x => x.StartTime.Year == filter.Year && x.StartTime.Month == filter.Month && ((x.StartTime.Day - 1) / 7) + 1 == filter.Week).GroupBy(x => x.StartTime.Day.ToString()).ToDictionary(x => x.Key, x => x.GroupBy(u => u.Status.ToString()).ToDictionary(u => u.Key, u => u.Count()));
+                    break;
+                default:
+                    return Result<InstructorStatisticDTO>.Failure(ServiceError.BadRequestError($"{filter.Type}"), Messages.Commons.UNHANDLED);
             }
 
-            users = await userServiceResponseMessage.Content.ReadFromJsonAsync<DefaultApiResponse<IEnumerable<UserDetailDTO>>>();
+            // Recent package purchase
+            //var recentPurchases = instructorBookings.OrderByDescending(x => x.CreatedAt).Take(5);
+            //userServiceResponseMessage = await userServiceHttpClient.PostAsJsonAsync<IEnumerable<Guid>>("api/users/driver-ids", recentPurchases.Select(x => x.DriverId));
 
-            statistic.RecentPurchases = recentPurchases.Select(x => new RecentPackagePurchasesDTO
-            {
-                BoughtTime = x.CreatedAt,
-                PackageId = x.PackageId,
-                PackageName = instructorPackage.FirstOrDefault(u => u.Id == x.PackageId)?.Name ?? "",
-                NoviceDriverUserId = users.Value.FirstOrDefault(u => u.NoviceDriver.NoviceDriverId == x.DriverId)?.UserId ?? Guid.Empty,
-                AvatarUrl = users.Value.FirstOrDefault(u => u.NoviceDriver.NoviceDriverId == x.DriverId)?.AvatarUrl ?? "",
-                Fullname = users.Value.FirstOrDefault(u => u.NoviceDriver.NoviceDriverId == x.DriverId)?.FullName ?? "",
-                PhoneNumber = users.Value.FirstOrDefault(u => u.NoviceDriver.NoviceDriverId == x.DriverId)?.Phone ?? "",
-            });
+            //if (!userServiceResponseMessage.IsSuccessStatusCode)
+            //{
+            //    return Result<InstructorStatisticDTO>.Failure(ServiceError.ServiceUnavailableError($"UserService: {userServiceResponseMessage.ReasonPhrase}"), Messages.Commons.UNHANDLED);
+            //}
+
+            //users = await userServiceResponseMessage.Content.ReadFromJsonAsync<DefaultApiResponse<IEnumerable<UserDetailDTO>>>();
+
+            //statistic.RecentPurchases = recentPurchases.Select(x => new RecentPackagePurchasesDTO
+            //{
+            //    BoughtTime = x.CreatedAt,
+            //    PackageId = x.PackageId,
+            //    PackageName = instructorPackage.FirstOrDefault(u => u.Id == x.PackageId)?.Name ?? "",
+            //    NoviceDriverUserId = users.Value.FirstOrDefault(u => u.NoviceDriver.NoviceDriverId == x.DriverId)?.UserId ?? Guid.Empty,
+            //    AvatarUrl = users.Value.FirstOrDefault(u => u.NoviceDriver.NoviceDriverId == x.DriverId)?.AvatarUrl ?? "",
+            //    Fullname = users.Value.FirstOrDefault(u => u.NoviceDriver.NoviceDriverId == x.DriverId)?.FullName ?? "",
+            //    PhoneNumber = users.Value.FirstOrDefault(u => u.NoviceDriver.NoviceDriverId == x.DriverId)?.Phone ?? "",
+            //});
 
             // Top packages
             statistic.TopPersonalPackages = instructorBookings.GroupBy(x => x.PackageId).Select(x => new TopPersonalPackage

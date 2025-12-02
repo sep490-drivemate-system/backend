@@ -32,13 +32,6 @@ namespace BookingService.Controllers
             testService = service;
         }
 
-        [HttpGet("TEST")]
-        public async Task<IActionResult> Test()
-        {
-            var result = await testService.GetAllSystemConfiguration();
-            return Ok(result);
-        }
-
         [HttpPost("buy-package")]
         [Authorize(Roles = nameof(UserRole.NoviceDriver))]
         public async Task<IActionResult> BuyPackage([FromBody] PackageBuyingDTO packageBuyingDTO)
