@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using UserService.Application.Commons.DTOs.Users;
 using UserService.Application.Interfaces;
 using UserService.Application.UseCases;
+using UserService.Domain.Enum;
 
 namespace UserService.Controllers
 {
@@ -23,6 +24,13 @@ namespace UserService.Controllers
         public async Task<IActionResult> UpdatePersonalProfile(Guid id, [FromBody] UserProfileUpdateDTO profile)
         {
             var result = await _userUseCase.UpdatePersonalProfile(id, profile);
+            return result.ToActionResult();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllUserInformation([FromQuery] UserFilterDTO filter)
+        {
+            var result = await _userUseCase.GetAllUser(filter);
             return result.ToActionResult();
         }
 

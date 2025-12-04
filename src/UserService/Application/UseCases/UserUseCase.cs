@@ -2,6 +2,7 @@ using AutoMapper;
 using Resend;
 using SharedLibrary.SharedKernel.Enum;
 using SharedLibrary.SharedKernel.Http.DTOs.User;
+using SharedLibrary.SharedKernel.Pagination;
 using SharedLibrary.SharedKernel.Password;
 using SharedLibrary.SharedKernel.ServiceResult;
 using System.Linq;
@@ -90,6 +91,45 @@ namespace UserService.Application.UseCases
             }
 
             return Result<bool>.Success(true, Messages.Common.Success);
+        }
+
+        public async Task<Result<PaginatedList<UserDetailDTO>>> GetAllUser(UserFilterDTO filter)
+        {
+            Expression<Func<User, bool>> filterExpression = x => !x.IsDeleted
+             && (String.IsNullOrEmpty(filter.searchKey) || 
+                (x.PhoneNumber.ToLower().Contains(filter.searchKey.ToLower()) 
+                    || x.Username.ToLower().Contains(filter.searchKey) 
+                    || x.Fullname.ToLower().Contains(filter.searchKey)
+                    || x.Email.ToLower().Contains(filter.searchKey)))
+             && (filter.Status == null || x.AccountStatus == filter.Status)
+             && (filter.Role == null || x.Role == filter.Role);
+            
+            var filterdList = await _unitOfWork.UserRepository.GetAllAsync(filter: filterExpression, include_properties: "Instructor,NoviceDriver");
+
+            PaginatedList<UserDetailDTO> mappedList = PaginatedList<UserDetailDTO>
+                .Create(filterdList.Select(x => new UserDetailDTO
+                {
+                    UserId = x.Id,
+                    FullName = x.Fullname,
+                    AvatarUrl = x.Avatar,
+                    Email = x.Email,
+                    BirthDate = x.DateOfBirth,
+                    Phone = x.PhoneNumber,
+                    LicenseTier = x.MaxLicenseLevel ?? DrivingLicenseTier.B,
+                    Role = x.Role,
+                    NoviceDriver = x.NoviceDriver == null ? null : new NoviceDriverDetailDTO
+                    {
+                        NoviceDriverId = x.NoviceDriver.Id,
+                    },
+                    Instructor = x.Instructor == null ? null : new InstructorDetailDTO
+                    {
+                        InstructorId = x.Id,
+                        Bio = x.Instructor.Bio,
+                        ExperienceYear = x.Instructor.Experience,
+                    }
+                }).ToList(), filter.Page, filter.PageSize);
+
+            return Result<PaginatedList<UserDetailDTO>>.Success(mappedList);
         }
 
         public async Task<Result<UserDetailDTO>> GetUser(Guid userId)
@@ -226,6 +266,7 @@ namespace UserService.Application.UseCases
                     ExperienceYear = x.Instructor.Experience
                 } : null,
                 NoviceDriver = null,
+                LicenseTier = x.MaxLicenseLevel ?? DrivingLicenseTier.B,
             }));
         }
 
@@ -249,6 +290,7 @@ namespace UserService.Application.UseCases
                 {
                     NoviceDriverId = x.NoviceDriver.Id
                 } : null,
+                LicenseTier = x.MaxLicenseLevel ?? DrivingLicenseTier.B,
             }));
         }
 
