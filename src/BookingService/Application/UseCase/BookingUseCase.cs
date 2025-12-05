@@ -287,8 +287,22 @@ namespace BookingService.Application.UseCase
                 BookingStatusPercentage = filtered_booking.GroupBy(x => x.Status.ToString()).ToDictionary(x => x.Key, x => (double)x.Count() / bookings.Count),
                 SessionByStatusCount = sessions.GroupBy(x => x.Status.ToString()).ToDictionary(x => x.Key, x => x.Count()),
                 SessionStatusPercentage = filtered_session.GroupBy(x => x.Status.ToString()).ToDictionary(x => x.Key, x => (double)x.Count() / sessions.Count()),
-                SessionCancelationCount = filtered_session.Where(x => x.Status == SessionStatus.Cancelled).GroupBy(x => x.RescheduleRequests.OrderBy(x => x.CreatedAt).Last(x => x.IsDeleted).Side.ToString()).ToDictionary(x => x.Key, x => x.Count()), // For the time being, 
-                SessionCancelationPercentage = filtered_session.Where(x => x.Status == SessionStatus.Cancelled).GroupBy(x => x.RescheduleRequests.OrderBy(x => x.CreatedAt).Last(x => x.IsDeleted).Side.ToString()).ToDictionary(x => x.Key, x => (double)x.Count() / sessions.Count(x => x.Status == SessionStatus.Cancelled)),
+                SessionCancelationCount = filtered_session
+                    .Where(x => x.Status == SessionStatus.Cancelled && x.RescheduleRequests != null && x.RescheduleRequests.Any())
+                    .GroupBy(x => 
+                    {
+                        var lastDeletedRequest = x.RescheduleRequests.OrderBy(r => r.CreatedAt).LastOrDefault(r => r.IsDeleted);
+                        return lastDeletedRequest?.Side.ToString() ?? "Unknown";
+                    })
+                    .ToDictionary(x => x.Key, x => x.Count()), // For the time being, 
+                SessionCancelationPercentage = filtered_session
+                    .Where(x => x.Status == SessionStatus.Cancelled && x.RescheduleRequests != null && x.RescheduleRequests.Any())
+                    .GroupBy(x => 
+                    {
+                        var lastDeletedRequest = x.RescheduleRequests.OrderBy(r => r.CreatedAt).LastOrDefault(r => r.IsDeleted);
+                        return lastDeletedRequest?.Side.ToString() ?? "Unknown";
+                    })
+                    .ToDictionary(x => x.Key, x => (double)x.Count() / sessions.Count(x => x.Status == SessionStatus.Cancelled)),
             };
 
             statistics.TopCars = bookings.Where(x => x.Feedback != null && x.CarId != null).GroupBy(x => x.CarId).Select(x => new TopCar
