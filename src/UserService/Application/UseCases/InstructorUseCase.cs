@@ -60,7 +60,9 @@ namespace UserService.Application.UseCases
             Expression<Func<Instructor, bool>> filter_expression = x =>
           (string.IsNullOrEmpty(filter.SearchKey) || x.User.Fullname.Contains(filter.SearchKey)) && !x.IsDeleted;
 
-            var allInstructors = await _unitOfWork.InstructorRepository.GetAllAsync(filter: filter_expression, orderBy: null, include_properties: "User");
+            Func<IQueryable<Instructor>, IOrderedQueryable<Instructor>> order_expression = x => x.OrderByDescending(i => i.CreatedAt);
+
+            var allInstructors = await _unitOfWork.InstructorRepository.GetAllAsync(filter: filter_expression, orderBy: order_expression, include_properties: "User");
 
             var paginatedInstructors = PaginatedList<Instructor>.Create(allInstructors, filter.PageNumber, filter.PageSize);
             var instructorIds = paginatedInstructors.PageContent.Select(i => i.Id).ToList();

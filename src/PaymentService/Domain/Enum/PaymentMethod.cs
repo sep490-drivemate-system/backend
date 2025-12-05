@@ -5,6 +5,6 @@ namespace PaymentService.Domain.Enum
         Wallet = 0,
         ZaloPay = 1,
         VnPay = 2,
-        Payos = 3,
+        PayOs = 3,
     }
 }

@@ -10,5 +10,6 @@ namespace SharedLibrary.SharedKernel.Http.Interfaces
     public interface IPayment
     {
         Task<bool> CheckWalletBooking(Guid userId, decimal amount, Guid bookingId, Guid? drivingSessionId = null);
+        Task<bool> CheckWalletSession(Guid userId, decimal amount, Guid bookingId, Guid? drivingSessionId = null);
     }
 }

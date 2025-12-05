@@ -11,5 +11,6 @@ namespace PaymentService.Domain.Interfaces
         Task<List<Wallet>> GetWalletsWithBalanceGreaterThanAsync(decimal amount);
 
         Task<bool> CheckAndDeductWallet(Guid userId, decimal amount, Guid bookingId, Guid? drivingSessionId = null);
+        Task<bool> CheckAndDeducSessiontWallet(Guid userId, decimal amount, Guid bookingId, Guid? drivingSessionId = null);
     }
 }

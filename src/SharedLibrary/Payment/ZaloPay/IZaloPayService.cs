@@ -8,6 +8,6 @@ namespace SharedLibrary.Payment.ZaloPay
 {
     public interface IZaloPayService
     {
-        Task<string> CreateZaloPayOrder(decimal? amount, string returnCallBack, string serviceName);
+        Task<(string paymentUrl,string referenceCode)> CreateZaloPayOrder(decimal amount, string returnCallBack);
     }
 }

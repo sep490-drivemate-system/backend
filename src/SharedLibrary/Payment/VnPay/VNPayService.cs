@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,16 +11,9 @@ using System.Threading.Tasks;
 
 namespace SharedLibrary.Payment.VnPay
 {
-    public class VNPayService : IVNPayService
+    public class VNPayService(IConfiguration configuration) : IVNPayService
     {
-        public string? BaseUrl { get; set; }
-        public string? TmnCode { get; set; }
-        public string? HashSecret { get; set; }
-        public string? Version { get; set; }
-        public string? Command { get; set; }
-        public string? CurrCode { get; set; }
-        public string? Locale { get; set; }
-        public string? RefundUrl { get; set; }
+        private readonly IConfiguration _configuration = configuration;
 
         private SortedList<string, string> _requestData = new SortedList<string, string>(
             new VnPayCompare()
@@ -31,11 +25,14 @@ namespace SharedLibrary.Payment.VnPay
         private readonly HttpClient _httpClient = new HttpClient();
 
         #region VNPAY
-        public async Task<string> CreateVNPayOrder(decimal? amount, string returnUrl, string serviceName)
+        public async Task<(string paymentUrl, Guid referenceCode)> CreateVNPayOrder(decimal amount, string returnUrl)
         {
             string ipAddress = await GetIpAddress();
-            await ConfigureRequest(amount, returnUrl, ipAddress, serviceName);
-            return await CreateRequestUrl(BaseUrl, HashSecret);
+            var referenceCode = Guid.NewGuid();
+            await ConfigureRequest(amount, returnUrl, ipAddress, referenceCode);
+
+            string paymentUrl = await CreateRequestUrl(_configuration["VNPAY:BASEURL"], _configuration["VNPAY:HASHSECRET"]);
+            return (paymentUrl, referenceCode);
         }
         //public async Task<string> QuerryTransactionVnPay(Transaction transaction)
         //{
@@ -53,21 +50,21 @@ namespace SharedLibrary.Payment.VnPay
 
 
         #region Request process
-        public async Task ConfigureRequest(decimal? amount, string returnUrl, string ipAddress, string serviceName)
+        public async Task ConfigureRequest(decimal amount, string returnUrl, string ipAddress, Guid referenceCode)
         {
             _requestData.Clear();
-            AddRequestData("vnp_Version", Version);
-            AddRequestData("vnp_Command", Command);
-            AddRequestData("vnp_TmnCode", TmnCode);
+            AddRequestData("vnp_Version", _configuration["VNPAY:VERSION"]);
+            AddRequestData("vnp_Command", _configuration["VNPAY:COMMAND"]);
+            AddRequestData("vnp_TmnCode", _configuration["VNPAY:TMNCODE"]);
             AddRequestData("vnp_Amount", (amount * 100).ToString());
             AddRequestData("vnp_CreateDate", DateTime.Now.ToString("yyyyMMddHHmmss"));
-            AddRequestData("vnp_CurrCode", CurrCode);
+            AddRequestData("vnp_CurrCode", _configuration["VNPAY:CURRCODE"]);
             AddRequestData("vnp_IpAddr", ipAddress);
-            AddRequestData("vnp_Locale", Locale);
-            AddRequestData("vnp_OrderInfo", "Thanh toan dich vu");
+            AddRequestData("vnp_Locale", _configuration["VNPAY:LOCALE"]);
+            AddRequestData("vnp_OrderInfo", "DEPOSIT");
             AddRequestData("vnp_OrderType", "other");
             AddRequestData("vnp_ReturnUrl", returnUrl);
-            AddRequestData("vnp_TxnRef", Guid.NewGuid().ToString());
+            AddRequestData("vnp_TxnRef", referenceCode.ToString());
         }
         //public async Task ConfigureQueryRequest(Transaction transaction, string ipAddress)
         //{
@@ -136,15 +133,6 @@ namespace SharedLibrary.Payment.VnPay
         //    AddRequestData("vnp_SecureHash", secureHash);
         //}
 
-
-        private string GenerateSecureHash(string data)
-        {
-            using (var hmac = new HMACSHA512(Encoding.UTF8.GetBytes("FE59QM7PYFU533HUBLS2WO9K3ABN3J8I")))
-            {
-                byte[] hashBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(data));
-                return BitConverter.ToString(hashBytes).Replace("-", "").ToUpper();
-            }
-        }
 
 
         public async Task<string> CreateRequestUrl(string baseUrl, string vnp_HashSecret)

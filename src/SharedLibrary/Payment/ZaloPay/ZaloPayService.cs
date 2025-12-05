@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -9,28 +10,22 @@ using System.Threading.Tasks;
 
 namespace SharedLibrary.Payment.ZaloPay
 {
-    public class ZaloPayService : IZaloPayService
+    public class ZaloPayService(IConfiguration configuration) : IZaloPayService
     {
-        public string? AppId { get; set; }
-        public string? Key1 { get; set; }
-        public string? Key2 { get; set; }
-        public string? CreateOrderUrl { get; set; }
-        public string? Description { get; set; }
-        public string? BankCode { get; set; }
-        public double AmountInUsd { get; private set; }
-        public string? RefundUrl { get; set; }
-        public string? QueryOrderUrl { get; set; }
-        public string? QueryRefundUrl { get; set; }
+        private readonly IConfiguration _configuration = configuration;
 
         #region ZALOPAY
-        public async Task<string> CreateZaloPayOrder(decimal? amount, string returnCallBack, string serviceName)
+        public async Task<(string,string)> CreateZaloPayOrder(decimal amount, string returnCallBack)
         {
-            var response = await CreateZaloPayQrOrderAsync(amount, returnCallBack, serviceName);
+            Random rnd = new Random();
+            var app_trans_id = rnd.Next(1000000);
+            var referenceCode = DateTime.Now.ToString("yyMMdd") + "_" + app_trans_id;
+            var response = await CreateZaloPayQrOrderAsync(amount, referenceCode, returnCallBack);
 
 
             if (response.TryGetValue("order_url", out var orderUrl))
             {
-                return orderUrl;
+                return (orderUrl,referenceCode);
             }
             throw new Exception("Failed to create ZaloPay order.");
         }
@@ -68,34 +63,34 @@ namespace SharedLibrary.Payment.ZaloPay
 
         #region Request Process
         public async Task<Dictionary<string, string>> CreateZaloPayQrOrderAsync(
-            decimal? amount,
-            string returnCallBack,
-            string serviceName
+            decimal amount,
+            string referenceCode,
+            string returnCallBack
         )
         {
 
-            Random rnd = new Random();
+
             var embed_data = new
             {
                 redirecturl = returnCallBack,
             };
-            var items = new[] { new { } };
+            string serviceName = "deposit";
             var param = new Dictionary<string, string>();
-            var app_trans_id = rnd.Next(1000000);
-            param.Add("app_id", AppId);
+            var items = new[] { new { } };
+            param.Add("app_id", _configuration["ZALOPAY:APPID"]);
             param.Add("app_user", "user123");
             param.Add("app_time", GetTimeStamp().ToString());
             param.Add("amount", amount.ToString());
-            param.Add("app_trans_id", DateTime.Now.ToString("yyMMdd") + "_" + app_trans_id);
+            param.Add("app_trans_id", referenceCode );
             param.Add("embed_data", JsonConvert.SerializeObject(embed_data));
             param.Add("item", JsonConvert.SerializeObject(items));
-            param.Add("description", Description + serviceName);
-            param.Add("bank_code", BankCode);
+            param.Add("description", serviceName);
+            param.Add("bank_code", _configuration["ZALOPAY:BANKCODE"]);
             param.Add("callback_url", returnCallBack);
 
 
             var data =
-                AppId
+                _configuration["ZALOPAY:APPID"]
                 + "|"
                 + param["app_trans_id"]
                 + "|"
@@ -108,9 +103,9 @@ namespace SharedLibrary.Payment.ZaloPay
                 + param["embed_data"]
                 + "|"
                 + param["item"];
-            param.Add("mac", Compute(ZaloPayHMAC.HMACSHA256, Key1, data));
+            param.Add("mac", Compute(ZaloPayHMAC.HMACSHA256, _configuration["ZALOPAY:KEY1"], data));
 
-            return await PostFormAsync<Dictionary<string, string>>(CreateOrderUrl, param);
+            return await PostFormAsync<Dictionary<string, string>>(_configuration["ZALOPAY:CREATEORDERURL"], param);
         }
      
         public static long GetTimeStamp(DateTime date)
@@ -184,7 +179,7 @@ namespace SharedLibrary.Payment.ZaloPay
             {
                 var checksumData =
                     $"{data["appid"]}|{data["apptransid"]}|{data["pmcid"]}|{data["bankcode"]}|{data["amount"]}|{data["discountamount"]}|{data["status"]}";
-                var checksum = Compute(ZaloPayHMAC.HMACSHA256, Key2, checksumData);
+                var checksum = Compute(ZaloPayHMAC.HMACSHA256, _configuration["ZALOPAY:KEY2"], checksumData);
 
                 if (!checksum.Equals(data["checksum"]))
                 {
@@ -204,14 +199,14 @@ namespace SharedLibrary.Payment.ZaloPay
 
             var param = new Dictionary<string, string>
     {
-        { "app_id", AppId },
+        { "app_id", _configuration["ZALOPAY:KEY1"] },
         { "app_trans_id", appTransId }
     };
 
-            string data = $"{AppId}|{appTransId}|{Key1}";
-            param.Add("mac", Compute(ZaloPayHMAC.HMACSHA256, Key1, data));
+            string data = $"{_configuration["ZALOPAY:KEY1"]}|{appTransId}|{_configuration["ZALOPAY:KEY1"]}";
+            param.Add("mac", Compute(ZaloPayHMAC.HMACSHA256, _configuration["ZALOPAY:KEY1"], data));
 
-            var response = await PostFormAsync<Dictionary<string, string>>(QueryOrderUrl, param);
+            var response = await PostFormAsync<Dictionary<string, string>>(_configuration["ZALOPAY:QUERYORDERURL"], param);
 
             if (response.TryGetValue("zp_trans_id", out var zpTransId))
             {

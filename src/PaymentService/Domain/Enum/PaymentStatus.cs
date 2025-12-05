@@ -8,5 +8,6 @@
         Failed = 4,
         Cancelled = 5,
         Refunded = 6,
+        Deposit=7
     }
 }

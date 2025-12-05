@@ -10,6 +10,9 @@ using PaymentService.Infrastructure.UoW;
 using PaymentService.Infrastructure.Messaging.Config;
 using PaymentService.Infrastructure.Messaging.Interfaces;
 using PaymentService.Infrastructure.Messaging.Implementation;
+using SharedLibrary.Payment.PayOs;
+using SharedLibrary.Payment.VnPay;
+using SharedLibrary.Payment.ZaloPay;
 
 namespace PaymentService.Infrastructure
 {
@@ -47,6 +50,11 @@ namespace PaymentService.Infrastructure
 
             // Add Wallet service
             services.AddScoped<IWalletService, WalletService>();
+
+            // Add payment gateway services (PayOS, VNPay, ZaloPay)
+            services.AddScoped<IPayOSService, PayOSService>();
+            services.AddScoped<IVNPayService, VNPayService>();
+            services.AddScoped<IZaloPayService, ZaloPayService>();
             
             // Add RabbitMQ hosted service
             services.AddHostedService<RabbitMQHostedService>();

@@ -34,5 +34,20 @@ namespace SharedLibrary.SharedKernel.Http.Implementation
             var result = await _httpService.PostAsync<PaymentRequest, bool>(url, paymentRequest);
             return result;
         }
+
+        public async Task<bool> CheckWalletSession(Guid userId, decimal amount, Guid bookingId, Guid? drivingSessionId = null)
+        {
+            var paymentRequest = new PaymentRequest
+            {
+                UserId = userId,
+                Amount = amount,
+                BookingId = bookingId,
+                DrivingSessionId = drivingSessionId
+            };
+            string userServiceUrl = _config["PAYMENTSERVICE:URL"];
+            string url = $"{userServiceUrl}/api/wallet/check-payment-session";
+            var result = await _httpService.PostAsync<PaymentRequest, bool>(url, paymentRequest);
+            return result;
+        }
     }
 }

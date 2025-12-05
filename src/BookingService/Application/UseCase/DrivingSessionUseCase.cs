@@ -84,7 +84,7 @@ namespace BookingService.Application.UseCase
                 if (drivingSessionCreationDTO.PriceForCar.HasValue && drivingSessionCreationDTO.PriceForCar.Value > 0)
                 {
 
-                        var paymentResponse = await _paymentService.CheckWalletBooking(
+                        var paymentResponse = await _paymentService.CheckWalletSession(
                             booking.DriverId,
                             drivingSessionCreationDTO.PriceForCar.Value,
                             drivingSessionCreationDTO.BookingId,

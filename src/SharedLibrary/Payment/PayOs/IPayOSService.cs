@@ -9,6 +9,6 @@ namespace SharedLibrary.Payment.PayOs
 {
     public interface IPayOSService
     {
-        Task<string> CreatePayOSLink(PayOSPaymentDTO paymentDTO);
+        Task<(string paymentUrl, string referenceCode)> CreatePayOSLink(PayOSPaymentDTO paymentDTO,string callBackURL);
     }
 }

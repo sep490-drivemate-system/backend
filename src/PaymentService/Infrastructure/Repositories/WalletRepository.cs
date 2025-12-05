@@ -74,5 +74,31 @@ namespace PaymentService.Infrastructure.Repositories
             return true;
         }
 
+        public async Task<bool> CheckAndDeducSessiontWallet(Guid userId, decimal amount, Guid bookingId, Guid? drivingSessionId = null)
+        {
+            var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.Id == userId && !w.IsDelete);
+
+            wallet.Balance -= amount;
+            wallet.CreatedAt = DateTime.UtcNow;
+            wallet.UpdatedAt = DateTime.UtcNow;
+
+            var transaction = new Transaction
+            {
+                FromWalletId = wallet.Id,
+                ToWalletId = null,
+                TransactionValue = amount,
+                PaymentMethod = Domain.Enum.PaymentMethod.Wallet,
+                Status = Domain.Enum.PaymentStatus.Completed,
+                BookingId = bookingId,
+                DrivingSessionId = drivingSessionId,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+            };
+            await _context.Transactions.AddAsync(transaction);
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
     }
+    
 }
