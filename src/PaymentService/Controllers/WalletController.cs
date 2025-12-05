@@ -45,21 +45,21 @@ namespace PaymentService.Controllers
 
             return Ok(result);
         }
-        [HttpPost("check-payment-session")]
-        public async Task<IActionResult> CheckWalletSession([FromBody] PaymentRequest paymentRequest)
-        {
-            var query = new IsEnoughPaymentSessionQuery
-            {
-                UserId = paymentRequest.UserId,
-                Amount = paymentRequest.Amount,
-                BookingId = paymentRequest.BookingId,
-                DrivingSessionId = paymentRequest.DrivingSessionId
-            };
+        //[HttpPost("check-payment-session")]
+        //public async Task<IActionResult> CheckWalletSession([FromBody] PaymentRequest paymentRequest)
+        //{
+        //    var query = new IsEnoughPaymentSessionQuery
+        //    {
+        //        UserId = paymentRequest.UserId,
+        //        Amount = paymentRequest.Amount,
+        //        BookingId = paymentRequest.BookingId,
+        //        DrivingSessionId = paymentRequest.DrivingSessionId
+        //    };
 
-            var result = await _mediator.Send(query);
+        //    var result = await _mediator.Send(query);
 
-            return Ok(result);
-        }
+        //    return Ok(result);
+        //}
         [HttpPost("deposit")]
         [Authorize]
         public async Task<IActionResult> Deposit(GetRequestDepositQuery getRequestDepositQuery)
