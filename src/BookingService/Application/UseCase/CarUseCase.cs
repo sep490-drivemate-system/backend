@@ -303,7 +303,7 @@ namespace BookingService.Application.UseCase
             && (filter.LicenseTier == null || x.LicenseTier >= filter.LicenseTier)
             && (filter.SeatCounts == null || x.SeatCount == filter.SeatCounts)
             && (filter.CarType == null || x.CarType == filter.CarType)
-            && (filter.FuelType == null || x.FuelType.ToLower().Equals(filter.FuelType))
+            && (filter.FuelType == null || x.FuelType.ToLower().Equals(filter.FuelType.ToLower()))
             && x.Status == Domain.Enum.CarStatus.Approve
             && !x.IsDeleted; ;
             Func<IQueryable<Car>, IOrderedQueryable<Car>>? order_expression = null;
