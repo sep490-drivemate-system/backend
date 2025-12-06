@@ -9,7 +9,8 @@ namespace PaymentService.Application.Features.Wallet.Queries.GetRequestDeposit
     {
         public decimal Amount { get; set; }
         public PaymentMethod PaymentMethod { get; set; }
-        
+        public ClientPlatform Platform { get; set; }
+
         [JsonIgnore]
         public Guid UserId { get; set; }
     }

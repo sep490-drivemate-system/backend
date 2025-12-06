@@ -113,5 +113,6 @@ namespace UserService.Controllers
             var result = await _userUseCase.CreateDefaultUserAccount(details);
             return result.ToActionResult();
         }
+
     }
 }

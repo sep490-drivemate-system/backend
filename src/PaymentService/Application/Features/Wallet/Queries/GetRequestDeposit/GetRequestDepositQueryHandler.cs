@@ -39,7 +39,12 @@ namespace PaymentService.Application.Features.Wallet.Queries.GetRequestDeposit
 
         public async Task<Result<string>> Handle(GetRequestDepositQuery request, CancellationToken cancellationToken)
         {
-            var callbackUrl = _configuration["PAYMENTCALLBACK:URL"];
+            var callbackUrl = _configuration["PAYMENTCALLBACK:WEBAPPURL"];
+            if (request.Platform == ClientPlatform.Mobile)
+            {
+                callbackUrl = _configuration["PAYMENTCALLBACK:MOBILEURL"];
+            }
+            
 
             switch (request.PaymentMethod)
             {

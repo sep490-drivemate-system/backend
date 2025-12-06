@@ -67,6 +67,7 @@ namespace BookingService.Application.UseCase
                     CarCount = x.Cars.Count(),
                     InstructorAvatar = response.Value.FirstOrDefault(y => y.UserId == x.InstructorId)?.AvatarUrl ?? "",
                     InstructorName = response.Value.FirstOrDefault(y => y.UserId == x.InstructorId)?.FullName ?? "Unknown",
+                    InstructorId = x.InstructorId,
                 });
 
                 // Pagination
