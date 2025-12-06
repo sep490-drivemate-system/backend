@@ -9,8 +9,6 @@ namespace SharedLibrary.SharedKernel.Http.DTOs.User
         public string Bio { get; set; }
         public int ExperienceYear { get; set; }
 
-
-
     }
 
     public class NoviceDriverDetailDTO
@@ -18,6 +16,7 @@ namespace SharedLibrary.SharedKernel.Http.DTOs.User
         public Guid NoviceDriverId { get; set; }
         public string DrivingLicense { get; set; }
         public DateOnly DrivingLicenseExpirationDate { get; set; }
+
 
     }
 

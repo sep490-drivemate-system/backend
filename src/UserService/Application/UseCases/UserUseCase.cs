@@ -120,6 +120,8 @@ namespace UserService.Application.UseCases
                     NoviceDriver = x.NoviceDriver == null ? null : new NoviceDriverDetailDTO
                     {
                         NoviceDriverId = x.NoviceDriver.Id,
+                        DrivingLicense = x.NoviceDriver.DrivingLicense,
+                        DrivingLicenseExpirationDate = x.NoviceDriver.DrivingLicenseExpirationDate,
                     },
                     Instructor = x.Instructor == null ? null : new InstructorDetailDTO
                     {
