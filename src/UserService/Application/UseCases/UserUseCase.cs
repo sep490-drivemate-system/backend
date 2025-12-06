@@ -1,5 +1,6 @@
 using AutoMapper;
 using Resend;
+using SharedLibrary.CloudinaryStorage;
 using SharedLibrary.SharedKernel.Enum;
 using SharedLibrary.SharedKernel.Http.DTOs.User;
 using SharedLibrary.SharedKernel.Pagination;
@@ -16,10 +17,11 @@ using UserService.Domain.Enum;
 
 namespace UserService.Application.UseCases
 {
-    public class UserUseCase(IUnitOfWork unitOfWork, IPasswordHasherService passwordHasher, IMapper mapper): IUserUseCase
+    public class UserUseCase(IUnitOfWork unitOfWork, IPasswordHasherService passwordHasher, ICloudinaryServiceProvider cloudinary, IMapper mapper): IUserUseCase
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IPasswordHasherService _passwordHasherService = passwordHasher;
+        private readonly ICloudinaryServiceProvider _cloudinaryService = cloudinary;
         private readonly IMapper _mapper = mapper;
 
         public async Task<Result<bool>> CreateDefaultUserAccount(UserCreationDTO user_information)
@@ -156,12 +158,11 @@ namespace UserService.Application.UseCases
             {
                 return Result<bool>.Failure(ServiceError.NotFoundError($"{id}"), Messages.Common.NotFoundError);
             }
-            if (user_profile.Username != null) user.Username = user_profile.Username;
-            if (user_profile.DateOfBirth != null) user.DateOfBirth = (DateOnly) user_profile.DateOfBirth;
-            if (user_profile.Gender != null) user.Gender = (GenderType) user_profile.Gender;
+
+            if (user_profile.ProfileAvatar != null) { user.Avatar = _cloudinaryService.UploadImageFormFileResourceToCloudinaryWithExactName(user_profile.ProfileAvatar ,user.Avatar?.Split("/").Last() ?? $"{Guid.NewGuid()}-avatar"); }
             if (user_profile.PhoneNumber != null) user.PhoneNumber = user_profile.PhoneNumber;
             if (user_profile.Email != null) user.Email = user_profile.Email;
-            
+            if (user_profile.Password != null) user.HashedPassword = await _passwordHasherService.HashPassword(user_profile.Password);
 
             await _unitOfWork.CommitChangesAsync();
 

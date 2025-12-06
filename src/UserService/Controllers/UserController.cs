@@ -21,7 +21,7 @@ namespace UserService.Controllers
         private readonly IJwtService _jwtService = jwtService;
 
         [HttpPatch("{id}")]
-        public async Task<IActionResult> UpdatePersonalProfile(Guid id, [FromBody] UserProfileUpdateDTO profile)
+        public async Task<IActionResult> UpdatePersonalProfile(Guid id, [FromForm] UserProfileUpdateDTO profile)
         {
             var result = await _userUseCase.UpdatePersonalProfile(id, profile);
             return result.ToActionResult();
