@@ -9,5 +9,6 @@ namespace UserService.Application.Interfaces
     {
         Task<Result<bool>> HasValidDrivingLicenseAsync(Guid noviceDriverId);
         Task<Result<NoviceDriverInfoFeedbackDTO>> GetNoviceDriverInfoForFeedback(Guid noviceDriverId);
+        Task<Result<string>> UpdateNoviceDriverDrivingLicense(Guid id, IFormFile driving_license);
     }
 }

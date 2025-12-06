@@ -24,5 +24,12 @@ namespace UserService.Controllers
             var result = await _usecases.HasValidDrivingLicenseAsync(driverId);
             return result.ToActionResult();
         }
+
+        [HttpPut("{id}/license")]
+        public async Task<IActionResult> UpdateDrivingLicense([FromRoute] Guid id, IFormFile image)
+        {
+            var result = await _usecases.UpdateNoviceDriverDrivingLicense(id, image);
+            return result.ToActionResult();
+        }
     }
 }

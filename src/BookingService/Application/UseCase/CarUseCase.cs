@@ -252,7 +252,7 @@ namespace BookingService.Application.UseCase
 
         public async Task<Result<CarDetailDTO>> GetCarDetail(Guid id)
         {
-            var car_information = await _unitOfWork.CarRepository.GetByIdAsync(id, "Bookings,Feedbacks,Manufacturer");
+            var car_information = await _unitOfWork.CarRepository.GetByIdAsync(id, "CarImages,Bookings,Feedbacks,Manufacturer");
 
             if (car_information == null)
             {
