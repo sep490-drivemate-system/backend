@@ -173,7 +173,7 @@ namespace UserService.Application.UseCases
         #region Saved Address
         public async Task<Result<IEnumerable<EmergencyContactDTO>>> GetUserEmergencyContacts(Guid user_id)
         {
-            var user = await _unitOfWork.UserRepository.GetByIdAsync(user_id, include_properties: "SavedLocations");
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(user_id, include_properties: "EmergencyContacts");
 
             if (user == null)
             {
