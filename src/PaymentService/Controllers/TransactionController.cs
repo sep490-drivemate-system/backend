@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PaymentService.Application.Common.DTOs;
 using PaymentService.Application.Features.Transactions.Commands.CreateTransaction;
@@ -6,7 +7,9 @@ using PaymentService.Application.Features.Transactions.Commands.UpdateTransactio
 using PaymentService.Application.Features.Transactions.Queries.GetDashboardStatistic;
 using PaymentService.Application.Features.Transactions.Queries.GetInstructorDashboardStatistic;
 using PaymentService.Application.Features.Transactions.Queries.GetTransactionById;
+using PaymentService.Application.Features.Transactions.Queries.GetTransactions;
 using PaymentService.Application.Features.Transactions.Queries.GetTransactionsByBookingId;
+using SharedLibrary.Jwt;
 using SharedLibrary.SharedKernel.ServiceResult;
 
 namespace PaymentService.Controllers
@@ -16,10 +19,11 @@ namespace PaymentService.Controllers
     public class TransactionController : ControllerBase
     {
         private readonly IMediator _mediator;
-
-        public TransactionController(IMediator mediator)
+        private readonly IJwtService _jwtService;
+        public TransactionController(IMediator mediator,IJwtService jwtService)
         {
             _mediator = mediator;
+            _jwtService = jwtService;
         }
 
         [HttpGet("statistic")]
@@ -36,19 +40,29 @@ namespace PaymentService.Controllers
             return result.ToActionResult();
         }
 
-        [HttpGet("{id}")]
+        [HttpGet]
         public async Task<IActionResult> GetTransactionById(Guid id)
         {
             var query = new GetTransactionByIdQuery(id);
             var result = await _mediator.Send(query);
-            
+
             if (result.IsSuccess)
                 return Ok(result);
-            
+
             return NotFound(result);
         }
 
-
+        [HttpGet("user")]
+        public async Task<IActionResult> GetTransactions()
+        {
+            var userId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
+            var query = new GetTransactionsQuery
+            {
+                WalletId = userId
+            };
+            var result = await _mediator.Send(query);
+            return result.ToActionResult();
+        }
 
         [HttpGet("booking/{bookingId}")]
         public async Task<IActionResult> GetTransactionsByBookingId(Guid bookingId)

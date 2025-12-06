@@ -5,18 +5,20 @@ namespace SharedLibrary.SharedKernel.Http.DTOs.User
 {
     public class InstructorDetailDTO
     {
-        [JsonPropertyName("instructor_id")]
         public Guid InstructorId { get; set; }
-        [JsonPropertyName("bio")]
         public string Bio { get; set; }
-        [JsonPropertyName("experiences")]
         public int ExperienceYear { get; set; }
+
+
+
     }
 
     public class NoviceDriverDetailDTO
     {
-        [JsonPropertyName("driver_id")]
         public Guid NoviceDriverId { get; set; }
+        public string DrivingLicense { get; set; }
+        public DateOnly DrivingLicenseExpirationDate { get; set; }
+
     }
 
     public class UserDetailDTO

@@ -38,6 +38,7 @@ namespace PaymentService.Application.Common.Mappings
                 .ForMember(dest => dest.IsDelete, opt => opt.MapFrom(src => false))
                 .ForMember(dest => dest.Transactions, opt => opt.Ignore());
 
+            CreateMap<TransactionsDTO, Transaction>().ReverseMap();
         }
     }
 }

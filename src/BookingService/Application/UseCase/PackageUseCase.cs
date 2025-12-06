@@ -68,10 +68,10 @@ namespace BookingService.Application.UseCase
                     InstructorAvatar = response.Value.FirstOrDefault(y => y.UserId == x.InstructorId)?.AvatarUrl ?? "",
                     InstructorName = response.Value.FirstOrDefault(y => y.UserId == x.InstructorId)?.FullName ?? "Unknown",
                     InstructorId = x.InstructorId,
-                });
+                }).ToList();
 
                 // Pagination
-                var paginatedList = PaginatedList<PackageDTO>.CreateFromPagedData(mappedList.ToList(), filter.PageNumber, filter.PageSize, mappedList.Count());
+                var paginatedList = PaginatedList<PackageDTO>.Create(mappedList, filter.PageNumber, filter.PageSize);
 
                 return Result<PaginatedList<PackageDTO>>.Success(paginatedList);
             }
