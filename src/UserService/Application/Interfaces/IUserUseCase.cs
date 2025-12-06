@@ -1,4 +1,5 @@
 using SharedLibrary.SharedKernel.Http.DTOs.User;
+using SharedLibrary.SharedKernel.Pagination;
 using SharedLibrary.SharedKernel.ServiceResult;
 using UserService.Application.Commons.DTOs.Users;
 
@@ -8,6 +9,7 @@ namespace UserService.Application.Interfaces
     {
         #region Users
         Task<Result<bool>> CreateDefaultUserAccount(UserCreationDTO user_information);
+        Task<Result<PaginatedList<UserDetailDTO>>> GetAllUser(UserFilterDTO filter);
         Task<Result<UserDetailDTO>> GetUser(Guid userId);
         Task<Result<bool>> UpdatePersonalProfile(Guid id, UserProfileUpdateDTO user_profile);
         #endregion
