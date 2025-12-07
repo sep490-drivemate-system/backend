@@ -156,16 +156,19 @@ namespace UserService.Application.UseCases
         
             if (user == null)
             {
-                return Result<bool>.Failure(ServiceError.NotFoundError($"{id}"), Messages.Common.NotFoundError);
+                return Result<bool>.Failure(ServiceError.NotFoundError($"id {id}"), Messages.Common.NotFoundError);
             }
 
             if (user_profile.ProfileAvatar != null) { user.Avatar = _cloudinaryService.UploadImageFormFileResourceToCloudinaryWithExactName(user_profile.ProfileAvatar ,user.Avatar?.Split("/").Last() ?? $"{Guid.NewGuid()}-avatar"); }
+            if (user_profile.Fullname != null) user.Fullname = user_profile.Fullname;
             if (user_profile.PhoneNumber != null) user.PhoneNumber = user_profile.PhoneNumber;
             if (user_profile.Email != null) user.Email = user_profile.Email;
             if (user_profile.Password != null) user.HashedPassword = await _passwordHasherService.HashPassword(user_profile.Password);
 
             await _unitOfWork.CommitChangesAsync();
 
+            user = _unitOfWork.GetTrackingEntry(user).Entity as User;
+           
             return Result<bool>.Success(true);
         }
 
@@ -240,6 +243,24 @@ namespace UserService.Application.UseCases
                 SavedName = emergency_contact.Name,
                 ContactNumber = emergency_contact.Phone,
             });
+            await _unitOfWork.CommitChangesAsync();
+
+            return Result<bool>.Success(true);
+        }
+
+
+        public async Task<Result<bool>> UpdateUserEmergencyContact(Guid contact_id, EmergencyContactDTO emergency_contact)
+        {
+            var emergency_detail = await _unitOfWork.Repository<EmergencyContact>().GetByIdAsync(contact_id);
+
+            if (emergency_contact == null)
+            {
+                return Result<bool>.Failure(ServiceError.NotFoundError($"contact not found for id {contact_id}"), Messages.Common.NotFoundError);
+            }
+
+            emergency_detail.SavedName = emergency_contact.Name;
+            emergency_detail.ContactNumber = emergency_contact.Phone;
+
             await _unitOfWork.CommitChangesAsync();
 
             return Result<bool>.Success(true);

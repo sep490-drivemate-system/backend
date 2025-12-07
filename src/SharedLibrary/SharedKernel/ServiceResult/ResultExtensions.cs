@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace SharedLibrary.SharedKernel.ServiceResult
@@ -26,6 +28,26 @@ namespace SharedLibrary.SharedKernel.ServiceResult
             {
                 StatusCode = statusCode
             };
+        }
+
+        public static IActionResult ToActionResult<T>(this Result<T> result, ILogger logger)
+        {
+            string json_result = JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true });
+
+            if (result.IsSuccess)
+            {
+                logger.LogInformation(json_result);
+            }
+            else
+            {
+                if (result.Error.Code != ServiceError.Unhandled)
+                {
+                    logger.LogError(json_result);
+                }
+                logger.LogWarning(json_result);
+            }
+
+            return result.ToActionResult();
         }
 
         private static int MapErrorCodeToStatusCode(string? code)

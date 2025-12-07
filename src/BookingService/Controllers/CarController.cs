@@ -1,4 +1,5 @@
-﻿using BookingService.Application.Commons.DTOs.Cars.Create;
+﻿using BookingService.Application.Commons.DTOs.Car_Documents;
+using BookingService.Application.Commons.DTOs.Cars.Create;
 using BookingService.Application.Commons.DTOs.Cars.Get;
 using BookingService.Application.Commons.DTOs.Cars.Update;
 using BookingService.Application.Interfaces;
@@ -16,12 +17,14 @@ namespace BookingService.Controllers
     public class CarController : ControllerBase
     {
         private readonly ICarUseCase _usecase;
+        private readonly ILogger _logger;
         private readonly IJwtService _jwtService;
 
-        public CarController(ICarUseCase usecases, IJwtService jwtService)
+        public CarController(ICarUseCase usecases, IJwtService jwtService, ILogger<CarController> logger)
         {
             _usecase = usecases;
             _jwtService = jwtService;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -64,7 +67,7 @@ namespace BookingService.Controllers
         public async Task<IActionResult> GetInstructorCars()
         {
             var instructorId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
-            var result = await _usecase.GetInstructorCarWithUserId(instructorId);
+            var result = await _usecase.GetInstructorCarList(instructorId);
             return result.ToActionResult();
         }
 
@@ -117,6 +120,34 @@ namespace BookingService.Controllers
         {
             var result = await _usecase.DeleteCar(id);
             return result.ToActionResult();
+        }
+
+        [HttpGet("{id}/document")]
+        public async Task<IActionResult> GetCarDocuments(Guid id)
+        {
+            var result = await _usecase.GetCarDocuments(id);
+            return result.ToActionResult(_logger);
+        }
+
+        /// Testing
+        [HttpPost("{id}/documents")]
+        public async Task<IActionResult> UploadCarDocumentBatch(Guid id, [FromForm] CarDocumentBatchDTO documents)
+        {
+            return Ok();
+        }
+
+        [HttpPost("{id}/document")]
+        public async Task<IActionResult> UpdateCarDocument(Guid id, [FromForm] CarDocumenDTO document)
+        {
+            var result = await _usecase.UploadCarDocument(id, document);
+            return result.ToActionResult(_logger);
+        }
+
+        [HttpDelete("{id}/document")]
+        public async Task<IActionResult> DeleteCarDocumentOfType(Guid id, [FromQuery] string type)
+        {
+            var result = await _usecase.DeleteCarDocument(id, type);
+            return result.ToActionResult(_logger);
         }
     }
 }

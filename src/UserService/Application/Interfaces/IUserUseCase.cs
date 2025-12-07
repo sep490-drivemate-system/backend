@@ -17,6 +17,7 @@ namespace UserService.Application.Interfaces
         #region User contacts
         Task<Result<IEnumerable<EmergencyContactDTO>>> GetUserEmergencyContacts(Guid user_id);
         Task<Result<bool>> CreateUserEmergencyContacts(Guid user_id, EmergencyContactDTO emergency_contact);
+        Task<Result<bool>> UpdateUserEmergencyContact(Guid contact_id, EmergencyContactDTO emergency_contact);
         #endregion
 
         #region User Saved Addess

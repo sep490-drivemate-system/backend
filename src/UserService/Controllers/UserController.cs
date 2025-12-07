@@ -15,23 +15,24 @@ namespace UserService.Controllers
 {
     [Route("api/users")]
     [ApiController]
-    public class UserController(IUserUseCase userUseCase, IJwtService jwtService): ControllerBase
+    public class UserController(IUserUseCase userUseCase, ILogger<UserController> logger, IJwtService jwtService): ControllerBase
     {
         private readonly IUserUseCase _userUseCase = userUseCase;
+        private readonly ILogger _logger = logger;
         private readonly IJwtService _jwtService = jwtService;
 
         [HttpPatch("{id}")]
         public async Task<IActionResult> UpdatePersonalProfile(Guid id, [FromForm] UserProfileUpdateDTO profile)
         {
             var result = await _userUseCase.UpdatePersonalProfile(id, profile);
-            return result.ToActionResult();
+            return result.ToActionResult(_logger);
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllUserInformation([FromQuery] UserFilterDTO filter)
         {
             var result = await _userUseCase.GetAllUser(filter);
-            return result.ToActionResult();
+            return result.ToActionResult(_logger);
         }
 
         [HttpGet("address")]
@@ -40,14 +41,14 @@ namespace UserService.Controllers
         {
             var userId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
             var result = await _userUseCase.GetUserSavedAddress(userId);
-            return result.ToActionResult();
+            return result.ToActionResult(_logger);
         }
 
         [HttpGet("{id}/emergency-contact")]
         public async Task<IActionResult> GetAllUserSavedContact([FromRoute] Guid id)
         {
             var result = await _userUseCase.GetUserEmergencyContacts(id);
-            return result.ToActionResult();
+            return result.ToActionResult(_logger);
         }
 
 
@@ -56,28 +57,36 @@ namespace UserService.Controllers
         {
             //var user_id = await _jwtService.ExtractUserIdFromToken(Request.Headers.Authorization[0]);
             var result = await _userUseCase.CreateUserEmergencyContacts(id, emergency_contact);
-            return result.ToActionResult();
+            return result.ToActionResult(_logger);
         }
+
+        [HttpPut("emergency-contact/{id}")]
+        public async Task<IActionResult> UpdateSavedContact([FromRoute] Guid id, [FromBody] EmergencyContactDTO emergencyContact)
+        {
+            var result = await _userUseCase.UpdateUserEmergencyContact(id, emergencyContact);
+            return result.ToActionResult(_logger);
+        }
+
 
         [HttpPost("{id}/saved-location")]
         public async Task<IActionResult> CreateNewSavedLocation([FromRoute] Guid id, [FromBody] UserAddressDTO address)
         {
             //var user_id = await _jwtService.ExtractUserIdFromToken(Request.Headers.Authorization[0]);
             var result = await _userUseCase.CreateUserSavedAddress(id, address);
-            return result.ToActionResult();
+            return result.ToActionResult(_logger);
         }
 
         [HttpGet("statistic")]
         public async Task<IActionResult> GetUserStatistic([FromQuery]UserStatisticFilterDTO filter)
         {
             var result = await _userUseCase.GetUsersStatistic(filter);
-            return result.ToActionResult();
+            return result.ToActionResult(_logger);
         }
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUser(Guid id)
         {
             var result = await _userUseCase.GetUser(id);
-            return result.ToActionResult();
+            return result.ToActionResult(_logger);
         }
 
         [HttpPost("ids")]

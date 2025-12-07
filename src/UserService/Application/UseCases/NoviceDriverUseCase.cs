@@ -1,20 +1,25 @@
 using AutoMapper;
 using SharedLibrary.CloudinaryStorage;
+using SharedLibrary.SharedKernel.Enum;
 using SharedLibrary.SharedKernel.Http.DTOs.Feedback;
+using SharedLibrary.SharedKernel.Password;
 using SharedLibrary.SharedKernel.ServiceResult;
 using System;
 using System.Linq;
 using UserService.Application.Commons.Constants;
+using UserService.Application.Commons.DTOs.NoviceDriver;
 using UserService.Application.Commons.DTOs.Users;
 using UserService.Application.Interfaces;
 using UserService.Domain.Entities;
+using UserService.Domain.Enum;
 
 namespace UserService.Application.UseCases
 {
-    public class NoviceDriverUseCase(IUnitOfWork unitOfWork, ICloudinaryServiceProvider cloudinary, IMapper mapper): INoviceDriverUseCase
+    public class NoviceDriverUseCase(IUnitOfWork unitOfWork, ICloudinaryServiceProvider cloudinary, IPasswordHasherService passwordHasher, IMapper mapper): INoviceDriverUseCase
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly ICloudinaryServiceProvider _cloudinary = cloudinary;
+        private readonly IPasswordHasherService _passwordHasher = passwordHasher;
         private readonly IMapper _mapper = mapper;
 
         public async Task<Result<bool>> HasValidDrivingLicenseAsync(Guid noviceDriverId)
@@ -70,6 +75,41 @@ namespace UserService.Application.UseCases
 
             return Result<string>.Success(image_url);
 
+        }
+
+        public async Task<Result<bool>> RegistratingNoviceDriverAccount(NoviceDriverRegistrationDTO registration_info)
+        {
+            // Validating registration info
+            if (await _unitOfWork.UserRepository.IsEsxitEmail(registration_info.Email))
+            {
+                return Result<bool>.Failure(ServiceError.ConflictError($"{registration_info.Email}"), "Email Existed");
+            }
+
+            // Creating user information
+            User user = new User
+            {
+                Avatar = null, // User with no avatar
+                Email = registration_info.Email,
+                Username = registration_info.Email,
+                Fullname = registration_info.Email,
+                PhoneNumber = registration_info.PhoneNumber,
+                AccountStatus = AccountStatus.Normal,
+                Gender = GenderType.Male,
+                Role = UserRole.NoviceDriver,
+                HashedPassword = await _passwordHasher.HashPassword(registration_info.Password),
+                DateOfBirth = DateOnly.FromDateTime(DateTime.Now),
+                MaxLicenseLevel = DrivingLicenseTier.B,
+                NoviceDriver = new NoviceDriver
+                {
+                    DrivingLicense = $"{Guid.NewGuid()}-license.jpg", // Default for new registered novice driver
+                    DrivingLicenseExpirationDate = DateOnly.FromDateTime(DateTime.Now.AddYears(5)),
+                }
+            };
+
+            // Persist changes to database
+            await _unitOfWork.UserRepository.CreateAsync(user);
+            await _unitOfWork.CommitChangesAsync();
+            return Result<bool>.Success(true);
         }
     }
 }

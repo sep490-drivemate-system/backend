@@ -1,5 +1,6 @@
 using AutoMapper;
 using BookingService.Application.Commons.Constants;
+using BookingService.Application.Commons.DTOs.Car_Documents;
 using BookingService.Application.Commons.DTOs.Cars.Create;
 using BookingService.Application.Commons.DTOs.Cars.Get;
 using BookingService.Application.Commons.DTOs.Cars.Update;
@@ -13,8 +14,6 @@ using SharedLibrary.SharedKernel.Http.DTOs.User;
 using SharedLibrary.SharedKernel.Pagination;
 using SharedLibrary.SharedKernel.ServiceResult;
 using System.Linq.Expressions;
-using System.Text.Json;
-using static BookingService.Application.Commons.Constants.Messages;
 
 namespace BookingService.Application.UseCase
 {
@@ -27,28 +26,11 @@ namespace BookingService.Application.UseCase
 
         public async Task<Result<Guid>> CreateNewCar(CarCreationDTO information)
         {
-            // This part check for valid instructor id (keep this for later changes)
-            //var userServiceHttpClient = _http_client_factory.CreateClient("UserServiceClient");
-            //var responseMessage = await userServiceHttpClient.PostAsJsonAsync("api/users/instructor-ids", new Guid[] {information.InstructorId});
-            //if (!responseMessage.IsSuccessStatusCode)
-            //{
-            //    return Result<Guid>.Failure(ServiceError.ServiceUnavailableError("UserServiceClient"), Messages.Commons.UNHANDLED);
-            //}
-            //var response = await responseMessage.Content.ReadFromJsonAsync<DefaultApiResponse<IEnumerable<UserDetailDTO>>>();
-            //if (response.Value.Count() == 0)
-            //{
-            //    return Result<Guid>.Failure(ServiceError.BadRequestError($"{information.InstructorId}"), Messages.Commons.UNHANDLED);
-            //}
-            //var instructor_info = response.Value.First();
-            //if (instructor_info.Role != SharedLibrary.SharedKernel.Enum.UserRole.Instructor)
-            //{
-            //    return Result<Guid>.Failure(ServiceError.BadRequestError($"{instructor_info.Role.ToString()}"), Messages.Commons.UNHANDLED);
-            //}
-
             // Checking for car brand
             var car_manufacturer = await _unitOfWork.ManufacturerRepository.GetByIdAsync(information.BrandId);
 
-            if (car_manufacturer == null || car_manufacturer.IsDeleted) {
+            if (car_manufacturer == null || car_manufacturer.IsDeleted)
+            {
                 return Result<Guid>.Failure(ServiceError.BadRequestError($"{information.BrandId}"), Messages.Commons.UNHANDLED);
             }
 
@@ -66,16 +48,16 @@ namespace BookingService.Application.UseCase
             string car_left_image_url = _cloudinary.UploadImageFormFileResourceToCloudinaryWithExactName(information.CarLeftImage, $"{temptGuid}-left"); ;
             string car_right_image_url = _cloudinary.UploadImageFormFileResourceToCloudinaryWithExactName(information.CarRightImage, $"{temptGuid}-right"); ;
             string car_interior_image_url = _cloudinary.UploadImageFormFileResourceToCloudinaryWithExactName(information.InteriorImage, $"{temptGuid}-interior"); ;
-            
+
             // Actual creation
-            CarImage car_front = new CarImage { ImageUrl = car_front_image_url};
+            CarImage car_front = new CarImage { ImageUrl = car_front_image_url };
             CarImage car_back = new CarImage { ImageUrl = car_back_image_url };
             CarImage car_left = new CarImage { ImageUrl = car_left_image_url };
             CarImage car_right = new CarImage { ImageUrl = car_right_image_url };
             CarImage car_interiror = new CarImage { ImageUrl = car_interior_image_url };
 
             string documentBlob = JsonConvert.SerializeObject(new List<CarDocument>
-            { 
+            {
                 new CarDocument {
                     FrontImageUrl = car_registration_front_image_url,
                     BackImageUrl = car_registration_back_image_url,
@@ -103,7 +85,7 @@ namespace BookingService.Application.UseCase
                 LicenseTier = information.LicenseTier,
                 LicensePlate = information.LicensePlate,
                 CarType = information.CarType,
-                CarImages = new List<CarImage> {car_front, car_back, car_left, car_right, car_interiror},
+                CarImages = new List<CarImage> { car_front, car_back, car_left, car_right, car_interiror },
                 Price = information.HourlyPrice,
                 Status = Domain.Enum.CarStatus.Pending,
                 ManufacturerId = information.BrandId,
@@ -287,7 +269,7 @@ namespace BookingService.Application.UseCase
                 ThumbnailUrl = car_information.ThumbnailUrl,
                 OwnerId = car_information.InstructorId,
                 VehicleType = car_information.CarType,
-                UnitPrice = car_information.Price,
+                Price = car_information.Price,
                 DocumentsRawString = car_information.DocumentJsonBlobString,
                 Insurance = car_documents.FirstOrDefault(x => x.DocumentType == "insurance"), // Get from document blob string
                 Registration = car_documents.FirstOrDefault(x => x.DocumentType == "registration"), // Get from document blob string
@@ -348,7 +330,7 @@ namespace BookingService.Application.UseCase
                 SeatCounts = x.SeatCount,
                 FuelType = x.FuelType,
                 VehicleType = x.CarType,
-                UnitPrice = x.Price,
+                Price = x.Price,
                 LicenseTier = x.LicenseTier,
                 BookingCount = x.Bookings?.Count ?? 0,
                 AverageRating = x.Feedbacks?.Count > 0 ? x.Feedbacks.Average(x => x.CarRating) : 0,
@@ -380,7 +362,7 @@ namespace BookingService.Application.UseCase
                 FuelType = x.FuelType,
                 OwnerId = x.InstructorId,
                 SeatCounts = x.SeatCount,
-                UnitPrice = x.Price,
+                Price = x.Price,
                 Status = x.Status.ToString(),
                 StatusEnum = x.Status,
                 Images = x.CarImages.Select(x => x.ImageUrl),
@@ -405,25 +387,6 @@ namespace BookingService.Application.UseCase
             var carDtos = _mapper.Map<List<CarInstructorDetailDTO>>(instructor_cars);
             return Result<IEnumerable<CarInstructorDetailDTO>>.Success(carDtos, message: Messages.Commons.SUCCESS);
         }
-        public async Task<Result<IEnumerable<CarDetailDTO>>> GetInstructorCarWithUserId(Guid userId)
-        {
-            //var userServiceClient = _http_client_factory.CreateClient("UserServiceClient");
-
-            //var responseMessage = await userServiceClient.PostAsJsonAsync("api/users/ids", new Guid[] {userId});
-
-            //if (!responseMessage.IsSuccessStatusCode)
-            //{
-            //    return Result<IEnumerable<CarDetailDTO>>.Failure(ServiceError.ServiceUnavailableError($"{userId}"), Messages.Commons.UNHANDLED);
-            //}
-
-            //var users = await responseMessage.Content.ReadFromJsonAsync<DefaultApiResponse<IEnumerable<UserDetailDTO>>>();
-            //if (users.Value.Count() == 0 || users.Value.First().Role != SharedLibrary.SharedKernel.Enum.UserRole.Instructor)
-            //{
-            //    return Result<IEnumerable<CarDetailDTO>>.Failure(ServiceError.BadRequestError($"{userId}"), Messages.Booking.NOTFOUND);
-            //}
-
-            return await GetInstructorCarList(userId);
-        }
 
         public async Task<Result<IEnumerable<CarDTO>>> GetRecommendedCarList(int max_count = 5)
         {
@@ -441,7 +404,7 @@ namespace BookingService.Application.UseCase
                 ThumbnailUrl = x.ThumbnailUrl,
                 ManufacturerName = x.Manufacturer.Name,
                 SeatCounts = x.SeatCount,
-                UnitPrice = x.Price,
+                Price = x.Price,
                 VehicleType = x.CarType,
                 FuelType = x.FuelType,
                 LicenseTier = x.LicenseTier,
@@ -495,7 +458,7 @@ namespace BookingService.Application.UseCase
                 LicenseTier = x.LicenseTier,
                 SeatCounts = x.SeatCount,
                 ThumbnailUrl = x.ThumbnailUrl,
-                UnitPrice = x.Price,
+                Price = x.Price,
                 ManufacturerName = x.Manufacturer.Name,
                 VehicleType = x.CarType,
                 FuelType = x.FuelType,
@@ -527,6 +490,112 @@ namespace BookingService.Application.UseCase
                 Comment = x.CarFeedback,
                 FeedbackDate = x.CreatedAt
             }));
+        }
+
+        public async Task<Result<IEnumerable<CarDocumentViewDTO>>> GetCarDocuments(Guid car_id)
+        {
+            var car = await _unitOfWork.CarRepository.GetByIdAsync(car_id);
+
+            if (car == null || car.IsDeleted)
+            {
+                return Result<IEnumerable<CarDocumentViewDTO>>.Failure(ServiceError.NotFoundError($"{car_id}"), Messages.Commons.NOTFOUND);
+            }
+
+            var documents = System.Text.Json.JsonSerializer.Deserialize<IEnumerable<CarDocumentViewDTO>>(car.DocumentJsonBlobString);
+
+            return Result<IEnumerable<CarDocumentViewDTO>>.Success(documents);
+        }
+
+        public async Task<Result<CarDocumentViewDTO>> GetCarDocument(Guid car_id, string type)
+        {
+            var car = await _unitOfWork.CarRepository.GetByIdAsync(car_id);
+
+            if (car == null || car.IsDeleted)
+            {
+                return Result<CarDocumentViewDTO>.Failure(ServiceError.NotFoundError($"{car_id}"), Messages.Commons.NOTFOUND);
+            }
+
+            var documents = System.Text.Json.JsonSerializer.Deserialize<IEnumerable<CarDocumentViewDTO>>(car.DocumentJsonBlobString);
+
+            var target_document = documents.FirstOrDefault(x => x.DocumentType.Equals(type, StringComparison.InvariantCultureIgnoreCase));
+
+            if (target_document == null)
+            {
+                return Result<CarDocumentViewDTO>.Failure(ServiceError.NotFoundError($"{car_id}:{type}"), Messages.Commons.NOTFOUND);
+            }
+
+            return Result<CarDocumentViewDTO>.Success(target_document);
+        }
+
+        public async Task<Result<bool>> UploadCarDocument(Guid car_id, CarDocumenDTO document)
+        {
+            var car = await _unitOfWork.CarRepository.GetByIdAsync(car_id);
+
+            if (car == null || car.IsDeleted)
+            {
+                return Result<bool>.Failure(ServiceError.NotFoundError($"{car_id}"), Messages.Commons.NOTFOUND);
+            }
+
+            // Deserialize into C# object for manupilation.
+            var documents = System.Text.Json.JsonSerializer.Deserialize<IList<CarDocumentViewDTO>>(car.DocumentJsonBlobString) ?? [];
+
+            var target_document = documents.FirstOrDefault(x => x.DocumentType.Equals(document.DocumentType, StringComparison.InvariantCultureIgnoreCase));
+            string tempt_name = $"{Guid.NewGuid()}-{document.DocumentType}";
+
+            // New document case
+            if (target_document == null)
+            {
+                documents.Add(new CarDocumentViewDTO
+                {
+                    FrontImageUrl = document.FrontImage == null ? $"{tempt_name}-front-image" : _cloudinary.UploadImageFormFileResourceToCloudinaryWithExactName(document.FrontImage, $"{tempt_name}-front-image"),
+                    BackImageUrl = document.FrontImage == null ? $"{tempt_name}-back-image" : _cloudinary.UploadImageFormFileResourceToCloudinaryWithExactName(document.FrontImage, $"{tempt_name}-back-image"),
+                    DocumentType = document.DocumentType,
+                });
+            }
+            // Existing document case
+            else
+            {
+                target_document.FrontImageUrl = document.FrontImage == null ? target_document.FrontImageUrl : _cloudinary.UploadImageFormFileResourceToCloudinaryWithExactName(document.FrontImage, $"{tempt_name}-front-image");
+                target_document.BackImageUrl = document.FrontImage == null ? target_document.BackImageUrl : _cloudinary.UploadImageFormFileResourceToCloudinaryWithExactName(document.FrontImage, $"{tempt_name}-back-image");
+            }
+
+            // Serialize into JSON string for storing purpose
+            car.DocumentJsonBlobString = System.Text.Json.JsonSerializer.Serialize(documents);
+
+            _unitOfWork.CarRepository.Update(car);
+            await _unitOfWork.CommitChangesAsync();
+
+            return Result<bool>.Success(true);
+        }
+
+        public async Task<Result<bool>> DeleteCarDocument(Guid car_id, string type)
+        {
+            var car = await _unitOfWork.CarRepository.GetByIdAsync(car_id);
+
+            if (car == null || car.IsDeleted)
+            {
+                return Result<bool>.Failure(ServiceError.NotFoundError($"{car_id}"), Messages.Commons.NOTFOUND);
+            }
+
+            // Deserialize into C# object for manupilation.
+            var documents = System.Text.Json.JsonSerializer.Deserialize<IList<CarDocumentViewDTO>>(car.DocumentJsonBlobString) ?? [];
+
+            var target_document = documents.FirstOrDefault(x => x.DocumentType.Equals(type, StringComparison.InvariantCultureIgnoreCase));
+            
+            if (target_document == null)
+            {
+                return Result<bool>.Failure(ServiceError.NotFoundError($"{car_id}:{type}"), Messages.Commons.NOTFOUND);
+            }
+
+            documents.Remove(target_document);
+
+            // Serialize into JSON string for storing purpose
+            car.DocumentJsonBlobString = System.Text.Json.JsonSerializer.Serialize(documents);
+
+            _unitOfWork.CarRepository.Update(car);
+            await _unitOfWork.CommitChangesAsync();
+
+            return Result<bool>.Success(true);
         }
     }
 }
