@@ -58,7 +58,9 @@ namespace BookingService.Application.Commons.Mapping
 
             // Mapping for Car DTOs
             CreateMap<Car, CarInstructorDetailDTO>()
-                .ForMember(dest => dest.ModelName, opt => opt.MapFrom(src => src.Name));
+                .ForMember(dest => dest.ModelName, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.SeatCounts, opt => opt.MapFrom(src => src.SeatCount))
+                .ForMember(dest => dest.VehicleType, opt => opt.MapFrom(src => src.CarType));
 
             // Mapping for Instructor Schedule DTOs
             CreateMap<DrivingSession, InstructorScheduleDTO>();

@@ -9,6 +9,7 @@ using PaymentService.Application.Features.Transactions.Queries.GetInstructorDash
 using PaymentService.Application.Features.Transactions.Queries.GetTransactionById;
 using PaymentService.Application.Features.Transactions.Queries.GetTransactions;
 using PaymentService.Application.Features.Transactions.Queries.GetTransactionsByBookingId;
+using PaymentService.Application.Features.Transactions.Queries.GetUserTransactions;
 using SharedLibrary.Jwt;
 using SharedLibrary.SharedKernel.ServiceResult;
 
@@ -53,12 +54,13 @@ namespace PaymentService.Controllers
         }
 
         [HttpGet("user")]
-        public async Task<IActionResult> GetTransactions()
+        public async Task<IActionResult> GetTransactions([FromQuery] TransactionFilter filter, Guid? id = null)
         {
-            var userId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
-            var query = new GetTransactionsQuery
+            Guid userId = id != null ? (Guid) id : await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
+            var query = new GetUserTransactionQuery
             {
-                WalletId = userId
+                UserId = userId,
+                Filter = filter
             };
             var result = await _mediator.Send(query);
             return result.ToActionResult();

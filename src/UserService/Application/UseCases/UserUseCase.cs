@@ -152,7 +152,7 @@ namespace UserService.Application.UseCases
 
         public async Task<Result<bool>> UpdatePersonalProfile(Guid id, UserProfileUpdateDTO user_profile)
         {
-            var user = await _unitOfWork.UserRepository.GetByIdAsync(id);
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(id); 
         
             if (user == null)
             {
@@ -165,9 +165,29 @@ namespace UserService.Application.UseCases
             if (user_profile.Email != null) user.Email = user_profile.Email;
             if (user_profile.Password != null) user.HashedPassword = await _passwordHasherService.HashPassword(user_profile.Password);
 
-            await _unitOfWork.CommitChangesAsync();
 
-            user = _unitOfWork.GetTrackingEntry(user).Entity as User;
+            // Handling emergency contact update
+            var emergencyContact = await _unitOfWork.Repository<EmergencyContact>().GetAllAsync(x => x.UserId == id);
+            var closedEmergencyContact = emergencyContact.OrderByDescending(x => x.LastModifiedAt).FirstOrDefault();
+
+            if (closedEmergencyContact == null)
+            {
+                // Create default
+                closedEmergencyContact = new EmergencyContact
+                {
+                    SavedName = "",
+                    ContactNumber = "",
+                    UserId = id,
+                };
+
+                await _unitOfWork.Repository<EmergencyContact>().CreateAsync(closedEmergencyContact);
+            }
+
+            // Update if phone or number is updated
+            if (user_profile.EmergencyContactName != null) closedEmergencyContact.SavedName = user_profile.EmergencyContactName;
+            if (user_profile.EmergencyContactPhone != null) closedEmergencyContact.ContactNumber = user_profile.EmergencyContactPhone;
+
+            await _unitOfWork.CommitChangesAsync();
            
             return Result<bool>.Success(true);
         }
@@ -183,12 +203,12 @@ namespace UserService.Application.UseCases
                 return Result<IEnumerable<EmergencyContactDTO>>.Failure(ServiceError.NotFoundError($"{user_id}"), Messages.Common.NotFoundError);
             }
 
-            return Result<IEnumerable<EmergencyContactDTO>>.Success(user.EmergencyContacts.Select(x => new EmergencyContactDTO
+            return Result<IEnumerable<EmergencyContactDTO>>.Success(user.EmergencyContacts.OrderByDescending(x => x.LastModifiedAt).Select(x => new EmergencyContactDTO
             {
                 Id = x.Id,
                 Name = x.SavedName,
                 Phone = x.ContactNumber
-            }));
+            }).Take(1));
         }
 
         public async Task<Result<bool>> CreateUserSavedAddress(Guid user_id, UserAddressDTO user_address)
@@ -253,7 +273,7 @@ namespace UserService.Application.UseCases
         {
             var emergency_detail = await _unitOfWork.Repository<EmergencyContact>().GetByIdAsync(contact_id);
 
-            if (emergency_contact == null)
+            if (emergency_detail == null || emergency_detail.IsDeleted)
             {
                 return Result<bool>.Failure(ServiceError.NotFoundError($"contact not found for id {contact_id}"), Messages.Common.NotFoundError);
             }

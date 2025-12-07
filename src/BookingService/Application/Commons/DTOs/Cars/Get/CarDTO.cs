@@ -67,7 +67,7 @@ namespace BookingService.Application.Commons.DTOs.Cars.Get
         public string ModelName { get; set; }
         public decimal Price { get; set; }
         public int SeatCounts { get; set; }
-        public string CarType { get; set; }
+        public string VehicleType { get; set; }
         public DrivingLicenseTier LicenseTier { get; set; }
     }
 }

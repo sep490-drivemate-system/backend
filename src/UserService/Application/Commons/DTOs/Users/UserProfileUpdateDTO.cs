@@ -9,5 +9,7 @@ namespace UserService.Application.Commons.DTOs.Users
         public string? PhoneNumber { get; set; }
         public string? Email { get; set; }
         public string? Password { get; set; }
+        public string? EmergencyContactName { get; set; }
+        public string? EmergencyContactPhone { get; set; }
     }
 }
