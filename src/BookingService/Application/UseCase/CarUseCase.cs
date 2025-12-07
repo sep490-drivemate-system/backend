@@ -286,7 +286,7 @@ namespace BookingService.Application.UseCase
             && (filter.SeatCounts == null || x.SeatCount == filter.SeatCounts)
             && (filter.CarType == null || x.CarType == filter.CarType)
             && (filter.FuelType == null || x.FuelType.ToLower().Equals(filter.FuelType.ToLower()))
-            && x.Status == Domain.Enum.CarStatus.Approve
+            && x.Status == Domain.Enum.CarStatus.Approved
             && !x.IsDeleted; ;
             Func<IQueryable<Car>, IOrderedQueryable<Car>>? order_expression = null;
             string included_properties = "Manufacturer,Packages,CarImages,Bookings,Feedbacks";
@@ -431,10 +431,10 @@ namespace BookingService.Application.UseCase
             switch (action)
             {
                 case "approve":
-                    car_info.Status = Domain.Enum.CarStatus.Approve;
+                    car_info.Status = Domain.Enum.CarStatus.Approved;
                     break;
                 case "decline":
-                    car_info.Status = Domain.Enum.CarStatus.Reject;
+                    car_info.Status = Domain.Enum.CarStatus.Rejected;
                     break;
                 default:
                     return Result<bool>.Failure(ServiceError.BadRequestError($"{car_id}"), Messages.Commons.UNHANDLED);

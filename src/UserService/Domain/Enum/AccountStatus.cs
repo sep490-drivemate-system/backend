@@ -3,7 +3,7 @@
     public enum AccountStatus
     {
         Normal,
-        Restricted,
+        Registered,
         Banned
     }
 }
