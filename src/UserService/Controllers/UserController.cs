@@ -51,7 +51,6 @@ namespace UserService.Controllers
             return result.ToActionResult(_logger);
         }
 
-
         [HttpPost("{id}/emergency-contact")]
         public async Task<IActionResult> CreateNewSavedContact([FromRoute] Guid id, [FromBody] EmergencyContactDTO emergency_contact)
         {
@@ -66,7 +65,6 @@ namespace UserService.Controllers
             var result = await _userUseCase.UpdateUserEmergencyContact(id, emergencyContact);
             return result.ToActionResult(_logger);
         }
-
 
         [HttpPost("{id}/saved-location")]
         public async Task<IActionResult> CreateNewSavedLocation([FromRoute] Guid id, [FromBody] UserAddressDTO address)

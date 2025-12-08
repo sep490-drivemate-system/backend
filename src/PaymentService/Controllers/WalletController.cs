@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using PaymentService.Application.Features.Wallet.Commands.Deposit;
 using PaymentService.Application.Features.Wallet.Commands.UpdateWalletBalance;
 using PaymentService.Application.Features.Wallet.Queries.GetRequestDeposit;
+using PaymentService.Application.Features.Wallet.Queries.GetSystemWalletInfo;
 using PaymentService.Application.Features.Wallet.Queries.GetUserWalletWithId;
 using PaymentService.Application.Features.Wallet.Queries.GetWallet;
 using PaymentService.Application.Features.Wallet.Queries.IsEnoughPayment;
@@ -23,11 +24,13 @@ namespace PaymentService.Controllers
     {
         private readonly IMediator _mediator;
         private readonly IJwtService _jwtService;
+        private readonly ILogger _logger;
 
-        public WalletController(IMediator mediator, IJwtService jwtService)
+        public WalletController(IMediator mediator, IJwtService jwtService, ILogger<WalletController> logger)
         {
             _mediator = mediator;
             _jwtService = jwtService;
+            _logger = logger;
         }
 
         [HttpPost("check-payment")]
@@ -89,6 +92,14 @@ namespace PaymentService.Controllers
             var result = await _mediator.Send(depositCommand);
             return Ok();
         }
+
+        [HttpGet("system")]
+        public async Task<IActionResult> GetSystemWallet()
+        {
+            var result = await _mediator.Send(new GetSystemWalletQuery());
+            return result.ToActionResult(_logger);
+        }
+
         //public async Task<IActionResult> PaymentCallback()
         //{
         //    var data = Request.Query;

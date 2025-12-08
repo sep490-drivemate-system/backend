@@ -16,35 +16,61 @@ namespace PaymentService.Application.Features.Transactions.Commands.CreateGeneri
 
         public async Task<Result<Guid>> Handle(CreateGenericTransactionCommand request, CancellationToken cancellationToken)
         {
-            //// Getting the source wallet
-            //var sourceWallet = await unitOfWork.WalletRepository.GetByIdAsync(request.FromWalletId);
+            // Getting the source wallet
+            var sourceWallet = await unitOfWork.WalletRepository.GetByIdAsync(request.FromWalletId);
 
-            //if (sourceWallet == null)
-            //{
-            //    return Result<Guid>.Failure(ServiceError.NotFoundError($"{request.FromWalletId}"), "Wallet not found");
-            //}
+            if (sourceWallet == null)
+            {
+                return Result<Guid>.Failure(ServiceError.NotFoundError($"{request.FromWalletId}"), "Source wallet not found");
+            }
 
-            //// Getting the destination wallet
-            //Domain.Entities.Wallet? destinationWallet = null;
-
-            //if (request.TransactionInfo.ToWallet != null)
-            //{
-            //    destinationWallet = await unitOfWork.WalletRepository.GetByIdAsync(request.TransactionInfo.ToWallet);
-            //}
+            // Checking enough money on the source wallet
+            if (sourceWallet.Balance < request.TransactionInfo.Value)
+            {
+                return Result<Guid>.Failure(ServiceError.BadRequestError($"{request.TransactionInfo.Value}"), "Source wallet balance not enough");
+            }
             
-            //if (request.TransactionInfo.UpdateBalance && destinationWallet == null)
-            //{
-            //    return Result<>
-            //}
 
-            //// Preparing the transaction
-            //Transaction newTransaction = new Transaction
-            //{
-            //    FromWalletId = request.FromWalletId,
-            //    ToWalletId = request.TransactionInfo.ToWallet,
-            //}
+            if (request.TransactionInfo.UpdateBalance)
+            {
+                // Getting the destination wallet
+                Domain.Entities.Wallet? destinationWallet = null;
 
-            throw new NotImplementedException();
+                // Required an actual wallet to transfer money
+                if (request.TransactionInfo.ToWallet == null)
+                {
+                    return Result<Guid>.Failure(ServiceError.BadRequestError($"Get null but expected a value"), "Missing wallet information");
+                }
+                
+                destinationWallet = await unitOfWork.WalletRepository.GetByIdAsync(request.TransactionInfo.ToWallet);
+
+                if (destinationWallet == null)
+                {
+                    return Result<Guid>.Failure(ServiceError.NotFoundError($"{request.TransactionInfo.ToWallet}"), "Destination wallet not found");
+                }
+
+                sourceWallet.Balance -= request.TransactionInfo.Value;
+                destinationWallet.Balance += request.TransactionInfo.Value;
+            }
+
+            // Preparing the transaction
+            Transaction newTransaction = new Transaction
+            {
+                FromWalletId = request.FromWalletId,
+                ToWalletId = request.TransactionInfo.ToWallet,
+                TransactionValue = request.TransactionInfo.Value,
+                BookingId = request.TransactionInfo.BookingId,
+                DrivingSessionId = request.TransactionInfo.SessionId,
+                ReferenceCode = request.TransactionInfo.ReferenceCode,
+                TransactionNote = request.TransactionInfo.TransactionNote,
+                PaymentMethod = Domain.Enum.PaymentMethod.Wallet,
+                Status = Domain.Enum.PaymentStatus.Completed,
+            };
+
+            newTransaction = await unitOfWork.TransactionRepository.CreateAsync(newTransaction);
+            await unitOfWork.SaveChangesAsync();
+
+            return Result<Guid>.Success(newTransaction.Id);
         }
     }
 }

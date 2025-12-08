@@ -43,6 +43,11 @@ namespace PaymentService.Infrastructure.Persistence.Configurations
                    .HasMaxLength(255)
                    .IsRequired(false);
 
+            builder.Property(t => t.TransactionNote)
+                .HasColumnName("transaction_note")
+                .HasMaxLength(255)
+                .IsRequired(false);
+
             builder.Property(x => x.CreatedAt)
                 .HasColumnName("created_at")
                 .HasColumnType("timestamptz")

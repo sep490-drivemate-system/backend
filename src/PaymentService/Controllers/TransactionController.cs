@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PaymentService.Application.Common.DTOs;
+using PaymentService.Application.Features.Transactions.Commands.CreateGenericTransaction;
 using PaymentService.Application.Features.Transactions.Commands.CreateTransaction;
 using PaymentService.Application.Features.Transactions.Commands.UpdateTransactionStatus;
 using PaymentService.Application.Features.Transactions.Queries.GetDashboardStatistic;
@@ -21,10 +22,13 @@ namespace PaymentService.Controllers
     {
         private readonly IMediator _mediator;
         private readonly IJwtService _jwtService;
-        public TransactionController(IMediator mediator,IJwtService jwtService)
+        private readonly ILogger _logger;
+
+        public TransactionController(IMediator mediator,IJwtService jwtService, ILogger<TransactionController> logger)
         {
             _mediator = mediator;
             _jwtService = jwtService;
+            _logger = logger;
         }
 
         [HttpGet("statistic")]
@@ -87,6 +91,19 @@ namespace PaymentService.Controllers
                 return CreatedAtAction(nameof(GetTransactionById), new { id = result.Data.Id }, result);
             
             return BadRequest(result);
+        }
+
+        [HttpPost("generic")]
+        [Authorize]
+        public async Task<IActionResult> CreateGenericTransaction([FromBody] GenericTransactionInfo info)
+        {
+            var result = await _mediator.Send(new CreateGenericTransactionCommand
+            {
+                FromWalletId = await _jwtService.ExtractUserIdFromToken(Request.Headers.Authorization.FirstOrDefault()),
+                TransactionInfo = info
+            });
+
+            return result.ToActionResult(_logger);
         }
 
         [HttpPut("{id}/status")]
