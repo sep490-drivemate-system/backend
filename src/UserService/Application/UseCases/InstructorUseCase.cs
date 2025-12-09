@@ -17,12 +17,15 @@ using System.Reflection;
 using Twilio.TwiML.Messaging;
 using AutoMapper;
 using SharedLibrary.Email;
+using SharedLibrary.SharedKernel.Http.DTOs.Instructor;
+using SharedLibrary.SharedKernel.Http.DTOs.ApiResponse;
 
 namespace UserService.Application.UseCases
 {
-    public class InstructorUseCase(IUnitOfWork unitOfWork, ICloudinaryServiceProvider cloudinary, IPasswordHasherService passwordHasher, IHttpClientFactory http_client_factory, IIntructor intructor, IMapper mapper, IEmailService emailService) : IInstructorUseCase
+    public class InstructorUseCase(IUnitOfWork unitOfWork, IHttpClientFactory httpClientFactory, ICloudinaryServiceProvider cloudinary, IPasswordHasherService passwordHasher, IHttpClientFactory http_client_factory, IIntructor intructor, IMapper mapper, IEmailService emailService) : IInstructorUseCase
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
         private readonly IIntructor _intructor = intructor;
         private readonly IMapper _mapper = mapper;
         private readonly ICloudinaryServiceProvider _cloudinary = cloudinary;
@@ -32,27 +35,43 @@ namespace UserService.Application.UseCases
         #region Instructor Information
         public async Task<Result<InstructorDTO>> GetInstructorDetail(Guid id)
         {
-            string included_properties = "User";
-
-            var instructor_info = await _unitOfWork.InstructorRepository.GetByIdAsync(id, included_properties);
-
-            if (instructor_info == null || instructor_info.IsDeleted)
+            try
             {
-                return Result<InstructorDTO>.Failure(ServiceError.NotFoundError($"{id}"), Messages.Common.NotFoundError);
+                string included_properties = "User";
+                var instructor_info = await _unitOfWork.InstructorRepository.GetByIdAsync(id, included_properties);
+                if (instructor_info == null || instructor_info.IsDeleted)
+                {
+                    return Result<InstructorDTO>.Failure(ServiceError.NotFoundError($"{id}"), Messages.Common.NotFoundError);
+                }
+
+                // Get Instructor information from Booking service
+                var bookServiceClient = _httpClientFactory.CreateClient("BookingServiceClient");
+                var responseMessage = await bookServiceClient.PostAsJsonAsync("api/feedback/list-overview-instructor", id.ToString());
+
+                if (!responseMessage.IsSuccessStatusCode)
+                {
+                    return Result<InstructorDTO>.Failure(ServiceError.ExternalServiceError($"{responseMessage.StatusCode} - {responseMessage.ReasonPhrase}"), Messages.Common.UnknownError);
+                }
+
+                var response = await responseMessage.Content.ReadFromJsonAsync<InstructorOverviewFeedbackResponse>();
+
+                return Result<InstructorDTO>.Success(new InstructorDTO
+                {
+                    Id = instructor_info.Id,
+                    FullName = instructor_info.User?.Fullname ?? "",
+                    Bio = instructor_info.Bio,
+                    Gender = instructor_info.User.Gender,
+                    ExperienceYear = instructor_info.Experience,
+                    Avatar = instructor_info.User?.Avatar ?? "",
+                    PackageCount = response.PackageCount,
+                    AverageRating = response.AverageRating,
+                    BookingCount = response.BookingCount,
+                }, Messages.Common.Success);
             }
-
-            return Result<InstructorDTO>.Success(new InstructorDTO
+            catch (Exception ex)
             {
-                Id = instructor_info.Id,
-                FullName = instructor_info.User?.Fullname ?? "",
-                Bio = instructor_info.Bio,
-                Gender = instructor_info.User.Gender,
-                ExperienceYear = instructor_info.Experience,
-                Avatar = instructor_info.User?.Avatar ?? "",
-                PackageCount = 0,
-                AverageRating = 0,
-                BookingCount = 0
-            }, Messages.Common.Success);
+                return Result<InstructorDTO>.Failure(ServiceError.UnhandledException(ex.Message), Messages.Common.UnknownError);
+            }
         }
 
         public async Task<Result<PaginatedList<InstructorDTO>>> GetInstructors(InstructorListFilterDTO filter)

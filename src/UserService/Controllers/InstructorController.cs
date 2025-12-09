@@ -15,9 +15,10 @@ namespace UserService.Controllers
 {
     [Route("api/instructors")]
     [ApiController]
-    public class InstructorController(IInstructorUseCase usecase) : ControllerBase
+    public class InstructorController(IInstructorUseCase usecase, ILogger<InstructorController> logger) : ControllerBase
     {
         private readonly IInstructorUseCase _usecase = usecase;
+        private readonly ILogger<InstructorController> _logger = logger;
 
         [HttpGet]
         public async Task<IActionResult> GetInstructors([FromQuery] InstructorListFilterDTO filter)
@@ -37,7 +38,7 @@ namespace UserService.Controllers
         public async Task<IActionResult> GetInstructorDetail([FromRoute] Guid id)
         {
             var result = await _usecase.GetInstructorDetail(id);
-            return result.ToActionResult();
+            return result.ToActionResult(_logger);
         }
 
         [HttpGet("{id}/schedule")]
