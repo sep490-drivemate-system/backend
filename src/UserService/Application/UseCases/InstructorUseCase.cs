@@ -22,9 +22,10 @@ using SharedLibrary.SharedKernel.Http.DTOs.ApiResponse;
 
 namespace UserService.Application.UseCases
 {
-    public class InstructorUseCase(IUnitOfWork unitOfWork, IHttpClientFactory httpClientFactory, ICloudinaryServiceProvider cloudinary, IPasswordHasherService passwordHasher, IHttpClientFactory http_client_factory, IIntructor intructor, IMapper mapper, IEmailService emailService) : IInstructorUseCase
+    public class InstructorUseCase(IUnitOfWork unitOfWork, IHttpClientFactory httpClientFactory, ICloudinaryServiceProvider cloudinary, IPasswordHasherService passwordHasher, IHttpClientFactory http_client_factory, IIntructor intructor, IMapper mapper, IEmailService emailService,IConfiguration configuration) : IInstructorUseCase
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IConfiguration _configuration = configuration;
         private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
         private readonly IIntructor _intructor = intructor;
         private readonly IMapper _mapper = mapper;
@@ -35,8 +36,7 @@ namespace UserService.Application.UseCases
         #region Instructor Information
         public async Task<Result<InstructorDTO>> GetInstructorDetail(Guid id)
         {
-            try
-            {
+
                 string included_properties = "User";
                 var instructor_info = await _unitOfWork.InstructorRepository.GetByIdAsync(id, included_properties);
                 if (instructor_info == null || instructor_info.IsDeleted)
@@ -44,9 +44,10 @@ namespace UserService.Application.UseCases
                     return Result<InstructorDTO>.Failure(ServiceError.NotFoundError($"{id}"), Messages.Common.NotFoundError);
                 }
 
-                // Get Instructor information from Booking service
-                var bookServiceClient = _httpClientFactory.CreateClient("BookingServiceClient");
-                var responseMessage = await bookServiceClient.PostAsJsonAsync("api/feedback/list-overview-instructor", id.ToString());
+                var bookingURL = _configuration["BOOKINGSERVICE:URL"];
+                var bookServiceClient = _httpClientFactory.CreateClient();
+                var endpoint = $"{bookingURL}/api/feedback/list-overview-instructor";
+                var responseMessage = await bookServiceClient.PostAsJsonAsync(endpoint, id);
 
                 if (!responseMessage.IsSuccessStatusCode)
                 {
@@ -67,11 +68,7 @@ namespace UserService.Application.UseCases
                     AverageRating = response.AverageRating,
                     BookingCount = response.BookingCount,
                 }, Messages.Common.Success);
-            }
-            catch (Exception ex)
-            {
-                return Result<InstructorDTO>.Failure(ServiceError.UnhandledException(ex.Message), Messages.Common.UnknownError);
-            }
+           
         }
 
         public async Task<Result<PaginatedList<InstructorDTO>>> GetInstructors(InstructorListFilterDTO filter)
