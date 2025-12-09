@@ -1,11 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ResourceService.Services.DTOs.Quizzes;
-using Services;
+using ResourceService.Application.Commons.DTOs.Quizzes;
+using ResourceService.Application.Interfaces;
 using SharedLibrary.Jwt;
 using SharedLibrary.SharedKernel.Enum;
 using SharedLibrary.SharedKernel.ServiceResult;
-using System.Threading.Tasks;
 
 namespace ResourceService.Controllers
 {
@@ -13,10 +12,10 @@ namespace ResourceService.Controllers
     [ApiController]
     public class QuizController : ControllerBase
     {
-        private readonly IServiceProviders _services;
+        private readonly IApplicationServiceProvider _services;
         private readonly IJwtService _jwtService;
 
-        public QuizController(IServiceProviders serviceProviders, IJwtService jwtService)
+        public QuizController(IApplicationServiceProvider serviceProviders, IJwtService jwtService)
         {
             _services = serviceProviders;
             _jwtService = jwtService;

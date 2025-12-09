@@ -7,7 +7,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Folder Include="AI\" />
 		<Folder Include="Payment\VnPay\DTOs\" />
 		<Folder Include="Payment\ZaloPay\DTOs\" />
 	</ItemGroup>
@@ -16,6 +15,12 @@
 		<Content Include="Email\Template\**\*">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Remove="AI\**" />
+	  <EmbeddedResource Remove="AI\**" />
+	  <None Remove="AI\**" />
 	</ItemGroup>
 
 	<ItemGroup>

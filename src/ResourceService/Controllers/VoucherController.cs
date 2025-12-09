@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ResourceService.Services.DTOs.Vouchers;
-using Services;
+using ResourceService.Application.Commons.DTOs.Vouchers;
+using ResourceService.Application.Interfaces;
 using SharedLibrary.Jwt;
 using SharedLibrary.SharedKernel.Enum;
 using SharedLibrary.SharedKernel.ServiceResult;
@@ -12,10 +12,10 @@ namespace ResourceService.Controllers
     [ApiController]
     public class VoucherController : ControllerBase
     {
-        private readonly IServiceProviders _services;
+        private readonly IApplicationServiceProvider _services;
         private readonly IJwtService _jwtService;
 
-        public VoucherController(IServiceProviders serviceProviders, IJwtService jwtService)
+        public VoucherController(IApplicationServiceProvider serviceProviders, IJwtService jwtService)
         {
             _services = serviceProviders;
             _jwtService = jwtService;

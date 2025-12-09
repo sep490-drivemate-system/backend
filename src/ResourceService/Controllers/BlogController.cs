@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ResourceService.Services.DTOs;
-using Services;
+using ResourceService.Application.Commons.DTOs;
+using ResourceService.Application.Interfaces;
 using SharedLibrary.Jwt;
 using SharedLibrary.SharedKernel.Enum;
 using SharedLibrary.SharedKernel.ServiceResult;
@@ -15,10 +15,10 @@ namespace ResourceService.Controllers
     [Route("api/blogs")]
     public class BlogController : ControllerBase
     {
-        private readonly IServiceProviders _serviceProviders;
+        private readonly IApplicationServiceProvider _serviceProviders;
         private readonly IJwtService _jwtService;
 
-        public BlogController(IServiceProviders serviceProviders, IJwtService jwtService)
+        public BlogController(IApplicationServiceProvider serviceProviders, IJwtService jwtService)
         {
             _serviceProviders = serviceProviders;
             _jwtService = jwtService;
