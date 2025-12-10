@@ -121,7 +121,6 @@ namespace BookingService.Infrastructure.Repositories
                 {
                     InstructorId = g.Key,
                     AverageRating = g.Average(f => (decimal)f.InstructorRating),
-                    BookingCount = g.Select(f => f.BookingId).Distinct().Count()
                 })
                 .ToListAsync();
 
@@ -134,17 +133,27 @@ namespace BookingService.Infrastructure.Repositories
                     PackageCount = g.Count()
                 })
                 .ToListAsync();
+            var bookingStats = await _context.Bookings
+              .Where(p => instructorIds.Contains(p.InstructorId) && !p.IsDeleted)
+              .GroupBy(p => p.InstructorId)
+              .Select(g => new
+              {
+                  InstructorId = g.Key,
+                  BookingCount = g.Select(f => f.InstructorId).Distinct().Count()
+              })
+              .ToListAsync();
             var result = new Dictionary<Guid, InstructorOverviewFeedbackResponse>();
 
             foreach (var instructorId in instructorIds)
             {
                 var feedback = feedbackStats.FirstOrDefault(f => f.InstructorId == instructorId);
                 var package = packageStats.FirstOrDefault(p => p.InstructorId == instructorId);
+                var booking = bookingStats.FirstOrDefault(p => p.InstructorId == instructorId);
 
                 result[instructorId] = new InstructorOverviewFeedbackResponse
                 {
                     AverageRating = feedback?.AverageRating ?? 0m,
-                    BookingCount = feedback?.BookingCount ?? 0,
+                    BookingCount = booking?.BookingCount ?? 0,
                     PackageCount = package?.PackageCount ?? 0
                 };
             }
