@@ -23,6 +23,14 @@ namespace ResourceService.Domain.Constants
             public const string BAN_FAILED = "Cấm blog không thành công";
         }
 
+        public static class Category
+        {
+            public const string CREATE_SUCCESS = "Tạo danh mục thành công";
+            public const string CREATE_FAILED = "Tạo danh mục không thành công";
+            public const string NAME_REQUIRED = "Tên danh mục không được để trống";
+            public const string NAME_ALREADY_EXISTS = "Tên danh mục đã tồn tại";
+        }
+
         public static class Commons
         {
             public const string SUCCESS = "Thành công";

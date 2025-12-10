@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SharedLibrary.Jwt;
 using SharedLibrary.SharedKernel.Enum;
+using SharedLibrary.SharedKernel.Http.Implementation;
 using SharedLibrary.SharedKernel.Http.Interfaces;
 using SharedLibrary.SharedKernel.ServiceResult;
 using System.Threading.Tasks;
@@ -45,7 +46,8 @@ namespace BookingService.Controllers
         public async Task<IActionResult> GetBookings([FromQuery] BookingFilterDTO bookingFilterDTO)
         {
             var driverId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
-            var result = await _bookingUseCase.GetBookings(bookingFilterDTO, driverId);
+            var result = await _bookingUseCase.GetBookings(bookingFilterDTO, 
+            driverId);
             return result.ToActionResult();
         }
 

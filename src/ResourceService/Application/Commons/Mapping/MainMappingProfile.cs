@@ -26,6 +26,13 @@ namespace ResourceService.Application.Commons.Mapping
             // Category -> CategoryDto
             CreateMap<Category, CategoryDto>();
 
+            // CreateCategoryDto -> Category
+            CreateMap<CreateCategoryDto, Category>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdateAt, opt => opt.Ignore())
+                .ForMember(dest => dest.IsDelete, opt => opt.Ignore())
+                .ForMember(dest => dest.Blogs, opt => opt.Ignore());
+
             // Create mappings (DTO -> Entity)
             CreateMap<BlogContentCreateDto, BlogContent>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())

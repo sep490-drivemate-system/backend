@@ -49,12 +49,12 @@ namespace ResourceService.Infrastructure.Commons
 
         public int SaveChanges()
         {
-            throw new NotImplementedException();
+            return context.SaveChanges();
         }
 
-        public Task<int> SaveChangesAsync()
+        public async Task<int> SaveChangesAsync()
         {
-            throw new NotImplementedException();
+            return await context.SaveChangesAsync();
         }
     }
 }

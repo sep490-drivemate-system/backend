@@ -8,6 +8,7 @@ using ResourceService.Domain.Enums;
 using SharedLibrary.CloudinaryStorage;
 using SharedLibrary.SharedKernel.Pagination;
 using SharedLibrary.SharedKernel.ServiceResult;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace ResourceService.Application.Services
@@ -37,6 +38,53 @@ namespace ResourceService.Application.Services
             {
                 return Result<ICollection<CategoryDto>>.Failure(
                     ServiceError.UnhandledException(Messages.Blog.RETRIEVE_ERROR),
+                    Messages.Commons.UNHANDLED);
+            }
+        }
+
+        public async Task<Result<CategoryDto>> CreateCategoryAsync(CreateCategoryDto createCategoryDto)
+        {
+            try
+            {
+                // Validate input
+                if (string.IsNullOrWhiteSpace(createCategoryDto.Name))
+                {
+                    return Result<CategoryDto>.Failure(
+                        ServiceError.BadRequestError(Messages.Category.NAME_REQUIRED),
+                        Messages.Category.NAME_REQUIRED);
+                }
+
+                // Check if category name already exists
+                var existingCategories = await _unitOfWork.ResourceRepository.GetCategoriesAsync();
+                if (existingCategories.Any(c => c.Name.Trim().Equals(createCategoryDto.Name.Trim(), StringComparison.OrdinalIgnoreCase)))
+                {
+                    return Result<CategoryDto>.Failure(
+                        ServiceError.BadRequestError(Messages.Category.NAME_ALREADY_EXISTS),
+                        Messages.Category.NAME_ALREADY_EXISTS);
+                }
+
+                var category = _mapper.Map<Category>(createCategoryDto);
+                category.Id = Guid.NewGuid();
+                category.CreatedAt = DateTime.Now;
+                category.IsDelete = false;
+
+                await _unitOfWork.ResourceRepository.CreateCategory(category);
+                var result = await _unitOfWork.SaveChangesAsync();
+                
+                if (result <= 0)
+                {
+                    return Result<CategoryDto>.Failure(
+                        ServiceError.UnhandledException(Messages.Category.CREATE_FAILED),
+                        Messages.Category.CREATE_FAILED);
+                }
+
+                var categoryDto = _mapper.Map<CategoryDto>(category);
+                return Result<CategoryDto>.Success(categoryDto, Messages.Category.CREATE_SUCCESS);
+            }
+            catch (Exception ex)
+            {
+                return Result<CategoryDto>.Failure(
+                    ServiceError.UnhandledException($"{Messages.Category.CREATE_FAILED}: {ex.Message}"),
                     Messages.Commons.UNHANDLED);
             }
         }

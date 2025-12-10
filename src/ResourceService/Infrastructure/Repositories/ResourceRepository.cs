@@ -70,6 +70,12 @@ namespace ResourceService.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<bool> CreateCategory(Category category)
+        {
+            await _context.Set<Category>().AddAsync(category);
+            return true;
+        }
+
         public void AddBlogContent(BlogContent content)
         {
             _context.Set<BlogContent>().Add(content);

@@ -139,6 +139,14 @@ namespace ResourceService.Controllers
             return result.ToActionResult();
         }
 
+        [HttpPost("categories")]
+        [Authorize(Roles = nameof(UserRole.Inspector))]
+        public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryDto createCategoryDto)
+        {
+            var result = await _serviceProviders.ResourcesService.CreateCategoryAsync(createCategoryDto);
+            return result.ToActionResult();
+        }
+
         #endregion
     }
 }
