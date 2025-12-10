@@ -15,12 +15,12 @@ namespace SharedLibrary.Payment.ZaloPay
         private readonly IConfiguration _configuration = configuration;
 
         #region ZALOPAY
-        public async Task<(string,string)> CreateZaloPayOrder(decimal amount, string returnCallBack)
+        public async Task<(string,string)> CreateZaloPayOrder(decimal amount, string returnCallBack,string device)
         {
             Random rnd = new Random();
             var app_trans_id = rnd.Next(1000000);
             var referenceCode = DateTime.Now.ToString("yyMMdd") + "_" + app_trans_id;
-            var response = await CreateZaloPayQrOrderAsync(amount, referenceCode, returnCallBack);
+            var response = await CreateZaloPayQrOrderAsync(amount, referenceCode, returnCallBack,device);
 
 
             if (response.TryGetValue("order_url", out var orderUrl))
@@ -65,7 +65,8 @@ namespace SharedLibrary.Payment.ZaloPay
         public async Task<Dictionary<string, string>> CreateZaloPayQrOrderAsync(
             decimal amount,
             string referenceCode,
-            string returnCallBack
+            string returnCallBack,
+            string device
         )
         {
 
@@ -73,6 +74,8 @@ namespace SharedLibrary.Payment.ZaloPay
             var embed_data = new
             {
                 redirecturl = returnCallBack,
+                device = device,
+                test_data = "test",
             };
             string serviceName = "deposit";
             var param = new Dictionary<string, string>();

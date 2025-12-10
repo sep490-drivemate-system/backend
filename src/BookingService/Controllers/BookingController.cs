@@ -41,10 +41,11 @@ namespace BookingService.Controllers
             return result.ToActionResult();
         }
         [HttpGet]
-        public async Task<IActionResult> GetBookings(BookingStatus bookingStatus)
+        [Authorize(Roles = nameof(UserRole.NoviceDriver))]
+        public async Task<IActionResult> GetBookings([FromQuery] BookingFilterDTO bookingFilterDTO)
         {
             var driverId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
-            var result = await _bookingUseCase.GetBookings(bookingStatus, driverId);
+            var result = await _bookingUseCase.GetBookings(bookingFilterDTO, driverId);
             return result.ToActionResult();
         }
 

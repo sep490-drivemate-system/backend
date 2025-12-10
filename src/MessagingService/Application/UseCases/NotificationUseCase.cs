@@ -18,7 +18,7 @@ namespace MessagingService.Application.UseCases
             _mapper = mapper;
         }
 
-        public async Task<NotificationResponseDTO> CreateNotificationAsync(CreateNotificationDTO dto)
+        public async Task<NotificationDTO> CreateNotificationAsync(CreateNotificationDTO dto)
         {
             var notification = new Notification
             {
@@ -34,17 +34,17 @@ namespace MessagingService.Application.UseCases
             await _unitOfWork.NotificationRepository.AddAsync(notification);
             await _unitOfWork.CommitChangesAsync();
 
-            var responseDTO = _mapper.Map<NotificationResponseDTO>(notification);
+            var responseDTO = _mapper.Map<NotificationDTO>(notification);
             return responseDTO;
         }
 
-        public async Task<IEnumerable<NotificationResponseDTO>> GetUserNotificationsAsync(
-            Guid userId, int pageNumber = 1, int pageSize = 50)
+        public async Task<IEnumerable<NotificationDTO>> GetUserNotificationsAsync(
+            Guid userId, int pageNumber = 1, int pageSize = 10)
         {
             var notifications = await _unitOfWork.NotificationRepository
                 .GetUserNotificationsAsync(userId, pageNumber, pageSize);
 
-            var notificationDTOs = _mapper.Map<IEnumerable<NotificationResponseDTO>>(notifications);
+            var notificationDTOs = _mapper.Map<IEnumerable<NotificationDTO>>(notifications);
             return notificationDTOs;
         }
 

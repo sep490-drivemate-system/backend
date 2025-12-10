@@ -50,10 +50,12 @@ namespace MessagingService.Infrastructure.Persistence.Configurations
 
             builder.Property(n => n.CreatedAt)
                 .HasColumnName("created_at")
+                .HasColumnType("timestamp")
                 .IsRequired();
 
             builder.Property(n => n.LastModifiedAt)
                 .HasColumnName("last_modified_at")
+                .HasColumnType("timestamp")
                 .IsRequired();
 
             builder.Property(n => n.IsDeleted)

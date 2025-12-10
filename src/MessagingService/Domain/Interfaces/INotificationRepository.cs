@@ -5,7 +5,7 @@ namespace MessagingService.Domain.Interfaces
 {
     public interface INotificationRepository : IGenericRepository<Notification>
     {
-        Task<IEnumerable<Notification>> GetUserNotificationsAsync(Guid userId, int pageNumber = 1, int pageSize = 50);
+        Task<IEnumerable<Notification>> GetUserNotificationsAsync(Guid userId, int pageNumber = 1, int pageSize = 10);
         Task<int> GetUnreadNotificationCountAsync(Guid userId);
         Task MarkNotificationAsReadAsync(Guid notificationId);
         Task MarkAllNotificationsAsReadAsync(Guid userId);

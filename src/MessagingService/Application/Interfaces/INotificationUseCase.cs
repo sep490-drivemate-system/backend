@@ -5,8 +5,8 @@ namespace MessagingService.Application.Interfaces
 {
     public interface INotificationUseCase
     {
-        Task<NotificationResponseDTO> CreateNotificationAsync(CreateNotificationDTO dto);
-        Task<IEnumerable<NotificationResponseDTO>> GetUserNotificationsAsync(Guid userId, int pageNumber = 1, int pageSize = 50);
+        Task<NotificationDTO> CreateNotificationAsync(CreateNotificationDTO dto);
+        Task<IEnumerable<NotificationDTO>> GetUserNotificationsAsync(Guid userId, int pageNumber = 1, int pageSize = 10);
         Task<int> GetUnreadNotificationCountAsync(Guid userId);
         Task<bool> MarkNotificationAsReadAsync(Guid notificationId, Guid userId);
         Task<bool> MarkAllNotificationsAsReadAsync(Guid userId);

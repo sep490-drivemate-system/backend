@@ -1,7 +1,9 @@
-﻿using MediatR;
+﻿using CloudinaryDotNet;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using PaymentService.Application.Features.Wallet.Commands.Deposit;
 using PaymentService.Application.Features.Wallet.Commands.UpdateWalletBalance;
 using PaymentService.Application.Features.Wallet.Queries.GetRequestDeposit;
@@ -64,7 +66,6 @@ namespace PaymentService.Controllers
         //    return Ok(result);
         //}
         [HttpPost("deposit")]
-        [Authorize]
         public async Task<IActionResult> Deposit(GetRequestDepositQuery getRequestDepositQuery)
         {        
 
@@ -85,12 +86,13 @@ namespace PaymentService.Controllers
         public async Task<IActionResult> PaymentCallback()
         {
             var data = Request.Query;
+            
             var depositCommand = new DepositCommand
             {
                 Data = data
             };
             var result = await _mediator.Send(depositCommand);
-            return Ok();
+            return result.ToActionResult();
         }
 
         [HttpGet("system")]

@@ -18,6 +18,7 @@ using SharedLibrary.SharedKernel.Http.DTOs.ApiResponse;
 using SharedLibrary.SharedKernel.Http.DTOs.User;
 using SharedLibrary.SharedKernel.Http.DTOs.Wallet;
 using SharedLibrary.SharedKernel.Http.Interfaces;
+using SharedLibrary.SharedKernel.Pagination;
 using SharedLibrary.SharedKernel.ServiceResult;
 using System.Linq;
 using System.Linq.Expressions;
@@ -62,21 +63,27 @@ namespace BookingService.Application.UseCase
         }
 
 
-        public async Task<Result<List<BookingsDTO>>> GetBookings(BookingStatus status, Guid driverId)
+        public async Task<Result<PaginatedList<BookingsDTO>>> GetBookings(BookingFilterDTO bookingFilterDTO, Guid driverId)
         {
             var bookings = await _unitOfWork.BookingRepository.GetBookingsByDriverIdAsync(
                 driverId: driverId,
-                status: status == 0 ? null : status
+                status: bookingFilterDTO.Status == 0 ? null : bookingFilterDTO.Status
             );
 
             if (!bookings.Any())
             {
-                return Result<List<BookingsDTO>>.Success(new List<BookingsDTO>());
+                return Result<PaginatedList<BookingsDTO>>.Success(new PaginatedList<BookingsDTO>());
             }
 
             var bookingDTOs = _mapper.Map<List<BookingsDTO>>(bookings);
 
-            return Result<List<BookingsDTO>>.Success(bookingDTOs);
+            var paginatedBookingDTOs = PaginatedList<BookingsDTO>.Create(
+                bookingDTOs,
+               bookingFilterDTO.PageNumber,
+                bookingFilterDTO.PageSize
+            );
+
+            return Result<PaginatedList<BookingsDTO>>.Success(paginatedBookingDTOs);
         }
 
         public async Task<Result<List<DrivingSessionScheduleDTO>>> GetUpcomingDrivingSessions(Guid instructorId)

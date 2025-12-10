@@ -1,5 +1,6 @@
 using MessagingService.Domain.DTOs;
 using MessagingService.Domain.Entities;
+using MessagingService.Domain.Enum;
 using MessagingService.Domain.Interfaces;
 using MessagingService.Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
@@ -53,6 +54,11 @@ namespace MessagingService.Infrastructure.Repositories
                         .OrderByDescending(m => m.CreatedAt)
                         .Select(m => m.Content)
                         .FirstOrDefault() ?? string.Empty,
+                    Status = c.Messages
+                        .Where(m => !m.IsDeleted)
+                        .OrderByDescending(m => m.CreatedAt) 
+                        .Select(m => m.Status)
+                        .FirstOrDefault(),
                     LastMessageAt = c.Messages
                         .Where(m => !m.IsDeleted)
                         .OrderByDescending(m => m.CreatedAt)

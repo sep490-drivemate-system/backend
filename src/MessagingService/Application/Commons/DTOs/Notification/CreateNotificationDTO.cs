@@ -9,7 +9,6 @@ namespace MessagingService.Application.Commons.DTOs.Notification
         public string Content { get; set; }
         public NotificationType Type { get; set; }
         public string? ActionUrl { get; set; }
-        public string? ImageUrl { get; set; }
         public Guid? RelatedEntityId { get; set; }
     }
 }

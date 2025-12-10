@@ -39,23 +39,18 @@ namespace PaymentService.Application.Features.Wallet.Queries.GetRequestDeposit
 
         public async Task<Result<string>> Handle(GetRequestDepositQuery request, CancellationToken cancellationToken)
         {
-            var callbackUrl = _configuration["PAYMENTCALLBACK:WEBAPPURL"];
-            if (request.Platform == ClientPlatform.Mobile)
-            {
-                callbackUrl = _configuration["PAYMENTCALLBACK:MOBILEURL"];
-            }
-            
-
+            var callbackUrl = _configuration["PAYMENTCALLBACK:URL"];
+            string device = request.Platform == Domain.Enum.ClientPlatform.WebApp ? "webapp" : "moblie";
             switch (request.PaymentMethod)
             {
                 case PaymentMethod.PayOs:
                     return await HandlePayOsPayment(request.Amount, request.UserId,callbackUrl);
 
                 case PaymentMethod.VnPay:
-                    return await HandleVnPayPayment(request.Amount, request.UserId, callbackUrl);
+                    return await HandleVnPayPayment(request.Amount, request.UserId, callbackUrl,device);
 
                 case PaymentMethod.ZaloPay:
-                    return await HandleZaloPayPayment(request.Amount, request.UserId, callbackUrl);
+                    return await HandleZaloPayPayment(request.Amount, request.UserId, callbackUrl, device);
 
                 default:
                     return Result<string>.Failure(
@@ -67,6 +62,7 @@ namespace PaymentService.Application.Features.Wallet.Queries.GetRequestDeposit
         {
             var paymentDto = new PayOSPaymentDTO
             {
+                UnitPrice = (int)amount,                
                 Items = new List<ItemData>
                 {
                     new ItemData(
@@ -77,20 +73,33 @@ namespace PaymentService.Application.Features.Wallet.Queries.GetRequestDeposit
                 },
             };
             var (paymentUrl, referenceCode) = await _payOsService.CreatePayOSLink(paymentDto,callbackUrl);
-
-
-            return Result<string>.Success(paymentUrl);
-        }
-
-        private async Task<Result<string>> HandleVnPayPayment(decimal amount, Guid userId, string callbackUrl)
-        {
-            var (paymentUrl, referenceCode) = await _vnPayService.CreateVNPayOrder(amount, callbackUrl);
             var transaction = new Domain.Entities.Transaction
             {
                 PaymentMethod = PaymentMethod.VnPay,
                 TransactionValue = amount,
                 Status = PaymentStatus.Failed,
-                FromWalletId = userId,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                ToWalletId = userId,
+                ReferenceCode = referenceCode.ToString(),
+            };
+            await _unitOfWork.TransactionRepository.CreateAsync(
+                 transaction);
+
+            return Result<string>.Success(paymentUrl);
+        }
+
+        private async Task<Result<string>> HandleVnPayPayment(decimal amount, Guid userId, string callbackUrl,string device)
+        {
+            var (paymentUrl, referenceCode) = await _vnPayService.CreateVNPayOrder(amount, callbackUrl, device);
+            var transaction = new Domain.Entities.Transaction
+            {
+                PaymentMethod = PaymentMethod.VnPay,
+                TransactionValue = amount,
+                Status = PaymentStatus.Failed,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                ToWalletId = userId,
                 ReferenceCode = referenceCode.ToString(),
             };
            await _unitOfWork.TransactionRepository.CreateAsync(
@@ -98,14 +107,16 @@ namespace PaymentService.Application.Features.Wallet.Queries.GetRequestDeposit
             return Result<string>.Success(paymentUrl);
         }
 
-        private async Task<Result<string>> HandleZaloPayPayment(decimal amount, Guid userId, string callbackUrl)
+        private async Task<Result<string>> HandleZaloPayPayment(decimal amount, Guid userId, string callbackUrl,string device)
         {
-            var (paymentUrl, referenceCode) = await _zaloPayService.CreateZaloPayOrder(amount, callbackUrl);
+            var (paymentUrl, referenceCode) = await _zaloPayService.CreateZaloPayOrder(amount, callbackUrl, device);
             var transaction = new Domain.Entities.Transaction
             {
                 PaymentMethod = PaymentMethod.VnPay,
                 TransactionValue = amount,
-                FromWalletId = userId,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                ToWalletId = userId,
                 Status = PaymentStatus.Failed,
                 ReferenceCode = referenceCode.ToString(),
             };

@@ -17,17 +17,12 @@ namespace MessagingService
             var builder = WebApplication.CreateBuilder(args);
             var config = builder.Configuration;
             builder.Configuration.AddEnvironmentVariables();
-
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-
             builder.Services.AddSignalR();
-
             builder.Services.AddInfrastructure(config);
-
             builder.Services.AddApplication(config);
-
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {

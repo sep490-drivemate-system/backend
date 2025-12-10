@@ -11,7 +11,7 @@ namespace MessagingService.Application.Commons.Mapping
     {
         public MappingProfile()
         {
-            CreateMap<Notification, NotificationResponseDTO>();
+            CreateMap<Notification, NotificationDTO>();
             CreateMap<CreateNotificationDTO, Notification>();
             CreateMap<SendMessageDTO, Message>()
                 .ForMember(dest => dest.ChatSessionId, opt => opt.MapFrom(src => src.ConversationId))

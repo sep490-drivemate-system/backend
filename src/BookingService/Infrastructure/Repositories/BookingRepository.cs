@@ -26,7 +26,9 @@ namespace BookingService.Infrastructure.Repositories
                 query = query.Where(b => b.Status == status.Value);
             }
 
-            return await query.ToListAsync();
+            return await query
+                .OrderByDescending(b => b.CreatedAt)
+                .ToListAsync();
         }
     }
 }

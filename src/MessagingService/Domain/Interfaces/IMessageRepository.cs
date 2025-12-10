@@ -6,6 +6,7 @@ namespace MessagingService.Domain.Interfaces
     {
         Task<IEnumerable<Message>> GetConversationMessagesAsync(Guid conversationId, int pageNumber = 1, int pageSize = 50);
         Task<int> GetUnreadMessageCountAsync(Guid conversationId, Guid userId);
+        Task<int> GetTotalUnreadMessageCountAsync(IEnumerable<Guid> conversationIds, Guid userId);
         Task MarkMessagesAsReadAsync(Guid conversationId, Guid userId);
     }
 }

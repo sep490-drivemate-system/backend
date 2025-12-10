@@ -2,7 +2,7 @@ using MessagingService.Domain.Enum;
 
 namespace MessagingService.Application.Commons.DTOs.Notification
 {
-    public class NotificationResponseDTO
+    public class NotificationDTO
     {
         public Guid Id { get; set; }
         public string Title { get; set; }
@@ -10,7 +10,6 @@ namespace MessagingService.Application.Commons.DTOs.Notification
         public NotificationType Type { get; set; }
         public NotificationStatus Status { get; set; }
         public string? ActionUrl { get; set; }
-        public string? ImageUrl { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 }

@@ -31,6 +31,21 @@ namespace MessagingService.Infrastructure.Repositories
                                !m.IsDeleted);
         }
 
+        public async Task<int> GetTotalUnreadMessageCountAsync(IEnumerable<Guid> conversationIds, Guid userId)
+        {
+            var conversationIdsList = conversationIds.ToList();
+            if (!conversationIdsList.Any())
+            {
+                return 0;
+            }
+
+            return await _dbSet
+                .CountAsync(m => conversationIdsList.Contains(m.ChatSessionId) && 
+                               m.SenderId != userId && 
+                               m.Status == Domain.Enum.MessageStatus.Sent &&
+                               !m.IsDeleted);
+        }
+
         public async Task MarkMessagesAsReadAsync(Guid conversationId, Guid userId)
         {
             // Update all messages in this conversation from other users to "Read" status
@@ -44,7 +59,7 @@ namespace MessagingService.Infrastructure.Repositories
             foreach (var message in messages)
             {
                 message.Status = Domain.Enum.MessageStatus.Read;
-                message.LastModifiedAt = DateTime.UtcNow;
+                message.LastModifiedAt = DateTime.Now;
             }
 
             if (messages.Any())

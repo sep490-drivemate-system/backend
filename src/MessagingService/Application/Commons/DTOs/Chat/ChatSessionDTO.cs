@@ -1,4 +1,6 @@
-﻿namespace MessagingService.Application.Commons.DTOs.Chat
+﻿using MessagingService.Domain.Enum;
+
+namespace MessagingService.Application.Commons.DTOs.Chat
 {
     public class ChatSessionsDTO
     {
@@ -6,6 +8,7 @@
         public Guid ToUserId { get; set; }
         public string LastMessage { get; set; }
         public DateTime LastModifiedAt { get; set; }
+        public MessageStatus Status { get; set; }
         public string ToUserAvatar { get; set; }
         public string ToUserFullName { get; set; }
 

@@ -3,6 +3,7 @@ using System;
 using MessagingService.Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MessagingService.Migrations
 {
     [DbContext(typeof(MessagingDbContext))]
-    partial class MessagingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251208093159_Fix_TimeZone")]
+    partial class Fix_TimeZone
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,7 +33,7 @@ namespace MessagingService.Migrations
                         .HasColumnName("id");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp")
                         .HasColumnName("created_at");
 
                     b.Property<Guid>("InstructorId")
@@ -44,7 +47,7 @@ namespace MessagingService.Migrations
                         .HasColumnName("is_deleted");
 
                     b.Property<DateTime>("LastModifiedAt")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp")
                         .HasColumnName("last_modified_at");
 
                     b.Property<Guid>("NoviceDriverId")
@@ -74,7 +77,7 @@ namespace MessagingService.Migrations
                         .HasColumnName("content");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("created_at");
 
                     b.Property<bool>("IsDeleted")
@@ -84,7 +87,7 @@ namespace MessagingService.Migrations
                         .HasColumnName("is_deleted");
 
                     b.Property<DateTime>("LastModifiedAt")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("last_modified_at");
 
                     b.Property<Guid>("SenderId")
@@ -105,7 +108,7 @@ namespace MessagingService.Migrations
 
                     b.HasIndex("SenderId");
 
-                    b.ToTable("messages", (string)null);
+                    b.ToTable("Messages", (string)null);
                 });
 
             modelBuilder.Entity("MessagingService.Domain.Entities.Notification", b =>
@@ -127,7 +130,7 @@ namespace MessagingService.Migrations
                         .HasColumnName("content");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("created_at");
 
                     b.Property<bool>("IsDeleted")
@@ -137,7 +140,7 @@ namespace MessagingService.Migrations
                         .HasColumnName("is_deleted");
 
                     b.Property<DateTime>("LastModifiedAt")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("last_modified_at");
 
                     b.Property<int>("Status")
@@ -168,7 +171,7 @@ namespace MessagingService.Migrations
 
                     b.HasIndex("UserId", "Status");
 
-                    b.ToTable("notifications", (string)null);
+                    b.ToTable("Notifications", (string)null);
                 });
 
             modelBuilder.Entity("MessagingService.Domain.Entities.Message", b =>

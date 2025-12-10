@@ -16,6 +16,7 @@ namespace MessagingService.Application.Interfaces
         Task<MessageResponseDTO> SaveMessageAsync(SendMessageDTO dto, Guid senderId);
         Task<bool> MarkMessagesAsReadAsync(Guid conversationId, Guid userId);
         Task<int> GetUnreadMessageCountAsync(Guid conversationId, Guid userId);
+        Task<int> GetTotalUnreadMessageCountAsync(IEnumerable<Guid> conversationIds, Guid userId);
         Task<Dictionary<Guid, ChatPartnerInfoDTO>> GetPartnerInfoAsync(IEnumerable<Guid> partnerIds, UserRole currentUserRole);
     }
 }

@@ -1,4 +1,4 @@
-﻿using MessagingService.Application.Commons.DTOs.Notification;
+using MessagingService.Application.Commons.DTOs.Notification;
 using MessagingService.Application.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -43,12 +43,71 @@ namespace MessagingService.Infrastructure.Hubs
             await base.OnDisconnectedAsync(exception);
         }
 
-        public async Task<IEnumerable<NotificationResponseDTO>> GetLatestNotifications(int take = 20)
+        public async Task<IEnumerable<NotificationDTO>> GetUserNotificationsAsync(int pageNumber = 1, int pageSize = 10)
         {
             var userId = _userClaimsAccessor.GetUserId(Context.User);
+            if (userId == null)
+            {
+                return Enumerable.Empty<NotificationDTO>();
+            }
+            var result = await _notificationUseCase.GetUserNotificationsAsync(userId, pageNumber, pageSize);
+            return result;
+        }
 
-            var result = await _notificationUseCase.GetUserNotificationsAsync(userId, 1, take);
-            return result ;
+        public async Task<int> GetUnreadNotificationCountAsync()
+        {
+            var userId = _userClaimsAccessor.GetUserId(Context.User);
+            if (userId == null)
+            {
+                return 0;
+            }
+
+            var count = await _notificationUseCase.GetUnreadNotificationCountAsync(userId);
+            return count;
+        }
+
+        public async Task<bool> MarkNotificationAsReadAsync(Guid notificationId)
+        {
+            var userId = _userClaimsAccessor.GetUserId(Context.User);
+            if (userId == null)
+            {
+                return false;
+            }
+
+            var result = await _notificationUseCase.MarkNotificationAsReadAsync(notificationId, userId);
+           
+            var unreadCount = await _notificationUseCase.GetUnreadNotificationCountAsync(userId);
+            await Clients.Caller.SendAsync("UnreadCountUpdated", unreadCount);
+            
+            return result;
+        }
+
+        public async Task<bool> MarkAllNotificationsAsReadAsync()
+        {
+            var userId = _userClaimsAccessor.GetUserId(Context.User);
+            if (userId == null)
+            {
+                return false;
+            }
+
+            var result = await _notificationUseCase.MarkAllNotificationsAsReadAsync(userId);
+            
+            await Clients.Caller.SendAsync("UnreadCountUpdated", 0);
+            
+            return result;
+        }
+
+        public async Task<NotificationDTO> CreateNotification(CreateNotificationDTO dto)
+        {
+            var notification = await _notificationUseCase.CreateNotificationAsync(dto);
+           
+            await Clients.Group(BuildGroupName(dto.UserId))
+                .SendAsync("NewNotification", notification);            
+            var unreadCount = await _notificationUseCase.GetUnreadNotificationCountAsync(dto.UserId);
+            await Clients.Group(BuildGroupName(dto.UserId))
+                .SendAsync("UnreadCountUpdated", unreadCount);
+            
+            return notification;
         }
 
         public static string BuildGroupName(Guid userId) => $"user_{userId}";

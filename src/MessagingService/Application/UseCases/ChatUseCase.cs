@@ -35,7 +35,7 @@ namespace MessagingService.Application.UseCases
             {
                 InstructorId = instructorId,
                 NoviceDriverId = noviceDriverId,
-                LastModifiedAt = DateTime.UtcNow
+                LastModifiedAt = DateTime.Now
             };
 
             var conversation = _mapper.Map<ChatSession>(createSessionDto);
@@ -94,13 +94,19 @@ namespace MessagingService.Application.UseCases
 
         public async Task<MessageResponseDTO> SaveMessageAsync(SendMessageDTO dto, Guid senderId)
         {
+            if (dto.ConversationId == null || dto.ConversationId == Guid.Empty)
+            {
+                throw new ArgumentException("ConversationId is required", nameof(dto));
+            }
+
             var message = _mapper.Map<Message>(dto);
             message.SenderId = senderId;
-            message.LastModifiedAt = DateTime.UtcNow;
+            message.LastModifiedAt = DateTime.Now;
 
             await _unitOfWork.MessageRepository.AddAsync(message);
+            
             var conversation = await _unitOfWork.ChatSessionRepository
-                .GetConversationByIdAsync(dto.ConversationId);
+                .GetConversationByIdAsync(dto.ConversationId.Value);
 
             if (conversation != null)
             {
@@ -137,8 +143,11 @@ namespace MessagingService.Application.UseCases
             return true;
         }
 
-        public async Task<int> GetUnreadMessageCountAsync(Guid conversationId, Guid userId)=> await _unitOfWork.MessageRepository
-                .GetUnreadMessageCountAsync(conversationId, userId);
+        public async Task<int> GetUnreadMessageCountAsync(Guid conversationId, Guid userId) => 
+            await _unitOfWork.MessageRepository.GetUnreadMessageCountAsync(conversationId, userId);
+
+        public async Task<int> GetTotalUnreadMessageCountAsync(IEnumerable<Guid> conversationIds, Guid userId) =>
+            await _unitOfWork.MessageRepository.GetTotalUnreadMessageCountAsync(conversationIds, userId);
 
         private async Task<List<UserDetailDTO>?> GetUsersByIdsAsync(IEnumerable<Guid> userIds)
         {

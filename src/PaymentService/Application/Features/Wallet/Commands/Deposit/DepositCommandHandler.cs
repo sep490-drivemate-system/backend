@@ -52,6 +52,8 @@ namespace PaymentService.Application.Features.Wallet.Commands.Deposit
                 var orderCode = data["orderCode"].ToString();
                 var transaction = await _unitOfWork.TransactionRepository.GetByReferenceCodeAsync(orderCode);
                  transaction.Status = Domain.Enum.PaymentStatus.Completed;
+                var wallet = transaction.Wallet;
+                wallet.Balance = transaction.TransactionValue + wallet.Balance;
                 await _unitOfWork.TransactionRepository.UpdateAsync(transaction);
                 await _unitOfWork.CommitAsync();
                 return transaction.TransactionValue;
@@ -74,7 +76,11 @@ namespace PaymentService.Application.Features.Wallet.Commands.Deposit
             {
                 var referenceCode = vnp_TxnRef;
                 var transaction = await _unitOfWork.TransactionRepository.GetByReferenceCodeAsync(referenceCode);
+                var wallet = transaction.Wallet;
+                wallet.Balance = transaction.TransactionValue + wallet.Balance;
+
                 transaction.Status = Domain.Enum.PaymentStatus.Completed;
+
                 await _unitOfWork.TransactionRepository.UpdateAsync(transaction);
                 await _unitOfWork.CommitAsync();
                 return transaction.TransactionValue;
@@ -95,6 +101,8 @@ namespace PaymentService.Application.Features.Wallet.Commands.Deposit
                 var referenceCode = checksumZaloPay;
                 var transaction = await _unitOfWork.TransactionRepository.GetByReferenceCodeAsync(referenceCode);
                 transaction.Status = Domain.Enum.PaymentStatus.Completed;
+                var wallet = transaction.Wallet;
+                wallet.Balance = transaction.TransactionValue + wallet.Balance;
                 await _unitOfWork.TransactionRepository.UpdateAsync(transaction);
                 await _unitOfWork.CommitAsync();
                 return transaction.TransactionValue;

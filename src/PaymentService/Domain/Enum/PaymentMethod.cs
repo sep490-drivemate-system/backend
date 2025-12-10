@@ -3,8 +3,8 @@ namespace PaymentService.Domain.Enum
     public enum PaymentMethod
     {
         Wallet = 0,
-        ZaloPay = 1,
-        VnPay = 2,
+        VnPay = 1,
+        ZaloPay = 2,
         PayOs = 3,
     }
 }
