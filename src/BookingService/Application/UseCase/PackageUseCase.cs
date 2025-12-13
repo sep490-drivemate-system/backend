@@ -40,7 +40,7 @@ namespace BookingService.Application.UseCase
                 && (filter.SearchKey == null || x.Name.Contains(filter.SearchKey))
                 && (filter.DrivingSkills == null || filter.DrivingSkills.Any(y => x.DrivingSkills.Any(z => z.Id == y)))
                 && (filter.RoadTypes == null || filter.RoadTypes.Any(y => x.RoadTypes.Any(z => z.Id == y)))
-                && (filter.AllowSelfCar == null || x.AllowNoviceVehicle == filter.AllowSelfCar);
+                && (filter.AllowSelfCar == null || x.IsRentalCar == filter.AllowSelfCar);
 
                 string includedProperties = "DrivingSkills,RoadTypes,Bookings,Cars";
 
@@ -60,7 +60,7 @@ namespace BookingService.Application.UseCase
                     Name = x.Name,
                     Duration = x.Duration,
                     Price = x.Price,
-                    AllowSelfCar = x.AllowNoviceVehicle,
+                    AllowSelfCar = x.IsRentalCar,
                     RoadTypes = x.RoadTypes.Select(x => x.Name),
                     Skills = x.DrivingSkills.Select(x => x.Name),
                     BookingCount = x.Bookings.Count(),
@@ -104,7 +104,7 @@ namespace BookingService.Application.UseCase
                 ThumbnailUrl = "", // Default for no thumbnail.
                 Price = package.Price,
                 InstructorId = package.InstructorId,
-                AllowNoviceVehicle = package.AllowNoviceCar,
+                IsRentalCar = package.IsRentalCar,
                 DrivingSkills = package_driving_skills,
                 RoadTypes = package_road_types,
                 Cars = package_cars,
@@ -189,7 +189,7 @@ namespace BookingService.Application.UseCase
                 Duration = x.Duration,
                 Price = x.Price,
                 InstructorId = x.InstructorId,
-                AllowSelfCar = x.AllowNoviceVehicle,
+                AllowSelfCar = x.IsRentalCar,
                 BookingCount = x.Bookings.Count,
                 CarCount = x.Cars.Count,
                 RoadTypes = x.RoadTypes.Select(y => y.Name),

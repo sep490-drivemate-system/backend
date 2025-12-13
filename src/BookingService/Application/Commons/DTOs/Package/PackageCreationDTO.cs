@@ -26,8 +26,8 @@ namespace BookingService.Application.Commons.DTOs.Package
         [FromForm(Name = "price")]
         public decimal Price { get; set; }
 
-        [FromForm(Name = "allow_novice_car")]
-        public bool AllowNoviceCar { get; set; }
+        [FromForm(Name = "is_rental_car")]
+        public bool IsRentalCar { get; set; }
 
         [FromForm(Name = "car_ids")]
         public Guid[] PackageCars { get; set; }

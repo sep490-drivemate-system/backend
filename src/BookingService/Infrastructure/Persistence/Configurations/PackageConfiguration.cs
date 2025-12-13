@@ -44,8 +44,8 @@ namespace BookingService.Infrastructure.Persistence.Configurations
                 .HasColumnType("decimal(18,2)")
                 .IsRequired();
 
-            builder.Property(x => x.AllowNoviceVehicle)
-                .HasColumnName("allow_own_vehicle")
+            builder.Property(x => x.IsRentalCar)
+                .HasColumnName("is_rental_car")
                 .IsRequired();
 
             builder.Property(x => x.CreatedAt)

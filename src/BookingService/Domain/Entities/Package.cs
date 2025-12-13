@@ -11,7 +11,7 @@ namespace BookingService.Domain.Entities
         public string ThumbnailUrl { get; set; }
         public double Duration { get; set; }
         public decimal Price { get; set; }
-        public bool AllowNoviceVehicle {  get; set; }
+        public bool IsRentalCar {  get; set; }
 
         // System properties
         public DateTime LastModifiedAt { get; set; }
