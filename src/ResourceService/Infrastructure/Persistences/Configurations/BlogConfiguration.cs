@@ -38,6 +38,10 @@ namespace ResourceService.Infrastructure.Persistences.Configurations
                    .IsRequired()
                    .HasMaxLength(500);
 
+            builder.Property(u => u.ImageList)
+                   .HasColumnName("image_list")
+                   .HasColumnType("text"); // JSON array stored as text
+
             builder.Property(u => u.CreatedAt)
                   .HasColumnName("create_at")
                   .HasColumnType("timestamp");

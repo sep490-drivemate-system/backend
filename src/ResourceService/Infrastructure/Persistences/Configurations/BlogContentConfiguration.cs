@@ -24,18 +24,7 @@ namespace ResourceService.Infrastructure.Persistences.Configurations
             builder.Property(u => u.Content)
                    .HasColumnName("content")
                    .IsRequired()
-                    .HasMaxLength(500);
-
-            builder.Property(u => u.No)
-                   .HasColumnName("no")
-                   .IsRequired()
-                   .HasMaxLength(500);
-
-            builder.Property(u => u.ImageUrl)
-                   .HasColumnName("image_url")
-                   .IsRequired()
-                   .HasMaxLength(500);
-
+                   .HasColumnType("text");
 
             builder.Property(u => u.CreatedAt)
                   .HasColumnName("create_at")
@@ -49,7 +38,11 @@ namespace ResourceService.Infrastructure.Persistences.Configurations
                 .HasColumnName("is_delete")
                    .HasDefaultValue(false);
 
-
+            // Relationship: BlogContent belongs to Blog
+            builder.HasOne(u => u.Blog)
+                   .WithMany(b => b.Contents)
+                   .HasForeignKey(u => u.BlogId)
+                   .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

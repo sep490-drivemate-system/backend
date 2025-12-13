@@ -85,10 +85,11 @@ namespace ResourceService.Controllers
 
         [HttpPost]
         [Authorize(Roles = nameof(UserRole.Instructor))]
-        public async Task<IActionResult> CreateBlog([FromBody] BlogCreateDto createBlogDto)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> CreateBlog([FromForm] BlogCreateRequest request)
         {
             var instructorId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
-            var result = await _serviceProviders.ResourcesService.CreateBlogAsync(createBlogDto, instructorId);
+            var result = await _serviceProviders.ResourcesService.CreateBlogAsync(request, instructorId);
             return result.ToActionResult();
         }
 

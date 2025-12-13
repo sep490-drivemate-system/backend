@@ -17,11 +17,11 @@ namespace ResourceService.Application.Commons.Mapping
             // Blog -> BlogDetailDto
             CreateMap<Blog, BlogDetailDto>()
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : null))
-                .ForMember(dest => dest.Contents, opt => opt.MapFrom(src => src.Contents));
+                .ForMember(dest => dest.Contents, opt => opt.MapFrom(src => src.Contents))
+                .ForMember(dest => dest.ImageList, opt => opt.Ignore()); // Will be set in service layer
 
             // BlogContent -> BlogContentDto
-            CreateMap<BlogContent, BlogContentDto>()
-                .ForMember(dest => dest.Images, opt => opt.Ignore()); // Images đã bị xóa khỏi entity
+            CreateMap<BlogContent, BlogContentDto>();
 
             // Category -> CategoryDto
             CreateMap<Category, CategoryDto>();
@@ -47,16 +47,18 @@ namespace ResourceService.Application.Commons.Mapping
                 .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.UpdateAt, opt => opt.Ignore())
                 .ForMember(dest => dest.IsDelete, opt => opt.Ignore())
-                .ForMember(dest => dest.Content, opt => opt.MapFrom(src => src.Content != null ? src.Content.Trim() : string.Empty))
-                .ForMember(dest => dest.No, opt => opt.MapFrom(src => src.No ?? 0))
-                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.ImageUrl ?? string.Empty));
+                .ForMember(dest => dest.Content, opt => opt.MapFrom(src => src.Content != null ? src.Content.Trim() : string.Empty));
 
             CreateMap<BlogCreateDto, Blog>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.InstructorId, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.UpdateAt, opt => opt.Ignore())
+                .ForMember(dest => dest.Status, opt => opt.Ignore())
                 .ForMember(dest => dest.IsDelete, opt => opt.Ignore())
-                .ForMember(dest => dest.Contents, opt => opt.MapFrom(src => src.Contents))
-                .ForMember(dest => dest.Category, opt => opt.Ignore());
+                .ForMember(dest => dest.ImageList, opt => opt.Ignore())
+                .ForMember(dest => dest.Category, opt => opt.Ignore())
+                .ForMember(dest => dest.Contents, opt => opt.Ignore()); // Will be mapped separately
 
             // Quiz Attempt Mappings
             CreateMap<Question, QuizAttemptQuestionDetailDTO>()

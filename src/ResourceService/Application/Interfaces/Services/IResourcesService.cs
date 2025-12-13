@@ -11,7 +11,7 @@ namespace ResourceService.Application.Interfaces.Services
         Task<Result<PaginatedList<ResourceDto>>> GetMyBlogsAsync(Guid instructorId, BlogListFilterDTO filter);
         Task<Result<BlogDetailDto>> GetMyBlogDetailAsync( Guid id, Guid instructorId);
         Task<Result<bool>> DeleteBlogAsync(Guid id, Guid instructorId);
-        Task<Result<bool>> CreateBlogAsync(BlogCreateDto createBlogDto, Guid instructorId);
+        Task<Result<bool>> CreateBlogAsync(BlogCreateRequest request, Guid instructorId);
         Task<Result<bool>> UpdateBlogAsync(Guid id, BlogUpdateDto updateBlogDto, Guid instructorId);
         Task<Result<ICollection<CategoryDto>>> GetCategoriesAsync();
         Task<Result<ICollection<BlogStatusDto>>> GetBlogStatusesAsync();

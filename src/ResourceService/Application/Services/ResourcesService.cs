@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using ResourceService.Application.Commons;
 using ResourceService.Application.Commons.DTOs;
 using ResourceService.Application.Interfaces.Services;
@@ -10,6 +11,7 @@ using SharedLibrary.SharedKernel.Pagination;
 using SharedLibrary.SharedKernel.ServiceResult;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text.Json;
 
 namespace ResourceService.Application.Services
 {
@@ -24,6 +26,27 @@ namespace ResourceService.Application.Services
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _cloudinary = cloudinary;
+        }
+
+        /// <summary>
+        /// Parse ImageList JSON string to List of image URLs
+        /// </summary>
+        private IList<string> ParseImageList(string imageListJson)
+        {
+            if (string.IsNullOrEmpty(imageListJson))
+            {
+                return new List<string>();
+            }
+
+            try
+            {
+                var imageList = JsonSerializer.Deserialize<List<string>>(imageListJson);
+                return imageList ?? new List<string>();
+            }
+            catch
+            {
+                return new List<string>();
+            }
         }
 
         public async Task<Result<ICollection<CategoryDto>>> GetCategoriesAsync()
@@ -199,8 +222,8 @@ namespace ResourceService.Application.Services
         public async Task<Result<BlogDetailDto>> GetBlogDetailAsync(Guid id)
         {
             try
-        {
-            var blog = await _unitOfWork.ResourceRepository.GetBlogDetailAsync(id);
+            {
+                var blog = await _unitOfWork.ResourceRepository.GetBlogDetailAsync(id);
                 if (blog == null)
                 {
                     return Result<BlogDetailDto>.Failure(
@@ -209,6 +232,8 @@ namespace ResourceService.Application.Services
                 }
 
                 var blogDetail = _mapper.Map<BlogDetailDto>(blog);
+                blogDetail.ImageList = ParseImageList(blog.ImageList);
+
                 return Result<BlogDetailDto>.Success(blogDetail, Messages.Commons.SUCCESS);
             }
             catch (Exception ex)
@@ -230,7 +255,10 @@ namespace ResourceService.Application.Services
                         ServiceError.NotFoundError(Messages.Blog.NOTFOUND),
                         Messages.Blog.NOTFOUND);
                 }
+
                 var blogDetail = _mapper.Map<BlogDetailDto>(blog);
+                blogDetail.ImageList = ParseImageList(blog.ImageList);
+
                 return Result<BlogDetailDto>.Success(blogDetail, Messages.Commons.SUCCESS);
             }
             catch (Exception ex)
@@ -284,18 +312,91 @@ namespace ResourceService.Application.Services
             }
         }
 
-        public async Task<Result<bool>> CreateBlogAsync(BlogCreateDto createBlogDto, Guid instructorId)
+        public async Task<Result<bool>> CreateBlogAsync(BlogCreateRequest request, Guid instructorId)
         {
             try
             {
+                // Parse contents JSON if provided
+                IList<BlogContentCreateDto> contentsList = null;
+                if (!string.IsNullOrEmpty(request.Contents))
+                {
+                    try
+                    {
+                        contentsList = JsonSerializer.Deserialize<IList<BlogContentCreateDto>>(request.Contents);
+                    }
+                    catch
+                    {
+                        contentsList = new List<BlogContentCreateDto>();
+                    }
+                }
+
+                // Upload thumbnail to Cloudinary
+                string thumbnailUrl = null;
+                if (request.Thumbnail != null && request.Thumbnail.Length > 0)
+                {
+                    thumbnailUrl = _cloudinary.UploadImageFormFileResourceToCloudinary(
+                        request.Thumbnail,
+                        $"blog_thumbnail_{instructorId}_{DateTime.Now:yyyyMMddHHmmss}_{Guid.NewGuid()}"
+                    );
+                }
+
+                // Upload images to Cloudinary and get URLs
+                var imageUrls = new List<string>();
+                if (request.Images != null && request.Images.Count > 0)
+                {
+                    foreach (var image in request.Images)
+                    {
+                        if (image != null && image.Length > 0)
+                        {
+                            var imageUrl = _cloudinary.UploadImageFormFileResourceToCloudinary(
+                                image, 
+                                $"blog_{instructorId}_{DateTime.Now:yyyyMMddHHmmss}_{Guid.NewGuid()}"
+                            );
+                            imageUrls.Add(imageUrl);
+                        }
+                    }
+                }
+
+                // Convert image URLs to JSON string
+                var imageListJson = imageUrls.Count > 0 
+                    ? JsonSerializer.Serialize(imageUrls) 
+                    : null;
+
+                // Map request to DTO
+                var createBlogDto = new BlogCreateDto
+                {
+                    Title = request.Title,
+                    ThumbnailUrl = thumbnailUrl ?? string.Empty,
+                    CategoryId = request.CategoryId,
+                    Contents = contentsList ?? new List<BlogContentCreateDto>()
+                };
+
+                // Map DTO to Entity using AutoMapper
                 var blog = _mapper.Map<Blog>(createBlogDto);
+                
+                // Set additional properties
                 blog.InstructorId = instructorId;
                 blog.CreatedAt = DateTime.Now;
                 blog.Status = BlogStatus.Pending; 
                 blog.IsDelete = false;
+                blog.ImageList = imageListJson;
+
+                // Map contents using AutoMapper
+                if (createBlogDto.Contents != null && createBlogDto.Contents.Any())
+                {
+                    blog.Contents = _mapper.Map<List<BlogContent>>(createBlogDto.Contents);
+                    var now = DateTime.Now;
+                    foreach (var content in blog.Contents)
+                    {
+                        content.BlogId = blog.Id;
+                        content.CreatedAt = now;
+                        content.UpdateAt = now;
+                        content.IsDelete = false;
+                    }
+                }
 
                 await _unitOfWork.ResourceRepository.CreateBlog(blog);
-            var result = await _unitOfWork.SaveChangesAsync();
+                var result = await _unitOfWork.SaveChangesAsync();
                 if (result <= 0)
                 {
                     return Result<bool>.Failure(
@@ -399,16 +500,6 @@ namespace ResourceService.Application.Services
                             if (contentDto.Content != null)
                             {
                                 existingContent.Content = contentDto.Content.Trim();
-                            }
-
-                            if (contentDto.No.HasValue)
-                            {
-                                existingContent.No = contentDto.No.Value;
-                            }
-
-                            if (contentDto.ImageUrl != null)
-                            {
-                                existingContent.ImageUrl = contentDto.ImageUrl;
                             }
 
                             existingContent.IsDelete = false;

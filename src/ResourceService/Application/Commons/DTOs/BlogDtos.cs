@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ namespace ResourceService.Application.Commons.DTOs
         public Guid InstructorId { get; set; }
         public string Title { get; set; }
         public string ThumbnailUrl { get; set; }
+        public IList<string> ImageList { get; set; } // List of image URLs
         public Guid CategoryId { get; set; }
         public string CategoryName { get; set; }
         public IList<BlogContentDto> Contents { get; set; }
@@ -20,8 +22,6 @@ namespace ResourceService.Application.Commons.DTOs
     {
         public Guid Id { get; set; }
         public string Content { get; set; }
-        public int No { get; set; }
-        public IList<ResourceImageDto> Images { get; set; }
     }
 
     // Create DTOs
@@ -31,13 +31,12 @@ namespace ResourceService.Application.Commons.DTOs
         public string ThumbnailUrl { get; set; }
         public Guid CategoryId { get; set; }
         public IList<BlogContentCreateDto> Contents { get; set; }
+        public IList<string> ImageUrls { get; set; } // URLs after upload
     }
 
     public class BlogContentCreateDto
     {
         public string Content { get; set; }
-        public int No { get; set; }
-        public string ImageUrl { get; set; }
     }
 
 
@@ -54,8 +53,6 @@ namespace ResourceService.Application.Commons.DTOs
     {
         public Guid? Id { get; set; }
         public string Content { get; set; }
-        public int? No { get; set; }
-        public string ImageUrl { get; set; }
         public bool? IsDeleted { get; set; }
     }
 
@@ -63,6 +60,16 @@ namespace ResourceService.Application.Commons.DTOs
     {
         public int Value { get; set; }
         public string Name { get; set; }
+    }
+
+    // Request model for CreateBlog (multipart/form-data)
+    public class BlogCreateRequest
+    {
+        public string Title { get; set; }
+        public IFormFile Thumbnail { get; set; } // Thumbnail image file
+        public Guid CategoryId { get; set; }
+        public string Contents { get; set; } // JSON string of BlogContentCreateDto array
+        public IFormFileCollection Images { get; set; } // List of additional images
     }
 }
 

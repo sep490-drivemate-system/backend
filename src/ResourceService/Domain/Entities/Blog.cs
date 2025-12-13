@@ -8,6 +8,7 @@ namespace ResourceService.Domain.Entities
         public Guid InstructorId { get; set; }
         public string Title { get; set; }
         public string ThumbnailUrl { get; set; }
+        public string ImageList { get; set; } // JSON array of image URLs
         public Guid CategoryId { get; set; }
         public BlogStatus Status { get; set; } 
         public DateTime? UpdateAt { get; set; }
