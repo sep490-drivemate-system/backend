@@ -70,6 +70,7 @@ namespace ResourceService.Controllers
         public async Task<IActionResult> GetMyBlogs([FromQuery] BlogListFilterDTO filter)
         {
             var instructorId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
+            Console.WriteLine(instructorId);
             var result = await _serviceProviders.ResourcesService.GetMyBlogsAsync(instructorId, filter);
             return result.ToActionResult();
         }

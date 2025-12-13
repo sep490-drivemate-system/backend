@@ -12,12 +12,17 @@ namespace ResourceService.Application.Commons.Mapping
         {
             // Blog -> ResourceDto
             CreateMap<Blog, ResourceDto>()
-                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : null));
+                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : null))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => (int)src.Status));
 
             // Blog -> BlogDetailDto
             CreateMap<Blog, BlogDetailDto>()
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : null))
-                .ForMember(dest => dest.Contents, opt => opt.MapFrom(src => src.Contents))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => (int)src.Status))
+                .ForMember(dest => dest.Content, opt => opt.MapFrom(src => 
+                    src.Contents != null && src.Contents.Any(c => !c.IsDelete) 
+                        ? src.Contents.FirstOrDefault(c => !c.IsDelete) 
+                        : null))
                 .ForMember(dest => dest.ImageList, opt => opt.Ignore()); // Will be set in service layer
 
             // BlogContent -> BlogContentDto

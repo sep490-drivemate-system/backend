@@ -35,26 +35,47 @@ namespace ResourceService.Infrastructure.Repositories
 
         public async Task<Blog?> GetBlogDetailAsync(Guid blogId)
         {
-            return await _dbSet.AsNoTracking()
+            var blog = await _dbSet.AsNoTracking()
                 .Include(b => b.Category)
                 .Include(b => b.Contents)
-                .FirstOrDefaultAsync(b => b.Id == blogId);
+                .FirstOrDefaultAsync(b => b.Id == blogId && !b.IsDelete);
+            
+            if (blog != null && blog.Contents != null)
+            {
+                blog.Contents = blog.Contents.Where(c => !c.IsDelete).OrderBy(c => c.CreatedAt).ToList();
+            }
+            
+            return blog;
         }
 
         public async Task<Blog?> GetMyBlogDetailAsync(Guid id, Guid instructorId)
         {
-            return await _dbSet.AsNoTracking()
+            var blog = await _dbSet.AsNoTracking()
                 .Include(b => b.Category)
                 .Include(b => b.Contents)
                 .FirstOrDefaultAsync(b => b.Id == id && b.InstructorId == instructorId && !b.IsDelete);
+            
+            if (blog != null && blog.Contents != null)
+            {
+                blog.Contents = blog.Contents.Where(c => !c.IsDelete).OrderBy(c => c.CreatedAt).ToList();
+            }
+            
+            return blog;
         }
 
         public async Task<Blog?> GetMyBlogDetailTrackedAsync(Guid id, Guid instructorId)
         {
-            return await _dbSet
+            var blog = await _dbSet
                 .Include(b => b.Category)
                 .Include(b => b.Contents)
-                .FirstOrDefaultAsync(b => b.Id == id && b.InstructorId == instructorId);
+                .FirstOrDefaultAsync(b => b.Id == id && b.InstructorId == instructorId && !b.IsDelete);
+            
+            if (blog != null && blog.Contents != null)
+            {
+                blog.Contents = blog.Contents.Where(c => !c.IsDelete).OrderBy(c => c.CreatedAt).ToList();
+            }
+            
+            return blog;
         }
 
         public async Task<bool> CategoryExistsAsync(Guid categoryId)

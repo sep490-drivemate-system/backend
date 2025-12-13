@@ -231,6 +231,14 @@ namespace ResourceService.Application.Services
                         Messages.Blog.NOTFOUND);
                 }
 
+                // Public API chỉ hiển thị blog đã được approve (Active status)
+                if (blog.Status != BlogStatus.Active)
+                {
+                    return Result<BlogDetailDto>.Failure(
+                        ServiceError.NotFoundError(Messages.Blog.NOTFOUND),
+                        Messages.Blog.NOTFOUND);
+                }
+
                 var blogDetail = _mapper.Map<BlogDetailDto>(blog);
                 blogDetail.ImageList = ParseImageList(blog.ImageList);
 
@@ -316,20 +324,6 @@ namespace ResourceService.Application.Services
         {
             try
             {
-                // Parse contents JSON if provided
-                IList<BlogContentCreateDto> contentsList = null;
-                if (!string.IsNullOrEmpty(request.Contents))
-                {
-                    try
-                    {
-                        contentsList = JsonSerializer.Deserialize<IList<BlogContentCreateDto>>(request.Contents);
-                    }
-                    catch
-                    {
-                        contentsList = new List<BlogContentCreateDto>();
-                    }
-                }
-
                 // Upload thumbnail to Cloudinary
                 string thumbnailUrl = null;
                 if (request.Thumbnail != null && request.Thumbnail.Length > 0)
@@ -368,7 +362,7 @@ namespace ResourceService.Application.Services
                     Title = request.Title,
                     ThumbnailUrl = thumbnailUrl ?? string.Empty,
                     CategoryId = request.CategoryId,
-                    Contents = contentsList ?? new List<BlogContentCreateDto>()
+                    Contents = null // Not used anymore, will create single content directly
                 };
 
                 // Map DTO to Entity using AutoMapper
@@ -381,18 +375,25 @@ namespace ResourceService.Application.Services
                 blog.IsDelete = false;
                 blog.ImageList = imageListJson;
 
-                // Map contents using AutoMapper
-                if (createBlogDto.Contents != null && createBlogDto.Contents.Any())
+                // Create single BlogContent (1 blog = 1 content)
+                if (!string.IsNullOrWhiteSpace(request.Content))
                 {
-                    blog.Contents = _mapper.Map<List<BlogContent>>(createBlogDto.Contents);
                     var now = DateTime.Now;
-                    foreach (var content in blog.Contents)
+                    var blogContent = new BlogContent
                     {
-                        content.BlogId = blog.Id;
-                        content.CreatedAt = now;
-                        content.UpdateAt = now;
-                        content.IsDelete = false;
-                    }
+                        Id = Guid.NewGuid(),
+                        BlogId = blog.Id,
+                        Content = request.Content.Trim(),
+                        CreatedAt = now,
+                        UpdateAt = now,
+                        IsDelete = false
+                    };
+                    
+                    blog.Contents = new List<BlogContent> { blogContent };
+                }
+                else
+                {
+                    blog.Contents = new List<BlogContent>();
                 }
 
                 await _unitOfWork.ResourceRepository.CreateBlog(blog);

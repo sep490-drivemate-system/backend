@@ -15,7 +15,8 @@ namespace ResourceService.Application.Commons.DTOs
         public IList<string> ImageList { get; set; } // List of image URLs
         public Guid CategoryId { get; set; }
         public string CategoryName { get; set; }
-        public IList<BlogContentDto> Contents { get; set; }
+        public int Status { get; set; } // BlogStatus enum value
+        public BlogContentDto Content { get; set; } // Single content (1 blog = 1 content)
     }
 
     public class BlogContentDto
@@ -68,7 +69,7 @@ namespace ResourceService.Application.Commons.DTOs
         public string Title { get; set; }
         public IFormFile Thumbnail { get; set; } // Thumbnail image file
         public Guid CategoryId { get; set; }
-        public string Contents { get; set; } // JSON string of BlogContentCreateDto array
+        public string Content { get; set; } // Single content text (1 blog = 1 content)
         public IFormFileCollection Images { get; set; } // List of additional images
     }
 
