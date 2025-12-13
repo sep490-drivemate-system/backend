@@ -344,7 +344,7 @@
       "SwaggerKey": "paymentService"
     },
     {
-      "DownstreamPathTemplate": "/api/resource/{everything}",
+      "DownstreamPathTemplate": "/api/blogs/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -352,7 +352,7 @@
           "Port": 5400
         }
       ],
-      "UpstreamPathTemplate": "/resource/{everything}",
+      "UpstreamPathTemplate": "/blogs/{everything}",
       "UpstreamHttpMethod": [
         "GET",
         "POST",
