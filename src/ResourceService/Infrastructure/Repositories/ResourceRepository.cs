@@ -46,7 +46,7 @@ namespace ResourceService.Infrastructure.Repositories
             return await _dbSet.AsNoTracking()
                 .Include(b => b.Category)
                 .Include(b => b.Contents)
-                .FirstOrDefaultAsync(b => b.Id == id && b.InstructorId == instructorId);
+                .FirstOrDefaultAsync(b => b.Id == id && b.InstructorId == instructorId && !b.IsDelete);
         }
 
         public async Task<Blog?> GetMyBlogDetailTrackedAsync(Guid id, Guid instructorId)

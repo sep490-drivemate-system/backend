@@ -196,11 +196,11 @@ namespace ResourceService.Application.Services
             }
         }
 
-        public async Task<Result<BlogDetailDto>> GetMyBlogDetailAsync(Guid instructorId, Guid id)
+        public async Task<Result<BlogDetailDto>> GetMyBlogDetailAsync(Guid id, Guid instructorId)
         {
             try
             {
-                var blog = await _unitOfWork.ResourceRepository.GetMyBlogDetailAsync( id, instructorId);
+                var blog = await _unitOfWork.ResourceRepository.GetMyBlogDetailAsync(id, instructorId);
                 if (blog == null)
                 {
                     return Result<BlogDetailDto>.Failure(

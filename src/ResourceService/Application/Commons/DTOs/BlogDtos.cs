@@ -27,7 +27,6 @@ namespace ResourceService.Application.Commons.DTOs
     // Create DTOs
     public class BlogCreateDto
     {
-        public Guid InstructorId { get; set; }
         public string Title { get; set; }
         public string ThumbnailUrl { get; set; }
         public Guid CategoryId { get; set; }
