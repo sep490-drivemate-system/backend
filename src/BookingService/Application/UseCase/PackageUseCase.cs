@@ -188,6 +188,7 @@ namespace BookingService.Application.UseCase
                 Name = x.Name,
                 Duration = x.Duration,
                 Price = x.Price,
+                InstructorId = x.InstructorId,
                 AllowSelfCar = x.AllowNoviceVehicle,
                 BookingCount = x.Bookings.Count,
                 CarCount = x.Cars.Count,
