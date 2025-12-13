@@ -95,10 +95,11 @@ namespace ResourceService.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Roles = nameof(UserRole.Instructor))]
-        public async Task<IActionResult> UpdateBlog([FromRoute] Guid id, [FromBody] BlogUpdateDto updateBlogDto)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UpdateBlog([FromRoute] Guid id, [FromForm] BlogUpdateRequest request)
         {
             var instructorId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
-            var result = await _serviceProviders.ResourcesService.UpdateBlogAsync(id, updateBlogDto, instructorId);
+            var result = await _serviceProviders.ResourcesService.UpdateBlogAsync(id, request, instructorId);
             return result.ToActionResult();
         }
 

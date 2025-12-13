@@ -12,7 +12,7 @@ namespace ResourceService.Application.Interfaces.Services
         Task<Result<BlogDetailDto>> GetMyBlogDetailAsync( Guid id, Guid instructorId);
         Task<Result<bool>> DeleteBlogAsync(Guid id, Guid instructorId);
         Task<Result<bool>> CreateBlogAsync(BlogCreateRequest request, Guid instructorId);
-        Task<Result<bool>> UpdateBlogAsync(Guid id, BlogUpdateDto updateBlogDto, Guid instructorId);
+        Task<Result<bool>> UpdateBlogAsync(Guid id, BlogUpdateRequest request, Guid instructorId);
         Task<Result<ICollection<CategoryDto>>> GetCategoriesAsync();
         Task<Result<ICollection<BlogStatusDto>>> GetBlogStatusesAsync();
         

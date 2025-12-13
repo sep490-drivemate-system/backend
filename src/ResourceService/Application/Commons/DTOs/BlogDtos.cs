@@ -71,6 +71,16 @@ namespace ResourceService.Application.Commons.DTOs
         public string Contents { get; set; } // JSON string of BlogContentCreateDto array
         public IFormFileCollection Images { get; set; } // List of additional images
     }
+
+    // Request model for UpdateBlog (multipart/form-data)
+    public class BlogUpdateRequest
+    {
+        public string Title { get; set; }
+        public IFormFile Thumbnail { get; set; } // Thumbnail image file (optional - only if updating)
+        public Guid? CategoryId { get; set; }
+        public string Contents { get; set; } // JSON string of BlogContentUpdateDto array
+        public IFormFileCollection Images { get; set; } // New images to add (optional)
+    }
 }
 
 

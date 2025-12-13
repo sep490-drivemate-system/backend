@@ -413,7 +413,7 @@ namespace ResourceService.Application.Services
             }
         }
 
-        public async Task<Result<bool>> UpdateBlogAsync(Guid id, BlogUpdateDto updateBlogDto, Guid instructorId)
+        public async Task<Result<bool>> UpdateBlogAsync(Guid id, BlogUpdateRequest request, Guid instructorId)
         {
             try
             {
@@ -424,6 +424,58 @@ namespace ResourceService.Application.Services
                         ServiceError.NotFoundError(Messages.Blog.NOTFOUND),
                         Messages.Blog.NOTFOUND);
                 }
+
+                // Parse contents JSON if provided
+                IList<BlogContentUpdateDto> contentsList = null;
+                if (!string.IsNullOrEmpty(request.Contents))
+                {
+                    try
+                    {
+                        contentsList = JsonSerializer.Deserialize<IList<BlogContentUpdateDto>>(request.Contents);
+                    }
+                    catch
+                    {
+                        contentsList = new List<BlogContentUpdateDto>();
+                    }
+                }
+
+                // Upload new thumbnail if provided
+                if (request.Thumbnail != null && request.Thumbnail.Length > 0)
+                {
+                    blog.ThumbnailUrl = _cloudinary.UploadImageFormFileResourceToCloudinary(
+                        request.Thumbnail,
+                        $"blog_thumbnail_{instructorId}_{DateTime.Now:yyyyMMddHHmmss}_{Guid.NewGuid()}"
+                    );
+                }
+
+                // Upload new images and add to existing image list
+                var existingImageList = ParseImageList(blog.ImageList);
+                if (request.Images != null && request.Images.Count > 0)
+                {
+                    foreach (var image in request.Images)
+                    {
+                        if (image != null && image.Length > 0)
+                        {
+                            var imageUrl = _cloudinary.UploadImageFormFileResourceToCloudinary(
+                                image,
+                                $"blog_{instructorId}_{DateTime.Now:yyyyMMddHHmmss}_{Guid.NewGuid()}"
+                            );
+                            existingImageList.Add(imageUrl);
+                        }
+                    }
+                    // Update image list JSON
+                    blog.ImageList = existingImageList.Count > 0
+                        ? JsonSerializer.Serialize(existingImageList)
+                        : null;
+                }
+
+                // Map request to DTO
+                var updateBlogDto = new BlogUpdateDto
+                {
+                    Title = request.Title,
+                    CategoryId = request.CategoryId,
+                    Contents = contentsList ?? new List<BlogContentUpdateDto>()
+                };
 
                 var applyError = await ApplyBlogUpdatesAsync(blog, updateBlogDto);
                 if (applyError != null)
@@ -466,10 +518,7 @@ namespace ResourceService.Application.Services
                 blog.Title = updateBlogDto.Title.Trim();
             }
 
-            if (!string.IsNullOrWhiteSpace(updateBlogDto.ThumbnailUrl))
-            {
-                blog.ThumbnailUrl = updateBlogDto.ThumbnailUrl.Trim();
-            }
+            // ThumbnailUrl is now handled in UpdateBlogAsync (uploaded from file)
 
             if (updateBlogDto.CategoryId.HasValue && updateBlogDto.CategoryId.Value != blog.CategoryId)
             {
