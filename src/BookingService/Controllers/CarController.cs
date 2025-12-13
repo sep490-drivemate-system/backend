@@ -71,6 +71,13 @@ namespace BookingService.Controllers
             return result.ToActionResult();
         }
 
+        [HttpGet("instructors/{id}/cars")]
+        public async Task<IActionResult> GetInstructorCarsButADifferentOne([FromRoute] Guid id)
+        {
+            var result = await _usecase.GetInstructorCarList(id);
+            return result.ToActionResult();
+        }
+
         [HttpGet("instructor/{id}/cars")]
         public async Task<IActionResult> GetInstructorCars([FromRoute] Guid id)
         {
