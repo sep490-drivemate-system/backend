@@ -42,6 +42,29 @@ namespace ResourceService.Application.Services
             }
         }
 
+        public async Task<Result<ICollection<BlogStatusDto>>> GetBlogStatusesAsync()
+        {
+            try
+            {
+                var statuses = Enum.GetValues(typeof(BlogStatus))
+                    .Cast<BlogStatus>()
+                    .Select(s => new BlogStatusDto
+                    {
+                        Value = (int)s,
+                        Name = s.ToString()
+                    })
+                    .ToList();
+
+                return Result<ICollection<BlogStatusDto>>.Success(statuses, Messages.Commons.SUCCESS);
+            }
+            catch (Exception ex)
+            {
+                return Result<ICollection<BlogStatusDto>>.Failure(
+                    ServiceError.UnhandledException($"Error retrieving blog statuses: {ex.Message}"),
+                    Messages.Commons.UNHANDLED);
+            }
+        }
+
         public async Task<Result<CategoryDto>> CreateCategoryAsync(CreateCategoryDto createCategoryDto)
         {
             try
@@ -426,7 +449,7 @@ namespace ResourceService.Application.Services
         }
 
         // Inspector APIs
-        public async Task<Result<PaginatedList<ResourceDto>>> GetPendingBlogsAsync(BlogListFilterDTO filter)
+        public async Task<Result<PaginatedList<ResourceDto>>> GetBlogsListAsync(BlogListFilterDTO filter)
         {
             try
             {

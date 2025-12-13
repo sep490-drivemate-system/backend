@@ -14,10 +14,11 @@ namespace ResourceService.Application.Interfaces.Services
         Task<Result<bool>> CreateBlogAsync(BlogCreateDto createBlogDto, Guid instructorId);
         Task<Result<bool>> UpdateBlogAsync(Guid id, BlogUpdateDto updateBlogDto, Guid instructorId);
         Task<Result<ICollection<CategoryDto>>> GetCategoriesAsync();
+        Task<Result<ICollection<BlogStatusDto>>> GetBlogStatusesAsync();
         
         // Inspector APIs
         Task<Result<CategoryDto>> CreateCategoryAsync(CreateCategoryDto createCategoryDto);
-        Task<Result<PaginatedList<ResourceDto>>> GetPendingBlogsAsync(BlogListFilterDTO filter);
+        Task<Result<PaginatedList<ResourceDto>>> GetBlogsListAsync(BlogListFilterDTO filter);
         Task<Result<bool>> ApproveBlogAsync(Guid blogId);
         Task<Result<bool>> RejectBlogAsync(Guid blogId);
         Task<Result<bool>> BanBlogAsync(Guid blogId);

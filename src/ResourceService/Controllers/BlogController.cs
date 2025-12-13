@@ -33,6 +33,13 @@ namespace ResourceService.Controllers
             return result.ToActionResult();
         }
 
+        [HttpGet("statuses")]
+        public async Task<IActionResult> GetBlogStatuses()
+        {
+            var result = await _serviceProviders.ResourcesService.GetBlogStatusesAsync();
+            return result.ToActionResult();
+        }
+
         [HttpGet("paged")]
         public async Task<IActionResult> GetBlogsPaged([FromQuery] BlogListFilterBaseDTO filter)
         {
@@ -107,11 +114,11 @@ namespace ResourceService.Controllers
 
         #region Inspector Endpoints (Cần role Inspector)
 
-        [HttpGet("pending")]
+        [HttpGet("list")]
         [Authorize(Roles = nameof(UserRole.Inspector))]
-        public async Task<IActionResult> GetPendingBlogs([FromQuery] BlogListFilterDTO filter)
+        public async Task<IActionResult> GetBlogsList([FromQuery] BlogListFilterDTO filter)
         {
-            var result = await _serviceProviders.ResourcesService.GetPendingBlogsAsync(filter);
+            var result = await _serviceProviders.ResourcesService.GetBlogsListAsync(filter);
             return result.ToActionResult();
         }
 

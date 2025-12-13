@@ -58,6 +58,12 @@ namespace ResourceService.Application.Commons.DTOs
         public string ImageUrl { get; set; }
         public bool? IsDeleted { get; set; }
     }
+
+    public class BlogStatusDto
+    {
+        public int Value { get; set; }
+        public string Name { get; set; }
+    }
 }
 
 
