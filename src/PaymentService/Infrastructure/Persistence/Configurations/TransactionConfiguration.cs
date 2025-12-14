@@ -18,7 +18,7 @@ namespace PaymentService.Infrastructure.Persistence.Configurations
             // properties
             builder.Property(t => t.BookingId)
                    .HasColumnName("booking_id")
-                   .IsRequired();
+                   .IsRequired(false);
 
             builder.Property(t => t.TransactionValue)
                    .HasColumnName("transaction_value")
@@ -50,14 +50,14 @@ namespace PaymentService.Infrastructure.Persistence.Configurations
 
             builder.Property(x => x.CreatedAt)
                 .HasColumnName("created_at")
-                .HasColumnType("timestamptz")
+                .HasColumnType("timestamp")
                 .ValueGeneratedOnAdd()
                 .HasDefaultValueSql("now()")
                 .IsRequired();
 
             builder.Property(x => x.UpdatedAt)
                 .HasColumnName("updated_at")
-                .HasColumnType("timestamptz")
+                .HasColumnType("timestamp")
                 .ValueGeneratedOnAddOrUpdate()
                 .HasDefaultValueSql("now()")
                 .IsRequired();

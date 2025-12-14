@@ -1,5 +1,5 @@
-using Microsoft.EntityFrameworkCore;
 using BookingService.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace BookingService.Infrastructure.Persistence.Context
 {
@@ -25,6 +25,7 @@ namespace BookingService.Infrastructure.Persistence.Context
 
         // Session related entities
         public DbSet<DrivingSession> DrivingSessions { get; set; }
+        public DbSet<InstructorRoutes> InstructorRoutes { get; set; }
         public DbSet<SessionRoute> SessionRoutes { get; set; }
         public DbSet<SessionLog> RouteLogs { get; set; }
         public DbSet<RescheduleRequest> RescheduleRequests { get; set; }

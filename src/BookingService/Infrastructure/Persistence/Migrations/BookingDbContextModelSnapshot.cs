@@ -452,6 +452,77 @@ namespace BookingService.Migrations
                     b.ToTable("Feedback", (string)null);
                 });
 
+            modelBuilder.Entity("BookingService.Domain.Entities.InstructorRoutes", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("create_at");
+
+                    b.Property<string>("DisplayEndLocationName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("display_end_location_name");
+
+                    b.Property<string>("DisplayStartLocationName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("display_start_location_name");
+
+                    b.Property<decimal>("EndingLatitude")
+                        .HasColumnType("decimal(10,6)")
+                        .HasColumnName("ending_latitude");
+
+                    b.Property<decimal>("EndingLongtitude")
+                        .HasColumnType("decimal(10,6)")
+                        .HasColumnName("ending_longitude");
+
+                    b.Property<Guid>("InstructorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("instructor_id");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
+                    b.Property<DateTime>("LastModifiedAt")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("timestamp")
+                        .HasColumnName("updated_at")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Polyline")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("polyline");
+
+                    b.Property<string>("RouteName")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("route_name");
+
+                    b.Property<decimal>("StartingLatitude")
+                        .HasColumnType("decimal(10,6)")
+                        .HasColumnName("starting_latitude");
+
+                    b.Property<decimal>("StartingLongtitude")
+                        .HasColumnType("decimal(10,6)")
+                        .HasColumnName("starting_longitude");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("InstructorRoutes", (string)null);
+                });
+
             modelBuilder.Entity("BookingService.Domain.Entities.Manufacturer", b =>
                 {
                     b.Property<Guid>("Id")
@@ -781,6 +852,21 @@ namespace BookingService.Migrations
                     b.ToTable("DrivingSkillPackage");
                 });
 
+            modelBuilder.Entity("InstructorRoutesPackage", b =>
+                {
+                    b.Property<Guid>("InstructorRoutesId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("PackagesId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("InstructorRoutesId", "PackagesId");
+
+                    b.HasIndex("PackagesId");
+
+                    b.ToTable("InstructorRoutesPackage");
+                });
+
             modelBuilder.Entity("PackageRoadType", b =>
                 {
                     b.Property<Guid>("PackagesId")
@@ -919,6 +1005,21 @@ namespace BookingService.Migrations
                     b.HasOne("BookingService.Domain.Entities.DrivingSkill", null)
                         .WithMany()
                         .HasForeignKey("DrivingSkillsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BookingService.Domain.Entities.Package", null)
+                        .WithMany()
+                        .HasForeignKey("PackagesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("InstructorRoutesPackage", b =>
+                {
+                    b.HasOne("BookingService.Domain.Entities.InstructorRoutes", null)
+                        .WithMany()
+                        .HasForeignKey("InstructorRoutesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

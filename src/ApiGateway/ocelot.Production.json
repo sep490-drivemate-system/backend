@@ -340,6 +340,144 @@
       "SwaggerKey": "resourceService"
     },
     {
+      "DownstreamPathTemplate": "/api/post/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${RESOURCESERVICE_HOST}",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/post/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "PATCH"
+      ],
+      "SwaggerKey": "resourceService"
+    },
+    {
+      "DownstreamPathTemplate": "/api/post",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${RESOURCESERVICE_HOST}",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/post",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST"
+      ],
+      "SwaggerKey": "resourceService"
+    },
+    {
+      "DownstreamPathTemplate": "/api/qa/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${RESOURCESERVICE_HOST}",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/qa/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "PATCH"
+      ],
+      "SwaggerKey": "resourceService"
+    },
+    {
+      "DownstreamPathTemplate": "/api/qa",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${RESOURCESERVICE_HOST}",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/qa",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST"
+      ],
+      "SwaggerKey": "resourceService"
+    },
+    {
+      "DownstreamPathTemplate": "/api/tag/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${RESOURCESERVICE_HOST}",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/tag/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "SwaggerKey": "resourceService"
+    },
+    {
+      "DownstreamPathTemplate": "/api/tag",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${RESOURCESERVICE_HOST}",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/tag",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST"
+      ],
+      "SwaggerKey": "resourceService"
+    },
+    {
+      "DownstreamPathTemplate": "/api/category/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${RESOURCESERVICE_HOST}",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/category/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "SwaggerKey": "resourceService"
+    },
+    {
+      "DownstreamPathTemplate": "/api/category",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${RESOURCESERVICE_HOST}",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/category",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST"
+      ],
+      "SwaggerKey": "resourceService"
+    },
+    {
       "DownstreamPathTemplate": "/api/chat/{everything}",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [

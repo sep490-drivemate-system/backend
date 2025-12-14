@@ -10,5 +10,10 @@ namespace ResourceService.Application.Commons
         Task<T> ReloadEntity<T>(T entity) where T: class;
 
         IResourceRepository ResourceRepository { get; }
+        IQuizRepository QuizRepository { get; }
+        IPostRepository PostRepository { get; }
+        IQARepository QARepository { get; }
+        ITagRepository TagRepository { get; }
+        ICategoryRepository CategoryRepository { get; }
     }
 }

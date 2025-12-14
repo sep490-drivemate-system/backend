@@ -25,7 +25,7 @@ namespace SharedLibrary.Payment.VnPay
         private readonly HttpClient _httpClient = new HttpClient();
 
         #region VNPAY
-        public async Task<(string paymentUrl, Guid referenceCode)> CreateVNPayOrder(decimal amount, string returnUrl,string device)
+        public async Task<(string paymentUrl, Guid referenceCode)> CreateVNPayOrder(decimal amount, string returnUrl)
         {
             string ipAddress = await GetIpAddress();
             var referenceCode = Guid.NewGuid();

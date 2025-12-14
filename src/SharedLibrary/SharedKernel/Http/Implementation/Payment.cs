@@ -30,7 +30,7 @@ namespace SharedLibrary.SharedKernel.Http.Implementation
                 DrivingSessionId = drivingSessionId
             };
             string userServiceUrl = _config["PAYMENTSERVICE:URL"];
-            string url = $"{userServiceUrl}/api/wallet/check-payment";
+            string url = $"{userServiceUrl}/api/wallet/payment-booking";
             var result = await _httpService.PostAsync<PaymentRequest, bool>(url, paymentRequest);
             return result;
         }
@@ -45,7 +45,7 @@ namespace SharedLibrary.SharedKernel.Http.Implementation
                 DrivingSessionId = drivingSessionId
             };
             string userServiceUrl = _config["PAYMENTSERVICE:URL"];
-            string url = $"{userServiceUrl}/api/wallet/check-payment-session";
+            string url = $"{userServiceUrl}/api/wallet/payment-session";
             var result = await _httpService.PostAsync<PaymentRequest, bool>(url, paymentRequest);
             return result;
         }

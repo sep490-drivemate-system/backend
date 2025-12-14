@@ -36,6 +36,9 @@ namespace ResourceService.Infrastructure.Persistences.Configurations
             builder.HasMany(u => u.Blogs)
                    .WithOne(a => a.Category)
                    .HasForeignKey(a => a.CategoryId);
+
+            builder.HasMany(u => u.Posts)
+                   .WithMany(pc => pc.Categories);
         }
     }
 }

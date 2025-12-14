@@ -23,6 +23,7 @@ namespace BookingService.Infrastructure.UoW
         private ISessionRouteRepository _sessionRouteRepo;
         private ISessionLogRepository _sessionLogRepo;
         private IManufacturerRepository _manufacturerRepo;
+        private IInstructorRoutesRepository _instructorRoutesRepo;
 
         public IGenericRepository<IEntity> Repository<IEntity>() where IEntity : class
         {
@@ -123,6 +124,15 @@ namespace BookingService.Infrastructure.UoW
             {
                 _skillRepo ??= new DrivingSkillRepository(_context);
                 return _skillRepo;
+            }
+        }
+
+        public IInstructorRoutesRepository InstructorRoutesRepository
+        {
+            get
+            {
+                _instructorRoutesRepo ??= new InstructorRoutesRepository(_context);
+                return _instructorRoutesRepo;
             }
         }
 

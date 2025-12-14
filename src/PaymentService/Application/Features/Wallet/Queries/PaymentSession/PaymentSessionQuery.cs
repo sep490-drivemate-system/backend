@@ -2,7 +2,7 @@
 
 namespace PaymentService.Application.Features.Wallet.Queries.IsEnoughSessionPayment
 {
-    public class IsEnoughPaymentSessionQuery : IRequest<bool>
+    public class PaymentSessionQuery : IRequest<bool>
     {
         public Guid UserId { get; set; }
         public decimal Amount { get; set; }

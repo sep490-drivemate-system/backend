@@ -7,5 +7,9 @@ namespace ResourceService.Application.Interfaces
         IResourcesService ResourcesService { get; }
         IQuizService QuizService { get; }
         IVoucherService VoucherService { get; }
+        IPostService PostService { get; }
+        IQAService QAService { get; }
+        ITagService TagService { get; }
+        ICategoryService CategoryService { get; }
     }
 }

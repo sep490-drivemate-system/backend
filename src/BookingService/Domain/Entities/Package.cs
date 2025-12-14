@@ -25,5 +25,6 @@ namespace BookingService.Domain.Entities
         public virtual ICollection<DrivingSkill>? DrivingSkills { get; set; }
         public virtual ICollection<Car>? Cars { get; set; }
         public virtual ICollection<Booking>? Bookings{ get; set; }
+        public virtual ICollection<InstructorRoutes>? InstructorRoutes { get; set; }
     }
 }

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using ResourceService.Application.Commons;
 using ResourceService.Application.Commons.DTOs;
+using ResourceService.Application.Commons.DTOs.Category;
 using ResourceService.Application.Interfaces.Services;
 using ResourceService.Domain.Constants;
 using ResourceService.Domain.Entities;

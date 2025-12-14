@@ -25,14 +25,14 @@ namespace PaymentService.Infrastructure.Persistence.Configurations
 
             builder.Property(x => x.CreatedAt)
      .HasColumnName("created_at")
-     .HasColumnType("timestamptz")
+     .HasColumnType("timestamp")
      .ValueGeneratedOnAdd()
      .HasDefaultValueSql("now()")
      .IsRequired();
 
             builder.Property(x => x.UpdatedAt)
                 .HasColumnName("updated_at")
-                .HasColumnType("timestamptz")
+                .HasColumnType("timestamp")
                 .ValueGeneratedOnAddOrUpdate()
                 .HasDefaultValueSql("now()")
                 .IsRequired();

@@ -25,9 +25,10 @@ namespace ResourceService
             }
             
             app.UseHttpsRedirection();
+            // CORS should run before auth to allow preflight without auth headers
+            app.UseCors("AllowAll");
             app.UseAuthentication();
             app.UseAuthorization();
-            app.UseCors("AllowAll");
             app.MapControllers();
             
             app.Run();

@@ -47,7 +47,7 @@ namespace PaymentService.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        public async Task<bool> CheckAndDeductWallet(
+        public async Task<bool> CheckAndDeductBookingWallet(
             Guid userId, decimal amount, Guid bookingId, Guid? drivingSessionId = null)
         {
             var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.Id == userId && !w.IsDelete);

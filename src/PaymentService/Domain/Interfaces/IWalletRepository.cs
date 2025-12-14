@@ -10,7 +10,7 @@ namespace PaymentService.Domain.Interfaces
         Task<bool> UpdateBalanceAsync(Guid walletId, decimal newBalance);
         Task<List<Wallet>> GetWalletsWithBalanceGreaterThanAsync(decimal amount);
 
-        Task<bool> CheckAndDeductWallet(Guid userId, decimal amount, Guid bookingId, Guid? drivingSessionId = null);
+        Task<bool> CheckAndDeductBookingWallet(Guid userId, decimal amount, Guid bookingId, Guid? drivingSessionId = null);
         Task<bool> CheckAndDeducSessiontWallet(Guid userId, decimal amount, Guid bookingId, Guid? drivingSessionId = null);
     }
 }

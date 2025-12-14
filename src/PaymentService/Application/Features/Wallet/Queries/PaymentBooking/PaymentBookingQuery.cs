@@ -2,7 +2,7 @@ using MediatR;
 
 namespace PaymentService.Application.Features.Wallet.Queries.IsEnoughPayment
 {
-    public class IsEnoughPaymentQuery : IRequest<bool>
+    public class PaymentBookingQuery : IRequest<bool>
     {
         public Guid UserId { get; set; }
         public decimal Amount { get; set; }

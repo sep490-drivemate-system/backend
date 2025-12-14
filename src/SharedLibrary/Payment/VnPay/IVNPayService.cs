@@ -13,6 +13,6 @@ namespace SharedLibrary.Payment.VnPay
 {
     public interface IVNPayService
     {
-        Task<(string paymentUrl, Guid referenceCode)> CreateVNPayOrder(decimal amount, string returnUrl,string device);
+        Task<(string paymentUrl, Guid referenceCode)> CreateVNPayOrder(decimal amount, string returnUrl);
     }
 }

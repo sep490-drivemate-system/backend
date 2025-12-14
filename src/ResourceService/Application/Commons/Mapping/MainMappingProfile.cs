@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using ResourceService.Application.Commons.DTOs;
+using ResourceService.Application.Commons.DTOs.Category;
 using ResourceService.Application.Commons.DTOs.Quizzes;
+using ResourceService.Application.Commons.DTOs.Tags;
 using ResourceService.Application.Commons.DTOs.Vouchers;
 using ResourceService.Domain.Entities;
 
@@ -128,6 +130,9 @@ namespace ResourceService.Application.Commons.Mapping
                 .ForMember(dest => dest.DiscountAmount, opt => opt.Ignore())
                 .ForMember(dest => dest.OrderAmount, opt => opt.Ignore())
                 .ForMember(dest => dest.FinalAmount, opt => opt.Ignore());
+
+            CreateMap<Post, CreateCategoryDto>().ReverseMap();
+            CreateMap<Tag, TagDTO>().ReverseMap();
 
         }
     }

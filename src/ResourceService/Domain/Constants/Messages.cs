@@ -62,6 +62,13 @@ namespace ResourceService.Domain.Constants
             public const string USE_SUCCESS = "Áp dụng voucher thành công";
             public const string CHECK_SUCCESS = "Voucher hợp lệ, bạn có thể áp dụng";
         }
+        public static class Tag
+        {
+            public const string SLUG_ALREADY_EXISTS = "Slug này đã tồn tại.";
+            public const string TAG_ALREADY_EXISTS = "Tag này đã tồn tại.";
+
+
+        }
     }
 }
 

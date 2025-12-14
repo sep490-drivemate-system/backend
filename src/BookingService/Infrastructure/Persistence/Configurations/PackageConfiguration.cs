@@ -73,6 +73,8 @@ namespace BookingService.Infrastructure.Persistence.Configurations
 
             builder.HasMany(x => x.DrivingSkills)
                 .WithMany(x => x.Packages);
+            builder.HasMany(x => x.InstructorRoutes)
+                .WithMany(x => x.Packages);
 
             builder.HasMany(x => x.Bookings)
                 .WithOne(x => x.Package)

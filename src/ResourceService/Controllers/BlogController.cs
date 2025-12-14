@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ResourceService.Application.Commons.DTOs;
+using ResourceService.Application.Commons.DTOs.Category;
 using ResourceService.Application.Interfaces;
 using SharedLibrary.Jwt;
 using SharedLibrary.SharedKernel.Enum;
@@ -8,9 +9,6 @@ using SharedLibrary.SharedKernel.ServiceResult;
 
 namespace ResourceService.Controllers
 {
-    /// <summary>
-    /// API quản lý Blog - Gộp tất cả các endpoint cho Guest, Instructor và Inspector
-    /// </summary>
     [ApiController]
     [Route("api/blogs")]
     public class BlogController : ControllerBase
@@ -23,8 +21,6 @@ namespace ResourceService.Controllers
             _serviceProviders = serviceProviders;
             _jwtService = jwtService;
         }
-
-        #region Guest Endpoints (Không cần phân quyền)
 
         [HttpGet("categories")]
         public async Task<IActionResult> GetCategories()
@@ -60,8 +56,6 @@ namespace ResourceService.Controllers
             var result = await _serviceProviders.ResourcesService.UploadImageForBlog(file);
             return result.ToActionResult();
         }
-
-        #endregion
 
         #region Instructor Endpoints (Cần role Instructor)
 

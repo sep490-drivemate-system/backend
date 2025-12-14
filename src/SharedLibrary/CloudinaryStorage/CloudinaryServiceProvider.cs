@@ -2,6 +2,7 @@
 using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,12 +14,13 @@ namespace SharedLibrary.CloudinaryStorage
     public class CloudinaryServiceProvider: ICloudinaryServiceProvider
     {
         private readonly CloudinaryServiceConfiguration _config;
-
         private readonly Cloudinary CloudinaryProvider;
+        private readonly ILogger<CloudinaryServiceProvider> _logger;
 
-        public CloudinaryServiceProvider(IConfiguration config) 
+        public CloudinaryServiceProvider(IConfiguration config, ILogger<CloudinaryServiceProvider> logger) 
         {
             _config = config.GetSection("Cloudinary").Get<CloudinaryServiceConfiguration>();
+            _logger = logger;
 
             if (_config == null)
             {
@@ -54,6 +56,41 @@ namespace SharedLibrary.CloudinaryStorage
         public string UploadImageFormFileResourceToCloudinaryWithExactName(IFormFile file, string file_name)
         {
             return UploadImageStreamResourceToCloudinary(file.OpenReadStream(), $"{file_name}");
+        }
+
+        public string UploadVideoStreamResourceToCloudinary(Stream stream, string file_name)
+        {
+            _logger.LogInformation("Starting video upload to Cloudinary. File name: {FileName}", file_name);
+
+            var videoParams = new VideoUploadParams
+            {
+                File = new FileDescription(file_name, stream),
+                UseFilename = true,
+                UniqueFilename = false,
+                Overwrite = true,
+            };
+
+            VideoUploadResult result = null;
+            try 
+            {            
+                result = CloudinaryProvider.Upload(videoParams);
+                
+                _logger.LogInformation("Video upload successful. File: {FileName}, URL: {SecureUrl}, PublicId: {PublicId}", 
+                    file_name, result.SecureUrl, result.PublicId);
+                
+                return result.SecureUrl.ToString();
+            }
+            catch(Exception ex) 
+            {
+                _logger.LogError(ex, "Error uploading video to Cloudinary. File name: {FileName}, Error: {ErrorMessage}", 
+                    file_name, ex.Message);
+                throw;
+            }
+        }
+
+        public string UploadVideoFormFileResourceToCloudinary(IFormFile file, string file_name)
+        {
+            return UploadVideoStreamResourceToCloudinary(file.OpenReadStream(), $"{file_name}-{file.FileName}");
         }
 
         public bool DeleteResourceFromCloudinary(string public_id)

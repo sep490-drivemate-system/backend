@@ -3,6 +3,7 @@ using ResourceService.Domain.Entities;
 using ResourceService.Domain.Enums;
 using ResourceService.Domain.Repositories;
 using ResourceService.Infrastructure.Commons;
+using ResourceService.Infrastructure.Persistences;
 using System.Linq.Expressions;
 
 namespace ResourceService.Infrastructure.Repositories
@@ -10,7 +11,7 @@ namespace ResourceService.Infrastructure.Repositories
     public class ResourceRepository : GenericRepository<Blog>, IResourceRepository
     {
 
-        public ResourceRepository(DbContext context) : base(context) {}
+        public ResourceRepository(ResourceDbContext context) : base(context) {}
 
         public async Task<List<Blog>> GetBlogsAsync()
         {

@@ -25,6 +25,20 @@ namespace ResourceService.Infrastructure.Persistences
         public DbSet<Voucher> Vouchers { get; set; }
         public DbSet<VoucherUsage> VoucherUsages { get; set; }
 
+        // Post / Forum entities
+        public DbSet<Post> Posts { get; set; }
+        public DbSet<PostImage> PostImages { get; set; }
+        public DbSet<PostVideo> PostVideos { get; set; }
+        public DbSet<PostComment> PostComments { get; set; }
+        public DbSet<PostReaction> PostReactions { get; set; }
+        public DbSet<PostReview> PostReviews { get; set; }
+        // QA entities
+        public DbSet<QaQuestion> QaQuestions { get; set; }
+        public DbSet<QaAnswer> QaAnswers { get; set; }
+
+        // Tags
+        public DbSet<Tag> Tags { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ResourceDbContext).Assembly);

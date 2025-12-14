@@ -33,7 +33,7 @@ namespace PaymentService.Application.Features.Wallet.Commands.Deposit
                 )
                 {
                     var zaloPayResult = await HandleZaloPayCallback(depositCommand.Data);
-                return Result<decimal?>.Success(zaloPayResult); ;
+                return Result<decimal?>.Success(zaloPayResult); 
                 }
             return Result<decimal?>.Failure(
                 ServiceError.NotFoundError(Messages.Wallet.UnHandlePayment));
@@ -101,8 +101,16 @@ namespace PaymentService.Application.Features.Wallet.Commands.Deposit
                 var referenceCode = checksumZaloPay;
                 var transaction = await _unitOfWork.TransactionRepository.GetByReferenceCodeAsync(referenceCode);
                 transaction.Status = Domain.Enum.PaymentStatus.Completed;
-                var wallet = transaction.Wallet;
-                wallet.Balance = transaction.TransactionValue + wallet.Balance;
+                
+                if (transaction.ToWalletId.HasValue)
+                {
+                    var wallet = await _unitOfWork.WalletRepository.GetByIdAsync(transaction.ToWalletId.Value);
+                    if (wallet != null)
+                    {
+                        wallet.Balance = transaction.TransactionValue + wallet.Balance;
+                    }
+                }
+                
                 await _unitOfWork.TransactionRepository.UpdateAsync(transaction);
                 await _unitOfWork.CommitAsync();
                 return transaction.TransactionValue;

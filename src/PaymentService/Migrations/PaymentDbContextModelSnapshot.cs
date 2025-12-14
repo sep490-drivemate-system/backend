@@ -30,13 +30,12 @@ namespace PaymentService.Migrations
                         .HasColumnName("id");
 
                     b.Property<Guid?>("BookingId")
-                        .IsRequired()
                         .HasColumnType("uuid")
                         .HasColumnName("booking_id");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamptz")
+                        .HasColumnType("timestamp")
                         .HasColumnName("created_at")
                         .HasDefaultValueSql("now()");
 
@@ -83,7 +82,7 @@ namespace PaymentService.Migrations
 
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("timestamptz")
+                        .HasColumnType("timestamp")
                         .HasColumnName("updated_at")
                         .HasDefaultValueSql("now()");
 
@@ -110,7 +109,7 @@ namespace PaymentService.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamptz")
+                        .HasColumnType("timestamp")
                         .HasColumnName("created_at")
                         .HasDefaultValueSql("now()");
 
@@ -122,7 +121,7 @@ namespace PaymentService.Migrations
 
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("timestamptz")
+                        .HasColumnType("timestamp")
                         .HasColumnName("updated_at")
                         .HasDefaultValueSql("now()");
 

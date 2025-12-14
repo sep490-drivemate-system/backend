@@ -7,8 +7,10 @@ using ResourceService.Application.Commons.Mapping;
 using ResourceService.Application.Interfaces;
 using ResourceService.Application.Interfaces.Services;
 using ResourceService.Application.Services;
+using ResourceService.Domain.Repositories;
 using ResourceService.Infrastructure.Commons;
 using ResourceService.Infrastructure.Persistences;
+using ResourceService.Infrastructure.Repositories;
 using SharedLibrary.CloudinaryStorage;
 using SharedLibrary.Jwt;
 using System.Security.Claims;
@@ -97,6 +99,7 @@ namespace ResourceService.Infrastructure
             }).CreateMapper());
 
             // HttpClient
+            services.AddHttpClient();
 
             // Shared library services
             services.AddScoped<IJwtService, JwtService>();
@@ -108,6 +111,15 @@ namespace ResourceService.Infrastructure
             services.AddScoped<IResourcesService, ResourcesService>();
             services.AddScoped<IQuizService, QuizService>();
             services.AddScoped<IVoucherService, VoucherService>();
+            services.AddScoped<ITagService, TagService>();
+            services.AddScoped<ICategoryService, CategoryService>();
+            services.AddScoped<IPostService, PostService>();
+            services.AddScoped<IQAService, QAService>();
+            services.AddScoped<IQuizRepository, QuizRepository>();
+            services.AddScoped<IPostRepository, PostRepository>();
+            services.AddScoped<IQARepository, QARepository>();
+            services.AddScoped<ITagRepository, TagRepository>();
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
 
             // Application Service Provider
             services.AddScoped<IApplicationServiceProvider, ApplicationServiceProvider>();

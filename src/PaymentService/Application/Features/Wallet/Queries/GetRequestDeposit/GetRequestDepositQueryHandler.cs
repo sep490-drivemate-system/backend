@@ -39,18 +39,20 @@ namespace PaymentService.Application.Features.Wallet.Queries.GetRequestDeposit
 
         public async Task<Result<string>> Handle(GetRequestDepositQuery request, CancellationToken cancellationToken)
         {
-            var callbackUrl = _configuration["PAYMENTCALLBACK:URL"];
-            string device = request.Platform == Domain.Enum.ClientPlatform.WebApp ? "webapp" : "moblie";
+            var callbackUrlMobile = _configuration["PAYMENTCALLBACK_MOBILE:URL"];
+            var callbackUrlWeppapp= _configuration["PAYMENTCALLBACK_WEPAPP:URL"];
+            string callbackUrl = request.Platform == Domain.Enum.ClientPlatform.WebApp ? callbackUrlWeppapp : callbackUrlMobile;
+
             switch (request.PaymentMethod)
             {
                 case PaymentMethod.PayOs:
                     return await HandlePayOsPayment(request.Amount, request.UserId,callbackUrl);
 
                 case PaymentMethod.VnPay:
-                    return await HandleVnPayPayment(request.Amount, request.UserId, callbackUrl,device);
+                    return await HandleVnPayPayment(request.Amount, request.UserId, callbackUrl);
 
                 case PaymentMethod.ZaloPay:
-                    return await HandleZaloPayPayment(request.Amount, request.UserId, callbackUrl, device);
+                    return await HandleZaloPayPayment(request.Amount, request.UserId, callbackUrl);
 
                 default:
                     return Result<string>.Failure(
@@ -78,8 +80,8 @@ namespace PaymentService.Application.Features.Wallet.Queries.GetRequestDeposit
                 PaymentMethod = PaymentMethod.VnPay,
                 TransactionValue = amount,
                 Status = PaymentStatus.Failed,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now,
                 ToWalletId = userId,
                 ReferenceCode = referenceCode.ToString(),
             };
@@ -89,16 +91,16 @@ namespace PaymentService.Application.Features.Wallet.Queries.GetRequestDeposit
             return Result<string>.Success(paymentUrl);
         }
 
-        private async Task<Result<string>> HandleVnPayPayment(decimal amount, Guid userId, string callbackUrl,string device)
+        private async Task<Result<string>> HandleVnPayPayment(decimal amount, Guid userId, string callbackUrl)
         {
-            var (paymentUrl, referenceCode) = await _vnPayService.CreateVNPayOrder(amount, callbackUrl, device);
+            var (paymentUrl, referenceCode) = await _vnPayService.CreateVNPayOrder(amount, callbackUrl);
             var transaction = new Domain.Entities.Transaction
             {
                 PaymentMethod = PaymentMethod.VnPay,
                 TransactionValue = amount,
                 Status = PaymentStatus.Failed,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now,
                 ToWalletId = userId,
                 ReferenceCode = referenceCode.ToString(),
             };
@@ -107,15 +109,15 @@ namespace PaymentService.Application.Features.Wallet.Queries.GetRequestDeposit
             return Result<string>.Success(paymentUrl);
         }
 
-        private async Task<Result<string>> HandleZaloPayPayment(decimal amount, Guid userId, string callbackUrl,string device)
+        private async Task<Result<string>> HandleZaloPayPayment(decimal amount, Guid userId, string callbackUrl)
         {
-            var (paymentUrl, referenceCode) = await _zaloPayService.CreateZaloPayOrder(amount, callbackUrl, device);
+            var (paymentUrl, referenceCode) = await _zaloPayService.CreateZaloPayOrder(amount, callbackUrl);
             var transaction = new Domain.Entities.Transaction
             {
                 PaymentMethod = PaymentMethod.VnPay,
                 TransactionValue = amount,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now,
                 ToWalletId = userId,
                 Status = PaymentStatus.Failed,
                 ReferenceCode = referenceCode.ToString(),

@@ -8,10 +8,15 @@ namespace ResourceService.Infrastructure.Commons
 {
     public class UnitOfWork: IUnitOfWork
     {
-        private readonly DbContext context;
+        private readonly ResourceDbContext context;
         private readonly IDictionary<Type, object> _repositories = new Dictionary<Type, object>();
 
         private IResourceRepository _resourceRepository;
+        private IPostRepository _postRepository;
+        private IQARepository _qaRepository;
+        private ITagRepository _tagRepository;
+        private ICategoryRepository _categoryRepository;
+        private IQuizRepository _quizRepository;
 
         public UnitOfWork(ResourceDbContext context)
         {
@@ -19,6 +24,11 @@ namespace ResourceService.Infrastructure.Commons
         }
 
         public IResourceRepository ResourceRepository => _resourceRepository ??= new ResourceRepository(context);
+        public IQuizRepository QuizRepository => _quizRepository ??= new QuizRepository(context);
+        public IPostRepository PostRepository => _postRepository ??= new PostRepository(context);
+        public IQARepository QARepository => _qaRepository ??= new QARepository(context);
+        public ITagRepository TagRepository => _tagRepository ??= new TagRepository(context);
+        public ICategoryRepository CategoryRepository => _categoryRepository ??= new CategoryRepository(context);
 
         public async Task<T> ReloadEntity<T>(T entity) where T : class
         {

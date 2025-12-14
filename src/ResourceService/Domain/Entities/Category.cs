@@ -9,6 +9,7 @@ namespace ResourceService.Domain.Entities
         public bool IsDelete { get; set; }
 
         // Quan hệ
-        public ICollection<Blog> Blogs { get; set; }
+        public ICollection<Blog>? Blogs { get; set; }
+        public ICollection<Post>? Posts{ get; set; }
     }
 }
