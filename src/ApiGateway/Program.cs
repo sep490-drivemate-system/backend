@@ -18,7 +18,6 @@ namespace ApiGetwate
         public static void Main(string[] args)
         {
             DotNetEnv.Env.Load("../../.env");
-
             var builder = WebApplication.CreateBuilder(args);
             var config = builder.Configuration;
             builder.Configuration.AddEnvironmentVariables();

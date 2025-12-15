@@ -24,7 +24,6 @@ namespace UserService.Infrastructure.Persistence.Context
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(UserServiceDbContext).Assembly);
-            //ConfigureLazyLoading(modelBuilder);
 
             base.OnModelCreating(modelBuilder);
         }

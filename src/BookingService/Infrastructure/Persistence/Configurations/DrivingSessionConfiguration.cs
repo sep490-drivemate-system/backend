@@ -24,7 +24,7 @@ namespace BookingService.Infrastructure.Persistence.Configurations
             // properties
             builder.Property(x => x.StartTime)
                 .HasColumnName("start_time")
-                .HasColumnType("timestamptz")
+                .HasColumnType("timestamp")
                 .IsRequired();
 
             builder.Property(x => x.PriceForCar)
@@ -33,16 +33,16 @@ namespace BookingService.Infrastructure.Persistence.Configurations
 
             builder.Property(x => x.EndTime)
                 .HasColumnName("end_time")
-                .HasColumnType("timestamptz")
+                .HasColumnType("timestamp")
                 .IsRequired();
 
             builder.Property(x => x.ActualStart)
                 .HasColumnName("actual_start_time")
-                .HasColumnType("timestamptz");
+                .HasColumnType("timestamp");
 
             builder.Property(x => x.ActualEnd)
                 .HasColumnName("actual_end_time")
-                .HasColumnType("timestamptz");
+                .HasColumnType("timestamp");
 
             builder.Property(x => x.TotalDistance)
                 .HasColumnName("distance");
@@ -95,14 +95,14 @@ namespace BookingService.Infrastructure.Persistence.Configurations
 
             builder.Property(x => x.CreatedAt)
                 .HasColumnName("created_at")
-                .HasColumnType("timestamptz")
+                .HasColumnType("timestamp")
                 .ValueGeneratedOnAdd()
                 .HasDefaultValueSql("now()")
                 .IsRequired();
 
             builder.Property(x => x.LastModifiedAt)
                 .HasColumnName("updated_at")
-                .HasColumnType("timestamptz")
+                .HasColumnType("timestamp")
                 .ValueGeneratedOnAddOrUpdate()
                 .HasDefaultValueSql("now()")
                 .IsRequired();

@@ -8,7 +8,6 @@ namespace ResourceService.Domain.Entities
         public Guid QuestionId { get; set; }
         public Guid AuthorId { get; set; }
         public string Content { get; set; }
-        public QaStatus Status { get; set; }
         public bool IsAccepted { get; set; }
         public bool IsDeleted { get; set; }
         public DateTime LastModifiedAt { get; set; }

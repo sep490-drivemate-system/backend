@@ -7,9 +7,6 @@ namespace UserService.Application.Commons.Mapping.ExtentionMapping
 {
     public static class InstructorMappingExtensions
     {
-        /// <summary>
-        /// Maps instructors to DTOs with their feedback statistics
-        /// </summary>
         public static List<InstructorDTO> MapWithStatistics(
             this IEnumerable<Instructor> instructors,
             IMapper mapper,
@@ -18,8 +15,6 @@ namespace UserService.Application.Commons.Mapping.ExtentionMapping
             return instructors.Select(instructor =>
             {
                 var instructorDTO = mapper.Map<InstructorDTO>(instructor);
-
-                // Apply statistics if available
                 if (feedbackStats.TryGetValue(instructor.Id, out var stats))
                 {
                     instructorDTO.AverageRating = stats.AverageRating;
