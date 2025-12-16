@@ -16,7 +16,8 @@ namespace ResourceService.Application.Commons.DTOs
         public Guid CategoryId { get; set; }
         public string CategoryName { get; set; }
         public int Status { get; set; } // BlogStatus enum value
-        public BlogContentDto Content { get; set; } // Single content (1 blog = 1 content)
+        // Changed from BlogContentDto to string so API returns plain content instead of nested object
+        public string Content { get; set; } // Single content text (1 blog = 1 content)
     }
 
     public class BlogContentDto
