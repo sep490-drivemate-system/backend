@@ -362,8 +362,7 @@ namespace ResourceService.Application.Services
                 {
                     Title = request.Title,
                     ThumbnailUrl = thumbnailUrl ?? string.Empty,
-                    CategoryId = request.CategoryId,
-                    Contents = null // Not used anymore, will create single content directly
+                    CategoryId = request.CategoryId
                 };
 
                 // Map DTO to Entity using AutoMapper
@@ -427,20 +426,6 @@ namespace ResourceService.Application.Services
                         Messages.Blog.NOTFOUND);
                 }
 
-                // Parse contents JSON if provided
-                IList<BlogContentUpdateDto> contentsList = null;
-                if (!string.IsNullOrEmpty(request.Contents))
-                {
-                    try
-                    {
-                        contentsList = JsonSerializer.Deserialize<IList<BlogContentUpdateDto>>(request.Contents);
-                    }
-                    catch
-                    {
-                        contentsList = new List<BlogContentUpdateDto>();
-                    }
-                }
-
                 // Upload new thumbnail if provided
                 if (request.Thumbnail != null && request.Thumbnail.Length > 0)
                 {
@@ -476,7 +461,7 @@ namespace ResourceService.Application.Services
                 {
                     Title = request.Title,
                     CategoryId = request.CategoryId,
-                    Contents = contentsList ?? new List<BlogContentUpdateDto>()
+                    Content = request.Content
                 };
 
                 var applyError = await ApplyBlogUpdatesAsync(blog, updateBlogDto);
@@ -515,9 +500,14 @@ namespace ResourceService.Application.Services
         {
             var now = DateTime.Now;
 
+            // Chỉ update Title nếu có truyền lên và khác giá trị cũ
             if (!string.IsNullOrWhiteSpace(updateBlogDto.Title))
             {
-                blog.Title = updateBlogDto.Title.Trim();
+                var newTitle = updateBlogDto.Title.Trim();
+                if (!string.Equals(blog.Title, newTitle, StringComparison.Ordinal))
+                {
+                    blog.Title = newTitle;
+                }
             }
 
             // ThumbnailUrl is now handled in UpdateBlogAsync (uploaded from file)
@@ -533,42 +523,38 @@ namespace ResourceService.Application.Services
                 blog.CategoryId = updateBlogDto.CategoryId.Value;
             }
 
-            if (updateBlogDto.Contents != null && updateBlogDto.Contents.Any())
+            // Update single content (1 blog = 1 content)
+            // Chỉ update khi có truyền Content và khác nội dung hiện tại
+            if (!string.IsNullOrWhiteSpace(updateBlogDto.Content))
             {
                 blog.Contents ??= new List<BlogContent>();
-                var contentLookup = blog.Contents.ToDictionary(c => c.Id);
 
-                foreach (var contentDto in updateBlogDto.Contents)
+                // Find first non-deleted content, if any
+                var existingContent = blog.Contents.FirstOrDefault(c => !c.IsDelete);
+
+                if (existingContent != null)
                 {
-                    if (contentDto.Id.HasValue && contentLookup.TryGetValue(contentDto.Id.Value, out var existingContent))
+                    var newContent = updateBlogDto.Content.Trim();
+                    if (!string.Equals(existingContent.Content, newContent, StringComparison.Ordinal))
                     {
-                        if (contentDto.IsDeleted == true)
-                        {
-                            existingContent.IsDelete = true;
-                        }
-                        else
-                        {
-                            if (contentDto.Content != null)
-                            {
-                                existingContent.Content = contentDto.Content.Trim();
-                            }
-
-                            existingContent.IsDelete = false;
-                        }
-
+                        existingContent.Content = newContent;
                         existingContent.UpdateAt = now;
                     }
-                    else if (!contentDto.Id.HasValue && contentDto.IsDeleted != true)
+                }
+                else
+                {
+                    var newContent = new BlogContent
                     {
-                        var newContent = _mapper.Map<BlogContent>(contentDto);
-                        newContent.BlogId = blog.Id;
-                        newContent.CreatedAt = now;
-                        newContent.UpdateAt = now;
-                        newContent.IsDelete = false;
+                        Id = Guid.NewGuid(),
+                        BlogId = blog.Id,
+                        Content = updateBlogDto.Content.Trim(),
+                        CreatedAt = now,
+                        UpdateAt = now,
+                        IsDelete = false
+                    };
 
-                        _unitOfWork.ResourceRepository.AddBlogContent(newContent);
-                        blog.Contents.Add(newContent);
-                    }
+                    _unitOfWork.ResourceRepository.AddBlogContent(newContent);
+                    blog.Contents.Add(newContent);
                 }
             }
 

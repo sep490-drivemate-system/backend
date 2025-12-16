@@ -32,13 +32,8 @@ namespace ResourceService.Application.Commons.DTOs
         public string Title { get; set; }
         public string ThumbnailUrl { get; set; }
         public Guid CategoryId { get; set; }
-        public IList<BlogContentCreateDto> Contents { get; set; }
+        // We now use a single content per blog; content is passed via request model, not this DTO
         public IList<string> ImageUrls { get; set; } // URLs after upload
-    }
-
-    public class BlogContentCreateDto
-    {
-        public string Content { get; set; }
     }
 
 
@@ -48,14 +43,8 @@ namespace ResourceService.Application.Commons.DTOs
         public string Title { get; set; }
         public string ThumbnailUrl { get; set; }
         public Guid? CategoryId { get; set; }
-        public IList<BlogContentUpdateDto> Contents { get; set; }
-    }
-
-    public class BlogContentUpdateDto
-    {
-        public Guid? Id { get; set; }
+        // Single content text to update (1 blog = 1 content)
         public string Content { get; set; }
-        public bool? IsDeleted { get; set; }
     }
 
     public class BlogStatusDto
@@ -77,11 +66,12 @@ namespace ResourceService.Application.Commons.DTOs
     // Request model for UpdateBlog (multipart/form-data)
     public class BlogUpdateRequest
     {
-        public string Title { get; set; }
-        public IFormFile Thumbnail { get; set; } // Thumbnail image file (optional - only if updating)
+        public string? Title { get; set; }
+        public IFormFile? Thumbnail { get; set; } // Thumbnail image file (optional - only if updating)
         public Guid? CategoryId { get; set; }
-        public string Contents { get; set; } // JSON string of BlogContentUpdateDto array
-        public IFormFileCollection Images { get; set; } // New images to add (optional)
+        // Single content text for the blog; we no longer use a JSON array
+        public string? Content { get; set; }
+        public IFormFileCollection? Images { get; set; } // New images to add (optional)
     }
 }
 

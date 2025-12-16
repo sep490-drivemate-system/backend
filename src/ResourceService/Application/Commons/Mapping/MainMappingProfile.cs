@@ -42,21 +42,6 @@ namespace ResourceService.Application.Commons.Mapping
                 .ForMember(dest => dest.Blogs, opt => opt.Ignore());
 
             // Create mappings (DTO -> Entity)
-            CreateMap<BlogContentCreateDto, BlogContent>()
-                .ForMember(dest => dest.Id, opt => opt.Ignore())
-                .ForMember(dest => dest.BlogId, opt => opt.Ignore())
-                .ForMember(dest => dest.UpdateAt, opt => opt.Ignore())
-                .ForMember(dest => dest.IsDelete, opt => opt.Ignore());
-
-            // BlogContentUpdateDto -> BlogContent (for creating new content)
-            CreateMap<BlogContentUpdateDto, BlogContent>()
-                .ForMember(dest => dest.Id, opt => opt.Ignore())
-                .ForMember(dest => dest.BlogId, opt => opt.Ignore())
-                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
-                .ForMember(dest => dest.UpdateAt, opt => opt.Ignore())
-                .ForMember(dest => dest.IsDelete, opt => opt.Ignore())
-                .ForMember(dest => dest.Content, opt => opt.MapFrom(src => src.Content != null ? src.Content.Trim() : string.Empty));
-
             CreateMap<BlogCreateDto, Blog>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.InstructorId, opt => opt.Ignore())
