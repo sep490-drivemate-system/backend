@@ -23,6 +23,7 @@ namespace ResourceService.Application.Interfaces.Services
         Task<Result<bool>> ApproveBlogAsync(Guid blogId);
         Task<Result<bool>> RejectBlogAsync(Guid blogId);
         Task<Result<bool>> BanBlogAsync(Guid blogId);
+        Task<Result<bool>> UnbanBlogAsync(Guid blogId);
         
 
 

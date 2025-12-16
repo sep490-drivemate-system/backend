@@ -752,5 +752,52 @@ namespace ResourceService.Application.Services
             }
         }
 
+        public async Task<Result<bool>> UnbanBlogAsync(Guid blogId)
+        {
+            try
+            {
+                var blog = await _unitOfWork.ResourceRepository.GetBlogDetailAsync(blogId);
+                if (blog == null)
+                {
+                    return Result<bool>.Failure(
+                        ServiceError.NotFoundError(Messages.Blog.NOTFOUND),
+                        Messages.Blog.NOTFOUND);
+                }
+
+                // Chỉ gỡ cấm được nếu blog đang ở trạng thái Banned
+                if (blog.Status != BlogStatus.Banned)
+                {
+                    return Result<bool>.Failure(
+                        ServiceError.BadRequestError(Messages.Blog.UNBAN_INVALID_STATUS),
+                        Messages.Blog.UNBAN_INVALID_STATUS);
+                }
+
+                // Sau khi gỡ cấm, đưa blog về trạng thái Inactive để inspector có thể xử lý tiếp
+                var updateResult = await _unitOfWork.ResourceRepository.UpdateBlogStatus(blogId, BlogStatus.Pending);
+                if (!updateResult)
+                {
+                    return Result<bool>.Failure(
+                        ServiceError.UnhandledException(Messages.Blog.UNBAN_FAILED),
+                        Messages.Blog.UNBAN_FAILED);
+                }
+
+                var saveResult = await _unitOfWork.SaveChangesAsync();
+                if (saveResult <= 0)
+                {
+                    return Result<bool>.Failure(
+                        ServiceError.UnhandledException(Messages.Blog.UNBAN_FAILED),
+                        Messages.Blog.UNBAN_FAILED);
+                }
+
+                return Result<bool>.Success(true, Messages.Blog.UNBAN_SUCCESS);
+            }
+            catch (Exception ex)
+            {
+                return Result<bool>.Failure(
+                    ServiceError.UnhandledException($"{Messages.Blog.UNBAN_FAILED}: {ex.Message}"),
+                    Messages.Commons.UNHANDLED);
+            }
+        }
+
     }
 }

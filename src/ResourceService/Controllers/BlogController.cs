@@ -143,6 +143,14 @@ namespace ResourceService.Controllers
             return result.ToActionResult();
         }
 
+        [HttpPost("{id}/unban")]
+        [Authorize(Roles = nameof(UserRole.Inspector))]
+        public async Task<IActionResult> UnbanBlog([FromRoute] Guid id)
+        {
+            var result = await _serviceProviders.ResourcesService.UnbanBlogAsync(id);
+            return result.ToActionResult();
+        }
+
         [HttpPost("categories")]
         [Authorize(Roles = nameof(UserRole.Inspector))]
         public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryDto createCategoryDto)

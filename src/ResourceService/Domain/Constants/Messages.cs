@@ -21,6 +21,9 @@ namespace ResourceService.Domain.Constants
             public const string REJECT_INVALID_STATUS = "Không thể từ chối blog. Blog đã được duyệt hoặc từ chối trước đó";
             public const string BAN_SUCCESS = "Cấm blog thành công";
             public const string BAN_FAILED = "Cấm blog không thành công";
+            public const string UNBAN_SUCCESS = "Gỡ cấm blog thành công";
+            public const string UNBAN_FAILED = "Gỡ cấm blog không thành công";
+            public const string UNBAN_INVALID_STATUS = "Không thể gỡ cấm blog. Blog hiện không ở trạng thái bị cấm";
         }
 
         public static class Category
