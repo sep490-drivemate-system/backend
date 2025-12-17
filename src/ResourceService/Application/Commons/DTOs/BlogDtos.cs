@@ -31,7 +31,7 @@ namespace ResourceService.Application.Commons.DTOs
     {
         public string Title { get; set; }
         public string ThumbnailUrl { get; set; }
-        public Guid CategoryId { get; set; }
+        public Guid? CategoryId { get; set; }
         // We now use a single content per blog; content is passed via request model, not this DTO
         public IList<string> ImageUrls { get; set; } // URLs after upload
     }
@@ -58,7 +58,7 @@ namespace ResourceService.Application.Commons.DTOs
     {
         public string Title { get; set; }
         public IFormFile Thumbnail { get; set; } // Thumbnail image file
-        public Guid CategoryId { get; set; }
+        public Guid? CategoryId { get; set; }
         public string Content { get; set; } // Single content text (1 blog = 1 content)
         public IFormFileCollection Images { get; set; } // List of additional images
     }

@@ -486,7 +486,7 @@ namespace ResourceService.Application.Services
                 {
                     Title = request.Title,
                     ThumbnailUrl = thumbnailUrl ?? string.Empty,
-                    CategoryId = request.CategoryId
+                    CategoryId = request.CategoryId ?? null
                 };
 
                 // Map DTO to Entity using AutoMapper
