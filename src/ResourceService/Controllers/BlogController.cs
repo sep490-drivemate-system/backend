@@ -159,6 +159,22 @@ namespace ResourceService.Controllers
             return result.ToActionResult();
         }
 
+        [HttpPut("categories/{id}")]
+        [Authorize(Roles = nameof(UserRole.Inspector))]
+        public async Task<IActionResult> UpdateCategory([FromRoute] Guid id, [FromBody] UpdateCategoryDTO updateCategoryDto)
+        {
+            var result = await _serviceProviders.ResourcesService.UpdateCategoryAsync(id, updateCategoryDto);
+            return result.ToActionResult();
+        }
+
+        [HttpDelete("categories/{id}")]
+        [Authorize(Roles = nameof(UserRole.Inspector))]
+        public async Task<IActionResult> DeleteCategory([FromRoute] Guid id)
+        {
+            var result = await _serviceProviders.ResourcesService.DeleteCategoryAsync(id);
+            return result.ToActionResult();
+        }
+
         #endregion
     }
 }

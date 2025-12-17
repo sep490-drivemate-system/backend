@@ -136,6 +136,104 @@ namespace ResourceService.Application.Services
             }
         }
 
+        public async Task<Result<CategoryDto>> UpdateCategoryAsync(Guid categoryId, UpdateCategoryDTO updateCategoryDto)
+        {
+            try
+            {
+                // Kiểm tra category có tồn tại không
+                var category = await _unitOfWork.Repository<Category>().GetByIdAsync(categoryId);
+                if (category == null || category.IsDelete)
+                {
+                    return Result<CategoryDto>.Failure(
+                        ServiceError.NotFoundError($"{categoryId}"),
+                        Messages.Commons.NOTFOUND);
+                }
+
+                // Validate và cập nhật tên nếu có
+                if (!string.IsNullOrWhiteSpace(updateCategoryDto.Name))
+                {
+                    // Kiểm tra xem tên mới có trùng với category khác không
+                    var existingCategories = await _unitOfWork.ResourceRepository.GetCategoriesAsync();
+                    if (existingCategories.Any(c => c.Id != categoryId && 
+                        c.Name.Trim().Equals(updateCategoryDto.Name.Trim(), StringComparison.OrdinalIgnoreCase)))
+                    {
+                        return Result<CategoryDto>.Failure(
+                            ServiceError.ConflictError(Messages.Category.NAME_ALREADY_EXISTS),
+                            Messages.Category.NAME_ALREADY_EXISTS);
+                    }
+
+                    category.Name = updateCategoryDto.Name.Trim();
+                }
+
+                // Cập nhật thời gian
+                category.UpdateAt = DateTime.Now;
+                _unitOfWork.Repository<Category>().Update(category);
+                var result = await _unitOfWork.SaveChangesAsync();
+
+                if (result <= 0)
+                {
+                    return Result<CategoryDto>.Failure(
+                        ServiceError.UnhandledException(Messages.Category.UPDATE_FAILED),
+                        Messages.Category.UPDATE_FAILED);
+                }
+
+                var categoryDto = _mapper.Map<CategoryDto>(category);
+                return Result<CategoryDto>.Success(categoryDto, Messages.Category.UPDATE_SUCCESS);
+            }
+            catch (Exception ex)
+            {
+                return Result<CategoryDto>.Failure(
+                    ServiceError.UnhandledException($"{Messages.Category.UPDATE_FAILED}: {ex.Message}"),
+                    Messages.Commons.UNHANDLED);
+            }
+        }
+
+        public async Task<Result<bool>> DeleteCategoryAsync(Guid categoryId)
+        {
+            try
+            {
+                // Kiểm tra category có tồn tại không
+                var category = await _unitOfWork.Repository<Category>().GetByIdAsync(categoryId);
+                if (category == null || category.IsDelete)
+                {
+                    return Result<bool>.Failure(
+                        ServiceError.NotFoundError($"{categoryId}"),
+                        Messages.Commons.NOTFOUND);
+                }
+
+                // Kiểm tra xem có blog nào đang sử dụng category này không
+                var hasBlogsUsingCategory = await _unitOfWork.ResourceRepository.HasBlogsUsingCategoryAsync(categoryId);
+
+                if (hasBlogsUsingCategory)
+                {
+                    return Result<bool>.Failure(
+                        ServiceError.ConflictError(Messages.Category.CANNOT_DELETE_IN_USE),
+                        Messages.Category.CANNOT_DELETE_IN_USE);
+                }
+
+                // Xóa mềm category
+                category.IsDelete = true;
+                category.UpdateAt = DateTime.Now;
+                _unitOfWork.Repository<Category>().Update(category);
+                var result = await _unitOfWork.SaveChangesAsync();
+
+                if (result <= 0)
+                {
+                    return Result<bool>.Failure(
+                        ServiceError.UnhandledException(Messages.Category.DELETE_FAILED),
+                        Messages.Category.DELETE_FAILED);
+                }
+
+                return Result<bool>.Success(true, Messages.Category.DELETE_SUCCESS);
+            }
+            catch (Exception ex)
+            {
+                return Result<bool>.Failure(
+                    ServiceError.UnhandledException($"{Messages.Category.DELETE_FAILED}: {ex.Message}"),
+                    Messages.Commons.UNHANDLED);
+            }
+        }
+
         public async Task<Result<PaginatedList<ResourceDto>>> GetMyBlogsAsync(Guid instructorId, BlogListFilterDTO filter)
         {
             try

@@ -12,6 +12,7 @@ namespace ResourceService.Domain.Repositories
         Task<Blog?> GetMyBlogDetailAsync(Guid id, Guid instructorId);
         Task<Blog?> GetMyBlogDetailTrackedAsync(Guid id, Guid instructorId);
         Task<bool> CategoryExistsAsync(Guid categoryId);
+        Task<bool> HasBlogsUsingCategoryAsync(Guid categoryId);
         Task<List<Category>> GetCategoriesAsync();
         Task<bool> CreateCategory(Category category);
         Task<bool> SoftDeleteBlogAsync(Guid blogId);

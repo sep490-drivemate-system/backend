@@ -30,8 +30,13 @@ namespace ResourceService.Domain.Constants
         {
             public const string CREATE_SUCCESS = "Tạo danh mục thành công";
             public const string CREATE_FAILED = "Tạo danh mục không thành công";
+            public const string UPDATE_SUCCESS = "Cập nhật danh mục thành công";
+            public const string UPDATE_FAILED = "Cập nhật danh mục không thành công";
             public const string NAME_REQUIRED = "Tên danh mục không được để trống";
             public const string NAME_ALREADY_EXISTS = "Tên danh mục đã tồn tại";
+            public const string DELETE_SUCCESS = "Xóa danh mục thành công";
+            public const string DELETE_FAILED = "Xóa danh mục không thành công";
+            public const string CANNOT_DELETE_IN_USE = "Không thể xóa danh mục vì đang được sử dụng bởi một hoặc nhiều blog";
         }
 
         public static class Commons

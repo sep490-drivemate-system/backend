@@ -84,6 +84,11 @@ namespace ResourceService.Infrastructure.Repositories
             return await _context.Set<Category>().AnyAsync(c => c.Id == categoryId && !c.IsDelete);
         }
 
+        public async Task<bool> HasBlogsUsingCategoryAsync(Guid categoryId)
+        {
+            return await _dbSet.AnyAsync(b => b.CategoryId == categoryId && !b.IsDelete);
+        }
+
         public async Task<List<Category>> GetCategoriesAsync()
         {
             return await _context.Set<Category>().AsNoTracking()

@@ -98,7 +98,6 @@ namespace ResourceService.Application.Services
             {
                 return Result<bool>.Failure(ServiceError.NotFoundError($"{id}"), Messages.Commons.NOTFOUND);
             }
-
             category.IsDelete = true;
             category.UpdateAt = DateTime.UtcNow;
              _unitOfWork.Repository<Category>().Update(category);

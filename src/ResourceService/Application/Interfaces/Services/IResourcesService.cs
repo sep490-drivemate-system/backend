@@ -19,6 +19,8 @@ namespace ResourceService.Application.Interfaces.Services
         
         // Inspector APIs
         Task<Result<CategoryDto>> CreateCategoryAsync(CreateCategoryDto createCategoryDto);
+        Task<Result<CategoryDto>> UpdateCategoryAsync(Guid categoryId, UpdateCategoryDTO updateCategoryDto);
+        Task<Result<bool>> DeleteCategoryAsync(Guid categoryId);
         Task<Result<PaginatedList<ResourceDto>>> GetBlogsListAsync(BlogListFilterDTO filter);
         Task<Result<bool>> ApproveBlogAsync(Guid blogId);
         Task<Result<bool>> RejectBlogAsync(Guid blogId);
