@@ -34,6 +34,9 @@ namespace ResourceService.Application.Commons.Mapping
             // Category -> CategoryDto
             CreateMap<Category, CategoryDto>();
 
+            // Category -> CategoryDTO (what ... ?)
+            CreateMap<CategoryDTO, Category>();
+
             // CreateCategoryDto -> Category
             CreateMap<CreateCategoryDto, Category>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
