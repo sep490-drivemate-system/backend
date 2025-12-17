@@ -22,12 +22,12 @@ namespace ResourceService.Controllers
             _jwtService = jwtService;
         }
 
-        [HttpGet("categories")]
-        public async Task<IActionResult> GetCategories()
-        {
-            var result = await _serviceProviders.ResourcesService.GetCategoriesAsync();
-            return result.ToActionResult();
-        }
+        //[HttpGet("categories")]
+        //public async Task<IActionResult> GetCategories()
+        //{
+        //    var result = await _serviceProviders.ResourcesService.GetCategoriesAsync();
+        //    return result.ToActionResult();
+        //}
 
         [HttpGet("statuses")]
         public async Task<IActionResult> GetBlogStatuses()
@@ -159,29 +159,29 @@ namespace ResourceService.Controllers
             return result.ToActionResult();
         }
 
-        [HttpPost("categories")]
-        [Authorize(Roles = nameof(UserRole.Inspector))]
-        public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryDto createCategoryDto)
-        {
-            var result = await _serviceProviders.ResourcesService.CreateCategoryAsync(createCategoryDto);
-            return result.ToActionResult();
-        }
+        //[HttpPost("categories")]
+        //[Authorize(Roles = nameof(UserRole.Inspector))]
+        //public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryDto createCategoryDto)
+        //{
+        //    var result = await _serviceProviders.ResourcesService.CreateCategoryAsync(createCategoryDto);
+        //    return result.ToActionResult();
+        //}
 
-        [HttpPut("categories/{id}")]
-        [Authorize(Roles = nameof(UserRole.Inspector))]
-        public async Task<IActionResult> UpdateCategory([FromRoute] Guid id, [FromBody] UpdateCategoryDTO updateCategoryDto)
-        {
-            var result = await _serviceProviders.ResourcesService.UpdateCategoryAsync(id, updateCategoryDto);
-            return result.ToActionResult();
-        }
+        //[HttpPut("categories/{id}")]
+        //[Authorize(Roles = nameof(UserRole.Inspector))]
+        //public async Task<IActionResult> UpdateCategory([FromRoute] Guid id, [FromBody] UpdateCategoryDTO updateCategoryDto)
+        //{
+        //    var result = await _serviceProviders.ResourcesService.UpdateCategoryAsync(id, updateCategoryDto);
+        //    return result.ToActionResult();
+        //}
 
-        [HttpDelete("categories/{id}")]
-        [Authorize(Roles = nameof(UserRole.Inspector))]
-        public async Task<IActionResult> DeleteCategory([FromRoute] Guid id)
-        {
-            var result = await _serviceProviders.ResourcesService.DeleteCategoryAsync(id);
-            return result.ToActionResult();
-        }
+        //[HttpDelete("categories/{id}")]
+        //[Authorize(Roles = nameof(UserRole.Inspector))]
+        //public async Task<IActionResult> DeleteCategory([FromRoute] Guid id)
+        //{
+        //    var result = await _serviceProviders.ResourcesService.DeleteCategoryAsync(id);
+        //    return result.ToActionResult();
+        //}
 
         #endregion
     }
