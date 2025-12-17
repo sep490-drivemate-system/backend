@@ -119,6 +119,14 @@ namespace ResourceService.Controllers
             return result.ToActionResult();
         }
 
+        [HttpGet("list/{id}")]
+        [Authorize(Roles = nameof(UserRole.Inspector))]
+        public async Task<IActionResult> GetBlogDetailForInspector([FromRoute] Guid id)
+        {
+            var result = await _serviceProviders.ResourcesService.GetBlogDetailForInspectorAsync(id);
+            return result.ToActionResult();
+        }
+
         [HttpPost("{id}/approve")]
         [Authorize(Roles = nameof(UserRole.Inspector))]
         public async Task<IActionResult> ApproveBlog([FromRoute] Guid id)

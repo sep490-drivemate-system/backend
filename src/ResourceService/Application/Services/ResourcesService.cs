@@ -376,6 +376,32 @@ namespace ResourceService.Application.Services
             }
         }
 
+        public async Task<Result<BlogDetailDto>> GetBlogDetailForInspectorAsync(Guid blogId)
+        {
+            try
+            {
+                // Inspector có thể xem tất cả blog, kể cả đã bị xóa mềm hoặc ở trạng thái nào
+                var blog = await _unitOfWork.ResourceRepository.GetBlogDetailForInspectorAsync(blogId);
+                if (blog == null)
+                {
+                    return Result<BlogDetailDto>.Failure(
+                        ServiceError.NotFoundError(Messages.Blog.NOTFOUND),
+                        Messages.Blog.NOTFOUND);
+                }
+
+                var blogDetail = _mapper.Map<BlogDetailDto>(blog);
+                blogDetail.ImageList = ParseImageList(blog.ImageList);
+
+                return Result<BlogDetailDto>.Success(blogDetail, Messages.Commons.SUCCESS);
+            }
+            catch (Exception ex)
+            {
+                return Result<BlogDetailDto>.Failure(
+                    ServiceError.UnhandledException($"{Messages.Blog.RETRIEVE_ERROR}: {ex.Message}"),
+                    Messages.Commons.UNHANDLED);
+            }
+        }
+
         public async Task<Result<bool>> DeleteBlogAsync(Guid id, Guid instructorId)
         {
             try

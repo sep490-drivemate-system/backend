@@ -18,6 +18,7 @@ namespace ResourceService.Application.Interfaces.Services
         Task<Result<ICollection<BlogStatusDto>>> GetBlogStatusesAsync();
         
         // Inspector APIs
+        Task<Result<BlogDetailDto>> GetBlogDetailForInspectorAsync(Guid blogId);
         Task<Result<CategoryDto>> CreateCategoryAsync(CreateCategoryDto createCategoryDto);
         Task<Result<CategoryDto>> UpdateCategoryAsync(Guid categoryId, UpdateCategoryDTO updateCategoryDto);
         Task<Result<bool>> DeleteCategoryAsync(Guid categoryId);

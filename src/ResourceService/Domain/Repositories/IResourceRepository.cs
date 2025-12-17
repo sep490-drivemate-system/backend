@@ -9,6 +9,7 @@ namespace ResourceService.Domain.Repositories
         Task<List<Blog>> GetMyBlogsAsync(Guid instructorId);
         Task<List<Blog>> GetAllBlogsAsync(System.Linq.Expressions.Expression<Func<Blog, bool>>? filter = null, string includeProperties = "");
         Task<Blog?> GetBlogDetailAsync(Guid blogId);
+        Task<Blog?> GetBlogDetailForInspectorAsync(Guid blogId);
         Task<Blog?> GetMyBlogDetailAsync(Guid id, Guid instructorId);
         Task<Blog?> GetMyBlogDetailTrackedAsync(Guid id, Guid instructorId);
         Task<bool> CategoryExistsAsync(Guid categoryId);

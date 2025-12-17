@@ -49,6 +49,23 @@ namespace ResourceService.Infrastructure.Repositories
             return blog;
         }
 
+        public async Task<Blog?> GetBlogDetailForInspectorAsync(Guid blogId)
+        {
+            // Inspector có thể xem tất cả blog, kể cả đã bị xóa mềm
+            var blog = await _dbSet.AsNoTracking()
+                .Include(b => b.Category)
+                .Include(b => b.Contents)
+                .FirstOrDefaultAsync(b => b.Id == blogId);
+            
+            if (blog != null && blog.Contents != null)
+            {
+                // Vẫn filter contents đã bị xóa
+                blog.Contents = blog.Contents.Where(c => !c.IsDelete).OrderBy(c => c.CreatedAt).ToList();
+            }
+            
+            return blog;
+        }
+
         public async Task<Blog?> GetMyBlogDetailAsync(Guid id, Guid instructorId)
         {
             var blog = await _dbSet.AsNoTracking()
