@@ -93,13 +93,17 @@ namespace ResourceService.Application.Services
 
         public async Task<Result<bool>> DeleteCategory(Guid id)
         {
-            var category = await _unitOfWork.Repository<Category>().GetByIdAsync(id);
+            var category = await _unitOfWork.Repository<Category>().GetByIdAsync(id, include_properties: "Blogs,Posts");
             if (category == null || category.IsDelete)
             {
                 return Result<bool>.Failure(ServiceError.NotFoundError($"{id}"), Messages.Commons.NOTFOUND);
             }
             category.IsDelete = true;
-            category.UpdateAt = DateTime.UtcNow;
+
+            // Remove all relationships with other entities
+            category.Blogs.Clear();
+            category.Posts.Clear();
+
              _unitOfWork.Repository<Category>().Update(category);
             await _unitOfWork.SaveChangesAsync();
 

@@ -35,7 +35,7 @@ namespace ResourceService.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = nameof(UserRole.Admin))]
+        [Authorize(Roles = $"{nameof(UserRole.Admin)},{nameof(UserRole.Inspector)}")]
         public async Task<IActionResult> CreateCategory([FromBody] CategoryDTO categoryDTO)
         {
             var result = await _serviceProviders.CategoryService.CreateCategory(categoryDTO);
@@ -43,7 +43,7 @@ namespace ResourceService.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Roles = nameof(UserRole.Admin))]
+        [Authorize(Roles = $"{nameof(UserRole.Admin)},{nameof(UserRole.Inspector)}")]
         public async Task<IActionResult> UpdateCategory(Guid id, [FromBody] UpdateCategoryDTO updateCategoryDTO)
         {
             var result = await _serviceProviders.CategoryService.UpdateCategory(id, updateCategoryDTO);
@@ -51,7 +51,7 @@ namespace ResourceService.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = nameof(UserRole.Admin))]
+        [Authorize(Roles = $"{nameof(UserRole.Admin)},{nameof(UserRole.Inspector)}")]
         public async Task<IActionResult> DeleteCategory(Guid id)
         {
             var result = await _serviceProviders.CategoryService.DeleteCategory(id);

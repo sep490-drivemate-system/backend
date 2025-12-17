@@ -18,7 +18,7 @@ namespace ResourceService.Infrastructure.Persistences.Configurations
             // properties
             builder.Property(u => u.CategoryId)
                    .HasColumnName("category_id")
-                   .IsRequired();
+                   .IsRequired(false);
 
             builder.Property(u => u.InstructorId)
                   .HasColumnName("instructor_id")
@@ -59,6 +59,10 @@ namespace ResourceService.Infrastructure.Persistences.Configurations
             builder.HasMany(u => u.Contents)
                    .WithOne(a => a.Blog)
                    .HasForeignKey(a => a.BlogId);
+
+            builder.HasOne(u => u.Category)
+                .WithMany(u => u.Blogs)
+                .HasForeignKey(u => u.CategoryId); 
         }
     }
 }
