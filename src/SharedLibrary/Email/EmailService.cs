@@ -172,6 +172,13 @@ namespace SharedLibrary.Email
 
         private void SendEmailViaSmtp(MimeMessage message)
         {
+
+            Console.WriteLine("=== Email Debug Info ===");
+            Console.WriteLine($"SMTP Server: {_configuration["EMAIL:SMTP_SERVER"]}");
+            Console.WriteLine($"SMTP Port: {_configuration["EMAIL:SMTP_PORT"]}");
+            Console.WriteLine($"Sender Email: {_configuration["EMAIL:SENDER_EMAIL"]}");
+            Console.WriteLine($"To: {string.Join(", ", message.To)}");
+            Console.WriteLine($"Subject: {message.Subject}");
             using var client = new SmtpClient();
             // client.ServerCertificateValidationCallback = (s, c, h, e) => true;
             client.Connect(_configuration["EMAIL:SMTP_SERVER"], int.Parse(_configuration["EMAIL:SMTP_PORT"]), SecureSocketOptions.StartTls);
