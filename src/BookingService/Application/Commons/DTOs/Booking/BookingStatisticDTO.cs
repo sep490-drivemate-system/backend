@@ -21,6 +21,7 @@ namespace BookingService.Application.Commons.DTOs.Booking
 
     public class BookingStatisticDTO
     {
+        #region Statistic Setting
         [JsonPropertyName("type")]
         public StatisticTimeType Type { get; set; }
 
@@ -32,7 +33,9 @@ namespace BookingService.Application.Commons.DTOs.Booking
 
         [JsonPropertyName("week")]
         public int Week { get; set; }
+        #endregion
 
+        #region System wide (not influenced by time filter)
         [JsonPropertyName("total_package_count")]
         public int TotalPackageCount { get; set; }
 
@@ -44,33 +47,40 @@ namespace BookingService.Application.Commons.DTOs.Booking
 
         [JsonPropertyName("total_session_count")]
         public int TotalSessionCount { get; set; }
+        #endregion
 
-        [JsonPropertyName("total_cancelation_count")]
-        public int TotalCancelationCount { get; set; }
-
+        #region Booking Statistic
         [JsonPropertyName("booking_by_status_count")]
         public Dictionary<string, int> BookingByStatusCount { get; set; }
-
-        [JsonPropertyName("session_by_status_count")]
-        public Dictionary<string, int> SessionByStatusCount { get; set; }
-
-        [JsonPropertyName("session_cancelation_count")]
-        public Dictionary<string, int> SessionCancelationCount { get; set; }
 
         [JsonPropertyName("booking_by_status_percentage")]
         public Dictionary<string, double> BookingStatusPercentage { get; set; }
 
+        [JsonPropertyName("total_cancelation_count")]
+        public int TotalCancelationCount { get; set; }
+        #endregion
+
+        #region Session Statistic
+        [JsonPropertyName("session_by_status_count")]
+        public Dictionary<string, int> SessionByStatusCount { get; set; }
+
         [JsonPropertyName("session_by_status_percentage")]
         public Dictionary<string, double> SessionStatusPercentage { get; set; }
 
+        [JsonPropertyName("session_cancelation_count")]
+        public Dictionary<string, int> SessionCancelationCount { get; set; }
+
         [JsonPropertyName("session_cancelation_percentage")]
         public Dictionary<string, double> SessionCancelationPercentage { get; set; }
+        #endregion
 
+        #region Charts
         [JsonPropertyName("booking_count_by_day")]
         public Dictionary<string, int> BookingByDay { get; set; }
 
         [JsonPropertyName("session_average_time")]
         public Dictionary<string, double> SessionTimeByDay { get; set; }
+        #endregion
 
         [JsonPropertyName("top_packages")]
         public IEnumerable<TopPackage> TopPackages { get; set; }
