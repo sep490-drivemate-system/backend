@@ -329,7 +329,7 @@ namespace BookingService.Application.UseCase
             {
                 case StatisticTimeType.Yearly:
                     statistics.SessionTimeByDay = filtered_session.GroupBy(x => x.CreatedAt.Month.ToString()).ToDictionary(x => x.Key, x => x.Sum(u => (u.ActualEnd - u.ActualStart).TotalHours));
-                    statistics.BookingByDay = filtered_booking.GroupBy(x => x.CreatedAt.Year.ToString()).ToDictionary(x => x.Key, x => x.Count());
+                    statistics.BookingByDay = filtered_booking.GroupBy(x => x.CreatedAt.Month.ToString()).ToDictionary(x => x.Key, x => x.Count());
                     break;
                 case StatisticTimeType.Monthly:
                     statistics.SessionTimeByDay = filtered_session.GroupBy(x => x.CreatedAt.Day.ToString()).ToDictionary(x => x.Key.ToString(), x => x.Sum(u => (u.ActualEnd - u.ActualStart).TotalHours));
