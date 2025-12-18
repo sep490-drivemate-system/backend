@@ -55,7 +55,7 @@ namespace UserService.Application.UseCases
             // 2. Generate code
             var codeGenerate = await _passwordHasherService.GenerateSecureVerificationCode();
             // 3. send email           
-            var result = await _emailService.SendVerificationCodeAsync(verifyDTO.Email, codeGenerate);
+            var result =  _emailService.SendVerificationCodeAsync(verifyDTO.Email, codeGenerate);
             if (result)
             {
                 return Result<string>.Success(codeGenerate, Messages.Auth.EmailSentSuccess);

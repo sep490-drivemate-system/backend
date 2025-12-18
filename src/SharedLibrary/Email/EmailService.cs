@@ -20,11 +20,11 @@ namespace SharedLibrary.Email
             _templateBasePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Email", "Template");
             _configuration = configuration;
         }
-        public async Task<bool> SendVerificationCodeAsync(string toEmail, string verificationCode)
+        public bool SendVerificationCodeAsync(string toEmail, string verificationCode)
         {
             try
             {
-                await Task.Run(() => SendEmail(toEmail, EmailType.VerifyOPTCode, null, verificationCode));
+                SendEmail(toEmail, EmailType.VerifyOPTCode, null, verificationCode);
                 return true;
             }
             catch (Exception ex)

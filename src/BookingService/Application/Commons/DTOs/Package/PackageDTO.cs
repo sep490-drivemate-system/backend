@@ -7,7 +7,7 @@
         public Guid InstructorId { get; set; }
         public string InstructorName { get; set; }
         public string InstructorAvatar { get; set; }
-        public bool AllowSelfCar { get; set; }
+        public bool IsRentalCar { get; set; }
         public double Duration { get; set; } // Duration calculated in hours
         public IEnumerable<string> RoadTypes { get; set; }
         public IEnumerable<string> Skills { get; set; }

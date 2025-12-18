@@ -40,7 +40,7 @@ namespace BookingService.Application.UseCase
                 && (filter.SearchKey == null || x.Name.Contains(filter.SearchKey))
                 && (filter.DrivingSkills == null || filter.DrivingSkills.Any(y => x.DrivingSkills.Any(z => z.Id == y)))
                 && (filter.RoadTypes == null || filter.RoadTypes.Any(y => x.RoadTypes.Any(z => z.Id == y)))
-                && (filter.AllowSelfCar == null || x.IsRentalCar == filter.AllowSelfCar);
+                && (filter.IsRentalCar == null || x.IsRentalCar == filter.IsRentalCar);
 
                 string includedProperties = "DrivingSkills,RoadTypes,Bookings,Cars";
 
@@ -60,7 +60,7 @@ namespace BookingService.Application.UseCase
                     Name = x.Name,
                     Duration = x.Duration,
                     Price = x.Price,
-                    AllowSelfCar = x.IsRentalCar,
+                    IsRentalCar = x.IsRentalCar,
                     RoadTypes = x.RoadTypes.Select(x => x.Name),
                     Skills = x.DrivingSkills.Select(x => x.Name),
                     BookingCount = x.Bookings.Count(),
@@ -189,7 +189,7 @@ namespace BookingService.Application.UseCase
                 Duration = x.Duration,
                 Price = x.Price,
                 InstructorId = x.InstructorId,
-                AllowSelfCar = x.IsRentalCar,
+                IsRentalCar = x.IsRentalCar,
                 BookingCount = x.Bookings.Count,
                 CarCount = x.Cars.Count,
                 RoadTypes = x.RoadTypes.Select(y => y.Name),
