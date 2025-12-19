@@ -323,7 +323,7 @@ namespace BookingService.Application.UseCase
                 PackageName = packages.FirstOrDefault(u => u.Id == x.Key)?.Name ?? "",
                 PackageBookCount = x.Count(),
                 AverageRating = 0
-            });
+            }).OrderByDescending(x => x.PackageBookCount);
 
             switch (filter.Type)
             {
