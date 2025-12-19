@@ -52,7 +52,7 @@ namespace PaymentService.Application.Features.Wallet.Commands.Deposit
                 var orderCode = data["orderCode"].ToString();
                 var transaction = await _unitOfWork.TransactionRepository.GetByReferenceCodeAsync(orderCode);
                  transaction.Status = Domain.Enum.PaymentStatus.Completed;
-                var wallet = transaction.Wallet;
+                var wallet = await _unitOfWork.WalletRepository.GetByIdAsync(transaction.ToWalletId);
                 wallet.Balance = transaction.TransactionValue + wallet.Balance;
                 await _unitOfWork.TransactionRepository.UpdateAsync(transaction);
                 await _unitOfWork.CommitAsync();
@@ -76,7 +76,8 @@ namespace PaymentService.Application.Features.Wallet.Commands.Deposit
             {
                 var referenceCode = vnp_TxnRef;
                 var transaction = await _unitOfWork.TransactionRepository.GetByReferenceCodeAsync(referenceCode);
-                var wallet = transaction.Wallet;
+                var wallet = await _unitOfWork.WalletRepository.GetByIdAsync(transaction.ToWalletId);
+
                 wallet.Balance = transaction.TransactionValue + wallet.Balance;
 
                 transaction.Status = Domain.Enum.PaymentStatus.Completed;

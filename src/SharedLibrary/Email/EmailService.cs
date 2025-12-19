@@ -20,11 +20,11 @@ namespace SharedLibrary.Email
             _templateBasePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Email", "Template");
             _configuration = configuration;
         }
-        public bool SendVerificationCodeAsync(string toEmail, string verificationCode)
+        public async Task<bool> SendVerificationCodeAsync(string toEmail, string verificationCode)
         {
             try
             {
-                SendEmail(toEmail, EmailType.VerifyOPTCode, null, verificationCode);
+                await Task.Run(() => SendEmail(toEmail, EmailType.VerifyOPTCode, null, verificationCode));
                 return true;
             }
             catch (Exception ex)
@@ -170,7 +170,7 @@ namespace SharedLibrary.Email
             };
         }
 
-        private void SendEmailViaSmtp(MimeMessage message)
+        private async Task SendEmailViaSmtp(MimeMessage message)
         {
 
             Console.WriteLine("=== Email Debug Info ===");
@@ -181,10 +181,10 @@ namespace SharedLibrary.Email
             Console.WriteLine($"Subject: {message.Subject}");
             using var client = new SmtpClient();
             // client.ServerCertificateValidationCallback = (s, c, h, e) => true;
-            client.Connect(_configuration["EMAIL:SMTP_SERVER"], int.Parse(_configuration["EMAIL:SMTP_PORT"]), SecureSocketOptions.StartTls);
-            client.Authenticate(_configuration["EMAIL:SENDER_EMAIL"], _configuration["EMAIL:SENDER_PASSWORD"]);
-            client.Send(message);
-            client.Disconnect(true);
+            await client.ConnectAsync(_configuration["EMAIL:SMTP_SERVER"], int.Parse(_configuration["EMAIL:SMTP_PORT"]), SecureSocketOptions.StartTls);
+            await client.AuthenticateAsync(_configuration["EMAIL:SENDER_EMAIL"], _configuration["EMAIL:SENDER_PASSWORD"]);
+            await client.SendAsync(message);
+            await client.DisconnectAsync(true);
         }
 
         public async Task<bool> SendingEmail(string recipients_address, Dictionary<string, string> replace_terms, string topic, EmailType type)

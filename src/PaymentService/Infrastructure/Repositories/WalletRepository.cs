@@ -50,36 +50,52 @@ namespace PaymentService.Infrastructure.Repositories
         public async Task<bool> CheckAndDeductBookingWallet(
             Guid userId, decimal amount, Guid bookingId, Guid? drivingSessionId = null)
         {
-            var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.Id == userId && !w.IsDelete);
-
-            wallet.Balance -= amount;
-            wallet.CreatedAt = DateTime.UtcNow;
-            wallet.UpdatedAt = DateTime.UtcNow;
-
-            var transaction = new Transaction
+            try
             {
-                FromWalletId = wallet.Id,
-                ToWalletId = null, 
-                TransactionValue = amount,
-                PaymentMethod = Domain.Enum.PaymentMethod.Wallet,
-                Status = Domain.Enum.PaymentStatus.Processing,
-                BookingId = bookingId,
-                DrivingSessionId = drivingSessionId,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,           
-            };
-            await _context.Transactions.AddAsync(transaction);
-            await _context.SaveChangesAsync();
+                var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.Id == userId && !w.IsDelete);
+                
+                if (wallet == null)
+                {
+                    return false;
+                }
 
-            return true;
+                wallet.Balance -= amount;
+                wallet.UpdatedAt = DateTime.Now;
+
+                var transaction = new Transaction
+                {
+                    FromWalletId = wallet.Id,
+                    ToWalletId = null, 
+                    TransactionValue = amount,
+                    PaymentMethod = Domain.Enum.PaymentMethod.Wallet,
+                    Status = Domain.Enum.PaymentStatus.Processing,
+                    BookingId = bookingId,
+                    DrivingSessionId = drivingSessionId,
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now
+                };
+                await _context.Transactions.AddAsync(transaction);
+                await _context.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in CheckAndDeductBookingWallet: {ex.Message}");
+                throw;
+            }
         }
 
         public async Task<bool> CheckAndDeducSessiontWallet(Guid userId, decimal amount, Guid bookingId, Guid? drivingSessionId = null)
         {
             var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.Id == userId && !w.IsDelete);
+            
+            if (wallet == null)
+            {
+                return false;
+            }
 
             wallet.Balance -= amount;
-            wallet.CreatedAt = DateTime.UtcNow;
             wallet.UpdatedAt = DateTime.UtcNow;
 
             var transaction = new Transaction
@@ -92,7 +108,7 @@ namespace PaymentService.Infrastructure.Repositories
                 BookingId = bookingId,
                 DrivingSessionId = drivingSessionId,
                 CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
             };
             await _context.Transactions.AddAsync(transaction);
             await _context.SaveChangesAsync();

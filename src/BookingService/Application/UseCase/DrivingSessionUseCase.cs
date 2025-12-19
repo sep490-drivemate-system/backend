@@ -48,18 +48,16 @@ namespace BookingService.Application.UseCase
                     Messages.Commons.NOTFOUND);
             }
             booking.Status = BookingStatus.InUse;
-            DateTime startTimeUtc = drivingSessionCreationDTO.StartTime.Kind == DateTimeKind.Utc
-        ? drivingSessionCreationDTO.StartTime
-        : drivingSessionCreationDTO.StartTime.ToUniversalTime();
+            DateTime startTime = drivingSessionCreationDTO.StartTime;
 
 
-            DateTime endTimeUtc = startTimeUtc.AddHours(drivingSessionCreationDTO.Duration);
+            DateTime endTimeUtc = startTime.AddHours(drivingSessionCreationDTO.Duration);
             var sessionId = Guid.NewGuid();
             var drivingSession = new DrivingSession
             {
                 Id = sessionId,
                 BookingId = drivingSessionCreationDTO.BookingId,
-                StartTime = startTimeUtc,
+                StartTime = startTime,
                 EndTime = endTimeUtc,
                 PriceForCar = drivingSessionCreationDTO.PriceForCar,
                 StartingLatitude = drivingSessionCreationDTO.StartingLatitude,
@@ -69,8 +67,8 @@ namespace BookingService.Application.UseCase
                 EndingLongtitude = drivingSessionCreationDTO.EndingLongtitude,
                 EndingLatitude = drivingSessionCreationDTO.EndingLatitude,
                 Status = SessionStatus.Planning,
-                CreatedAt = DateTime.UtcNow,
-                LastModifiedAt = DateTime.UtcNow,
+                CreatedAt = DateTime.Now,
+                LastModifiedAt = DateTime.Now,
                 DisplayStartLocationName = drivingSessionCreationDTO.DisplayStartLocationName,
                 IsDeleted = false,
                 ActualStart = DateTime.MinValue,
