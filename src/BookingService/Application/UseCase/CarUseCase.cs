@@ -338,6 +338,7 @@ namespace BookingService.Application.UseCase
                 LicenseTier = x.LicenseTier,
                 BookingCount = x.Bookings?.Count ?? 0,
                 AverageRating = x.Feedbacks?.Count > 0 ? x.Feedbacks.Average(x => x.CarRating) : 0,
+                Status = x.Status,
             });
 
             return Result<PaginatedList<CarDTO>>.Success(PaginatedList<CarDTO>.Create(mapped_results, filter.PageIndex, filter.PageSize));

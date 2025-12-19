@@ -29,6 +29,7 @@ namespace BookingService.Application.Commons.DTOs.Cars.Get
         public int BookingCount { get; set; }
         [JsonPropertyName("average_rating")]
         public double AverageRating { get; set; }
+        public CarStatus Status { get; set; }
     }
 
     public class CarDetailDTO : CarDTO
