@@ -292,7 +292,7 @@ namespace BookingService.Application.UseCase
                 TotalCancelationCount = bookings.Sum(x => x.DrivingSessions.Count(x => !x.IsDeleted && x.Status == SessionStatus.Cancelled)),
                 BookingByStatusCount = filtered_booking.GroupBy(x => x.Status.ToString()).ToDictionary(x => x.Key, x => x.Count()),
                 BookingStatusPercentage = filtered_booking.GroupBy(x => x.Status.ToString()).ToDictionary(x => x.Key, x => (double)x.Count() / bookings.Count),
-                SessionByStatusCount = sessions.GroupBy(x => x.Status.ToString()).ToDictionary(x => x.Key, x => x.Count()),
+                SessionByStatusCount = filtered_session.GroupBy(x => x.Status.ToString()).ToDictionary(x => x.Key, x => x.Count()),
                 SessionStatusPercentage = filtered_session.GroupBy(x => x.Status.ToString()).ToDictionary(x => x.Key, x => (double)x.Count() / sessions.Count()),
                 SessionCancelationCount = filtered_session
                     .Where(x => x.Status == SessionStatus.Cancelled && x.RescheduleRequests != null && x.RescheduleRequests.Any())
