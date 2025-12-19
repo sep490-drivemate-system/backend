@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using BookingService.Domain.Enum;
+using Microsoft.AspNetCore.Mvc;
 using SharedLibrary.SharedKernel.Enum;
 
 namespace BookingService.Application.Commons.DTOs.Cars.Get
@@ -29,6 +30,6 @@ namespace BookingService.Application.Commons.DTOs.Cars.Get
         [FromQuery(Name = "order_by")]
         public string? OrderBy { get; set; } = null;
 
-
+        public CarStatus? Status { get; set; } = null;
     }
 }
