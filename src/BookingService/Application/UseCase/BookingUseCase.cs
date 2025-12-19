@@ -328,16 +328,16 @@ namespace BookingService.Application.UseCase
             switch (filter.Type)
             {
                 case StatisticTimeType.Yearly:
-                    statistics.BookingByStatusCount = filtered_session.GroupBy(x => x.CreatedAt.Month.ToString()).ToDictionary(x => x.Key, x => x.Count());
                     statistics.SessionTimeByDay = filtered_session.GroupBy(x => x.CreatedAt.Month.ToString()).ToDictionary(x => x.Key, x => x.Sum(u => (u.ActualEnd - u.ActualStart).TotalHours));
+                    statistics.BookingByDay = filtered_booking.GroupBy(x => x.CreatedAt.Month.ToString()).ToDictionary(x => x.Key, x => x.Count());
                     break;
                 case StatisticTimeType.Monthly:
-                    statistics.BookingByStatusCount = filtered_session.GroupBy(x => x.CreatedAt.Day.ToString()).ToDictionary(x => x.Key.ToString(), x => x.Count());
                     statistics.SessionTimeByDay = filtered_session.GroupBy(x => x.CreatedAt.Day.ToString()).ToDictionary(x => x.Key.ToString(), x => x.Sum(u => (u.ActualEnd - u.ActualStart).TotalHours));
+                    statistics.BookingByDay = filtered_booking.GroupBy(x => x.CreatedAt.Day.ToString()).ToDictionary(x => x.Key, x => x.Count());
                     break;
                 case StatisticTimeType.Weekly:
-                    statistics.BookingByStatusCount = filtered_session.GroupBy(x => x.CreatedAt.DayOfWeek.ToString()).ToDictionary(x => x.Key.ToString(), x => x.Count());
                     statistics.SessionTimeByDay = filtered_session.GroupBy(x => x.CreatedAt.DayOfWeek.ToString()).ToDictionary(x => x.Key.ToString(), x => x.Sum(u => (u.ActualEnd - u.ActualStart).TotalHours));
+                    statistics.BookingByDay = filtered_booking.GroupBy(x => x.CreatedAt.DayOfWeek.ToString()).ToDictionary(x => x.Key, x => x.Count());
                     break;
                 default:
                     return Result<BookingStatisticDTO>.Failure(ServiceError.BadRequestError($"{filter.Type}"), Messages.Commons.UNHANDLED);
