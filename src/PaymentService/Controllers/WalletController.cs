@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using PaymentService.Application.Features.Transactions.Queries.GetInformationBank;
 using PaymentService.Application.Features.Wallet.Commands.Deposit;
 using PaymentService.Application.Features.Wallet.Commands.UpdateWalletBalance;
 using PaymentService.Application.Features.Wallet.Queries.GetRequestDeposit;
@@ -82,7 +83,7 @@ namespace PaymentService.Controllers
         }
 
         [HttpPost("withdraw")]
-        public async Task<IActionResult> withdraw(GetRequestDepositQuery getRequestDepositQuery)
+        public async Task<IActionResult> Withdraw(GetRequestDepositQuery getRequestDepositQuery)
         {
 
             var userId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
@@ -95,6 +96,18 @@ namespace PaymentService.Controllers
             var result = await _mediator.Send(depositCommand);
 
             return result.ToActionResult();
+        }
+        [HttpPost("withdraw-request")]
+        public async Task<IActionResult> WithdrawRequest(GetInformationBankQuery getRequestDepositQuery)
+        {
+            var depositCommand = new GetInformationBankQuery
+            {
+               AccountNumber = getRequestDepositQuery.AccountNumber,
+               Bin = getRequestDepositQuery.Bin,
+            };
+            var result = await _mediator.Send(depositCommand);
+
+            return Ok(result);
         }
         [HttpGet("payment-callback")]
         public async Task<IActionResult> PaymentCallback()

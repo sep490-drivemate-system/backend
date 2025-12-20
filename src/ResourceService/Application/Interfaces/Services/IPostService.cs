@@ -10,6 +10,7 @@ namespace ResourceService.Application.Interfaces.Services
         Task<Result<PaginatedList<PostsDTO>>> GetPosts(PostsFilterDTO postsFilterDTO);
         Task<Result<bool>> UpdatePost(Guid postId,Guid reviewId ,UpdatePostSDTO updatePostSDTO);
         Task<Result<bool>> ReactToPost(Guid postId, Guid driverId,ReactPostDTO request);
+        Task<Result<bool>> RejectPost(Guid postId, RejectPostDTO rejectPostDTO, Guid? reviewerId = null);
         Task<Result<Guid>> CommentOnPost(Guid postId, CommentPostDTO request);
       //  Task<Result<bool>> DeletePost(Guid postId);
     }

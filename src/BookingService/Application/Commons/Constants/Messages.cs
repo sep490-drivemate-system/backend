@@ -17,5 +17,10 @@ namespace BookingService.Application.Commons.Constants
             public const string UNHANDLED = "Đã có lỗi xảy ra và hệ thống không thể khắc phục, vui lòng kiểm tra lại thông tin và thử lại sau.";
         }
 
+        public static class Session
+        {
+            public const string SUSSCESENREJECTSESSION = "Đã gửi email thông báo cho giảng viên về việc học viên từ chối lộ trình";
+        }
+
     }
 }

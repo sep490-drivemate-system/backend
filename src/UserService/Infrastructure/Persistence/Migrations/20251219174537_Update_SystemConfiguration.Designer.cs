@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using UserService.Infrastructure.Persistence.Context;
@@ -11,9 +12,11 @@ using UserService.Infrastructure.Persistence.Context;
 namespace UserService.Migrations
 {
     [DbContext(typeof(UserServiceDbContext))]
-    partial class UserServiceDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251219174537_Update_SystemConfiguration")]
+    partial class Update_SystemConfiguration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -475,9 +478,8 @@ namespace UserService.Migrations
                         .HasColumnType("text")
                         .HasColumnName("name");
 
-                    b.Property<int?>("NumberDate")
-                        .HasColumnType("integer")
-                        .HasColumnName("number_date");
+                    b.Property<int>("NumberDate")
+                        .HasColumnType("integer");
 
                     b.Property<int>("UnitOfMeasurement")
                         .HasColumnType("integer")

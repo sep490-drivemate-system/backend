@@ -103,5 +103,12 @@ namespace BookingService.Controllers
             var result = await _drivingSessionUseCase.UpdateSessionStatus(sessionId, status);
             return result.ToActionResult();
         }
+        [HttpPatch("{sessionId}/reject-route")]
+        public async Task<IActionResult> RejectSession(
+            [FromRoute] Guid sessionId)
+        {
+            var result = await _drivingSessionUseCase.RejectRoute(sessionId);
+            return result.ToActionResult();
+        }
     }
 }

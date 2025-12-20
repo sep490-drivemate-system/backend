@@ -12,6 +12,8 @@ namespace SharedLibrary.SharedKernel.Enum
         ForgotPassword,  
         InstructorRegistration,
         InstructorReschedule,
-        DriverReschedule
+        RejectSession,
+        DriverReschedule,
+        PostRejected
     }
 }

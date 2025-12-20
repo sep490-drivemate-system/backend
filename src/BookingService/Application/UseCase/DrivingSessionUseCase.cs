@@ -12,10 +12,11 @@ using SharedLibrary.SharedKernel.Http.DTOs.User;
 using SharedLibrary.SharedKernel.Http.Interfaces;
 using SharedLibrary.SharedKernel.ServiceResult;
 using System.Linq.Expressions;
+using Microsoft.Extensions.Configuration;
 
 namespace BookingService.Application.UseCase
 {
-    public class DrivingSessionUseCase(IUnitOfWork unitOfWok, IJwtService jwtService, IEmailService emailService, IUser userService, IMapper mapper, IHttpClientFactory httpClientFactory, IPayment paymentService, ISystemConfigurationHttpService systemConfigurationService) : IDrivingSessionUseCase
+    public class DrivingSessionUseCase(IUnitOfWork unitOfWok, IJwtService jwtService, IEmailService emailService, IUser userService, IMapper mapper, IHttpClientFactory httpClientFactory, IPayment paymentService, ISystemConfigurationHttpService systemConfigurationService,IConfiguration configuration) : IDrivingSessionUseCase
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWok;
         private readonly IJwtService _jwtService = jwtService;
@@ -24,6 +25,7 @@ namespace BookingService.Application.UseCase
         private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
         private readonly IPayment _paymentService = paymentService;
         private readonly ISystemConfigurationHttpService _systemConfigurationService = systemConfigurationService;
+        private readonly IConfiguration _configuration = configuration;
 
         public async Task<Result<ICollection<DrivingSession>>> GetAllDrivingSession(SessionStatus sessionStatus)
         {
@@ -571,6 +573,74 @@ namespace BookingService.Application.UseCase
             var sessionDetailDTO = _mapper.Map<SessionDetailDTO>(session);
 
             return Result<SessionDetailDTO>.Success(sessionDetailDTO, Messages.Commons.SUCCESS);
+        }
+
+        public async Task<Result<bool>> RejectRoute(Guid sessionId)
+        {
+            try
+            {
+                const string includeProperties = "Booking";
+                var session = await _unitOfWork.DrivingSessionRepository
+                    .GetByIdAsync(sessionId, include_properties: includeProperties);
+
+                if (session == null || session.Booking == null)
+                {
+                    return Result<bool>.Failure(
+                        ServiceError.NotFoundError($"Driving session {sessionId}"),
+                        Messages.Commons.NOTFOUND);
+                }
+
+                var booking = session.Booking;
+                var instructorId = booking.InstructorId;
+                var driverId = booking.DriverId;
+
+                var userServiceURL  = _configuration["USERSERVICE:URL"];
+                var userServiceClient = _httpClientFactory.CreateClient();
+                userServiceClient.BaseAddress = new Uri(userServiceURL);
+
+                var responseMessage = await userServiceClient.PostAsJsonAsync(
+                    "api/users/ids",
+                    new Guid[] { instructorId, driverId });
+
+                responseMessage.EnsureSuccessStatusCode();
+
+                var usersResponse = await responseMessage.Content
+                    .ReadFromJsonAsync<DefaultApiResponse<IEnumerable<UserDetailDTO>>>();
+
+                if (usersResponse?.Value == null || !usersResponse.Value.Any())
+                {
+                    return Result<bool>.Failure(
+                        ServiceError.ServiceUnavailableError("UserServiceClient"),
+                        Messages.Commons.UNHANDLED);
+                }
+
+                var users = usersResponse.Value.ToArray();
+                var instructor = users.FirstOrDefault(u => u.UserId == instructorId) ?? users.First();
+                var driver = users.FirstOrDefault(u => u.UserId == driverId) ?? users.Last();
+                var replaceTerms = new Dictionary<string, string>
+                {
+                    { "InstructorName", instructor.FullName },
+                    { "DriverName", driver.FullName },
+                    { "Reason", "Học viên đã từ chối lộ trình được đề xuất cho buổi thuê này." },
+                    { "OldTime", session.StartTime.ToString("dddd, dd/MM/yyyy") },
+                    { "NewDate", session.StartTime.ToString("dd/MM/yyyy") },
+                    { "NewTime", session.StartTime.ToString("HH:mm") }
+                };
+
+                await _email.SendingEmail(
+                    instructor.Email,
+                    replaceTerms,
+                    "[DriveMate] Thông báo: Người lái mới từ chối lộ trình buổi học",
+                    EmailType.RejectSession);
+
+                return Result<bool>.Success(true,Messages.Session.SUSSCESENREJECTSESSION);
+            }
+            catch (Exception ex)
+            {
+                return Result<bool>.Failure(
+                    ServiceError.UnhandledException(ex.Message),
+                    Messages.Commons.UNHANDLED);
+            }
         }
     }
 }

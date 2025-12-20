@@ -8,6 +8,7 @@ namespace UserService.Domain.Entities
         public string Name { get; set; }
         public string Value { get; set; }
         public string ValueType { get; set; }
+        public int? NumberDate { get; set; }
         public UnitOfMersurementEnum UnitOfMeasurement { get; set; }
         public DateTime LastModifiedAt { get; set; }
         public bool IsDeleted { get; set; }

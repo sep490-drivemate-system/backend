@@ -7,6 +7,6 @@ namespace UserService.Application.Interfaces
     {
         public Task<Result<IEnumerable<SystemConfigurationDTO>>> GetSystemConfiguration();
         public Task<Result<SystemConfigurationDTO>> GetSystemConfigurationById(Guid id);
-        public Task<Result<bool>> UpdateConfigurationValue(Guid id, string value);
+        public Task<Result<bool>> UpdateConfigurationValue(Guid id, string value,int? number_date);
     }
 }

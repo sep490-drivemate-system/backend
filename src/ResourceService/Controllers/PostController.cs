@@ -55,6 +55,14 @@ namespace ResourceService.Controllers
             var result = await _serviceProviders.PostService.CommentOnPost(id, request);
             return result.ToActionResult();
         }
+        [HttpPut("{id}/reject-post")]
+     //   [Authorize(Roles = nameof(UserRole.Inspector) + "," + nameof(UserRole.Admin))]
+        public async Task<IActionResult> RejectPost(Guid id, [FromBody] RejectPostDTO rejectPostDTO)
+        {
+            var reviewerId = await _jwtService.ExtractUserIdFromToken(Request.Headers["Authorization"].ToString());
+            var result = await _serviceProviders.PostService.RejectPost(id, rejectPostDTO, reviewerId);
+            return result.ToActionResult();
+        }
 
         //[HttpDelete("{id}")]
         //public async Task<IActionResult> DeletePost(Guid id)

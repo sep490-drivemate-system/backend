@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SharedLibrary.SharedKernel.ServiceResult;
 using System.Threading.Tasks;
+using UserService.Application.Commons.DTOs.Configurations;
 using UserService.Application.Interfaces;
 
 namespace UserService.Controllers
@@ -26,9 +27,9 @@ namespace UserService.Controllers
         }
 
         [HttpPost("{id}")]
-        public async Task<IActionResult> UpdateConfiguration([FromRoute] Guid id, [FromBody] string new_value)
+        public async Task<IActionResult> UpdateConfiguration([FromRoute] Guid id, [FromBody] UpdateConfigurationDTO updateDto)
         {
-            var result = await _configurationUseCase.UpdateConfigurationValue(id, new_value);
+            var result = await _configurationUseCase.UpdateConfigurationValue(id, updateDto.NewValue, updateDto.NumberDate);
             return result.ToActionResult();
         }
     }

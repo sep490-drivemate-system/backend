@@ -90,6 +90,8 @@ namespace SharedLibrary.Email
                 EmailType.InstructorRegistration => "InstructorRegistration.html",
                 EmailType.InstructorReschedule => "SessionRescheduledInstructor.html",
                 EmailType.DriverReschedule => "SessionRescheduledDriver.html",
+                EmailType.RejectSession => "RejectSession.html",
+                EmailType.PostRejected => "PostRejected.html",
                 _ => "EmailVerificationCode.html" // Default template
             };
         }
@@ -166,19 +168,16 @@ namespace SharedLibrary.Email
                 EmailType.VerifyOPTCode => "Mã xác thực email DriveMate",
                 EmailType.ForgotPassword => "Khôi phục mật khẩu DriveMate",
                 EmailType.InstructorRegistration => "Chào mừng đến với DriveMate",
+                EmailType.InstructorReschedule => "Thông báo yêu cầu đổi lịch hẹn",
+                EmailType.DriverReschedule => "Thông báo thay đổi lịch hẹn",
+                EmailType.RejectSession => "Thông báo: Học viên từ chối buổi thuê",
+                EmailType.PostRejected => "Thông báo: Bài viết của bạn đã bị từ chối",
                 _ => "Thông báo từ DriveMate"
             };
         }
 
         private async Task SendEmailViaSmtp(MimeMessage message)
         {
-
-            Console.WriteLine("=== Email Debug Info ===");
-            Console.WriteLine($"SMTP Server: {_configuration["EMAIL:SMTP_SERVER"]}");
-            Console.WriteLine($"SMTP Port: {_configuration["EMAIL:SMTP_PORT"]}");
-            Console.WriteLine($"Sender Email: {_configuration["EMAIL:SENDER_EMAIL"]}");
-            Console.WriteLine($"To: {string.Join(", ", message.To)}");
-            Console.WriteLine($"Subject: {message.Subject}");
             using var client = new SmtpClient();
             // client.ServerCertificateValidationCallback = (s, c, h, e) => true;
             await client.ConnectAsync(_configuration["EMAIL:SMTP_SERVER"], int.Parse(_configuration["EMAIL:SMTP_PORT"]), SecureSocketOptions.StartTls);

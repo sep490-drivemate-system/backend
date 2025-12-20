@@ -5,6 +5,8 @@ using ResourceService.Application.Interfaces.Services;
 using ResourceService.Domain.Entities;
 using ResourceService.Domain.Enums;
 using SharedLibrary.CloudinaryStorage;
+using SharedLibrary.Email;
+using SharedLibrary.SharedKernel.Enum;
 using SharedLibrary.SharedKernel.Http.DTOs.ApiResponse;
 using SharedLibrary.SharedKernel.Http.DTOs.User;
 using SharedLibrary.SharedKernel.Pagination;
@@ -18,6 +20,7 @@ namespace ResourceService.Application.Services
         private readonly IMapper _mapper;
         private readonly ICloudinaryServiceProvider _cloudinary;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IEmailService _emailService;
         private readonly string _userServiceUrl;
 
         public PostService(
@@ -25,12 +28,14 @@ namespace ResourceService.Application.Services
             IMapper mapper,
             ICloudinaryServiceProvider cloudinary,
             IHttpClientFactory httpClientFactory,
+            IEmailService emailService,
             IConfiguration configuration)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _cloudinary = cloudinary;
             _httpClientFactory = httpClientFactory;
+            _emailService = emailService;
             _userServiceUrl = configuration["USERSERVICE:URL"];
         }
         public async Task<Result<Guid>> CommentOnPost(Guid postId, CommentPostDTO request)
@@ -297,6 +302,59 @@ namespace ResourceService.Application.Services
                 updatePostSDTO.Reason,
                 reviewId);
             await _unitOfWork.SaveChangesAsync();
+            return Result<bool>.Success(true);
+        }
+
+        public async Task<Result<bool>> RejectPost(Guid postId, RejectPostDTO rejectPostDTO, Guid? reviewerId = null)
+        {
+            var post = await _unitOfWork.PostRepository.GetByIdAsync(postId);
+            if (post == null || post.IsDeleted)
+            {
+                return Result<bool>.Failure(ServiceError.NotFoundError($"{postId}"), "Post not found");
+            }
+
+            var reason = rejectPostDTO?.Reason ?? "Bài viết không đáp ứng tiêu chuẩn nội dung của DriveMate";
+
+            var updateResult = await _unitOfWork.PostRepository.UpdateStatusAsync(
+                postId,
+                PostStatus.Rejected,
+                reason,
+                reviewerId);
+            
+            if (!updateResult)
+            {
+                return Result<bool>.Failure(ServiceError.UnhandledException("Failed to update post status"), "Failed to reject post");
+            }
+
+            await _unitOfWork.SaveChangesAsync();
+
+            var author = await GetUsersByIdsAsync(new[] { post.AuthorId });
+            var authorInfo = author?.FirstOrDefault();
+
+            if (authorInfo != null && !string.IsNullOrEmpty(authorInfo.Email))
+            {
+                var replaceTerms = new Dictionary<string, string>
+                {
+                    { "username", authorInfo.FullName ?? authorInfo.Email },
+                    { "post_title", post.Title },
+                    { "post_content", post.Content.Length > 100 ? post.Content.Substring(0, 100) + "..." : post.Content },
+                    { "reason", reason }
+                };
+
+                // Send rejection email
+                var emailSent = await _emailService.SendingEmail(
+                    authorInfo.Email,
+                    replaceTerms,
+                    "[DriveMate] Thông báo: Bài viết của bạn đã bị từ chối",
+                    EmailType.PostRejected);
+
+                if (!emailSent)
+                {
+                    // Log email failure but don't fail the operation
+                    Console.WriteLine($"Failed to send rejection email to {authorInfo.Email}");
+                }
+            }
+
             return Result<bool>.Success(true);
         }
 

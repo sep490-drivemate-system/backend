@@ -23,6 +23,9 @@ namespace UserService.Infrastructure.Persistence.Configurations
             builder.Property(x => x.UnitOfMeasurement)
                 .HasColumnName("unit_of_measurement")
                 .IsRequired();
+            builder.Property(x => x.NumberDate)
+    .HasColumnName("number_date")
+    .IsRequired(false);
 
             builder.Property(x => x.Value)
                 .HasColumnName("value")

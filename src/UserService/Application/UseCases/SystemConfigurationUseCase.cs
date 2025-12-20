@@ -37,13 +37,14 @@ namespace UserService.Application.UseCases
             {
                 Id = configurationEntry.Id,
                 Name = configurationEntry.Name,
+                NumberDate = configurationEntry.NumberDate ?? 0,
                 UnitOfMesurement = configurationEntry.UnitOfMeasurement,
                 Value = configurationEntry.Value,
                 ValueType = configurationEntry.ValueType,
             });
         }
 
-        public async Task<Result<bool>> UpdateConfigurationValue(Guid id, string value)
+        public async Task<Result<bool>> UpdateConfigurationValue(Guid id, string value, int? number_date)
         {
             var target_entry = await _unitOfWork.SystemConfigurationRepository.GetByIdAsync(id);
 
@@ -100,6 +101,7 @@ namespace UserService.Application.UseCases
             }
 
             target_entry.Value = value;
+            target_entry.NumberDate = number_date;
             _unitOfWork.SystemConfigurationRepository.Update(target_entry);
             await _unitOfWork.CommitChangesAsync();
 

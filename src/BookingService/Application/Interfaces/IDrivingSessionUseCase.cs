@@ -27,5 +27,6 @@ namespace BookingService.Application.Interfaces
 
         Task<Result<bool>> UpdateSessionStatus(Guid sessionId, SessionStatus updateStatusDTO);
         Task<Result<SessionLogDTO>> CreateSessionLog(Guid sessionId, SessionLogCreateDTO log);
+        Task<Result<bool>> RejectRoute(Guid sessionId);
     }
 }

@@ -114,6 +114,25 @@
       "SwaggerKey": "userService"
     },
     {
+      "DownstreamPathTemplate": "/api/configurations/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5100
+        }
+      ],
+      "UpstreamPathTemplate": "/configurations/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "PATCH"
+      ],
+      "SwaggerKey": "userService"
+    },
+    {
       "DownstreamPathTemplate": "/api/novice-driver/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [

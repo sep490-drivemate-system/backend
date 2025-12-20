@@ -12,6 +12,7 @@ using ResourceService.Infrastructure.Commons;
 using ResourceService.Infrastructure.Persistences;
 using ResourceService.Infrastructure.Repositories;
 using SharedLibrary.CloudinaryStorage;
+using SharedLibrary.Email;
 using SharedLibrary.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -103,6 +104,7 @@ namespace ResourceService.Infrastructure
 
             // Shared library services
             services.AddScoped<IJwtService, JwtService>();
+            services.AddScoped<IEmailService, EmailService>();
 
             // Third party
             services.AddScoped<ICloudinaryServiceProvider, CloudinaryServiceProvider>();
