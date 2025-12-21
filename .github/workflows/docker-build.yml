@@ -37,6 +37,10 @@ jobs:
           - service: ResourceService
             image: resource-service
             dockerfile: ./src/ResourceService/Dockerfile
+            
+          - service: MessagingService
+            image: messaging-service
+            dockerfile: ./src/MessagingService/Dockerfile
     
     steps:
     - name: Checkout code
