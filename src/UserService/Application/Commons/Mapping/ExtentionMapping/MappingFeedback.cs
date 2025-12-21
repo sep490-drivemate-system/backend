@@ -18,8 +18,8 @@ namespace UserService.Application.Commons.Mapping.ExtentionMapping
                 return new InstructorDTO
                 {
                     Id = instructor.Id,
-                    Avatar = instructor.User?.Avatar,
-                    FullName = instructor.User?.Username ?? string.Empty,
+                    Avatar = instructor.User?.Avatar ?? "",
+                    FullName = instructor.User?.Fullname ?? "",
                     ExperienceYear = instructor.Experience,
                     BookingCount = instructorFeedback?.BookingCount ?? 0,
                     AverageRating = instructorFeedback?.AverageRating ?? 0,

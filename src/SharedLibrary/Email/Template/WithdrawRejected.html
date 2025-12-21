@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thông báo: Yêu cầu rút tiền đã bị từ chối - DriveMate</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f4f6fa; font-family:'Segoe UI', Tahoma, sans-serif;">
+
+    <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="padding: 40px 0; background-color: #f4f6fa;">
+        <tr>
+            <td align="center">
+                <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="max-width:600px; background-color:#ffffff; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.08); overflow:hidden;">
+
+                    <!-- Header -->
+                    <tr>
+                        <td align="center" style="background-color:#b91c1c; padding: 24px;">
+                            <h1 style="margin: 0; font-size: 24px; color: #ffffff;">Yêu cầu rút tiền đã bị từ chối</h1>
+                        </td>
+                    </tr>
+
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 32px 24px; color: #333333;">
+                            <p style="font-size: 16px; line-height: 1.6; margin-top: 0;">
+                                Xin chào <strong>{{FullName}}</strong>,
+                            </p>
+                            <p style="font-size: 16px; line-height: 1.6;">
+                                Chúng tôi rất tiếc phải thông báo rằng yêu cầu rút tiền của bạn đã <strong>không được duyệt</strong> và đã bị từ chối bởi hệ thống DriveMate.
+                            </p>
+
+                            <!-- Transaction Info Block -->
+                            <div style="background-color: #fff4f4; border-left: 4px solid #b91c1c; padding: 16px; margin: 24px 0; border-radius: 4px;">
+                                <p style="margin: 0 0 8px 0; font-size: 14px; color: #7f1d1d; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">
+                                    Thông tin giao dịch:
+                                </p>
+                                <p style="margin: 0 0 8px 0; font-size: 16px; color: #333333; font-weight: 600;">
+                                    Số tiền: <span style="color: #b91c1c;">{{Amount}} VNĐ</span>
+                                </p>
+                                <p style="margin: 0; font-size: 14px; color: #666666; line-height: 1.5;">
+                                    Ghi chú: {{TransactionNote}}
+                                </p>
+                            </div>
+
+                            <!-- Reason Block -->
+                            <div style="background-color: #fff4f4; border-left: 4px solid #b91c1c; padding: 16px; margin: 24px 0; border-radius: 4px;">
+                                <p style="margin: 0 0 8px 0; font-size: 14px; color: #7f1d1d; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">
+                                    Lý do từ chối:
+                                </p>
+                                <p style="margin: 0; font-size: 15px; color: #333333; line-height: 1.6;">
+                                    {{Reason}}
+                                </p>
+                            </div>
+
+                            <!-- Notice Section -->
+                            <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 16px; margin: 24px 0; border-radius: 4px;">
+                                <p style="margin: 0; font-size: 14px; color: #92400e; line-height: 1.6;">
+                                    <strong>Lưu ý:</strong> Số tiền trong yêu cầu rút tiền này vẫn được giữ nguyên trong ví của bạn. Bạn có thể tạo yêu cầu rút tiền mới sau khi đã xem xét lại thông tin.
+                                </p>
+                            </div>
+
+                            <p style="font-size: 16px; line-height: 1.6;">
+                                Nếu bạn có bất kỳ thắc mắc nào về quyết định này, vui lòng liên hệ với đội ngũ hỗ trợ của chúng tôi để được giải đáp.
+                            </p>
+
+                            <p style="font-size: 14px; line-height: 1.6; color:#6b7280; margin-top: 24px;">
+                                Cảm ơn bạn đã sử dụng dịch vụ của DriveMate. Chúng tôi luôn mong muốn mang đến trải nghiệm tốt nhất cho bạn.
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color:#f9fafb; text-align:center; padding: 24px; font-size:13px; color:#888888;">
+                            <p style="margin: 0 0 10px 0;">
+                                Bạn nhận được email này vì bạn đã tạo yêu cầu rút tiền trong hệ thống DriveMate.
+                            </p>
+                            &copy; 2025 <strong>DriveMate</strong>. Mọi quyền được bảo lưu.<br />
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>
+

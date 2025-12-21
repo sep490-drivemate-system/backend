@@ -26,11 +26,6 @@ namespace UserService.Application.UseCases
 
         public async Task<Result<bool>> CreateDefaultUserAccount(UserCreationDTO user_information)
         {
-            if ((await _unitOfWork.UserRepository.GetAllAsync(filter: x => x.Username == user_information.Username)).Any())
-            {
-                return Result<bool>.Failure(ServiceError.ExistedError($"{user_information.Username}"), Messages.Auth.UserNameAlreadyExists);
-            }
-
             if ((await _unitOfWork.UserRepository.GetAllAsync(filter: x => x.Email.ToLower() == user_information.Email.ToLower())).Any())
             {
                 return Result<bool>.Failure(ServiceError.ExistedError($"{user_information.Email}"), Messages.Auth.EmailAlreadyExists);
@@ -44,7 +39,6 @@ namespace UserService.Application.UseCases
             // Create a default user account with provided information
             User new_user = new User
             {
-                Username = user_information.Username,
                 HashedPassword = await _passwordHasherService.HashPassword(user_information.Password), // why is hashing the password requires it to be asynchronous ?
                 Avatar = "", // default as blank avatar
                 Fullname = user_information.Fullname,
@@ -100,7 +94,6 @@ namespace UserService.Application.UseCases
             Expression<Func<User, bool>> filterExpression = x => !x.IsDeleted
              && (String.IsNullOrEmpty(filter.searchKey) || 
                 (x.PhoneNumber.ToLower().Contains(filter.searchKey.ToLower()) 
-                    || x.Username.ToLower().Contains(filter.searchKey) 
                     || x.Fullname.ToLower().Contains(filter.searchKey)
                     || x.Email.ToLower().Contains(filter.searchKey)))
              && (filter.Status == null || x.AccountStatus == filter.Status)
@@ -399,7 +392,7 @@ namespace UserService.Application.UseCases
                 user => new NoviceDriverBasicInfoDTO
                 {
                     NoviceDriverId = user.NoviceDriver.Id,
-                    Fullname = user.Username,
+                    Fullname = user.Fullname,
                     AvatarUrl = user.Avatar ?? ""
                 }
             );

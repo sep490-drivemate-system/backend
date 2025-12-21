@@ -92,6 +92,7 @@ namespace SharedLibrary.Email
                 EmailType.DriverReschedule => "SessionRescheduledDriver.html",
                 EmailType.RejectSession => "RejectSession.html",
                 EmailType.PostRejected => "PostRejected.html",
+                EmailType.WithdrawRejected => "WithdrawRejected.html",
                 _ => "EmailVerificationCode.html" // Default template
             };
         }
@@ -172,6 +173,7 @@ namespace SharedLibrary.Email
                 EmailType.DriverReschedule => "Thông báo thay đổi lịch hẹn",
                 EmailType.RejectSession => "Thông báo: Học viên từ chối buổi thuê",
                 EmailType.PostRejected => "Thông báo: Bài viết của bạn đã bị từ chối",
+                EmailType.WithdrawRejected => "Thông báo: Yêu cầu rút tiền đã bị từ chối",
                 _ => "Thông báo từ DriveMate"
             };
         }

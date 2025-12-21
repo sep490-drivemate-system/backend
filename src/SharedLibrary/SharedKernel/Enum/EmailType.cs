@@ -14,6 +14,7 @@ namespace SharedLibrary.SharedKernel.Enum
         InstructorReschedule,
         RejectSession,
         DriverReschedule,
-        PostRejected
+        PostRejected,
+        WithdrawRejected
     }
 }

@@ -101,7 +101,6 @@ namespace BookingService.Application.UseCase
                 Name = package.Name,
                 Description = package.Description,
                 Duration = package.Duration,
-                ThumbnailUrl = "", // Default for no thumbnail.
                 Price = package.Price,
                 InstructorId = package.InstructorId,
                 IsRentalCar = package.IsRentalCar,

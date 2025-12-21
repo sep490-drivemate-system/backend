@@ -6,7 +6,6 @@ namespace UserService.Domain.Interfaces
     {
         Task<bool> IsEsxitEmail(string email);
         Task<bool> IsEsxitPhone(string phone);
-        Task<bool> IsEsxitUserName(string userName);
         Task<User?> IsExistUser(string emailOrPhone);       
     }
 }

@@ -30,6 +30,10 @@ namespace PaymentService.Application.Features.Wallet.Queries.GetWallet
                 var createWalletDto = new CreateWalletDto { InitialBalance = 0m };
                 wallet = _mapper.Map<WalletEntity>(createWalletDto);
                 wallet.Id = request.WalletId;
+                wallet.Balance = 0;
+                wallet.CreatedAt = DateTime.Now;
+                wallet.CreatedAt = DateTime.Now;
+                
 
                 await _unitOfWork.WalletRepository.CreateAsync(wallet);
                 await _unitOfWork.SaveChangesAsync();

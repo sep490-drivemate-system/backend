@@ -8,6 +8,7 @@ using PaymentService.Application.Features.Transactions.Commands.UpdateTransactio
 using PaymentService.Application.Features.Transactions.Queries.GetDashboardStatistic;
 using PaymentService.Application.Features.Transactions.Queries.GetInstructorDashboardStatistic;
 using PaymentService.Application.Features.Transactions.Queries.GetTransactionById;
+using PaymentService.Application.Features.Transactions.Queries.GetAllTransactions;
 using PaymentService.Application.Features.Transactions.Queries.GetTransactions;
 using PaymentService.Application.Features.Transactions.Queries.GetTransactionsByBookingId;
 using PaymentService.Application.Features.Transactions.Queries.GetUserTransactions;
@@ -17,7 +18,7 @@ using SharedLibrary.SharedKernel.ServiceResult;
 namespace PaymentService.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/transaction")]
     public class TransactionController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -80,6 +81,17 @@ namespace PaymentService.Controllers
                 return Ok(result);
             
             return BadRequest(result);
+        }
+
+        [HttpGet("system")]
+        public async Task<IActionResult> GetAllTransactions([FromQuery] GetAllTransactionsFilter filter)
+        {
+            var query = new GetAllTransactionsQuery()
+            { 
+                Filter = filter,
+            };
+            var result = await _mediator.Send(query);
+            return result.ToActionResult();
         }
 
         [HttpPost]

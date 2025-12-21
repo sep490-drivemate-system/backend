@@ -31,10 +31,6 @@ namespace BookingService.Infrastructure.Persistence.Configurations
                .HasColumnName("description")
                .IsRequired();
 
-            builder.Property(x => x.ThumbnailUrl)
-               .HasColumnName("thumbnail")
-               .IsRequired();
-
             builder.Property(x => x.Duration)
                .HasColumnName("duration")
                .IsRequired();

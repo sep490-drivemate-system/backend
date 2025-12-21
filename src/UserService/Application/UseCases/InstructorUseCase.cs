@@ -4,7 +4,6 @@ using SharedLibrary.SharedKernel.ServiceResult;
 using UserService.Application.Commons.DTOs.Instructors;
 using UserService.Application.Commons.Mapping.ExtentionMapping;
 using UserService.Application.Interfaces;
-using SharedLibrary.SharedKernel.Http.DTOs.Package;
 using UserService.Application.Commons.DTOs.Instructors.Registration;
 using UserService.Domain.Enum;
 using UserService.Application.Commons.Constants;
@@ -14,11 +13,9 @@ using SharedLibrary.CloudinaryStorage;
 using SharedLibrary.SharedKernel.Password;
 using System.Linq.Expressions;
 using System.Reflection;
-using Twilio.TwiML.Messaging;
 using AutoMapper;
 using SharedLibrary.Email;
 using SharedLibrary.SharedKernel.Http.DTOs.Instructor;
-using SharedLibrary.SharedKernel.Http.DTOs.ApiResponse;
 
 namespace UserService.Application.UseCases
 {
@@ -461,7 +458,6 @@ namespace UserService.Application.UseCases
                 Status = InstructorStatus.Pending,
                 User = new User
                 {
-                    Username = instructor_registration.Email,
                     Fullname = instructor_registration.Fullname,
                     Avatar = avatar_url,
                     PhoneNumber = instructor_registration.PhoneNumber,
@@ -540,7 +536,6 @@ namespace UserService.Application.UseCases
             if (application_patch.Email != null)
             {
                 instructor_application.EmailAddress = application_patch.Email;
-                instructor_application.Instructors.User.Username = application_patch.Email;
                 instructor_application.Instructors.User.Email = application_patch.Email;
             }
 

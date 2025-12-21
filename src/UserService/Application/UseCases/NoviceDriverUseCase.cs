@@ -90,7 +90,6 @@ namespace UserService.Application.UseCases
             {
                 Avatar = null, // User with no avatar
                 Email = registration_info.Email,
-                Username = registration_info.Email,
                 Fullname = registration_info.Email,
                 PhoneNumber = registration_info.PhoneNumber,
                 AccountStatus = AccountStatus.Normal,

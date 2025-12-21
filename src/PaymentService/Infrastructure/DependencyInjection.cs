@@ -7,6 +7,7 @@ using PaymentService.Domain.Interfaces;
 using PaymentService.Infrastructure.Data;
 using PaymentService.Infrastructure.Repositories;
 using PaymentService.Infrastructure.UoW;
+using SharedLibrary.Email;
 using SharedLibrary.Payment.PayOs;
 using SharedLibrary.Payment.VnPay;
 using SharedLibrary.Payment.ZaloPay;
@@ -50,6 +51,8 @@ namespace PaymentService.Infrastructure
             services.AddScoped<IVNPayService, VNPayService>();
             services.AddScoped<IZaloPayService, ZaloPayService>();
             
+            // Add Email Service
+            services.AddScoped<IEmailService, EmailService>();
 
             return services;
         }

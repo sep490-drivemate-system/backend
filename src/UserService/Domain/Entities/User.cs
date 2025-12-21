@@ -7,7 +7,6 @@ namespace UserService.Domain.Entities
     public class User : BaseEntites
     {
         // Propertíe
-        public string Username { get; set; } 
         public string Fullname { get; set; }
         public string Email { get; set; } 
         public string HashedPassword { get; set; } 

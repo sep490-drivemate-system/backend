@@ -16,12 +16,6 @@ namespace UserService.Infrastructure.Persistence.Configurations
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id).HasColumnName("id");
 
-            // properties
-            builder.Property(x => x.Username)
-                .HasColumnName("user_name")
-                .IsRequired(false)
-                .HasMaxLength(30);
-
             builder.Property(x => x.Fullname)
                 .HasColumnName("fullname")
                 .IsRequired()

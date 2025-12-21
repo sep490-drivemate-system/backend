@@ -8,7 +8,6 @@ namespace BookingService.Domain.Entities
         // Properties
         public string Name { get; set; }
         public string Description { get; set; }
-        public string ThumbnailUrl { get; set; }
         public double Duration { get; set; }
         public decimal Price { get; set; }
         public bool IsRentalCar {  get; set; }

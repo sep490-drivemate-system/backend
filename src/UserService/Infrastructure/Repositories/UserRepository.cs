@@ -19,7 +19,5 @@ namespace UserService.Infrastructure.Repositories
                 .FirstOrDefaultAsync(u => u.Email == emailOrPhone || u.PhoneNumber == emailOrPhone);
         }
 
-        public async Task<bool> IsEsxitUserName(string userName) => await _context.Users.AnyAsync(u => u.Username == userName);
-
     }
 }
