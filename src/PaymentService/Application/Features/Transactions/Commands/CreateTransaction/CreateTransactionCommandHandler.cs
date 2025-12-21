@@ -35,8 +35,8 @@ namespace PaymentService.Application.Features.Transactions.Commands.CreateTransa
                 FromWalletId = request.FromWalletId == Guid.Empty ? null : request.FromWalletId,
                 ToWalletId = request.ToWalletId == Guid.Empty ? null : request.ToWalletId,
                 IsDelete = false,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now,
             };
 
             var createdTransaction = await _unitOfWork.TransactionRepository.CreateAsync(transaction);

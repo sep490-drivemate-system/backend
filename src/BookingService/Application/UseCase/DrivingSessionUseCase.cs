@@ -255,8 +255,8 @@ namespace BookingService.Application.UseCase
                         return Result<bool>.Failure(ServiceError.BadRequestError($"Thời gian còn lại: {remaining_time} giờ"), "Không đủ thời gian còn lại");
                     }
 
-                    target_session.StartTime = rescheduleDTO.NewStartTime;
-                    target_session.EndTime = rescheduleDTO.NewEndTime;
+                    target_session.StartTime = rescheduleDTO.NewStartTime.ToLocalTime();
+                    target_session.EndTime = rescheduleDTO.NewEndTime.ToLocalTime();
                     _unitOfWork.DrivingSessionRepository.Update(target_session);
                     
                     await _unitOfWork.CommitChangesAsync();

@@ -119,7 +119,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 5100
+          "Port": 5100 
         }
       ],
       "UpstreamPathTemplate": "/configurations/{everything}",

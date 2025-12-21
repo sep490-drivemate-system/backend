@@ -1,26 +1,19 @@
 using AutoMapper;
-using Azure.Core;
 using BookingService.Application.Commons.Constants;
 using BookingService.Application.Commons.DTOs.Booking;
 using BookingService.Application.Commons.DTOs.DrivingSession;
 using BookingService.Application.Commons.DTOs.DrivingSessions;
 using BookingService.Application.Commons.DTOs.Package;
-using BookingService.Application.Commons.Mapping;
 using BookingService.Application.Interfaces;
 using BookingService.Domain.Entities;
 using BookingService.Domain.Enum;
-using BookingService.Infrastructure.Messaging.Interface;
-using BookingService.Infrastructure.Persistence.Context;
-using Microsoft.AspNetCore.Http.HttpResults;
 using SharedLibrary.SharedKernel.Enum;
-using SharedLibrary.SharedKernel.Http;
 using SharedLibrary.SharedKernel.Http.DTOs.ApiResponse;
 using SharedLibrary.SharedKernel.Http.DTOs.User;
 using SharedLibrary.SharedKernel.Http.DTOs.Wallet;
 using SharedLibrary.SharedKernel.Http.Interfaces;
 using SharedLibrary.SharedKernel.Pagination;
 using SharedLibrary.SharedKernel.ServiceResult;
-using System.Linq;
 using System.Linq.Expressions;
 
 namespace BookingService.Application.UseCase
@@ -170,7 +163,6 @@ namespace BookingService.Application.UseCase
 
             double time_constraint_value = double.Parse(timeConstraints.Value);
 
-            // Actual refund calculation
             if ((DateTime.Now - booking.CreatedAt).TotalDays < time_constraint_value)
             {
                 decimal refundAmount;
@@ -348,7 +340,6 @@ namespace BookingService.Application.UseCase
 
         public async Task<Result<InstructorStatisticDTO>> GetInstructorStatistic(Guid user_id, InstructorStatisticFilterDTO filter)
         {
-            // Getting and validating instructor information (1 API calls)
             var userServiceHttpClient = _httpClientFactory.CreateClient("UserServiceClient");
             var userServiceResponseMessage = await userServiceHttpClient.PostAsJsonAsync<IEnumerable<Guid>>("api/users/ids", new List<Guid>() { user_id });
 

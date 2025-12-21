@@ -7,9 +7,6 @@ using PaymentService.Domain.Interfaces;
 using PaymentService.Infrastructure.Data;
 using PaymentService.Infrastructure.Repositories;
 using PaymentService.Infrastructure.UoW;
-using PaymentService.Infrastructure.Messaging.Config;
-using PaymentService.Infrastructure.Messaging.Interfaces;
-using PaymentService.Infrastructure.Messaging.Implementation;
 using SharedLibrary.Payment.PayOs;
 using SharedLibrary.Payment.VnPay;
 using SharedLibrary.Payment.ZaloPay;
@@ -30,9 +27,6 @@ namespace PaymentService.Infrastructure
 
             // Add Unit of Work
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-            // Register RabbitMQ service (with fallback to mock if connection fails)
-            services.AddSingleton<IRabbitMQService, RabbitMQService>();
 
             // Add UserService httpClient
             services.AddHttpClient("UserServiceClient", cfg =>
@@ -56,8 +50,6 @@ namespace PaymentService.Infrastructure
             services.AddScoped<IVNPayService, VNPayService>();
             services.AddScoped<IZaloPayService, ZaloPayService>();
             
-            // Add RabbitMQ hosted service
-            services.AddHostedService<RabbitMQHostedService>();
 
             return services;
         }
