@@ -4,6 +4,7 @@ namespace PaymentService.Application.Common.DTOs
 {
     public class TransactionsDTO
     {
+        public Guid Id { get; set; }
         public Guid BookingId { get; set; }
         public Guid? DrivingSessionId { get; set; }
         public decimal TransactionValue { get; set; }

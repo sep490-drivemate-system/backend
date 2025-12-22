@@ -99,7 +99,10 @@ namespace UserService.Application.UseCases
              && (filter.Status == null || x.AccountStatus == filter.Status)
              && (filter.Role == null || x.Role == filter.Role);
             
-            var filterdList = await _unitOfWork.UserRepository.GetAllAsync(filter: filterExpression, include_properties: "Instructor,NoviceDriver");
+            var filterdList = await _unitOfWork.UserRepository.GetAllAsync(
+                filter: filterExpression,
+                orderBy: q => q.OrderByDescending(x => x.CreatedAt),
+                include_properties: "Instructor,NoviceDriver");
 
             PaginatedList<UserDetailDTO> mappedList = PaginatedList<UserDetailDTO>
                 .Create(filterdList.Select(x => new UserDetailDTO
@@ -107,6 +110,7 @@ namespace UserService.Application.UseCases
                     UserId = x.Id,
                     FullName = x.Fullname,
                     AvatarUrl = x.Avatar,
+                    AccountStatus = (int)x.AccountStatus,
                     Email = x.Email,
                     BirthDate = x.DateOfBirth,
                     Phone = x.PhoneNumber,

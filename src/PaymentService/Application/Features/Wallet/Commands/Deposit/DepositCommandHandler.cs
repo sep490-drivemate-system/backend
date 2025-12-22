@@ -8,6 +8,7 @@ using SharedLibrary.SharedKernel.Http.DTOs.Wallet;
 using SharedLibrary.SharedKernel.ServiceResult;
 using System.Collections;
 using System.Text.Json;
+using static PaymentService.Application.Common.Constants.Messages;
 
 namespace PaymentService.Application.Features.Wallet.Commands.Deposit
 {
@@ -51,9 +52,17 @@ namespace PaymentService.Application.Features.Wallet.Commands.Deposit
             {
                 var orderCode = data["orderCode"].ToString();
                 var transaction = await _unitOfWork.TransactionRepository.GetByReferenceCodeAsync(orderCode);
-                 transaction.Status = Domain.Enum.PaymentStatus.Completed;
                 var wallet = await _unitOfWork.WalletRepository.GetByIdAsync(transaction.ToWalletId);
-                wallet.Balance = transaction.TransactionValue + wallet.Balance;
+                if (transaction.Status == Domain.Enum.PaymentStatus.Pending)
+                {
+                    transaction.Status = Domain.Enum.PaymentStatus.Refunded;
+                    wallet.Balance =  wallet.Balance - transaction.TransactionValue;
+                }
+                else
+                {
+                    transaction.Status = Domain.Enum.PaymentStatus.Completed; 
+                    wallet.Balance = transaction.TransactionValue + wallet.Balance;
+                }
                 await _unitOfWork.TransactionRepository.UpdateAsync(transaction);
                 await _unitOfWork.CommitAsync();
                 return transaction.TransactionValue;
@@ -78,9 +87,16 @@ namespace PaymentService.Application.Features.Wallet.Commands.Deposit
                 var transaction = await _unitOfWork.TransactionRepository.GetByReferenceCodeAsync(referenceCode);
                 var wallet = await _unitOfWork.WalletRepository.GetByIdAsync(transaction.ToWalletId);
 
-                wallet.Balance = transaction.TransactionValue + wallet.Balance;
-
-                transaction.Status = Domain.Enum.PaymentStatus.Completed;
+                if (transaction.Status == Domain.Enum.PaymentStatus.Pending)
+                {
+                    transaction.Status = Domain.Enum.PaymentStatus.Refunded;
+                    wallet.Balance = wallet.Balance - transaction.TransactionValue;
+                }
+                else
+                {
+                    transaction.Status = Domain.Enum.PaymentStatus.Completed;
+                    wallet.Balance = transaction.TransactionValue + wallet.Balance;
+                }
 
                 await _unitOfWork.TransactionRepository.UpdateAsync(transaction);
                 await _unitOfWork.CommitAsync();
@@ -102,16 +118,18 @@ namespace PaymentService.Application.Features.Wallet.Commands.Deposit
                 var referenceCode = checksumZaloPay;
                 var transaction = await _unitOfWork.TransactionRepository.GetByReferenceCodeAsync(referenceCode);
                 transaction.Status = Domain.Enum.PaymentStatus.Completed;
-                
-                if (transaction.ToWalletId.HasValue)
+                var wallet = await _unitOfWork.WalletRepository.GetByIdAsync(transaction.ToWalletId);
+                if (transaction.Status == Domain.Enum.PaymentStatus.Pending)
                 {
-                    var wallet = await _unitOfWork.WalletRepository.GetByIdAsync(transaction.ToWalletId.Value);
-                    if (wallet != null)
-                    {
-                        wallet.Balance = transaction.TransactionValue + wallet.Balance;
-                    }
+                    transaction.Status = Domain.Enum.PaymentStatus.Refunded;
+                    wallet.Balance = wallet.Balance - transaction.TransactionValue;
                 }
-                
+                else
+                {
+                    transaction.Status = Domain.Enum.PaymentStatus.Completed;
+                    wallet.Balance = transaction.TransactionValue + wallet.Balance;
+                }
+
                 await _unitOfWork.TransactionRepository.UpdateAsync(transaction);
                 await _unitOfWork.CommitAsync();
                 return transaction.TransactionValue;

@@ -88,7 +88,7 @@ namespace PaymentService.Controllers
         {
             var command = new WithdrawCommand
             {
-                TransactionNote = withdrawCommand.TransactionNote,
+                Reason = withdrawCommand.Reason,
                 Email = withdrawCommand.Email,
                 FullName = withdrawCommand.FullName,
                 Status = withdrawCommand.Status,

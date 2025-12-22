@@ -9,7 +9,7 @@ namespace PaymentService.Application.Features.Transactions.Commands.Withdraw
     {
         public WithdrawStatus Status { get; set; }
         public Guid TransactionId { get; set; }
-        public string TransactionNote { get; set; }
+        public string Reason { get; set; }
         public string Email { get; set; }
         public string FullName { get; set; }
         public PaymentMethod  PaymentMethod { get; set; }

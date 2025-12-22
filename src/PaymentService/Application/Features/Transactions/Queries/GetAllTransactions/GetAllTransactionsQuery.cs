@@ -16,4 +16,4 @@ namespace PaymentService.Application.Features.Transactions.Queries.GetAllTransac
         public PaymentStatus? Status { get; set; } = null; 
     }
 }
-
+    

@@ -43,24 +43,11 @@ namespace PaymentService.Application.Features.Transactions.Commands.Withdraw
 
         public async Task<Result<string?>> Handle(WithdrawCommand request, CancellationToken cancellationToken)
         {
-            // Get existing transaction
             var transaction = await _unitOfWork.TransactionRepository.GetByIdAsync(request.TransactionId);
-            if (transaction == null)
-            {
-                return Result<string?>.Failure(
-                    ServiceError.NotFoundError("Transaction not found"));
-            }
-
-            // Update transaction note if provided
-            if (!string.IsNullOrEmpty(request.TransactionNote))
-            {
-                transaction.TransactionNote = request.TransactionNote;
-            }
 
             if (request.Status == WithdrawStatus.Approved)
             {
-                // Approved: Create payment URL for withdrawal
-                var callbackUrl = _configuration["WITHDRAW_CALLBACK:URL"] ?? _configuration["PAYMENTCALLBACK_WEPAPP:URL"];
+                var callbackUrl = _configuration["PAYMENTCALLBACK_WEBAPP:URL"];
                 
                 string? paymentUrl = null;
                 string? referenceCode = null;
@@ -102,14 +89,12 @@ namespace PaymentService.Application.Features.Transactions.Commands.Withdraw
                             ServiceError.BadRequestError("Unsupported payment method"));
                 }
 
-                // Update transaction with payment method and reference code
                 transaction.PaymentMethod = request.PaymentMethod;
-                transaction.Status = PaymentStatus.Processing;
                 if (!string.IsNullOrEmpty(referenceCode))
                 {
                     transaction.ReferenceCode = referenceCode;
                 }
-                transaction.UpdatedAt = DateTime.UtcNow;
+                transaction.UpdatedAt = DateTime.Now;
 
                 await _unitOfWork.TransactionRepository.UpdateAsync(transaction);
                 await _unitOfWork.SaveChangesAsync();
@@ -129,7 +114,7 @@ namespace PaymentService.Application.Features.Transactions.Commands.Withdraw
                     { "FullName", request.FullName },
                     { "Amount", transaction.TransactionValue.ToString("N0") },
                     { "TransactionNote", transaction.TransactionNote ?? "Không có ghi chú" },
-                    { "Reason", request.TransactionNote ?? "Yêu cầu rút tiền không đáp ứng các điều kiện của hệ thống." }
+                    { "Reason", request.Reason ?? "Yêu cầu rút tiền không đáp ứng các điều kiện của hệ thống." }
                 };
 
                 await _emailService.SendingEmail(

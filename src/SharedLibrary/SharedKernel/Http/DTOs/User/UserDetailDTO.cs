@@ -27,6 +27,7 @@ namespace SharedLibrary.SharedKernel.Http.DTOs.User
         public string? Phone { get; set; }
         public string? Email { get; set; }
         public string FullName { get; set; }
+        public int AccountStatus { get; set; }
         public DrivingLicenseTier LicenseTier { get; set; }
         public DateOnly BirthDate { get; set; }
         public UserRole Role { get; set; }
