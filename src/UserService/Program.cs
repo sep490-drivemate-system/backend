@@ -1,4 +1,5 @@
 using Hangfire;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using SharedLibrary.CloudinaryStorage;
@@ -6,6 +7,7 @@ using System.Text;
 using UserService.Application;
 using UserService.Application.Jobs;
 using UserService.Infrastructure;
+using UserService.Infrastructure.HangfireConfig;
 using UserService.Infrastructure.Persistence.Context;
 
 namespace UserService
@@ -104,7 +106,11 @@ namespace UserService
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
-                app.UseHangfireDashboard();
+                app.UseHangfireDashboard("/hangfire", new DashboardOptions
+                {
+                    Authorization = new[] { new HangfireDefaultConfiguration() }
+                    IsReadOnlyFunc = context => false
+                });
             }
 
             // Remove HTTPS redirection for HTTP-only setup
