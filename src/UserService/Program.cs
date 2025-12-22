@@ -96,7 +96,7 @@ namespace UserService
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
-             //   app.UseHangfireDashboard();
+                app.UseHangfireDashboard();
             }
             
             // Enable Swagger in production for Railway
@@ -107,14 +107,13 @@ namespace UserService
             }
 
             // Remove HTTPS redirection for HTTP-only setup
-            // app.UseHttpsRedirection();
+             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseCors("AllowAll");
 
             app.MapControllers();
-
-//            RunningJobs.AddRunningJobs();
+            RunningJobs.AddRunningJobs();
 
             app.Run();
         }

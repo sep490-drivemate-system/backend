@@ -7,7 +7,7 @@ namespace UserService.Application.Jobs
     {
         public static void AddRunningJobs()
         {
-            RecurringJob.AddOrUpdate<ApplicationAutoRejectionJob>("auto-remove-unverified-applicants", x => x.AutoRejectionJob(), "1 0 * * *");
+            RecurringJob.AddOrUpdate<ApplicationAutoRejectionJob>("auto-remove-unverified-applicants", x => x.AutoRejectionJob(), "* * * * *");
         }
     }
 }

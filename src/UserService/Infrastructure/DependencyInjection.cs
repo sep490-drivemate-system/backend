@@ -25,15 +25,15 @@ namespace UserService.Infrastructure
             });
 
             // Đăng ký Hangfire
-        //    CreateHangFireDatabase(configuration); // Create hangfire db if not exist.
+            CreateHangFireDatabase(configuration); // Create hangfire db if not exist.
 
-            //services.AddHangfire( (sp, config) =>
-            //{
-            //    config.UsePostgreSqlStorage( options => options.UseNpgsqlConnection(configuration.GetConnectionString("USERSERVICEHANGFIRE")));
-            //});
+            services.AddHangfire((sp, config) =>
+            {
+                config.UsePostgreSqlStorage(options => options.UseNpgsqlConnection(configuration.GetConnectionString("USERSERVICEHANGFIRE")));
+            });
 
-          //  services.AddHangfireServer();
-            
+            services.AddHangfireServer();
+
             // Đăng ký service khác (cache, email, storage…)
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IPasswordHasherService, PasswordHasherService>();

@@ -19,11 +19,6 @@ namespace BookingService.Domain.Entities
         public int SeatCount { get; set; }
         public DateOnly InsuranceEndTime { get; set; }
         public CarStatus Status { get; set; }
-        //public string InsuranceFrontUrl { get; set; }
-        //public string InsuranceBackUrl { get; set; }
-        //public string VehicleRegistrationFrontUrl { get; set; }
-        //public string VehicleRegistrationBackUrl { get; set; }
-
         // System properties
         public DateTime LastModifiedAt { get; set; }
         public bool IsDeleted { get; set; }
