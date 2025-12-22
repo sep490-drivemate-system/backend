@@ -98,7 +98,11 @@ namespace UserService
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
-                app.UseHangfireDashboard();
+                app.UseHangfireDashboard("/hangfire", new DashboardOptions
+                {
+                    Authorization = new[] { new HangfireDefaultConfiguration() },
+                    IsReadOnlyFunc = context => false
+                });
             }
             
             // Enable Swagger in production for Railway
@@ -108,7 +112,7 @@ namespace UserService
                 app.UseSwaggerUI();
                 app.UseHangfireDashboard("/hangfire", new DashboardOptions
                 {
-                    Authorization = new[] { new HangfireDefaultConfiguration() }
+                    Authorization = new[] { new HangfireDefaultConfiguration() },
                     IsReadOnlyFunc = context => false
                 });
             }
