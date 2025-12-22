@@ -8,6 +8,7 @@ using SharedLibrary.CloudinaryStorage;
 using SharedLibrary.Email;
 using SharedLibrary.SharedKernel.Password;
 using UserService.Application.Interfaces;
+using UserService.Application.Jobs;
 using UserService.Infrastructure.Persistence.Context;
 using UserService.Infrastructure.UoW;
 
@@ -33,6 +34,8 @@ namespace UserService.Infrastructure
             });
 
             services.AddHangfireServer();
+
+            services.AddScoped<RunningJobs>();
 
             // Đăng ký service khác (cache, email, storage…)
             services.AddScoped<IUnitOfWork, UnitOfWork>();

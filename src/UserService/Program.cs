@@ -107,13 +107,18 @@ namespace UserService
             }
 
             // Remove HTTPS redirection for HTTP-only setup
-             app.UseHttpsRedirection();
+            app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseCors("AllowAll");
 
             app.MapControllers();
-            RunningJobs.AddRunningJobs();
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var service = scope.ServiceProvider.GetRequiredService<RunningJobs>();
+                service.AddRunningJobs();
+            }
 
             app.Run();
         }
