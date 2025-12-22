@@ -104,6 +104,7 @@ namespace UserService
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
+                app.UseHangfireDashboard();
             }
 
             // Remove HTTPS redirection for HTTP-only setup
