@@ -33,8 +33,12 @@ namespace ResourceService
             app.UseAuthentication();
             app.UseAuthorization();
 
-            // Simple health endpoint for testing from Railway
-            app.MapGet("/health", () => Results.Ok("OK from ResourceService"));
+            // Simple health endpoint for testing from Railway, with logging
+            app.MapGet("/health", (ILogger<Program> logger) =>
+            {
+                logger.LogInformation("Health endpoint hit");
+                return Results.Ok("OK from ResourceService");
+            });
 
             app.MapControllers();
             
