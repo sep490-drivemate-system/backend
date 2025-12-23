@@ -12,6 +12,7 @@ namespace UserService.Application.Interfaces
         Task<Result<PaginatedList<UserDetailDTO>>> GetAllUser(UserFilterDTO filter);
         Task<Result<UserDetailDTO>> GetUser(Guid userId);
         Task<Result<bool>> UpdatePersonalProfile(Guid id, UserProfileUpdateDTO user_profile);
+        Task<Result<bool>> BanUser(Guid userId, BanUserDTO request);
         #endregion
 
         #region User contacts

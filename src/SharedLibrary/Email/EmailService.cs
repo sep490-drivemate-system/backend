@@ -93,6 +93,7 @@ namespace SharedLibrary.Email
                 EmailType.RejectSession => "RejectSession.html",
                 EmailType.PostRejected => "PostRejected.html",
                 EmailType.WithdrawRejected => "WithdrawRejected.html",
+                EmailType.BanUser => "BanUser.html",
                 _ => "EmailVerificationCode.html" // Default template
             };
         }
@@ -174,6 +175,7 @@ namespace SharedLibrary.Email
                 EmailType.RejectSession => "Thông báo: Học viên từ chối buổi thuê",
                 EmailType.PostRejected => "Thông báo: Bài viết của bạn đã bị từ chối",
                 EmailType.WithdrawRejected => "Thông báo: Yêu cầu rút tiền đã bị từ chối",
+                EmailType.BanUser => "Tài khoản của bạn đã bị khóa",
                 _ => "Thông báo từ DriveMate"
             };
         }

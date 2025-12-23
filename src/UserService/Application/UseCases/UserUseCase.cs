@@ -1,11 +1,14 @@
 using AutoMapper;
 using Resend;
 using SharedLibrary.CloudinaryStorage;
+using SharedLibrary.Email;
 using SharedLibrary.SharedKernel.Enum;
 using SharedLibrary.SharedKernel.Http.DTOs.User;
 using SharedLibrary.SharedKernel.Pagination;
 using SharedLibrary.SharedKernel.Password;
 using SharedLibrary.SharedKernel.ServiceResult;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using UserService.Application.Commons.Constants;
@@ -17,12 +20,13 @@ using UserService.Domain.Enum;
 
 namespace UserService.Application.UseCases
 {
-    public class UserUseCase(IUnitOfWork unitOfWork, IPasswordHasherService passwordHasher, ICloudinaryServiceProvider cloudinary, IMapper mapper): IUserUseCase
+    public class UserUseCase(IUnitOfWork unitOfWork, IPasswordHasherService passwordHasher, ICloudinaryServiceProvider cloudinary, IMapper mapper, IEmailService emailService): IUserUseCase
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IPasswordHasherService _passwordHasherService = passwordHasher;
         private readonly ICloudinaryServiceProvider _cloudinaryService = cloudinary;
         private readonly IMapper _mapper = mapper;
+        private readonly IEmailService _emailService = emailService;
 
         public async Task<Result<bool>> CreateDefaultUserAccount(UserCreationDTO user_information)
         {
@@ -131,6 +135,45 @@ namespace UserService.Application.UseCases
                 }).ToList(), filter.Page, filter.PageSize);
 
             return Result<PaginatedList<UserDetailDTO>>.Success(mappedList);
+        }
+
+        public async Task<Result<bool>> BanUser(Guid userId, BanUserDTO request)
+        {
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(userId);
+
+            if (user == null || user.IsDeleted)
+            {
+                return Result<bool>.Failure(ServiceError.NotFoundError($"{userId}"), Messages.User.UserNotFound);
+            }
+
+            if (!string.Equals(user.Email, user.Email, StringComparison.OrdinalIgnoreCase))
+            {
+                return Result<bool>.Failure(ServiceError.BadRequestError($"{user.Email}"), Messages.Common.UnknownError);
+            }
+
+            user.AccountStatus = AccountStatus.Banned;
+            user.LastModifiedAt = DateTime.Now;
+            _unitOfWork.UserRepository.Update(user);
+            await _unitOfWork.CommitChangesAsync();
+
+            var placeholders = new Dictionary<string, string>
+            {
+                { "username", user.Fullname ?? user.Email },
+                { "reason", string.IsNullOrWhiteSpace(request.Reason) ? "Tài khoản bị khóa bởi quản trị viên." : request.Reason }
+            };
+
+            var emailSent = await _emailService.SendingEmail(
+                user.Email,
+                placeholders,
+                "Tài khoản của bạn đã bị khóa",
+                EmailType.BanUser);
+
+            if (!emailSent)
+            {
+                return Result<bool>.Failure(new ServiceError(ServiceError.Unhandled, Messages.Common.EmailError));
+            }
+
+            return Result<bool>.Success(true, Messages.Common.Success);
         }
 
         public async Task<Result<UserDetailDTO>> GetUser(Guid userId)

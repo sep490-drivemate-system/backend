@@ -122,6 +122,13 @@ namespace UserService.Controllers
             return Ok(result);
         }
 
+        [HttpPost("{id}/ban")]
+        public async Task<IActionResult> BanUser([FromRoute] Guid id, [FromBody] BanUserDTO request)
+        {
+            var result = await _userUseCase.BanUser(id, request);
+            return result.ToActionResult(_logger);
+        }
+
         [HttpPost]
         public async Task<IActionResult> CreateDefaultUserAccount([FromBody] UserCreationDTO details)
         {
