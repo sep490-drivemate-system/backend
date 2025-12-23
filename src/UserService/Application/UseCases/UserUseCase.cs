@@ -507,5 +507,44 @@ namespace UserService.Application.UseCases
             return Result<UserStatisticDTO>.Success(summarizedStatistic);
         }
         #endregion
+
+        public async Task<Result<bool>> UnBanUser(Guid userId)
+        {
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(userId);
+
+            if (user == null || user.IsDeleted)
+            {
+                return Result<bool>.Failure(ServiceError.NotFoundError($"{userId}"), Messages.User.UserNotFound);
+            }
+
+            if (!string.Equals(user.Email, user.Email, StringComparison.OrdinalIgnoreCase))
+            {
+                return Result<bool>.Failure(ServiceError.BadRequestError($"{user.Email}"), Messages.Common.UnknownError);
+            }
+
+            user.AccountStatus = AccountStatus.Normal;
+            user.LastModifiedAt = DateTime.Now;
+            _unitOfWork.UserRepository.Update(user);
+            await _unitOfWork.CommitChangesAsync();
+
+            var placeholders = new Dictionary<string, string>
+            {
+                { "username", user.Fullname ?? user.Email },
+                { "reason", "Tài khoản bị khóa bởi quản trị viên." }
+            };
+
+            var emailSent = await _emailService.SendingEmail(
+                user.Email,
+                placeholders,
+                "Tài khoản của bạn đã được mở khóa",
+                EmailType.UnbanUser);
+
+            if (!emailSent)
+            {
+                return Result<bool>.Failure(new ServiceError(ServiceError.Unhandled, Messages.Common.EmailError));
+            }
+
+            return Result<bool>.Success(true, Messages.Common.Success);
+        }
     }
 }

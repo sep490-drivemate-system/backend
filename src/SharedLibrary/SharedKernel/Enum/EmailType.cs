@@ -16,6 +16,7 @@ namespace SharedLibrary.SharedKernel.Enum
         DriverReschedule,
         PostRejected,
         WithdrawRejected,
-        BanUser
+        BanUser,
+        UnbanUser
     }
 }

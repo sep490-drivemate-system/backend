@@ -122,10 +122,16 @@ namespace UserService.Controllers
             return Ok(result);
         }
 
-        [HttpPost("{id}/ban")]
+        [HttpPut("{id}/ban")]
         public async Task<IActionResult> BanUser([FromRoute] Guid id, [FromBody] BanUserDTO request)
         {
             var result = await _userUseCase.BanUser(id, request);
+            return result.ToActionResult(_logger);
+        }
+        [HttpPut("{id}/unban")]
+        public async Task<IActionResult> UnBanUser([FromRoute] Guid id)
+        {
+            var result = await _userUseCase.UnBanUser(id);
             return result.ToActionResult(_logger);
         }
 

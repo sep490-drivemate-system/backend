@@ -13,6 +13,7 @@ namespace UserService.Application.Interfaces
         Task<Result<UserDetailDTO>> GetUser(Guid userId);
         Task<Result<bool>> UpdatePersonalProfile(Guid id, UserProfileUpdateDTO user_profile);
         Task<Result<bool>> BanUser(Guid userId, BanUserDTO request);
+        Task<Result<bool>> UnBanUser(Guid userId);
         #endregion
 
         #region User contacts
