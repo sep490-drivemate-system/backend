@@ -10,6 +10,10 @@ namespace ResourceService
             var config = builder.Configuration;
             builder.Configuration.AddEnvironmentVariables();
 
+            // Bind to PORT provided by hosting platform (e.g., Railway)
+            var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+            builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+
             // Add services to the container.
             builder.Services.ConfigureInfrastructure(config);
             builder.Services.AddControllers();
@@ -18,13 +22,13 @@ namespace ResourceService
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+            // Enable Swagger in all environments so it works on Railway (Production).
+            app.UseSwagger();
+            app.UseSwaggerUI();
             
-            app.UseHttpsRedirection();
+            // In container environments behind a reverse proxy/HTTPS terminator (like Railway),
+            // it's usually not necessary to force HTTPS redirection here.
+            // app.UseHttpsRedirection();
             // CORS should run before auth to allow preflight without auth headers
             app.UseCors("AllowAll");
             app.UseAuthentication();
