@@ -22,6 +22,10 @@ namespace ApiGetwate
             var config = builder.Configuration;
             builder.Configuration.AddEnvironmentVariables();
             builder.Services.AddControllers();
+
+            // Bind to PORT provided by hosting (e.g., Railway). Default 8080 if missing.
+            var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+            builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
             
             var ocelotFile = builder.Environment.IsProduction() ? "ocelot.Production.json" : 
                            builder.Environment.IsDevelopment() ? "ocelot.Development.json" : "ocelot.json";
