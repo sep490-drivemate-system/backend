@@ -51,7 +51,7 @@ namespace ResourceService.Infrastructure
             {
                 c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
                 {
-                    Title = "Booking Service API",
+                    Title = "Resource Service API",
                     Version = "v1",
                 });
                 c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme

@@ -21,18 +21,21 @@ namespace ResourceService
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
-            // Enable Swagger in all environments so it works on Railway (Production).
+            // Enable Swagger in all environments (including Production on Railway)
             app.UseSwagger();
             app.UseSwaggerUI();
-            
-            // In container environments behind a reverse proxy/HTTPS terminator (like Railway),
-            // it's usually not necessary to force HTTPS redirection here.
+
+            // Do not force HTTPS redirection inside container; Railway terminates HTTPS at the edge
+            // and forwards HTTP into the container. Forcing HTTPS here can cause redirect issues.
             // app.UseHttpsRedirection();
-            // CORS should run before auth to allow preflight without auth headers
+
             app.UseCors("AllowAll");
             app.UseAuthentication();
             app.UseAuthorization();
+
+            // Simple health endpoint for testing from Railway
+            app.MapGet("/health", () => Results.Ok("OK from ResourceService"));
+
             app.MapControllers();
             
             app.Run();
