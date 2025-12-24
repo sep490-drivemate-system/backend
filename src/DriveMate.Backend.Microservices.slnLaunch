@@ -9,6 +9,10 @@
       {
         "Path": "BookingService\\BookingService.csproj",
         "Action": "Start"
+      },
+      {
+        "Path": "PaymentService\\PaymentService.csproj",
+        "Action": "Start"
       }
     ]
   }

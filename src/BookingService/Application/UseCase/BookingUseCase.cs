@@ -47,6 +47,7 @@ namespace BookingService.Application.UseCase
             var booking = _mapper.Map<Booking>(packageBuyingDTO);
             booking.Id = id;
             booking.DriverId = driverId;
+            booking.CreatedAt = DateTime.Now;
             booking.Status = BookingStatus.Purchased;
             var createdBooking = await _unitOfWork.BookingRepository.CreateAsync(booking);
             await _unitOfWork.CommitChangesAsync();
