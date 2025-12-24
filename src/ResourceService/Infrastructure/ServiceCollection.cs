@@ -13,6 +13,7 @@ using ResourceService.Infrastructure.Persistences;
 using ResourceService.Infrastructure.Repositories;
 using SharedLibrary.CloudinaryStorage;
 using SharedLibrary.Email;
+using Resend;
 using SharedLibrary.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -104,6 +105,15 @@ namespace ResourceService.Infrastructure
 
             // Shared library services
             services.AddScoped<IJwtService, JwtService>();
+            
+            // Register Resend for email service
+            services.AddHttpClient<ResendClient>();
+            services.AddTransient<IResend, ResendClient>();
+            services.Configure<ResendClientOptions>(o =>
+            {
+                o.ApiToken = Environment.GetEnvironmentVariable("RESEND_APITOKEN") ?? Environment.GetEnvironmentVariable("RESEND_API_KEY") ?? string.Empty;
+            });
+            
             services.AddScoped<IEmailService, EmailService>();
 
             // Third party

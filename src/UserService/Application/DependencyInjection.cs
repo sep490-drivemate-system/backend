@@ -6,6 +6,7 @@ using SharedLibrary.SharedKernel.Http;
 using SharedLibrary.SharedKernel.Http.Implementation;
 using SharedLibrary.SharedKernel.Http.Interfaces;
 using SharedLibrary.SharedKernel.Password;
+using System.Net.Http;
 using UserService.Application.Interfaces;
 using UserService.Application.Jobs.ReccurringJobs;
 using UserService.Application.UseCases;

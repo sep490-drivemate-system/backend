@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SharedLibrary.Email;
 using SharedLibrary.Jwt;
+using Resend;
 using SharedLibrary.SharedKernel.Http;
 using SharedLibrary.SharedKernel.Http.Implementation;
 using SharedLibrary.SharedKernel.Http.Interfaces;
@@ -37,6 +38,15 @@ namespace BookingService.Application
             services.AddScoped<IUser, User>();
 
             services.AddScoped<IJwtService, JwtService>();
+            
+            // Register Resend for email service
+            services.AddHttpClient<ResendClient>();
+            services.AddTransient<IResend, ResendClient>();
+            services.Configure<ResendClientOptions>(o =>
+            {
+                o.ApiToken = Environment.GetEnvironmentVariable("RESEND_APITOKEN") ?? Environment.GetEnvironmentVariable("RESEND_API_KEY") ?? string.Empty;
+            });
+            
             services.AddScoped<IEmailService, EmailService>();
             services.AddHttpClient<HttpService>();
             services.AddScoped<HttpService>();

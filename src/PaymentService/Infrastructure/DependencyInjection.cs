@@ -11,6 +11,7 @@ using SharedLibrary.Email;
 using SharedLibrary.Payment.PayOs;
 using SharedLibrary.Payment.VnPay;
 using SharedLibrary.Payment.ZaloPay;
+using Resend;
 
 namespace PaymentService.Infrastructure
 {
@@ -50,6 +51,14 @@ namespace PaymentService.Infrastructure
             services.AddScoped<IPayOSService, PayOSService>();
             services.AddScoped<IVNPayService, VNPayService>();
             services.AddScoped<IZaloPayService, ZaloPayService>();
+            
+            // Register Resend for email service
+            services.AddHttpClient<ResendClient>();
+            services.AddTransient<IResend, ResendClient>();
+            services.Configure<ResendClientOptions>(o =>
+            {
+                o.ApiToken = Environment.GetEnvironmentVariable("RESEND_APITOKEN") ?? Environment.GetEnvironmentVariable("RESEND_API_KEY") ?? string.Empty;
+            });
             
             // Add Email Service
             services.AddScoped<IEmailService, EmailService>();

@@ -2,12 +2,9 @@ using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Configuration;
 using MimeKit;
+using Resend;
 using SharedLibrary.SharedKernel.Enum;
 using System.Collections.Concurrent;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Twilio.TwiML.Messaging;
 
 namespace SharedLibrary.Email
 {
@@ -16,11 +13,24 @@ namespace SharedLibrary.Email
         private readonly IConfiguration _configuration;
         private static readonly ConcurrentDictionary<string, string> _templateCache = new();
         private readonly string _templateBasePath;
+        private readonly bool _useResendApi;
+        private readonly IResend? _resendClient;
 
-        public EmailService( IConfiguration configuration )
+        public EmailService(IConfiguration configuration, IResend? resendClient = null)
         {
             _templateBasePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Email", "Template");
             _configuration = configuration;
+            
+            // Only use Resend if it's injected via DI
+            // ResendClient requires IOptionsSnapshot and HttpClient, so it should be registered in DI
+            _useResendApi = resendClient != null;
+            
+            if (_useResendApi)
+            {
+                _resendClient = resendClient;
+            }
+            
+            Console.WriteLine($"[EmailService] Initialized. Using {(_useResendApi ? "Resend API" : "SMTP")} for email delivery.");
         }
         public async Task<bool> SendVerificationCodeAsync(string toEmail, string verificationCode)
         {
@@ -28,10 +38,19 @@ namespace SharedLibrary.Email
             {
                 Console.WriteLine($"[EmailService] Sending verification code to {toEmail}");
                 var emailBody = GenerateEmailBody(toEmail, EmailType.VerifyOPTCode, null, verificationCode);
-                var emailMessage = BuildEmailMessage(toEmail, emailBody, EmailType.VerifyOPTCode);
-                await SendEmailViaSmtp(emailMessage);
-                Console.WriteLine($"[EmailService] Verification code email sent successfully to {toEmail}");
-                return true;
+                var subject = GetEmailSubject(EmailType.VerifyOPTCode);
+                
+                if (_useResendApi)
+                {
+                    return await SendEmailViaResendApi(toEmail, subject, emailBody);
+                }
+                else
+                {
+                    var emailMessage = BuildEmailMessage(toEmail, emailBody, EmailType.VerifyOPTCode);
+                    await SendEmailViaSmtp(emailMessage);
+                    Console.WriteLine($"[EmailService] Verification code email sent successfully to {toEmail}");
+                    return true;
+                }
             }
             catch (Exception ex)
             {
@@ -50,9 +69,18 @@ namespace SharedLibrary.Email
             {
                 Console.WriteLine($"[EmailService] Sending forgot password email to {toEmail}");
                 var emailBody = GenerateEmailBody(toEmail, EmailType.ForgotPassword, resetToken, null);
-                var emailMessage = BuildEmailMessage(toEmail, emailBody, EmailType.ForgotPassword);
-                await SendEmailViaSmtp(emailMessage);
-                Console.WriteLine($"[EmailService] Forgot password email sent successfully to {toEmail}");
+                var subject = GetEmailSubject(EmailType.ForgotPassword);
+                
+                if (_useResendApi)
+                {
+                    await SendEmailViaResendApi(toEmail, subject, emailBody);
+                }
+                else
+                {
+                    var emailMessage = BuildEmailMessage(toEmail, emailBody, EmailType.ForgotPassword);
+                    await SendEmailViaSmtp(emailMessage);
+                    Console.WriteLine($"[EmailService] Forgot password email sent successfully to {toEmail}");
+                }
             }
             catch (Exception ex)
             {
@@ -63,22 +91,36 @@ namespace SharedLibrary.Email
         }
         public async Task<bool> SendInstructorWelcomingAsync(string toEmail, DateOnly verificationExpirationDate)
         {
-            var htmlTemplate = LoadEmailTemplate(GetTemplateFileName(EmailType.InstructorRegistration));
-
-            string mesageBody = htmlTemplate.Replace("{{username}}", toEmail)
-                .Replace("{{expiry_date}}", verificationExpirationDate.ToString("dd/MM/yyyy"));
-
-            var message = new MimeMessage();
-            message.From.Add(new MailboxAddress(_configuration["EMAIL:SENDER_NAME"], _configuration["EMAIL:SENDER_EMAIL"]));
-            message.To.Add(new MailboxAddress(string.Empty, toEmail));
-            message.Subject = GetEmailSubject(EmailType.InstructorRegistration);
-            var bodyBuilder = new BodyBuilder { HtmlBody = mesageBody};
-            message.Body = bodyBuilder.ToMessageBody();
-
             try
             {
-                await SendEmailViaSmtp(message);
-                return true;
+                Console.WriteLine($"[EmailService] Sending instructor welcome email to {toEmail}");
+                var htmlTemplate = LoadEmailTemplate(GetTemplateFileName(EmailType.InstructorRegistration));
+
+                string mesageBody = htmlTemplate.Replace("{{username}}", toEmail)
+                    .Replace("{{expiry_date}}", verificationExpirationDate.ToString("dd/MM/yyyy"))
+                    .Replace("{{login_url}}", _configuration["FRONTEND:LOGIN"]);
+
+                var subject = GetEmailSubject(EmailType.InstructorRegistration);
+                
+                if (_useResendApi)
+                {
+                    return await SendEmailViaResendApi(toEmail, subject, mesageBody);
+                }
+                else
+                {
+                    var message = new MimeMessage();
+                    var senderName = _configuration["EMAIL:SENDER_NAME"] ?? _configuration["EMAIL__SENDER_NAME"] ?? "DriveMate";
+                    var senderEmail = _configuration["EMAIL:SENDER_EMAIL"] ?? _configuration["EMAIL__SENDER_EMAIL"];
+                    message.From.Add(new MailboxAddress(senderName, senderEmail));
+                    message.To.Add(new MailboxAddress(string.Empty, toEmail));
+                    message.Subject = subject;
+                    var bodyBuilder = new BodyBuilder { HtmlBody = mesageBody};
+                    message.Body = bodyBuilder.ToMessageBody();
+                    
+                    await SendEmailViaSmtp(message);
+                    Console.WriteLine($"[EmailService] Instructor welcome email sent successfully to {toEmail}");
+                    return true;
+                }
             }
             catch (Exception ex)
             {
@@ -202,10 +244,12 @@ namespace SharedLibrary.Email
 
         private async Task SendEmailViaSmtp(MimeMessage message)
         {
-            var smtpServer = _configuration["EMAIL:SMTP_SERVER"];
-            var smtpPort = int.Parse(_configuration["EMAIL:SMTP_PORT"] ?? "587");
-            var senderEmail = _configuration["EMAIL:SENDER_EMAIL"];
-            var senderPassword = _configuration["EMAIL:SENDER_PASSWORD"];
+            // Support both EMAIL:SMTP_* and EMAIL__SMTP_* formats (Railway uses __ which becomes : in code)
+            var smtpServer = _configuration["EMAIL:SMTP_SERVER"] ?? _configuration["EMAIL__SMTP_SERVER"];
+            var smtpPortStr = _configuration["EMAIL:SMTP_PORT"] ?? _configuration["EMAIL__SMTP_PORT"] ?? "587";
+            var smtpPort = int.Parse(smtpPortStr);
+            var senderEmail = _configuration["EMAIL:SENDER_EMAIL"] ?? _configuration["EMAIL__SENDER_EMAIL"];
+            var senderPassword = _configuration["EMAIL:SENDER_PASSWORD"] ?? _configuration["EMAIL__SENDER_PASSWORD"];
             
             Console.WriteLine($"[EmailService] Attempting to connect to SMTP: {smtpServer}:{smtpPort}");
             Console.WriteLine($"[EmailService] From: {senderEmail}");
@@ -217,11 +261,17 @@ namespace SharedLibrary.Email
             }
             
             using var client = new SmtpClient();
-            client.Timeout = 15000; // 15 seconds timeout (reduced from 30)
+            client.Timeout = 30000; // 30 seconds timeout for SendGrid
             
-            // Try multiple ports and SSL options for Gmail
-            var portsToTry = new[] { smtpPort, 465, 25 };
-            var sslOptions = new[] { SecureSocketOptions.StartTls, SecureSocketOptions.SslOnConnect, SecureSocketOptions.Auto };
+            // For SendGrid, use port 587 with StartTls (most reliable)
+            // If that fails, try port 465 with SSL
+            var portsToTry = smtpServer.Contains("sendgrid", StringComparison.OrdinalIgnoreCase) 
+                ? new[] { 587, 465 } // SendGrid: try 587 first, then 465
+                : new[] { smtpPort, 465, 25 }; // Other SMTP: try configured port, then alternatives
+            
+            var sslOptions = smtpServer.Contains("sendgrid", StringComparison.OrdinalIgnoreCase)
+                ? new[] { SecureSocketOptions.StartTls, SecureSocketOptions.SslOnConnect } // SendGrid: StartTls preferred
+                : new[] { SecureSocketOptions.StartTls, SecureSocketOptions.SslOnConnect, SecureSocketOptions.Auto };
             
             Exception lastException = null;
             
@@ -231,13 +281,13 @@ namespace SharedLibrary.Email
                 {
                     try
                     {
-                        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+                        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
                         Console.WriteLine($"[EmailService] Trying to connect to {smtpServer}:{port} with {sslOption}...");
                         
                         await client.ConnectAsync(smtpServer, port, sslOption, cts.Token);
                         Console.WriteLine($"[EmailService] Connected successfully to {smtpServer}:{port}");
                         
-                        Console.WriteLine($"[EmailService] Authenticating...");
+                        Console.WriteLine($"[EmailService] Authenticating with username: {senderEmail}...");
                         await client.AuthenticateAsync(senderEmail, senderPassword, cts.Token);
                         Console.WriteLine($"[EmailService] Authenticated successfully");
                         
@@ -252,7 +302,7 @@ namespace SharedLibrary.Email
                     catch (OperationCanceledException)
                     {
                         Console.WriteLine($"[EmailService] Connection to {smtpServer}:{port} timed out");
-                        lastException = new TimeoutException($"SMTP connection to {smtpServer}:{port} timed out after 15 seconds.");
+                        lastException = new TimeoutException($"SMTP connection to {smtpServer}:{port} timed out after 30 seconds.");
                         if (client.IsConnected)
                         {
                             await client.DisconnectAsync(false);
@@ -277,6 +327,50 @@ namespace SharedLibrary.Email
             throw lastException ?? new InvalidOperationException($"Failed to connect to SMTP server {smtpServer} on any port");
         }
 
+        private async Task<bool> SendEmailViaResendApi(string toEmail, string subject, string htmlBody)
+        {
+            if (_resendClient == null)
+            {
+                throw new InvalidOperationException("Resend client is not configured. Please set RESEND_API_KEY or RESEND_APITOKEN environment variable.");
+            }
+
+            try
+            {
+                var fromEmail = _configuration["EMAIL:SENDER_EMAIL"] ?? _configuration["EMAIL__SENDER_EMAIL"] ?? "noreply@yourdomain.com";
+                var fromName = _configuration["EMAIL:SENDER_NAME"] ?? _configuration["EMAIL__SENDER_NAME"] ?? "DriveMate";
+
+                Console.WriteLine($"[EmailService] Sending email via Resend API to {toEmail}");
+
+                var message = new EmailMessage
+                {
+                    From = $"{fromName} <{fromEmail}>",
+                    To = new[] { toEmail },
+                    Subject = subject,
+                    HtmlBody = htmlBody
+                };
+
+                var response = await _resendClient.EmailSendAsync(message);
+
+                if (response != null )
+                {
+                    Console.WriteLine($"[EmailService] Email sent successfully via Resend API to {toEmail}");
+                    return true;
+                }
+                else
+                {
+                    var errorMsg = "Unknown error";
+                    Console.WriteLine($"[EmailService] Resend API error: {errorMsg}");
+                    throw new HttpRequestException($"Resend API returned error: {errorMsg}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[EmailService] ERROR sending email via Resend API to {toEmail}: {ex.GetType().Name} - {ex.Message}");
+                Console.WriteLine($"[EmailService] Stack trace: {ex.StackTrace}");
+                throw;
+            }
+        }
+
         public async Task<bool> SendingEmail(string recipients_address, Dictionary<string, string> replace_terms, string topic, EmailType type)
         {
             var htmlTemplate = LoadEmailTemplate(GetTemplateFileName(type));
@@ -296,9 +390,17 @@ namespace SharedLibrary.Email
             try
             {
                 Console.WriteLine($"[EmailService] Sending email to {recipients_address}");
-                await SendEmailViaSmtp(message);
-                Console.WriteLine($"[EmailService] Email sent successfully to {recipients_address}");
-                return true;
+                
+                if (_useResendApi)
+                {
+                    return await SendEmailViaResendApi(recipients_address, topic, htmlTemplate);
+                }
+                else
+                {
+                    await SendEmailViaSmtp(message);
+                    Console.WriteLine($"[EmailService] Email sent successfully to {recipients_address}");
+                    return true;
+                }
             }
             catch (Exception ex)
             {

@@ -7,6 +7,7 @@ using SharedLibrary.Jwt;
 using SharedLibrary.SharedKernel.Http.Interfaces;
 using SharedLibrary.SharedKernel.Http.Implementation;
 using SharedLibrary.Email;
+using Resend;
 
 
 namespace BookingService.Infrastructure
@@ -57,6 +58,15 @@ namespace BookingService.Infrastructure
             // Đăng ký dịch vụ bên thứ ba
             services.AddScoped<ICloudinaryServiceProvider, CloudinaryServiceProvider>();
             services.AddScoped<ISystemConfigurationHttpService, SystemConfigurationHttpService>();
+            
+            // Register Resend for email service
+            services.AddHttpClient<ResendClient>();
+            services.AddTransient<IResend, ResendClient>();
+            services.Configure<ResendClientOptions>(o =>
+            {
+                o.ApiToken = Environment.GetEnvironmentVariable("RESEND_APITOKEN") ?? Environment.GetEnvironmentVariable("RESEND_API_KEY") ?? string.Empty;
+            });
+            
             services.AddScoped<IEmailService, EmailService>();
 
             // Register RabbitMQ service (with fallback to mock if connection fails)            
