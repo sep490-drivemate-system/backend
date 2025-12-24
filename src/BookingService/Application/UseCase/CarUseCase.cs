@@ -289,7 +289,6 @@ namespace BookingService.Application.UseCase
             && (filter.CarType == null || x.CarType == filter.CarType)
             && (filter.FuelType == null || x.FuelType.ToLower().Equals(filter.FuelType.ToLower()))
             && (filter.Status == null || x.Status == filter.Status)
-            && x.Status == Domain.Enum.CarStatus.Approved
             && !x.IsDeleted; ;
             Func<IQueryable<Car>, IOrderedQueryable<Car>>? order_expression = null;
             string included_properties = "Manufacturer,Packages,CarImages,Bookings,Feedbacks";

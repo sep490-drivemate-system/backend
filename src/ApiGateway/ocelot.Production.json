@@ -303,6 +303,25 @@
       "SwaggerKey": "userService"
     },
     {
+      "DownstreamPathTemplate": "/api/configurations/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${USERSERVICE_HOST}",
+          "Port": 433
+        }
+      ],
+      "UpstreamPathTemplate": "/configurations/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "PATCH"
+      ],
+      "SwaggerKey": "userService"
+    },
+    {
       "DownstreamPathTemplate": "/api/document/{everything}",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [

@@ -42,8 +42,7 @@ namespace SharedLibrary.Email
             var htmlTemplate = LoadEmailTemplate(GetTemplateFileName(EmailType.InstructorRegistration));
 
             string mesageBody = htmlTemplate.Replace("{{username}}", toEmail)
-                .Replace("{{expiry_date}}", verificationExpirationDate.ToString("dd/MM/yyyy"))
-                .Replace("{{login_url}}", _configuration["FRONTEND:LOGIN"]);
+                .Replace("{{expiry_date}}", verificationExpirationDate.ToString("dd/MM/yyyy"));
 
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress(_configuration["EMAIL:SENDER_NAME"], _configuration["EMAIL:SENDER_EMAIL"]));
