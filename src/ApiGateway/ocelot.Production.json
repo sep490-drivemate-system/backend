@@ -142,7 +142,8 @@
         "GET",
         "POST",
         "PUT",
-        "DELETE"
+        "DELETE",
+        "PATCH"
       ],
       "SwaggerKey": "bookingService"
     },
