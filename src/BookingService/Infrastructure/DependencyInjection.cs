@@ -1,13 +1,17 @@
-using Microsoft.EntityFrameworkCore;
-using BookingService.Infrastructure.Persistence.Context;
 using BookingService.Application.Interfaces;
+using BookingService.Infrastructure.Jobs;
+using BookingService.Infrastructure.Persistence.Context;
 using BookingService.Infrastructure.UoW;
-using SharedLibrary.CloudinaryStorage;
-using SharedLibrary.Jwt;
-using SharedLibrary.SharedKernel.Http.Interfaces;
-using SharedLibrary.SharedKernel.Http.Implementation;
-using SharedLibrary.Email;
+using Hangfire;
+using Hangfire.PostgreSql;
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using Resend;
+using SharedLibrary.CloudinaryStorage;
+using SharedLibrary.Email;
+using SharedLibrary.Jwt;
+using SharedLibrary.SharedKernel.Http.Implementation;
+using SharedLibrary.SharedKernel.Http.Interfaces;
 
 
 namespace BookingService.Infrastructure
@@ -27,6 +31,19 @@ namespace BookingService.Infrastructure
             // Đăng ký dịch vụ hệ thống
             services.AddScoped<IUnitOfWork,UnitOfWork>();
             services.AddScoped<IJwtService, JwtService>();
+
+            // Đăng kí Hangfire
+            CreateHangFireDatabase(configuration); // Create hangfire db if not exist.
+
+            services.AddHangfire((sp, config) =>
+            {
+                config.UsePostgreSqlStorage(options => options.UseNpgsqlConnection(configuration.GetConnectionString("BOOKINGSERVICEHANGFIRE")));
+            });
+
+            services.AddHangfireServer();
+
+            // Đăng kí job chạy ngầm
+            services.AddScoped<RunningJobs>();
 
             // Đăng ký sử dụng HttpClient gọi đến các Microservice bằng phương thức http.
             services.AddHttpClient("UserServiceClient", client =>
@@ -73,6 +90,50 @@ namespace BookingService.Infrastructure
             //services.AddSingleton<IRabbitMQService, RabbitMQService>();
             //services.AddHostedService<RabbitMQHostedService>();
             return services;
+        }
+
+        private static void CreateHangFireDatabase(IConfiguration configuration)
+        {
+            string? hangfireDbConnectionString = configuration.GetConnectionString("BOOKINGSERVICEHANGFIRE");
+
+            if (hangfireDbConnectionString == null)
+            {
+                throw new InvalidOperationException("Can not instantiate Hangfire database because no connection string found");
+            }
+
+            var dictionary = hangfireDbConnectionString.Split(';', StringSplitOptions.RemoveEmptyEntries)
+                .Select(part => part.Split('='))
+                .ToDictionary(split => split[0], split => split[1]);
+
+            // Master Db
+            string masterDbConnectionString = String.Join(';', dictionary.Select(kv => kv.Key == "Database" ? $"{kv.Key}=postgres" : $"{kv.Key}={kv.Value}"));
+
+            using (var connection = new NpgsqlConnection(masterDbConnectionString))
+            {
+                connection.Open();
+
+                bool exists = false;
+                string checkSql = "SELECT 1 FROM pg_database WHERE datname = @dbName";
+
+                using (var cmd = new NpgsqlCommand(checkSql, connection))
+                {
+                    cmd.Parameters.AddWithValue("dbName", dictionary["Database"]);
+                    exists = cmd.ExecuteScalar() != null;
+                }
+
+                if (!exists)
+                {
+                    string createSql = $"CREATE DATABASE \"{dictionary["Database"]}\"";
+
+                    using (var cmd = new NpgsqlCommand(createSql, connection))
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    Console.WriteLine($"Database '{dictionary["Database"]}' created successfully.");
+                }
+                connection.Close();
+            }
         }
     }
 }

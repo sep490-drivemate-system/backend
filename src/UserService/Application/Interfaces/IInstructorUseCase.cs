@@ -18,6 +18,7 @@ namespace UserService.Application.Interfaces
         #region Instructor Schedules
         Task<Result<List<InstructorScheduleDTO>>> GetInstructorSchedule(Guid instructor_id);
         Task<Result<bool>> CreateInstructorSchedule(Guid instructor_id, InstructorScheduleDTO schedule);
+        Task<Result<bool>> GetInstructorScheduleValidation(Guid instructor_id);
         #endregion
 
         #region Instructor Application

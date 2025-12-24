@@ -395,26 +395,26 @@ namespace BookingService.Application.UseCase
             }
 
             // Recent package purchase
-            //var recentPurchases = instructorBookings.OrderByDescending(x => x.CreatedAt).Take(5);
-            //userServiceResponseMessage = await userServiceHttpClient.PostAsJsonAsync<IEnumerable<Guid>>("api/users/driver-ids", recentPurchases.Select(x => x.DriverId));
+            var recentPurchases = instructorBookings.OrderByDescending(x => x.CreatedAt).Take(5);
+            userServiceResponseMessage = await userServiceHttpClient.PostAsJsonAsync<IEnumerable<Guid>>("api/users/ids", recentPurchases.Select(x => x.DriverId));
 
-            //if (!userServiceResponseMessage.IsSuccessStatusCode)
-            //{
-            //    return Result<InstructorStatisticDTO>.Failure(ServiceError.ServiceUnavailableError($"UserService: {userServiceResponseMessage.ReasonPhrase}"), Messages.Commons.UNHANDLED);
-            //}
+            if (!userServiceResponseMessage.IsSuccessStatusCode)
+            {
+                return Result<InstructorStatisticDTO>.Failure(ServiceError.ServiceUnavailableError($"UserService: {userServiceResponseMessage.ReasonPhrase}"), Messages.Commons.UNHANDLED);
+            }
 
-            //users = await userServiceResponseMessage.Content.ReadFromJsonAsync<DefaultApiResponse<IEnumerable<UserDetailDTO>>>();
+            users = await userServiceResponseMessage.Content.ReadFromJsonAsync<DefaultApiResponse<IEnumerable<UserDetailDTO>>>();
 
-            //statistic.RecentPurchases = recentPurchases.Select(x => new RecentPackagePurchasesDTO
-            //{
-            //    BoughtTime = x.CreatedAt,
-            //    PackageId = x.PackageId,
-            //    PackageName = instructorPackage.FirstOrDefault(u => u.Id == x.PackageId)?.Name ?? "",
-            //    NoviceDriverUserId = users.Value.FirstOrDefault(u => u.NoviceDriver.NoviceDriverId == x.DriverId)?.UserId ?? Guid.Empty,
-            //    AvatarUrl = users.Value.FirstOrDefault(u => u.NoviceDriver.NoviceDriverId == x.DriverId)?.AvatarUrl ?? "",
-            //    Fullname = users.Value.FirstOrDefault(u => u.NoviceDriver.NoviceDriverId == x.DriverId)?.FullName ?? "",
-            //    PhoneNumber = users.Value.FirstOrDefault(u => u.NoviceDriver.NoviceDriverId == x.DriverId)?.Phone ?? "",
-            //});
+            statistic.RecentPurchases = recentPurchases.Select(x => new RecentPackagePurchasesDTO
+            {
+                BoughtTime = x.CreatedAt,
+                PackageId = x.PackageId,
+                PackageName = instructorPackage.FirstOrDefault(u => u.Id == x.PackageId)?.Name ?? "",
+                NoviceDriverUserId = users.Value.FirstOrDefault(u => u.UserId == x.DriverId)?.UserId ?? Guid.Empty,
+                AvatarUrl = users.Value.FirstOrDefault(u => u.UserId == x.DriverId)?.AvatarUrl ?? "",
+                Fullname = users.Value.FirstOrDefault(u => u.UserId == x.DriverId)?.FullName ?? "",
+                PhoneNumber = users.Value.FirstOrDefault(u => u.UserId == x.DriverId)?.Phone ?? "",
+            });
 
             // Top packages
             statistic.TopPersonalPackages = instructorBookings.GroupBy(x => x.PackageId).Select(x => new TopPersonalPackage

@@ -155,6 +155,8 @@ namespace SharedLibrary.Email
                 EmailType.WithdrawRejected => "WithdrawRejected.html",
                 EmailType.BanUser => "BanUser.html",
                 EmailType.UnbanUser => "UnbanUser.html",
+                EmailType.ExpiredInsurance => "ExpiredInsurance.html",
+                EmailType.IncomingSchedule => "IncomingSession.html",
                 _ => "EmailVerificationCode.html" // Default template
             };
         }
@@ -238,6 +240,7 @@ namespace SharedLibrary.Email
                 EmailType.WithdrawRejected => "Thông báo: Yêu cầu rút tiền đã bị từ chối",
                 EmailType.BanUser => "Tài khoản của bạn đã bị khóa",
                 EmailType.UnbanUser => "Tài khoản của bạn đã được mở khóa",
+                EmailType.ExpiredInsurance => "Xe của bạn đã hết hạn bảo hiểm",
                 _ => "Thông báo từ DriveMate"
             };
         }
@@ -393,7 +396,9 @@ namespace SharedLibrary.Email
                 
                 if (_useResendApi)
                 {
-                    return await SendEmailViaResendApi(recipients_address, topic, htmlTemplate);
+                    var result = await SendEmailViaResendApi(recipients_address, topic, htmlTemplate);
+                    if (result) Console.WriteLine($"[EmailService] Email sent successfully to {recipients_address}");
+                    return result;
                 }
                 else
                 {

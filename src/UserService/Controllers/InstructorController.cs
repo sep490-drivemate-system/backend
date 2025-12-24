@@ -55,6 +55,13 @@ namespace UserService.Controllers
             return result.ToActionResult();
         }
 
+        [HttpGet("{id}/has-schedule")]
+        public async Task<IActionResult> CheckInstructorScheduleStatus([FromRoute] Guid id)
+        {
+            var result = await _usecase.GetInstructorScheduleValidation(id);
+            return result.ToActionResult();
+        }
+
         [HttpPost("register")]
         public async Task<IActionResult> RegisterAsAnInstructor([FromForm] RegistrationDTO registration)
         {

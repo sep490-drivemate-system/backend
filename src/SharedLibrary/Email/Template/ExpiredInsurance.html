@@ -1,0 +1,68 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cảnh báo hết hạn bảo hiểm xe - DriveMate</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f4f6fa; font-family:'Segoe UI', Tahoma, sans-serif;">
+
+    <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="padding: 40px 0; background-color: #f4f6fa;">
+        <tr>
+            <td align="center">
+                <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="max-width:600px; background-color:#ffffff; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.08); overflow:hidden;">
+
+                    <tr>
+                        <td align="center" style="background-color:#e11d48; padding: 24px;">
+                            <h1 style="margin: 0; font-size: 24px; color: #ffffff;">Cảnh báo hết hạn bảo hiểm!</h1>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="padding: 32px 24px; color: #333333;">
+                            <p style="font-size: 16px; line-height: 1.6; margin-top: 0;">
+                                Xin chào <strong>{{fullname}}</strong>,
+                            </p>
+                            <p style="font-size: 16px; line-height: 1.6;">
+                                Hệ thống <strong>DriveMate</strong> nhận thấy giấy tờ bảo hiểm cho phương tiện của bạn sắp (hoặc đã) hết hạn. Để đảm bảo quyền lợi và tuân thủ quy định pháp luật khi tham gia giao thông, vui lòng kiểm tra thông tin sau:
+                            </p>
+
+                            <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #e11d48;">
+                                <p style="margin: 5px 0; font-size: 15px;"><strong>Mẫu xe:</strong> {{car_name}}</p>
+                                <p style="margin: 5px 0; font-size: 15px;"><strong>Biển kiểm soát:</strong> {{car_plate}}</p>
+                            </div>
+
+                            <p style="font-size: 16px; line-height: 1.6;">
+                                Vui lòng tiến hành gia hạn bảo hiểm trước ngày hết hạn dưới đây để tránh các rủi ro đáng tiếc và các khoản phạt hành chính:
+                            </p>
+
+                            <div style="text-align: center; margin: 40px 0;">
+                                <p style="margin: 0 0 10px 0; font-size: 14px; color: #666666; text-transform: uppercase; letter-spacing: 1px;">Ngày hết hạn bảo hiểm</p>
+                                <span style="background-color:#fff1f2; color:#e11d48; font-size:24px; letter-spacing:2px; font-weight:bold; padding:16px 32px; border-radius:8px; border:2px dashed #e11d48; display:inline-block;">
+                                    {{expiry_date}}
+                                </span>
+                            </div>
+
+                            <p style="font-size: 14px; color: #6b7280; font-style: italic; text-align: center;">
+                                * Nếu bạn đã thực hiện gia hạn, vui lòng cập nhật lại thông tin trên ứng dụng hoặc bỏ qua email này.
+                            </p>
+
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="background-color:#f9fafb; text-align:center; padding: 24px; font-size:13px; color:#888888;">
+                            <p style="margin: 0 0 10px 0;">
+                                Bạn nhận được email này từ dịch vụ quản lý phương tiện DriveMate.
+                            </p>
+                            &copy; 2025 <strong>DriveMate</strong>. Mọi quyền được bảo lưu.<br />
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>

@@ -92,41 +92,6 @@ namespace UserService.Application.UseCases
             return Result<PaginatedList<InstructorDTO>>.Success(paginatedResult);
         }
 
-        public async Task<Result<bool>> UpdateInstructorInformation(Guid id, InstructorProfileUpdateDTO profile)
-        {
-            Expression<Func<Instructor, object>>[] includes = { x => x.User };
-
-            var instructor = await _unitOfWork.InstructorRepository.GetByIdAsync(id, includes: includes);
-
-            if (instructor == null)
-            {
-                return Result<bool>.Failure(ServiceError.NotFoundError($"{id}"), Messages.Common.NotFoundError);
-            }
-
-            if (profile.Gender != null) instructor.User.Gender = profile.Gender ?? instructor.User.Gender; // Fallback to current gender
-            if (profile.Avatar != null) instructor.User.Avatar = _cloudinary.UploadImageFormFileResourceToCloudinaryWithExactName(profile.Avatar, instructor.User.Avatar.Split("/").Last());
-            if (profile.Bio != null) instructor.Bio = profile.Bio;
-
-            _unitOfWork.InstructorRepository.Update(instructor);
-            await _unitOfWork.CommitChangesAsync();
-
-            return Result<bool>.Success(true);
-        }
-        #endregion
-
-        #region Instructor schedules
-        public async Task<Result<List<InstructorScheduleDTO>>> GetInstructorSchedule(Guid instructor_id)
-        {
-            var schedule = await _unitOfWork.ScheduleRepository.GetAllAsync(
-                filter: x => x.InstructorId == instructor_id && !x.IsDeleted,
-                orderBy: x => x.OrderBy(s => s.StartTime)
-            );
-
-            var scheduleDTOs = _mapper.Map<List<InstructorScheduleDTO>>(schedule);
-
-            return Result<List<InstructorScheduleDTO>>.Success(scheduleDTOs);
-        }
-
         public async Task<Result<IEnumerable<InstructorDTO>>> GetRecommendedInstructor(int max_count = 5)
         {
             Expression<Func<Instructor, bool>> filterExpression = x => !x.IsDeleted;
@@ -150,6 +115,42 @@ namespace UserService.Application.UseCases
             return Result<IEnumerable<InstructorDTO>>.Success(mappedInstructorList);
         }
 
+        public async Task<Result<bool>> UpdateInstructorInformation(Guid id, InstructorProfileUpdateDTO profile)
+        {
+            Expression<Func<Instructor, object>>[] includes = { x => x.User };
+
+            var instructor = await _unitOfWork.InstructorRepository.GetByIdAsync(id, includes: includes);
+
+            if (instructor == null)
+            {
+                return Result<bool>.Failure(ServiceError.NotFoundError($"{id}"), Messages.Common.NotFoundError);
+            }
+
+            if (profile.Gender != null) instructor.User.Gender = profile.Gender ?? instructor.User.Gender; // Fallback to current gender
+            if (profile.Avatar != null) instructor.User.Avatar = _cloudinary.UploadImageFormFileResourceToCloudinaryWithExactName(profile.Avatar, instructor.User.Avatar.Split("/").Last());
+            if (profile.Bio != null) instructor.Bio = profile.Bio;
+
+            _unitOfWork.InstructorRepository.Update(instructor);
+            await _unitOfWork.CommitChangesAsync();
+
+            return Result<bool>.Success(true);
+        }
+        #endregion
+
+        #region Instructor Schedules
+        public async Task<Result<List<InstructorScheduleDTO>>> GetInstructorSchedule(Guid instructor_id)
+        {
+            var schedule = await _unitOfWork.ScheduleRepository.GetAllAsync(
+                filter: x => x.InstructorId == instructor_id && !x.IsDeleted,
+                orderBy: x => x.OrderBy(s => s.StartTime)
+            );
+
+            var scheduleDTOs = _mapper.Map<List<InstructorScheduleDTO>>(schedule);
+
+            return Result<List<InstructorScheduleDTO>>.Success(scheduleDTOs);
+        }
+
+        
         public async Task<Result<bool>> CreateInstructorSchedule(Guid instructor_id, InstructorScheduleDTO schedule)
         {
             var instructor = await _unitOfWork.InstructorRepository.GetByIdAsync(instructor_id, include_properties: "InstructorSchedules");
@@ -168,6 +169,26 @@ namespace UserService.Application.UseCases
             await _unitOfWork.CommitChangesAsync();
 
             return Result<bool>.Success(true);
+        }
+
+        public async Task<Result<bool>> GetInstructorScheduleValidation(Guid instructor_id)
+        {
+            // Checking for instructor existence
+            var instructor = await _unitOfWork.InstructorRepository.GetByIdAsync(instructor_id, include_properties: "InstructorSchedules");
+
+            if (instructor == null || instructor.IsDeleted)
+            {
+                return Result<bool>.Failure(ServiceError.EntityNotFoundError(""));
+            }
+
+            // Getting the validation day
+            var days_before_invalid = 30; // A month
+
+            DateOnly start = DateOnly.FromDateTime(DateTime.Now);
+            DateOnly end = start.AddDays(days_before_invalid);
+
+            // True if no valid schdeule found, False if valid schedule found.
+            return Result<bool>.Success(!instructor.InstructorSchedules.Any(x => !x.IsDeleted && x.EndTime > end));
         }
         #endregion
 

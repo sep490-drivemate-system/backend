@@ -17,6 +17,8 @@ namespace SharedLibrary.SharedKernel.Enum
         PostRejected,
         WithdrawRejected,
         BanUser,
-        UnbanUser
+        UnbanUser,
+        ExpiredInsurance,
+        IncomingSchedule,
     }
 }
