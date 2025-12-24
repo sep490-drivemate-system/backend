@@ -93,15 +93,7 @@ namespace ResourceService.Infrastructure
 
             // Configure DbContext
             services.AddDbContext<ResourceDbContext>(options =>
-            {
-                var connectionString = config.GetConnectionString("BLOGSERVICECONNECTION");
-                // Add timezone to connection string if not already present
-                if (!connectionString.Contains("TimeZone", StringComparison.OrdinalIgnoreCase))
-                {
-                    connectionString += ";TimeZone=Asia/Ho_Chi_Minh";
-                }
-                options.UseNpgsql(connectionString);
-            });
+                options.UseNpgsql(config.GetConnectionString("BLOGSERVICECONNECTION")));
 
             // Configure mapper
             services.AddScoped(provider => new MapperConfiguration(cfg => { 

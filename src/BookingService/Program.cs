@@ -11,21 +11,6 @@ namespace BookingService
     {
         public static async Task Main(string[] args)
         {
-            // Set timezone to Vietnam (UTC+7)
-            try
-            {
-                var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Ho_Chi_Minh");
-                if (vietnamTimeZone != null)
-                {
-                    Environment.SetEnvironmentVariable("TZ", "Asia/Ho_Chi_Minh");
-                }
-            }
-            catch
-            {
-                // Fallback: set TZ environment variable for Linux
-                Environment.SetEnvironmentVariable("TZ", "Asia/Ho_Chi_Minh");
-            }
-            
             DotNetEnv.Env.Load("../../.env");
             var builder = WebApplication.CreateBuilder(args);
             var config = builder.Configuration;
