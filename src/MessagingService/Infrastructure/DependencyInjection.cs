@@ -17,6 +17,11 @@ namespace MessagingService.Infrastructure
             services.AddDbContext<MessagingDbContext>(options =>
             {
                 var connectionString = configuration.GetConnectionString("MESSAGINGSERVICECONNECTION");
+                // Add timezone to connection string if not already present
+                if (!connectionString.Contains("TimeZone", StringComparison.OrdinalIgnoreCase))
+                {
+                    connectionString += ";TimeZone=Asia/Ho_Chi_Minh";
+                }
                 options.UseNpgsql(connectionString);
             });
 

@@ -12,6 +12,9 @@ namespace PaymentService
     {
         public static async Task Main(string[] args)
         {
+            // Set timezone environment variable for Linux/Docker (Railway uses Linux containers)
+            Environment.SetEnvironmentVariable("TZ", "Asia/Ho_Chi_Minh");
+            
             DotNetEnv.Env.Load("../../.env");
             var builder = WebApplication.CreateBuilder(args);
             builder.Configuration.AddEnvironmentVariables();
