@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using MimeKit;
 using SharedLibrary.SharedKernel.Enum;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Threading.Tasks;
 using Twilio.TwiML.Messaging;
 
@@ -24,18 +25,40 @@ namespace SharedLibrary.Email
         {
             try
             {
-                await Task.Run(() => SendEmail(toEmail, EmailType.VerifyOPTCode, null, verificationCode));
+                Console.WriteLine($"[EmailService] Sending verification code to {toEmail}");
+                var emailBody = GenerateEmailBody(toEmail, EmailType.VerifyOPTCode, null, verificationCode);
+                var emailMessage = BuildEmailMessage(toEmail, emailBody, EmailType.VerifyOPTCode);
+                await SendEmailViaSmtp(emailMessage);
+                Console.WriteLine($"[EmailService] Verification code email sent successfully to {toEmail}");
                 return true;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"LOI NE: {ex}");
+                Console.WriteLine($"[EmailService] ERROR sending verification code to {toEmail}: {ex.GetType().Name} - {ex.Message}");
+                Console.WriteLine($"[EmailService] Stack trace: {ex.StackTrace}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"[EmailService] Inner exception: {ex.InnerException.Message}");
+                }
                 return false;
             }
         }
         public async Task SendForgotPasswordAsync(string toEmail, string resetToken)
         {
-            await Task.Run(() => SendEmail(toEmail, EmailType.ForgotPassword, resetToken));
+            try
+            {
+                Console.WriteLine($"[EmailService] Sending forgot password email to {toEmail}");
+                var emailBody = GenerateEmailBody(toEmail, EmailType.ForgotPassword, resetToken, null);
+                var emailMessage = BuildEmailMessage(toEmail, emailBody, EmailType.ForgotPassword);
+                await SendEmailViaSmtp(emailMessage);
+                Console.WriteLine($"[EmailService] Forgot password email sent successfully to {toEmail}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[EmailService] ERROR sending forgot password email to {toEmail}: {ex.GetType().Name} - {ex.Message}");
+                Console.WriteLine($"[EmailService] Stack trace: {ex.StackTrace}");
+                throw;
+            }
         }
         public async Task<bool> SendInstructorWelcomingAsync(string toEmail, DateOnly verificationExpirationDate)
         {
@@ -53,24 +76,19 @@ namespace SharedLibrary.Email
 
             try
             {
-                await Task.Run(() => SendEmailViaSmtp(message));
+                await SendEmailViaSmtp(message);
                 return true;
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                Console.WriteLine($"[EmailService] ERROR sending instructor welcome email to {toEmail}: {ex.GetType().Name} - {ex.Message}");
+                Console.WriteLine($"[EmailService] Stack trace: {ex.StackTrace}");
                 return false;
             }
         }
 
 
         #region "Behind the scene"
-        private void SendEmail(string toEmail, EmailType emailType, string? token = null, string? plainPassword = null)
-        {
-            var emailBody = GenerateEmailBody(toEmail, emailType, token, plainPassword);
-            var emailMessage = BuildEmailMessage(toEmail, emailBody, emailType);
-            SendEmailViaSmtp(emailMessage);
-        }
 
         private string GenerateEmailBody(string email, EmailType emailType, string? token, string? plainPassword)
         {
@@ -183,12 +201,49 @@ namespace SharedLibrary.Email
 
         private async Task SendEmailViaSmtp(MimeMessage message)
         {
+            var smtpServer = _configuration["EMAIL:SMTP_SERVER"];
+            var smtpPort = int.Parse(_configuration["EMAIL:SMTP_PORT"] ?? "587");
+            var senderEmail = _configuration["EMAIL:SENDER_EMAIL"];
+            var senderPassword = _configuration["EMAIL:SENDER_PASSWORD"];
+            
+            Console.WriteLine($"[EmailService] Attempting to connect to SMTP: {smtpServer}:{smtpPort}");
+            Console.WriteLine($"[EmailService] From: {senderEmail}");
+            Console.WriteLine($"[EmailService] To: {string.Join(", ", message.To.Select(t => t.ToString()))}");
+            
+            if (string.IsNullOrEmpty(smtpServer) || string.IsNullOrEmpty(senderEmail) || string.IsNullOrEmpty(senderPassword))
+            {
+                throw new InvalidOperationException($"SMTP configuration missing. Server: {smtpServer}, Email: {senderEmail}, Password: {(string.IsNullOrEmpty(senderPassword) ? "MISSING" : "SET")}");
+            }
+            
             using var client = new SmtpClient();
-            // client.ServerCertificateValidationCallback = (s, c, h, e) => true;
-            await client.ConnectAsync(_configuration["EMAIL:SMTP_SERVER"], int.Parse(_configuration["EMAIL:SMTP_PORT"]), SecureSocketOptions.StartTls);
-            await client.AuthenticateAsync(_configuration["EMAIL:SENDER_EMAIL"], _configuration["EMAIL:SENDER_PASSWORD"]);
-            await client.SendAsync(message);
-            await client.DisconnectAsync(true);
+            client.Timeout = 30000; // 30 seconds timeout
+            
+            try
+            {
+                Console.WriteLine($"[EmailService] Connecting to SMTP server...");
+                await client.ConnectAsync(smtpServer, smtpPort, SecureSocketOptions.StartTls);
+                Console.WriteLine($"[EmailService] Connected successfully");
+                
+                Console.WriteLine($"[EmailService] Authenticating...");
+                await client.AuthenticateAsync(senderEmail, senderPassword);
+                Console.WriteLine($"[EmailService] Authenticated successfully");
+                
+                Console.WriteLine($"[EmailService] Sending email...");
+                await client.SendAsync(message);
+                Console.WriteLine($"[EmailService] Email sent successfully");
+                
+                await client.DisconnectAsync(true);
+                Console.WriteLine($"[EmailService] Disconnected from SMTP server");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[EmailService] SMTP Error: {ex.GetType().Name} - {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"[EmailService] Inner exception: {ex.InnerException.Message}");
+                }
+                throw;
+            }
         }
 
         public async Task<bool> SendingEmail(string recipients_address, Dictionary<string, string> replace_terms, string topic, EmailType type)
@@ -209,12 +264,15 @@ namespace SharedLibrary.Email
 
             try
             {
-                await Task.Run(() => SendEmailViaSmtp(message));
+                Console.WriteLine($"[EmailService] Sending email to {recipients_address}");
+                await SendEmailViaSmtp(message);
+                Console.WriteLine($"[EmailService] Email sent successfully to {recipients_address}");
                 return true;
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                Console.WriteLine($"[EmailService] ERROR sending email to {recipients_address}: {ex.GetType().Name} - {ex.Message}");
+                Console.WriteLine($"[EmailService] Stack trace: {ex.StackTrace}");
                 return false;
             }
         }
