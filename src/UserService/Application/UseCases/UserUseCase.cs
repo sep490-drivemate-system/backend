@@ -530,7 +530,6 @@ namespace UserService.Application.UseCases
             var placeholders = new Dictionary<string, string>
             {
                 { "username", user.Fullname ?? user.Email },
-                { "reason", "Tài khoản bị khóa bởi quản trị viên." }
             };
 
             var emailSent = await _emailService.SendingEmail(

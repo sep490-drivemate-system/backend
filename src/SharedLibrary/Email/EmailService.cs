@@ -154,7 +154,7 @@ namespace SharedLibrary.Email
                 EmailType.PostRejected => "PostRejected.html",
                 EmailType.WithdrawRejected => "WithdrawRejected.html",
                 EmailType.BanUser => "BanUser.html",
-                EmailType.UnbanUser => "UnbanUser.html",
+                EmailType.UnbanUser => "UnBanUser.html",
                 EmailType.ExpiredInsurance => "ExpiredInsurance.html",
                 EmailType.IncomingSchedule => "IncomingSession.html",
                 _ => "EmailVerificationCode.html" // Default template
@@ -172,6 +172,14 @@ namespace SharedLibrary.Email
             }
             
             var templatePath = Path.Combine(_templateBasePath, templateFileName);
+            
+            if (!File.Exists(templatePath))
+            {
+                var errorMsg = $"Email template file not found: {templatePath}. Please ensure the file exists in the Email/Template directory.";
+                Console.WriteLine($"[EmailService] ERROR: {errorMsg}");
+                throw new FileNotFoundException(errorMsg, templatePath);
+            }
+            
             var template = File.ReadAllText(templatePath);
             _templateCache.TryAdd(cacheKey, template);
             return template;
