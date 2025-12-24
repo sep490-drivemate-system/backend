@@ -52,14 +52,14 @@ namespace BookingService.Controllers
         public async Task<IActionResult> GetInstructorFeedback(Guid id)
         {
             var result = await _useCase.GetInstructorFeedbacks(id);
-            return Ok(result);
+            return result.ToActionResult();
         }
 
         [HttpGet("cars/{id}")]
         public async Task<IActionResult> GetCarFeedback(Guid id)
         {
             var result = await _useCase.GetCarFeedbacks(id);
-            return Ok(result);
+            return result.ToActionResult();
         }
 
         //[HttpGet("instructor/{id}")]

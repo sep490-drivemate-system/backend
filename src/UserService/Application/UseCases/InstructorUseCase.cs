@@ -390,13 +390,13 @@ namespace UserService.Application.UseCases
             }
 
             // Check for existing accounts (or applications)
-            Expression<Func<InstructorApplication, bool>> filter_expression = x => x.EmailAddress == instructor_registration.Email;
-            var existing_applicants = await _unitOfWork.ApplicationRepository.GetAllAsync(filter: filter_expression);
+            //Expression<Func<InstructorApplication, bool>> filter_expression = x => x.EmailAddress == instructor_registration.Email;
+            //var existing_applicants = await _unitOfWork.ApplicationRepository.GetAllAsync(filter: filter_expression);
 
-            if (existing_applicants.Count > 0)
-            {
-                return Result<Guid>.Failure(ServiceError.BadRequestError($"{instructor_registration.Email}"), Messages.InstructorApplication.EmailUsed);
-            }
+            //if (existing_applicants.Count > 0)
+            //{
+            //    return Result<Guid>.Failure(ServiceError.BadRequestError($"{instructor_registration.Email}"), Messages.InstructorApplication.EmailUsed);
+            //}
 
             // Checking for valid content types
             // Too lazy to check for other files, might complete this later :3
