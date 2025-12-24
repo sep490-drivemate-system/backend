@@ -23,9 +23,6 @@ namespace ApiGetwate
             builder.Configuration.AddEnvironmentVariables();
             builder.Services.AddControllers();
 
-            // Bind to PORT provided by hosting (e.g., Railway). Default 8080 if missing.
-            var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-            builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
             
             var ocelotFile = builder.Environment.IsProduction() ? "ocelot.Production.json" : 
                            builder.Environment.IsDevelopment() ? "ocelot.Development.json" : "ocelot.json";
@@ -58,15 +55,13 @@ namespace ApiGetwate
                 builder.Configuration.AddJsonFile(ocelotFile, optional: false, reloadOnChange: true);
             }
 
-            if (builder.Environment.IsProduction())
+            builder.Services.AddOcelot(config);
+            
+            if (builder.Environment.IsDevelopment())
             {
-                builder.Services.AddTransient<IgnoreSslDelegatingHandler>();
-                builder.Services.AddOcelot(config)
-                    .AddDelegatingHandler<IgnoreSslDelegatingHandler>();
-            }
-            else
-            {
-                builder.Services.AddOcelot(config);
+                // builder.Services.AddTransient<IgnoreSslDelegatingHandler>();
+                // builder.Services.AddOcelot(config)
+                //     .AddDelegatingHandler<IgnoreSslDelegatingHandler>();
             }
             
             builder.Services.AddSwaggerForOcelot(config, c =>

@@ -14,7 +14,8 @@ namespace ResourceService
 
             // Bind to PORT provided by hosting platform (e.g., Railway)
             var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-            builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+            // Railway tự động bind HTTPS - không cần ép HTTP
+            // Kestrel sẽ tự động lắng nghe trên PORT được Railway cung cấp
 
             // Add services to the container.
             builder.Services.ConfigureInfrastructure(config);
