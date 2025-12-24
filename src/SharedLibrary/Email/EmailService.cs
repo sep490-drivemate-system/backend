@@ -5,6 +5,7 @@ using MimeKit;
 using SharedLibrary.SharedKernel.Enum;
 using System.Collections.Concurrent;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Twilio.TwiML.Messaging;
 
@@ -216,34 +217,64 @@ namespace SharedLibrary.Email
             }
             
             using var client = new SmtpClient();
-            client.Timeout = 30000; // 30 seconds timeout
+            client.Timeout = 15000; // 15 seconds timeout (reduced from 30)
             
-            try
+            // Try multiple ports and SSL options for Gmail
+            var portsToTry = new[] { smtpPort, 465, 25 };
+            var sslOptions = new[] { SecureSocketOptions.StartTls, SecureSocketOptions.SslOnConnect, SecureSocketOptions.Auto };
+            
+            Exception lastException = null;
+            
+            foreach (var port in portsToTry)
             {
-                Console.WriteLine($"[EmailService] Connecting to SMTP server...");
-                await client.ConnectAsync(smtpServer, smtpPort, SecureSocketOptions.StartTls);
-                Console.WriteLine($"[EmailService] Connected successfully");
-                
-                Console.WriteLine($"[EmailService] Authenticating...");
-                await client.AuthenticateAsync(senderEmail, senderPassword);
-                Console.WriteLine($"[EmailService] Authenticated successfully");
-                
-                Console.WriteLine($"[EmailService] Sending email...");
-                await client.SendAsync(message);
-                Console.WriteLine($"[EmailService] Email sent successfully");
-                
-                await client.DisconnectAsync(true);
-                Console.WriteLine($"[EmailService] Disconnected from SMTP server");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[EmailService] SMTP Error: {ex.GetType().Name} - {ex.Message}");
-                if (ex.InnerException != null)
+                foreach (var sslOption in sslOptions)
                 {
-                    Console.WriteLine($"[EmailService] Inner exception: {ex.InnerException.Message}");
+                    try
+                    {
+                        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+                        Console.WriteLine($"[EmailService] Trying to connect to {smtpServer}:{port} with {sslOption}...");
+                        
+                        await client.ConnectAsync(smtpServer, port, sslOption, cts.Token);
+                        Console.WriteLine($"[EmailService] Connected successfully to {smtpServer}:{port}");
+                        
+                        Console.WriteLine($"[EmailService] Authenticating...");
+                        await client.AuthenticateAsync(senderEmail, senderPassword, cts.Token);
+                        Console.WriteLine($"[EmailService] Authenticated successfully");
+                        
+                        Console.WriteLine($"[EmailService] Sending email...");
+                        await client.SendAsync(message, cts.Token);
+                        Console.WriteLine($"[EmailService] Email sent successfully");
+                        
+                        await client.DisconnectAsync(true, cts.Token);
+                        Console.WriteLine($"[EmailService] Disconnected from SMTP server");
+                        return; // Success, exit method
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        Console.WriteLine($"[EmailService] Connection to {smtpServer}:{port} timed out");
+                        lastException = new TimeoutException($"SMTP connection to {smtpServer}:{port} timed out after 15 seconds.");
+                        if (client.IsConnected)
+                        {
+                            await client.DisconnectAsync(false);
+                        }
+                        continue; // Try next port/option
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[EmailService] Failed to connect to {smtpServer}:{port} with {sslOption}: {ex.GetType().Name} - {ex.Message}");
+                        lastException = ex;
+                        if (client.IsConnected)
+                        {
+                            try { await client.DisconnectAsync(false); } catch { }
+                        }
+                        continue; // Try next port/option
+                    }
                 }
-                throw;
             }
+            
+            // If we get here, all attempts failed
+            Console.WriteLine($"[EmailService] All SMTP connection attempts failed");
+            throw lastException ?? new InvalidOperationException($"Failed to connect to SMTP server {smtpServer} on any port");
         }
 
         public async Task<bool> SendingEmail(string recipients_address, Dictionary<string, string> replace_terms, string topic, EmailType type)
