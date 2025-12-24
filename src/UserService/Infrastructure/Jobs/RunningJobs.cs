@@ -10,6 +10,7 @@ namespace UserService.Application.Jobs
         public void AddRunningJobs()
         {
             _recurringJobManager.AddOrUpdate<ApplicationAutoRejectionJob>("auto-remove-unverified-applicants", x => x.AutoRejectionJob(), "1 0 * * *");
+            _recurringJobManager.AddOrUpdate<ApplicationAutoRejectionJob>("auto-update-bio", x => x.AutoBioExperienceIncrementalJob(), "0 0 1 1 *");
         }
     }
 }

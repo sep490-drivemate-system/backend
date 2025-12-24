@@ -35,5 +35,18 @@ namespace UserService.Application.Jobs.ReccurringJobs
 
             await _unitOfWork.CommitChangesAsync();
         }
+
+        public async Task AutoBioExperienceIncrementalJob()
+        {
+            // Get all non-deleted instructor
+            var instructors = await _unitOfWork.InstructorRepository.GetAllAsync(x => !x.IsDeleted);
+
+            foreach (var instructor in instructors)
+            {
+                instructor.Experience += 1;
+            }
+
+            await _unitOfWork.CommitChangesAsync();
+        }
     }
 }
