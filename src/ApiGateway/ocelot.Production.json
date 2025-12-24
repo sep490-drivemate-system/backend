@@ -38,6 +38,25 @@
       "SwaggerKey": "userService"
     },
     {
+      "DownstreamPathTemplate": "/api/configurations/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "${USERSERVICE_HOST}",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/configurations/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "PATCH"
+      ],
+      "SwaggerKey": "userService"
+    },
+    {
       "DownstreamPathTemplate": "/api/booking/{everything}",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
@@ -140,7 +159,7 @@
       "SwaggerKey": "bookingService"
     },
     {
-      "DownstreamPathTemplate": "/api/roadtype/{everything}",
+      "DownstreamPathTemplate": "/api/roadtypes/{everything}",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
@@ -148,7 +167,7 @@
           "Port": 443
         }
       ],
-      "UpstreamPathTemplate": "/roadtype/{everything}",
+      "UpstreamPathTemplate": "/roadtypes/{everything}",
       "UpstreamHttpMethod": [
         "GET",
         "POST",
