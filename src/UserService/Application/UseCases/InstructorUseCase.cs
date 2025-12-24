@@ -71,7 +71,7 @@ namespace UserService.Application.UseCases
         public async Task<Result<PaginatedList<InstructorDTO>>> GetInstructors(InstructorListFilterDTO filter)
         {
             Expression<Func<Instructor, bool>> filter_expression = x =>
-          (string.IsNullOrEmpty(filter.SearchKey) || x.User.Fullname.Contains(filter.SearchKey)) && !x.IsDeleted;
+          (string.IsNullOrEmpty(filter.SearchKey) || x.User.Fullname.Contains(filter.SearchKey)) && !x.IsDeleted && x.User.AccountStatus == AccountStatus.Normal;
 
             Func<IQueryable<Instructor>, IOrderedQueryable<Instructor>> order_expression = x => x.OrderByDescending(i => i.CreatedAt);
 
