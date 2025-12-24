@@ -35,14 +35,16 @@ namespace SharedLibrary.SharedKernel.Http.Implementation
             return result;
         }
 
-        public async Task<bool> CheckWalletSession(Guid userId, decimal amount, Guid bookingId, Guid? drivingSessionId = null)
+        public async Task<bool> CheckWalletSession(Guid userId, Guid instructorId,decimal amount, Guid bookingId, Guid? drivingSessionId = null)
         {
             var paymentRequest = new PaymentRequest
             {
                 UserId = userId,
                 Amount = amount,
                 BookingId = bookingId,
-                DrivingSessionId = drivingSessionId
+                DrivingSessionId = drivingSessionId,
+                InstructorId = instructorId
+
             };
             string userServiceUrl = _config["PAYMENTSERVICE:URL"];
             string url = $"{userServiceUrl}/api/wallet/payment-session";

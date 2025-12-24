@@ -36,13 +36,13 @@ namespace UserService.Application.UseCases
         public async Task<Result<string>> Verify(VerifyDTO verifyDTO)
         {
             // 1. check exist email
-            var isEmailExist = await _unitOfWork.UserRepository.IsEsxitEmail(verifyDTO.Email);
-            if (isEmailExist)
-            {
-                return Result<string>.Failure(
-                new ServiceError(ServiceError.Existed, Messages.Auth.EmailAlreadyExists)
-            );
-            }
+            //var isEmailExist = await _unitOfWork.UserRepository.IsEsxitEmail(verifyDTO.Email);
+            //if (isEmailExist)
+            //{
+            //    return Result<string>.Failure(
+            //    new ServiceError(ServiceError.Existed, Messages.Auth.EmailAlreadyExists)
+            //);
+            //}
             var isPhoneExist = await _unitOfWork.UserRepository.IsEsxitPhone(verifyDTO.PhoneNumber);
             if (isPhoneExist)
             {

@@ -80,10 +80,10 @@ namespace UserService.Application.UseCases
         public async Task<Result<bool>> RegistratingNoviceDriverAccount(NoviceDriverRegistrationDTO registration_info)
         {
             // Validating registration info
-            if (await _unitOfWork.UserRepository.IsEsxitEmail(registration_info.Email))
-            {
-                return Result<bool>.Failure(ServiceError.ConflictError($"{registration_info.Email}"), "Email Existed");
-            }
+            //if (await _unitOfWork.UserRepository.IsEsxitEmail(registration_info.Email))
+            //{
+            //    return Result<bool>.Failure(ServiceError.ConflictError($"{registration_info.Email}"), "Email Existed");
+            //}
 
             // Creating user information
             User user = new User

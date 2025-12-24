@@ -43,6 +43,8 @@ namespace BookingService.Application.UseCase
             // Validate booking exists
             var booking = await _unitOfWork.BookingRepository.GetByIdAsync(drivingSessionCreationDTO.BookingId);
 
+
+
             if (booking == null)
             {
                 return Result<bool>.Failure(
@@ -83,12 +85,13 @@ namespace BookingService.Application.UseCase
             {
                 if (drivingSessionCreationDTO.PriceForCar.HasValue && drivingSessionCreationDTO.PriceForCar.Value > 0)
                 {
-
-                        var paymentResponse = await _paymentService.CheckWalletSession(
+                    var instructorId = booking.InstructorId;
+                    var paymentResponse = await _paymentService.CheckWalletSession(
                             booking.DriverId,
+                            instructorId,
                             drivingSessionCreationDTO.PriceForCar.Value,
                             drivingSessionCreationDTO.BookingId,
-                            sessionId
+                            sessionId                            
                         );
                 }
 

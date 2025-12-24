@@ -86,7 +86,7 @@ namespace PaymentService.Infrastructure.Repositories
             }
         }
 
-        public async Task<bool> CheckAndDeducSessiontWallet(Guid userId, decimal amount, Guid bookingId, Guid? drivingSessionId = null)
+        public async Task<bool> CheckAndDeducSessiontWallet(Guid userId, Guid instructorId, decimal amount, Guid bookingId, Guid? drivingSessionId = null)
         {
             var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.Id == userId && !w.IsDelete);
             
@@ -96,7 +96,17 @@ namespace PaymentService.Infrastructure.Repositories
             }
 
             wallet.Balance -= amount;
-            wallet.UpdatedAt = DateTime.UtcNow;
+            wallet.UpdatedAt = DateTime.Now;
+
+
+            var instructorWallet = await _context.Wallets.FirstOrDefaultAsync(w => w.Id == instructorId && !w.IsDelete);
+            if (instructorWallet == null)
+            {
+                return false;
+            }
+            instructorWallet.Balance += amount;
+            instructorWallet.UpdatedAt = DateTime.Now;
+
 
             var transaction = new Transaction
             {
@@ -107,8 +117,8 @@ namespace PaymentService.Infrastructure.Repositories
                 Status = Domain.Enum.PaymentStatus.Completed,
                 BookingId = bookingId,
                 DrivingSessionId = drivingSessionId,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now
             };
             await _context.Transactions.AddAsync(transaction);
             await _context.SaveChangesAsync();

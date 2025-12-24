@@ -17,6 +17,7 @@ namespace PaymentService.Application.Features.Wallet.Queries.IsEnoughSessionPaym
         {
             return await _unitOfWork.WalletRepository.CheckAndDeducSessiontWallet(
                 request.UserId,
+                request.InstructorId,
                 request.Amount,
                 request.BookingId,
                 request.DrivingSessionId
