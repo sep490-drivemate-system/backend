@@ -47,7 +47,6 @@ namespace BookingService.Application.UseCase
             var booking = _mapper.Map<Booking>(packageBuyingDTO);
             booking.Id = id;
             booking.DriverId = driverId;
-            booking.CreatedAt = DateTime.Now;
             booking.Status = BookingStatus.Purchased;
             var createdBooking = await _unitOfWork.BookingRepository.CreateAsync(booking);
             await _unitOfWork.CommitChangesAsync();
@@ -351,15 +350,20 @@ namespace BookingService.Application.UseCase
 
             var users = await userServiceResponseMessage.Content.ReadFromJsonAsync<DefaultApiResponse<IEnumerable<UserDetailDTO>>>();
 
-            if (users.Value.Count() == 0 || users.Value.First().Role != UserRole.Instructor)
+            if (users?.Value == null || !users.Value.Any())
             {
-                return Result<InstructorStatisticDTO>.Failure(ServiceError.BadRequestError($"{user_id}"), $"so user: {users.Value.Count()} . User id su dung: {user_id}");
+                return Result<InstructorStatisticDTO>.Failure(ServiceError.BadRequestError($"{user_id}"), $"UserService tr? v? r?ng cho user id: {user_id}");
             }
-            var instructorDetail = users.Value.First();
+
+            var instructorDetail = users.Value.FirstOrDefault();
+            if (instructorDetail == null || instructorDetail.Role != UserRole.Instructor || instructorDetail.Instructor == null)
+            {
+                return Result<InstructorStatisticDTO>.Failure(ServiceError.BadRequestError($"{user_id}"), $"User không ph?i Instructor ho?c thi?u Instructor detail");
+            }
 
             // Query filters
             Expression<Func<Package, bool>> packageFilter = x => !x.IsDeleted && x.InstructorId == instructorDetail.Instructor.InstructorId;
-            Expression<Func<Car, bool>> carFilter = x => !x.IsDeleted && x.InstructorId == instructorDetail.Instructor.InstructorId;
+            Expression<Func<Car,bool>> carFilter = x => !x.IsDeleted && x.InstructorId == instructorDetail.Instructor.InstructorId;
 
             // Includes
             string packageIncludes = "Bookings,Bookings.Feedback,Bookings.DrivingSessions";
