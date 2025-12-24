@@ -350,20 +350,15 @@ namespace BookingService.Application.UseCase
 
             var users = await userServiceResponseMessage.Content.ReadFromJsonAsync<DefaultApiResponse<IEnumerable<UserDetailDTO>>>();
 
-            if (users?.Value == null || !users.Value.Any())
+            if (users.Value.Count() == 0 || users.Value.First().Role != UserRole.Instructor)
             {
-                return Result<InstructorStatisticDTO>.Failure(ServiceError.BadRequestError($"{user_id}"), $"UserService trả về rỗng cho user id: {user_id}");
+                return Result<InstructorStatisticDTO>.Failure(ServiceError.BadRequestError($"{user_id}"), $"so user: {users.Value.Count()} . User id su dung: {user_id}");
             }
-
-            var instructorDetail = users.Value.FirstOrDefault();
-            if (instructorDetail == null || instructorDetail.Role != UserRole.Instructor || instructorDetail.Instructor == null)
-            {
-                return Result<InstructorStatisticDTO>.Failure(ServiceError.BadRequestError($"{user_id}"), $"User không phải Instructor hoặc thiếu Instructor detail");
-            }
+            var instructorDetail = users.Value.First();
 
             // Query filters
             Expression<Func<Package, bool>> packageFilter = x => !x.IsDeleted && x.InstructorId == instructorDetail.Instructor.InstructorId;
-            Expression<Func<Car,bool>> carFilter = x => !x.IsDeleted && x.InstructorId == instructorDetail.Instructor.InstructorId;
+            Expression<Func<Car, bool>> carFilter = x => !x.IsDeleted && x.InstructorId == instructorDetail.Instructor.InstructorId;
 
             // Includes
             string packageIncludes = "Bookings,Bookings.Feedback,Bookings.DrivingSessions";

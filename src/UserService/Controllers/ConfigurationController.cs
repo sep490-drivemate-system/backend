@@ -26,7 +26,7 @@ namespace UserService.Controllers
             return result.ToActionResult();
         }
 
-        [HttpPost("{id}")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> UpdateConfiguration([FromRoute] Guid id, [FromBody] UpdateConfigurationDTO updateDto)
         {
             var result = await _configurationUseCase.UpdateConfigurationValue(id, updateDto.NewValue, updateDto.NumberDate);
