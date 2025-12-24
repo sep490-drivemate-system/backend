@@ -100,18 +100,28 @@ namespace PaymentService.Infrastructure.Repositories
 
 
             var instructorWallet = await _context.Wallets.FirstOrDefaultAsync(w => w.Id == instructorId && !w.IsDelete);
+            
             if (instructorWallet == null)
             {
-                return false;
+                instructorWallet = new Wallet
+                {
+                    Id = instructorId,
+                    Balance = amount, 
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now,
+                    IsDelete = false
+                };
+                await _context.Wallets.AddAsync(instructorWallet);
             }
-            instructorWallet.Balance += amount;
-            instructorWallet.UpdatedAt = DateTime.Now;
-
-
+            else
+            {
+                instructorWallet.Balance += amount;
+                instructorWallet.UpdatedAt = DateTime.Now;
+            }
             var transaction = new Transaction
             {
                 FromWalletId = wallet.Id,
-                ToWalletId = null,
+                ToWalletId = instructorId, // Wallet của instructor nhận tiền
                 TransactionValue = amount,
                 PaymentMethod = Domain.Enum.PaymentMethod.Wallet,
                 Status = Domain.Enum.PaymentStatus.Completed,

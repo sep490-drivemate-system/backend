@@ -13,6 +13,7 @@ using PaymentService.Application.Features.Wallet.Queries.GetSystemWalletInfo;
 using PaymentService.Application.Features.Wallet.Queries.GetUserWalletWithId;
 using PaymentService.Application.Features.Wallet.Queries.GetWallet;
 using PaymentService.Application.Features.Wallet.Queries.IsEnoughPayment;
+using PaymentService.Application.Features.Wallet.Queries.IsEnoughSessionPayment;
 using SharedLibrary.Jwt;
 using SharedLibrary.SharedKernel.Enum;
 using SharedLibrary.SharedKernel.Http.DTOs.Payment;
@@ -55,9 +56,10 @@ namespace PaymentService.Controllers
         [HttpPost("payment-session")]
         public async Task<IActionResult> CheckWalletSession([FromBody] PaymentRequest paymentRequest)
         {
-            var query = new PaymentBookingQuery
+            var query = new PaymentSessionQuery
             {
-                UserId = paymentRequest.UserId,
+                UserId = paymentRequest.UserId,   
+                InstructorId = paymentRequest.InstructorId,
                 Amount = paymentRequest.Amount,
                 BookingId = paymentRequest.BookingId,
                 DrivingSessionId = paymentRequest.DrivingSessionId
