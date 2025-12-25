@@ -38,7 +38,7 @@ namespace PaymentService.Application.Features.Transactions.Queries.GetDashboardS
 
             PaymentStatisticDTO paymentStatistic = new PaymentStatisticDTO();
 
-            paymentStatistic.TotalPaymentForInstructor = 0; // How to get this data ?
+            paymentStatistic.TotalPaymentForInstructor = filteredTransactions.Where(x => !x.IsDelete && x.Status == Domain.Enum.PaymentStatus.Pending).Sum(x => x.TransactionValue); // How to get this data ?
             paymentStatistic.TotalEarning = filteredTransactions.Where(x => !x.IsDelete && x.Status == Domain.Enum.PaymentStatus.Completed).Sum(x => x.TransactionValue);
             paymentStatistic.TotalProfit = paymentStatistic.TotalEarning * 0.15m; // Is this the right formula ?
             paymentStatistic.TotalHolding = filteredTransactions.Where(x => x.Status == PaymentStatus.Processing).Sum(x => x.TransactionValue); // Is this right ?
